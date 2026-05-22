@@ -154,7 +154,16 @@
     background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,219,247,0.45));
     border:1px solid rgba(255,255,255,0.95);
     border-radius:18px;padding:16px;
+    border-top:3px solid rgba(144,165,255,0.3);
   }
+  .crit.impact-high{border-top-color:#FF8AA8}
+  .crit.impact-mid{border-top-color:#90A5FF}
+  .crit.impact-low{border-top-color:rgba(144,165,255,0.3)}
+  .impact-badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;color:#fff;margin-right:6px;vertical-align:1px}
+  .impact-badge.high{background:linear-gradient(135deg,#FF8AA8,#FFB2C8)}
+  .impact-badge.mid{background:linear-gradient(135deg,#90A5FF,#A8B5FF)}
+  .impact-badge.low{background:rgba(144,165,255,0.45)}
+  .grid-intro{font-size:13px;color:var(--ink-soft);margin:0 0 10px;line-height:1.5}
   .crit .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
   .crit .name{font-weight:700;font-size:14px;color:var(--deep)}
   .crit .score-tag{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;color:#fff;letter-spacing:.04em}
@@ -299,6 +308,40 @@
   .char-count{font-size:11px;color:var(--ink-soft);font-weight:600}
   .char-count.warn{color:#a35c00}
   .char-count.bad{color:#a23556}
+
+  /* Ko-fi support card */
+  .kofi-card{
+    background:linear-gradient(135deg, rgba(255,178,240,0.45), rgba(255,219,247,0.6), rgba(144,165,255,0.25));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;
+    padding:18px 24px;
+    margin:0 0 24px;
+    display:flex;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+    box-shadow:0 6px 18px rgba(255,178,240,0.18);
+  }
+  .kofi-text{flex:1;min-width:240px}
+  .kofi-text h3{
+    margin:0 0 4px;
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;
+    color:var(--deep);line-height:1.1;
+  }
+  .kofi-text p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .kofi-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:12px 22px;
+    background:#FF5E5B;
+    color:#fff;font-weight:800;font-size:15px;
+    border-radius:999px;text-decoration:none;
+    box-shadow:0 6px 18px rgba(255,94,91,0.4);
+    transition:transform .12s ease, filter .15s ease;
+    white-space:nowrap;flex-shrink:0;
+  }
+  .kofi-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+  .kofi-btn:active{transform:translateY(0)}
+  .kofi-btn svg{width:26px;height:26px;flex-shrink:0}
 
   /* Step cards */
   .step-card{position:relative;padding-top:24px;padding-bottom:24px}
@@ -488,6 +531,25 @@
     <p class="tag">Paste a link or fill in the details, and I'll tell you <em>what's working and what isn't</em>. Use it before you post to plan it out, or after to figure out why something didn't pop off. <span class="sparkle">✨</span></p>
   </header>
 
+  <!-- KO-FI SUPPORT CARD -->
+  <div class="kofi-card">
+    <div class="kofi-text">
+      <h3>Like this tool? 🐙</h3>
+      <p>I built this for free for the VTuber + streamer community. If it's helped you, a tip on Ko-fi keeps it going and lets me keep adding new features.</p>
+    </div>
+    <a class="kofi-btn" href="https://ko-fi.com/eggieweggievt" target="_blank" rel="noreferrer" aria-label="Support Eggie on Ko-fi">
+      <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Cup body -->
+        <path d="M2.5 7.5 H 20.5 V 16 C 20.5 19.3 17.8 22 14.5 22 H 8.5 C 5.2 22 2.5 19.3 2.5 16 Z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.6" stroke-linejoin="round"/>
+        <!-- Handle -->
+        <path d="M20.5 9.5 H 22.5 C 24.2 9.5 25.5 10.8 25.5 12.5 V 13.5 C 25.5 15.2 24.2 16.5 22.5 16.5 H 20.5" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.6" stroke-linejoin="round"/>
+        <!-- Heart inside the cup -->
+        <path d="M8.5 10.5 C 7.1 10.5 6 11.5 6 13 C 6 15 8.5 16.5 11.5 19 C 14.5 16.5 17 15 17 13 C 17 11.5 15.9 10.5 14.5 10.5 C 13.5 10.5 12.8 11.1 11.5 12.4 C 10.2 11.1 9.5 10.5 8.5 10.5 Z" fill="#FF5E5B"/>
+      </svg>
+      <span>Buy me a Ko-fi</span>
+    </a>
+  </div>
+
   <!-- STEP 1: UPLOAD VIDEO -->
   <section class="card step-card" id="step1">
     <div class="step-head">
@@ -622,6 +684,7 @@
     </div>
 
     <h3>Here's how each part scored</h3>
+    <p class="grid-intro">Sorted by how much each one moves your score. <strong>High-impact</strong> stuff at the top &mdash; fixing those first gives you the biggest jump.</p>
     <div class="criteria-grid" id="critGrid"></div>
 
     <h3 style="margin-top:24px">What's working, what's not</h3>
@@ -1004,7 +1067,7 @@ function scoreNiche({title, description, hashtags}){
     passes.push({level:'pass',what:'Gaming content signal',why:'The app knows this is gaming-flavored — name a specific game to sharpen it further.'});
   }
 
-  return {key:'niche',name:'Niche signal',score:clamp(s,0,10),weight:0.9,blurb:'Should be describable in one sentence with a specific topic attached. The narrower, the better the app can match it to viewers.',passes};
+  return {key:'niche',name:'Niche signal',score:clamp(s,0,10),weight:1.5,blurb:'Should be describable in one sentence with a specific topic attached. Non-negotiable — keeps the algorithm\'s sample audience consistent so your videos compound.',passes};
 }
 
 function scoreRetention({retention, viewedVsSwiped}){
@@ -1027,7 +1090,7 @@ function scoreRetention({retention, viewedVsSwiped}){
     else {vs=4; passes.push({level:'warn',what:`${v}% viewed vs. swiped — needs work`,why:'The first frame is the issue. Redesign your opener.'});}
     s = r ? Math.round((s+vs)/2) : vs;
   }
-  return {key:'retention',name:'Watch-through',score:s,weight:2.0,blurb:'The number the app cares about most. Aim for 85% retention and 75% viewed-vs-swiped.',passes};
+  return {key:'retention',name:'Watch-through',score:s,weight:2.5,blurb:'The single number the app cares about most. 85%+ retention and 75%+ viewed-vs-swiped is where videos start getting pushed hard.',passes};
 }
 
 // ---------- 5. AGGREGATE + CRITIQUE ----------
@@ -1835,15 +1898,19 @@ function renderResults(r, payload){
   $('grade').textContent = r.grade;
   $('verdictText').textContent = r.verdict;
 
-  // Criteria grid
+  // Criteria grid — sorted by impact (weight) so high-leverage items appear first
   const grid = $('critGrid');
   grid.innerHTML = '';
-  r.criteria.forEach(c=>{
+  const sortedByImpact = [...r.criteria].sort((a,b) => (b.weight||0) - (a.weight||0));
+  sortedByImpact.forEach(c=>{
     const colour = c.score>=8 ? 'linear-gradient(135deg,#6BE4EA,#90A5FF)' : c.score>=5 ? 'linear-gradient(135deg,#FFB2F0,#90A5FF)' : 'linear-gradient(135deg,#FFB2C8,#FF8AA8)';
+    const impact = c.weight >= 2.0 ? {tier:'high', label:'High impact'} :
+                   c.weight >= 1.2 ? {tier:'mid',  label:'Mid impact'}  :
+                                     {tier:'low',  label:'Low impact'};
     const html = `
-      <div class="crit">
+      <div class="crit impact-${impact.tier}">
         <div class="top">
-          <div class="name">${c.name}</div>
+          <div class="name"><span class="impact-badge ${impact.tier}">${impact.label}</span>${c.name}</div>
           <div class="score-tag" style="background:${colour}">${c.score}/10</div>
         </div>
         <div class="bar"><div style="width:${(c.score/10)*100}%"></div></div>
