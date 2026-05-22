@@ -355,6 +355,9 @@
   .vid-result ul.bd .dot.medium{background:#FFD580}
   .vid-result ul.bd .dot.low{background:#FF8AA8}
   .vid-result ul.bd .dot.na{background:#ccc}
+  .ocr-result{margin-top:12px;background:linear-gradient(135deg, rgba(255,219,247,0.4), rgba(144,165,255,0.2));border-radius:12px;padding:12px 14px;border-left:3px solid var(--periwinkle)}
+  .ocr-result strong{color:var(--deep)}
+  .ocr-result ul{color:var(--ink)}
 
   /* Self-assess guide */
   .guide{margin-top:6px;background:rgba(255,255,255,0.55);border:1px dashed rgba(144,165,255,0.4);border-radius:12px;padding:0 12px}
@@ -2081,6 +2084,46 @@ function setVidStatus(msg, isErr){
 }
 function setVidProgress(pct){ vidProgressBar.style.width = Math.min(100,Math.max(0,pct))+'%'; }
 
+// Load Tesseract.js on demand (only when a video is uploaded). Cached after first call.
+let tesseractLoader = null;
+function loadTesseract(){
+  if(tesseractLoader) return tesseractLoader;
+  if(typeof Tesseract !== 'undefined'){ tesseractLoader = Promise.resolve(window.Tesseract); return tesseractLoader; }
+  tesseractLoader = new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    script.onload = ()=> resolve(window.Tesseract);
+    script.onerror = ()=> reject(new Error('Failed to load OCR library'));
+    document.head.appendChild(script);
+  });
+  return tesseractLoader;
+}
+
+// Pick a "title-like" line out of raw OCR text.
+function pickTitleLine(ocrText){
+  if(!ocrText) return '';
+  const lines = ocrText.split('\n').map(l=>l.trim())
+    .filter(l => l.length >= 6 && l.length <= 90)
+    .filter(l => /[a-zA-Z]/.test(l) && !/^[\W\d]+$/.test(l));
+  if(!lines.length) return '';
+  return lines.sort((a,b)=>{
+    const sa = (/[A-Z]/.test(a)?1:0) + (/[?!]/.test(a)?2:0) + Math.min(a.length/30, 1);
+    const sb = (/[A-Z]/.test(b)?1:0) + (/[?!]/.test(b)?2:0) + Math.min(b.length/30, 1);
+    return sb - sa;
+  })[0];
+}
+
+// Parse a video filename into searchable keywords.
+function parseFilename(name){
+  if(!name) return '';
+  return name.replace(/\.[^.]+$/, '')
+    .replace(/[_\-]+/g, ' ')
+    .replace(/\bIMG|VID|GMT|MOV|MP4|WEBM\b/gi, '')
+    .replace(/\b\d{4,}\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function handleVideoFile(file){
   vidResult.classList.remove('active');
   vidResult.innerHTML = '';
@@ -2149,15 +2192,63 @@ async function handleVideoFile(file){
 
     // Audio analysis
     setVidStatus('Listening to the audio…');
-    setVidProgress(85);
+    setVidProgress(80);
     let audio = {hasAudio:false, max:null, rms:null};
     try{ audio = await analyzeAudio(file); }catch(e){ /* swallow */ }
+
+    // Context extraction — pull text from the video itself.
+    // 1. Parse filename keywords (instant)
+    // 2. OCR one frame for on-screen text (a few seconds — graceful fallback if it fails)
+    setVidStatus('Reading text on screen…');
+    setVidProgress(85);
+    const filenameText = parseFilename(file.name);
+    let ocrText = '';
+    try{
+      const Tess = await loadTesseract();
+      if(Tess){
+        // Re-extract one higher-res frame for OCR (the small ones we used for motion are too low-res to read text)
+        const ocrTime = Math.min(1.2, (videoPreview.duration || 3.0) * 0.35);
+        videoPreview.currentTime = ocrTime;
+        await new Promise(resolve => {
+          const h = ()=>{ videoPreview.removeEventListener('seeked', h); resolve(); };
+          videoPreview.addEventListener('seeked', h);
+          setTimeout(resolve, 1500);
+        });
+        const ocrCanvas = document.createElement('canvas');
+        const vw = videoPreview.videoWidth || 640;
+        const vh = videoPreview.videoHeight || 360;
+        ocrCanvas.width = 720;
+        ocrCanvas.height = Math.round(vh * (720 / vw));
+        try{ ocrCanvas.getContext('2d').drawImage(videoPreview, 0, 0, ocrCanvas.width, ocrCanvas.height); }catch(e){}
+        const worker = await Tess.createWorker('eng');
+        const result = await worker.recognize(ocrCanvas);
+        await worker.terminate();
+        ocrText = (result?.data?.text || '').trim();
+      }
+    }catch(e){ console.warn('OCR skipped:', e.message); }
+
+    // Auto-fill empty fields from video context (don't overwrite anything the user typed)
+    const titleEl = $('title');
+    const descEl = $('description');
+    const titleCandidate = pickTitleLine(ocrText);
+    if(!titleEl.value.trim() && titleCandidate){
+      titleEl.value = titleCandidate;
+    }
+    // Drop remaining OCR + filename into the description if it's empty
+    if(!descEl.value.trim()){
+      const leftoverOcr = ocrText.split('\n').map(l=>l.trim())
+        .filter(l => l && l !== titleCandidate && l.length > 3)
+        .join(' ');
+      const descParts = [leftoverOcr, filenameText].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+      if(descParts) descEl.value = descParts;
+    }
 
     setVidProgress(100);
     setVidStatus('All done!');
 
-    // Classify
+    // Classify hook strength
     const verdict = classifyHookFromVideo({motionScore, cuts, audioMax: audio.max, brightnessDelta: bVar});
+    verdict.detectedText = {title: titleCandidate, filename: filenameText, ocr: ocrText};
     renderVideoVerdict(verdict, {motionScore, cuts, audio, bVar});
 
     // Auto-fill the hookStrength dropdown
@@ -2249,6 +2340,23 @@ function classifyHookFromVideo({motionScore, cuts, audioMax, brightnessDelta}){
 function renderVideoVerdict(v){
   const label = v.classification === 'strong' ? 'Strong hook ✨' : v.classification === 'medium' ? 'Medium hook 🌸' : 'Weak hook 💧';
   const items = v.breakdown.map(b=>`<li><span class="dot ${b.v}"></span><span>${b.t}</span></li>`).join('');
+
+  // Build a "context detected" section if OCR or filename pulled anything useful
+  let contextBlock = '';
+  const d = v.detectedText || {};
+  const ocrLines = (d.ocr || '').split('\n').map(l=>l.trim()).filter(l=>l.length > 3);
+  if(ocrLines.length || d.filename){
+    const ocrPreview = ocrLines.slice(0, 4).map(l=>`<li>"${escapeHtml(l)}"</li>`).join('');
+    contextBlock = `
+      <div class="ocr-result">
+        <strong>Context I pulled from your video 🐙</strong>
+        ${ocrLines.length ? `<p style="margin:6px 0 4px;font-size:13px">Text I saw on screen:</p><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.5">${ocrPreview}</ul>` : ''}
+        ${d.filename ? `<p style="margin:8px 0 0;font-size:13px"><strong>Filename keywords:</strong> ${escapeHtml(d.filename)}</p>` : ''}
+        <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft)">I filled this into the title / description fields above (if they were empty). It'll feed into the hashtag suggestions too.</p>
+      </div>
+    `;
+  }
+
   vidResult.innerHTML = `
     <div class="vid-verdict">
       <span class="verdict-badge ${v.classification}">${label}</span>
@@ -2256,7 +2364,8 @@ function renderVideoVerdict(v){
     </div>
     <p style="margin:6px 0 4px;font-size:14px;color:var(--ink)">${v.summary}</p>
     <ul class="bd">${items}</ul>
-    <p style="margin-top:10px;font-size:12px;color:var(--ink-soft)"><em>How I did this:</em> I grabbed a frame every 200ms from the first 3 seconds of your video, checked how much was changing between them (that's motion and cuts), and listened to the first 1.5 seconds of audio for loud moments. All in your browser. Nothing got uploaded.</p>
+    ${contextBlock}
+    <p style="margin-top:10px;font-size:12px;color:var(--ink-soft)"><em>How I did this:</em> I grabbed frames from the first 3 seconds and checked motion, cuts, and audio. I also read any text on screen with OCR and pulled keywords from the filename. All in your browser. Nothing got uploaded.</p>
   `;
   vidResult.classList.add('active');
 }
