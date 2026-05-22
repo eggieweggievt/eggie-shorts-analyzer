@@ -213,6 +213,26 @@
   .err{background:rgba(255,138,168,0.18);border:1px solid rgba(255,138,168,0.4);color:#7a2a3e;padding:12px 14px;border-radius:14px;font-size:14px;margin-top:10px}
   .ok{background:rgba(107,228,234,0.18);border:1px solid rgba(107,228,234,0.4);color:#1f5e63;padding:12px 14px;border-radius:14px;font-size:14px;margin-top:10px}
 
+  /* Content safety section */
+  .safety-section{margin:0 0 22px;border-radius:18px;padding:18px 20px;border:2px solid transparent}
+  .safety-section.safe{background:linear-gradient(135deg, rgba(107,228,234,0.22), rgba(168,230,190,0.25));border-color:rgba(107,228,234,0.45)}
+  .safety-section.warn{background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(255,213,138,0.35));border-color:rgba(255,178,138,0.5)}
+  .safety-section.bad{background:linear-gradient(135deg, rgba(255,178,200,0.55), rgba(255,138,168,0.35));border-color:rgba(255,138,168,0.55)}
+  .safety-section h2{font-family:'Pacifico',cursive;font-weight:400;font-size:24px;margin:0 0 4px;color:var(--deep)}
+  .safety-section > p.lead{margin:0 0 12px;font-size:14px;color:var(--ink);line-height:1.5}
+  .platform-grid{display:grid;gap:10px;grid-template-columns:repeat(3,1fr);margin:12px 0}
+  @media(max-width:640px){.platform-grid{grid-template-columns:1fr}}
+  .platform-row{background:rgba(255,255,255,0.7);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+  .platform-row .pcheck{font-size:20px;line-height:1;flex-shrink:0}
+  .platform-row .pname{font-weight:800;color:var(--deep);font-size:13.5px}
+  .platform-row .pverdict{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px}
+  .safety-issues{margin:10px 0 0;padding:0;list-style:none}
+  .safety-issues li{padding:8px 10px;margin:6px 0;background:rgba(255,255,255,0.75);border-radius:10px;font-size:13px;line-height:1.5;border-left:3px solid var(--periwinkle)}
+  .safety-issues li.high{border-left-color:#ff8aa8}
+  .safety-issues li.medium{border-left-color:#ffb07a}
+  .safety-issues li.low{border-left-color:#a8c5ff}
+  .safety-issues .term{font-family:ui-monospace,Menlo,Consolas,monospace;background:rgba(255,219,247,0.5);padding:1px 6px;border-radius:6px;font-size:12.5px}
+
   /* Curated resources section */
   .resources{margin-top:22px;background:linear-gradient(135deg, rgba(144,165,255,0.18), rgba(255,178,240,0.18));border-radius:18px;padding:18px 20px 14px}
   .resources h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;margin:0 0 6px;color:var(--deep)}
@@ -482,7 +502,7 @@
       <input type="file" id="videoFile" accept="video/*" />
     </label>
     <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
-      First time you upload a video, I download two AI models (about ~310MB total): a vision model to <em>see</em> what's in your video, and a speech model to <em>hear</em> what's being said. After that they're cached forever and analysis is fast.
+      First time you upload a video, I download two small models (about ~310MB total) so I can <em>see</em> what's in your video and <em>hear</em> what's being said. After that they're cached forever and analysis is fast.
     </p>
     <div class="video-preview-wrap" id="videoPreviewWrap">
       <video id="videoPreview" controls muted playsinline></video>
@@ -587,6 +607,10 @@
 
   <!-- RESULTS -->
   <section class="card hidden" id="resultsCard">
+
+    <!-- Content safety verdict — appears at top when anything is flagged -->
+    <div id="safetySection" class="hidden"></div>
+
     <h2>Your score <span style="font-size:18px">💗</span></h2>
 
     <div class="score-hero">
@@ -767,7 +791,7 @@ function scoreHook({title, hookStrength}){
   else if(hookStrength === 'medium'){s+=2; passes.push({level:'pass',what:'Your start is decent',why:'Tightening up the first 1.5 seconds (cutting anything before the good part) would push this to strong.'});}
   else if(hookStrength === 'weak'){s-=1; passes.push({level:'warn',what:'Weak start — easy fix though',why:'Re-edit the first 1.5 seconds. Start with movement, the punchline, or a question — never with "hey guys".'});}
 
-  return {key:'hook',name:'Hook strength',score:clamp(s,0,10),weight:2.2,blurb:'How your video starts plus what your title says. This is the #1 thing that decides if anyone watches.',passes};
+  return {key:'hook',name:'Hook strength',score:clamp(s,0,10),weight:2.5,blurb:'How your video starts plus what your title says. The #1 thing the algorithm cares about — biggest single lever on your score.',passes};
 }
 
 function scoreDuration({duration, rewatchable, platform}){
@@ -787,7 +811,7 @@ function scoreDuration({duration, rewatchable, platform}){
 
   if(rewatchable==='yes') passes.push({level:'pass',what:'It loops or has stuff to rewatch',why:'Hidden bonus: the app counts a loop as another full view.'});
 
-  return {key:'duration',name:'Length & pacing',score:s,weight:1.4,blurb:'How long your video is. Best length is 45 to 55 seconds. Never under 25 unless it loops.',passes};
+  return {key:'duration',name:'Length & pacing',score:s,weight:1.2,blurb:'How long your video is. Best length is 45 to 55 seconds. Never under 25 unless it loops.',passes};
 }
 
 function scoreTitle({title, platform}){
@@ -809,7 +833,7 @@ function scoreTitle({title, platform}){
   if(specific){s+=2; passes.push({level:'pass',what:'Title names something specific',why:'Naming the game, person, or thing always beats vague.'});}
   else passes.push({level:'warn',what:'Title could be more specific',why:'Name the actual thing — the game, the person, the moment. Specifics get clicks.'});
 
-  return {key:'title',name:'Title',score:clamp(s,0,10),weight:1.4,blurb:'Should make people curious. Questions or "what / why / nobody / wait" framings work best.',passes};
+  return {key:'title',name:'Title',score:clamp(s,0,10),weight:1.5,blurb:'Should make people curious. Questions or "what / why / nobody / wait" framings work best.',passes};
 }
 
 function scoreHashtags({hashtags, platform, title, description}){
@@ -850,7 +874,37 @@ function scoreHashtags({hashtags, platform, title, description}){
       else passes.push({level:'warn',what:'No #VTuber tag',why:'Your content reads as VTuber-related — include #VTuber so the app shows it to the right people.'});
     }
   }
-  return {key:'hashtags',name:'Hashtags',score:s,weight:1.3,blurb:'Use 3 to 5 hashtags with a mix of small, medium, and large. None on X.',passes};
+
+  // Gibberish / low-quality tag penalty
+  const garbageTags = tags.filter(t => isLowQualityTag(t));
+  if(garbageTags.length > 0){
+    s = Math.max(2, s - garbageTags.length * 3);
+    passes.push({
+      level:'fail',
+      what:`${garbageTags.length} hashtag${garbageTags.length>1?'s look':' looks'} like random typing`,
+      why:`Tags like ${garbageTags.slice(0,3).map(t=>'#'+t).join(', ')} aren't real hashtags — they won't help the app find your audience.`
+    });
+  }
+
+  // Inappropriate hashtag penalty — these can get videos hidden / removed
+  const flaggedTags = [];
+  for(const tag of tags){
+    const matches = scanForSafety('#' + tag + ' ' + tag);
+    if(matches.length > 0){
+      flaggedTags.push({tag, matches});
+    }
+  }
+  if(flaggedTags.length > 0){
+    s = Math.max(1, s - flaggedTags.length * 4);
+    const cats = [...new Set(flaggedTags.flatMap(f => f.matches.map(m => m.label)))].join(', ');
+    passes.push({
+      level:'fail',
+      what:`${flaggedTags.length} hashtag${flaggedTags.length>1?'s':''} could get your video flagged`,
+      why:`Tags like ${flaggedTags.slice(0,3).map(f=>'#'+f.tag).join(', ')} trigger ${cats}. Platforms can hide or remove videos with these.`
+    });
+  }
+
+  return {key:'hashtags',name:'Hashtags',score:s,weight:1.0,blurb:'Use 3 to 5 real, relevant hashtags with a mix of small, medium, and large. None on X.',passes};
 }
 
 function scoreCaption({description, platform}){
@@ -871,7 +925,7 @@ function scoreCaption({description, platform}){
   else if(d.length>400){passes.push({level:'warn',what:'Caption is long',why:'Trim to your hook plus 2 or 3 keyword sentences for the best engagement.'});}
 
   if(/https?:\/\//.test(d)){s+=1; passes.push({level:'pass',what:'You\'ve got a link or CTA',why:'Great for sending people to your channel.'});}
-  return {key:'caption',name:'Caption / description',score:clamp(s,0,10),weight:0.9,blurb:'One strong hook sentence. Make it curious or playful.',passes};
+  return {key:'caption',name:'Caption / description',score:clamp(s,0,10),weight:0.6,blurb:'One strong hook sentence. Make it curious or playful.',passes};
 }
 
 function scoreEngagement({title, description}){
@@ -887,7 +941,7 @@ function scoreEngagement({title, description}){
   if(contrarian){s+=2; passes.push({level:'pass',what:'You\'ve got a hot take',why:'"Nobody talks about…" is comment gold.'});}
   if(emotion){s+=2; passes.push({level:'pass',what:'Using emotional words',why:'Feelings get way more engagement than facts.'});}
   if(cult){s+=2; passes.push({level:'pass',what:'You named something with a fanbase',why:'Connects you to people who already care about that thing.'});}
-  return {key:'engagement',name:'Comment bait',score:clamp(s,0,10),weight:1.3,blurb:'Comments tell the app your video matters. Take a side, name something people already have feelings about.',passes};
+  return {key:'engagement',name:'Comment bait',score:clamp(s,0,10),weight:2.0,blurb:'Comments are the strongest engagement signal the algorithm has. Take a side, name something people already have feelings about.',passes};
 }
 
 function scoreSEO({title, description, hashtags}){
@@ -912,7 +966,7 @@ function scoreSEO({title, description, hashtags}){
 
   if(dWords.length>0){s+=2; passes.push({level:'pass',what:'Description has good keywords',why:'Helps your video get found on different apps.'});}
 
-  return {key:'seo',name:'Keyword match-up',score:clamp(s,0,10),weight:1.0,blurb:'Use the same words across your title, description, and hashtags so the app knows what your video is about.',passes};
+  return {key:'seo',name:'Keyword match-up',score:clamp(s,0,10),weight:0.7,blurb:'Use the same words across your title, description, and hashtags so the app knows what your video is about.',passes};
 }
 
 function scoreNiche({title, description, hashtags}){
@@ -1715,8 +1769,66 @@ function runFromUI(){
   resultsCard.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+function renderSafetySection(payload, analysis){
+  const section = $('safetySection');
+  // Scan all sources: user-typed fields + video context (Florence description + Whisper transcript already inside)
+  const allText = [
+    payload.title, payload.description, payload.template,
+    payload.quickContext, payload.videoContext,
+    payload.hashtags
+  ].filter(Boolean).join(' \n ');
+  const matches = scanForSafety(allText);
+
+  // No issues — hide the section entirely
+  if(matches.length === 0){
+    section.classList.add('hidden');
+    section.innerHTML = '';
+    return;
+  }
+
+  const verdict = computeSafetyVerdict(matches);
+  const platformIcon = v => v === 'ok' ? '🟢' : v === 'monetize-limit' ? '🟡' : v === 'limit' ? '🟠' : '🔴';
+  const platformLabel = v => v === 'ok' ? 'Safe to post' : v === 'monetize-limit' ? 'Limited monetization' : v === 'limit' ? 'Hidden / limited reach' : 'Will be blocked / removed';
+
+  const anyBlock = Object.values(verdict).includes('block');
+  const anyLimit = Object.values(verdict).some(v => v === 'limit' || v === 'monetize-limit');
+  const sectionClass = anyBlock ? 'bad' : anyLimit ? 'warn' : 'safe';
+
+  const platformRows = ['youtube','tiktok','instagram'].map(p => {
+    const name = p === 'youtube' ? 'YouTube Shorts' : p === 'tiktok' ? 'TikTok' : 'Instagram Reels';
+    return `<div class="platform-row">
+      <span class="pcheck">${platformIcon(verdict[p])}</span>
+      <div><span class="pname">${name}</span><span class="pverdict">${platformLabel(verdict[p])}</span></div>
+    </div>`;
+  }).join('');
+
+  const issueItems = matches.map(m => {
+    return `<li class="${m.severity}">
+      <strong>${escapeHtml(m.label)}</strong> &mdash; spotted <span class="term">${escapeHtml(m.term)}</span><br/>
+      <span style="color:var(--ink-soft);font-size:12.5px">${escapeHtml(m.advice)}</span>
+    </li>`;
+  }).join('');
+
+  const headline = anyBlock
+    ? '⚠️ Your post might get flagged or removed'
+    : anyLimit
+      ? '⚠️ Your post might get limited reach'
+      : 'Heads up about your content';
+
+  section.classList.remove('hidden','safe','warn','bad','safety-section');
+  section.classList.add('safety-section', sectionClass);
+  section.innerHTML = `
+    <h2>${headline}</h2>
+    <p class="lead">I scanned your title, description, hashtags, and what was said / shown in the video. Here's what I found:</p>
+    <div class="platform-grid">${platformRows}</div>
+    <ul class="safety-issues">${issueItems}</ul>
+    <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft)">Even if a platform doesn't outright remove your post, flagged content usually means way less reach. Rewriting around these terms is almost always worth it.</p>
+  `;
+}
+
 function renderResults(r, payload){
   resultsCard.classList.remove('hidden');
+  renderSafetySection(payload, r);
   $('scoreBig').textContent = r.overall.toFixed(1);
   const pct = Math.round((r.overall/10)*100);
   $('scoreRing').style.setProperty('--p', pct+'%');
@@ -2340,6 +2452,114 @@ async function transcribeAudio(file){
     console.warn('Whisper transcription failed:', e);
     return '';
   }
+}
+
+// ============================================================
+//  CONTENT SAFETY  —  scan title/desc/hashtags/video/audio for terms
+//  that get videos demonetized, hidden, or removed by platforms.
+//  Built from TikTok / YouTube / Instagram community guidelines.
+//  Last refreshed: 2026-05-22
+// ============================================================
+const SAFETY_PATTERNS = {
+  selfHarm: {
+    pattern: /\b(kill[\s_-]?my[\s_-]?self|kms\b|kys\b|suicide|suicidal|seppuku|seppeku|hara[\s_-]?kiri|harakiri|self[\s_-]?harm|cutting[\s_-]?(my|skin|arm)|wanna?[\s_-]?die|want[\s_-]?to[\s_-]?die|end[\s_-]?(it[\s_-]?all|my[\s_-]?life)|hang[\s_-]?my[\s_-]?self|noose|overdose\b|unalive)/i,
+    severity: 'high',
+    label: 'self-harm / suicide reference',
+    platforms: {youtube:'block', tiktok:'block', instagram:'limit'},
+    advice: 'Self-harm content is heavily restricted everywhere. Even joking references can hide the video from search and feed.'
+  },
+  sexual: {
+    pattern: /\b(nsfw|onlyfans|18\+|18plus|nudes?\b|naked\b|porn|pornhub|hentai|ecchi|cock\b|dick\b|pussy|cum\b|tits\b|boobs?\b|titties|penis|vagina|orgasm|horny|kinky|lewd|seggs|adult[\s_-]?content|peepee|weewee)/i,
+    severity: 'high',
+    label: 'sexual / NSFW',
+    platforms: {youtube:'limit', tiktok:'block', instagram:'limit'},
+    advice: 'Sexual content gets demonetized on YouTube, hidden on TikTok, and limited on Instagram.'
+  },
+  hate: {
+    pattern: /\b(nazi|hitler|n[\s_-]?word|f[\s_-]?slur|white[\s_-]?power|14[\s_-]?words|sieg[\s_-]?heil|kkk\b|gas[\s_-]?the)/i,
+    severity: 'high',
+    label: 'hate speech',
+    platforms: {youtube:'block', tiktok:'block', instagram:'block'},
+    advice: 'Hate speech is immediate removal on most platforms.'
+  },
+  violence: {
+    pattern: /\b(murder(?!\smystery)|massacre|school[\s_-]?shoot|shooting[\s_-]?up|stab(bing)?|behead(ing)?|gore\b|graphic[\s_-]?violence|terror(ist|ism)|bomb[\s_-]?threat)/i,
+    severity: 'medium',
+    label: 'graphic violence',
+    platforms: {youtube:'limit', tiktok:'limit', instagram:'limit'},
+    advice: 'Violence references can get videos hidden from feed. Softer language helps, even for fictional / gameplay content.'
+  },
+  drugs: {
+    pattern: /\b(cocaine|heroin|meth(amphetamine)?|crystal[\s_-]?meth|mdma|molly[\s_-]?(percs?|drug|ecstasy)|ecstasy|ketamine|opioid|fentanyl|getting[\s_-]?high\b)/i,
+    severity: 'medium',
+    label: 'hard drug references',
+    platforms: {youtube:'limit', tiktok:'limit', instagram:'limit'},
+    advice: 'Hard drug references trigger advertiser-unfriendly flags. Reach gets capped.'
+  },
+  eatingDisorder: {
+    pattern: /\b(pro[\s_-]?ana|pro[\s_-]?mia|thinspo|thinspiration|anorex(ic|ia)?|bulim(ic|ia)?|starvation|skinny[\s_-]?check|hipbones?)/i,
+    severity: 'high',
+    label: 'eating-disorder content',
+    platforms: {youtube:'limit', tiktok:'block', instagram:'block'},
+    advice: 'Pro-ED content is heavily restricted, especially on TikTok and Instagram. Use neutral body / fitness language.'
+  },
+  childSafety: {
+    pattern: /\b(loli\b|shota\b|underage[\s_-]?(sex|nude|porn)|cp\b|child[\s_-]?(porn|sex))/i,
+    severity: 'high',
+    label: 'child safety concern',
+    platforms: {youtube:'block', tiktok:'block', instagram:'block'},
+    advice: 'These terms can get an entire account banned. Never use them.'
+  },
+  profanity: {
+    pattern: /\b(fuck(ing|ed|er)?|shit|bitch|asshole|cunt)\b/i,
+    severity: 'low',
+    label: 'strong profanity',
+    platforms: {youtube:'monetize-limit', tiktok:'ok', instagram:'ok'},
+    advice: 'Strong language can trigger limited monetization on YouTube. Usually fine on TikTok / IG.'
+  }
+};
+
+function scanForSafety(text){
+  if(!text) return [];
+  const matches = [];
+  const seenKeys = new Set();
+  for(const [key, info] of Object.entries(SAFETY_PATTERNS)){
+    const match = text.match(info.pattern);
+    if(match && !seenKeys.has(key)){
+      seenKeys.add(key);
+      matches.push({key, term: match[0].trim(), ...info});
+    }
+  }
+  return matches;
+}
+
+// Compute per-platform safety verdict from a list of detected matches.
+// Returns {youtube:'safe'|'limit'|'block', tiktok:..., instagram:...}.
+function computeSafetyVerdict(matches){
+  const platforms = ['youtube','tiktok','instagram'];
+  const rank = {ok:0, 'monetize-limit':1, limit:2, block:3};
+  const result = {};
+  for(const p of platforms){
+    let worst = 'ok';
+    for(const m of matches){
+      const platformStatus = m.platforms[p] || 'ok';
+      if(rank[platformStatus] > rank[worst]) worst = platformStatus;
+    }
+    result[p] = worst;
+  }
+  return result;
+}
+
+// Detect random / gibberish hashtags (no vowels, all consonants, looks like keyboard mash).
+function isLowQualityTag(tag){
+  const t = String(tag||'').toLowerCase().replace(/^#/,'').replace(/[^a-z]/g,'');
+  if(t.length < 3) return 'too short';
+  if(!/[aeiouy]/.test(t)) return 'no vowels — looks random';
+  if(/[bcdfghjklmnpqrstvwxz]{5,}/.test(t)) return 'too many consonants in a row';
+  const vowels = (t.match(/[aeiouy]/g)||[]).length;
+  const consonants = (t.match(/[bcdfghjklmnpqrstvwxz]/g)||[]).length;
+  if(consonants > 0 && (vowels / consonants) < 0.18) return 'looks like keyboard mashing';
+  return null;
 }
 
 // Strict validator: rejects OCR garbage (pixel noise, fragmented characters, mostly-symbols junk).
