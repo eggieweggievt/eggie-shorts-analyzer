@@ -1,0 +1,2266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Eggie's Shorts Analyzer 🐙 — Score your short-form video</title>
+<meta name="description" content="Paste your YouTube Short, TikTok, or Instagram Reel and find out what's working and what's not. A simple checker for anyone who wants their shorts to actually do well." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<!-- Open Graph / Facebook / Discord / LinkedIn -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/" />
+<meta property="og:title" content="Eggie's Shorts Analyzer 🐙" />
+<meta property="og:description" content="Find out what's working in your short and what isn't — a beginner-friendly scorer built on the real growth rubric." />
+<meta property="og:image" content="preview.png" />
+<meta property="og:image:width" content="1100" />
+<meta property="og:image:height" content="550" />
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@EggieWeggieVT" />
+<meta name="twitter:creator" content="@EggieWeggieVT" />
+<meta name="twitter:title" content="Eggie's Shorts Analyzer 🐙" />
+<meta name="twitter:description" content="Find out what's working in your short and what isn't — a beginner-friendly scorer built on the real growth rubric." />
+<meta name="twitter:image" content="preview.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 88%, rgba(255,255,255,0.55) 0 3px, transparent 4px),
+      radial-gradient(circle at 22% 62%, rgba(255,255,255,0.45) 0 2px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:48px 20px 80px;position:relative;z-index:1}
+  header.hero{text-align:center;padding:32px 0 24px}
+  .brand-logo{display:block;max-width:340px;width:80%;margin:0 auto 18px;height:auto;filter:drop-shadow(0 6px 18px rgba(99,170,244,0.25))}
+  .brand-mascot{display:block;width:120px;height:auto;margin:0 auto 8px;filter:drop-shadow(0 6px 18px rgba(255,178,240,0.35))}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:60px;
+    line-height:1.35;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);
+    margin:0 auto 14px;
+    padding:18px 8px 22px;
+    display:inline-block;
+  }
+  .logo .octo{height:64px;width:auto;vertical-align:middle;margin:0 8px;filter:drop-shadow(0 4px 10px rgba(168,181,255,0.4))}
+  .tag{font-weight:600;color:var(--ink-soft);font-size:18px;margin:8px auto 0;max-width:640px;line-height:1.5}
+  .tag em{color:var(--deep);font-style:normal;font-weight:700}
+  .sparkle{display:inline-block;transform:translateY(-4px)}
+
+  .card{
+    background:rgba(255,255,255,0.78);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:28px;
+    margin:24px 0;
+  }
+  .card h2{font-family:'Pacifico',cursive;font-weight:400;font-size:30px;margin:0 0 14px;color:var(--deep)}
+  .card h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--deep)}
+  label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px;color:var(--ink)}
+  label .opt{color:var(--ink-soft);font-weight:500;font-size:12px;margin-left:6px}
+  input[type=text],input[type=url],input[type=number],textarea,select{
+    width:100%;padding:14px 16px;border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.85);border-radius:14px;font-family:inherit;font-size:15px;color:var(--ink);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--periwinkle);box-shadow:0 0 0 4px rgba(144,165,255,0.18)}
+  textarea{min-height:80px;resize:vertical}
+  .row{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+  .row3{display:grid;gap:14px;grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:640px){.row,.row3{grid-template-columns:1fr}.logo{font-size:48px}.logo .octo{font-size:42px}}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;justify-content:center;
+    padding:16px 28px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:16px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 10px 24px rgba(144,165,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.06);
+    transition:transform .12s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.04)}
+  .btn:active{transform:translateY(0)}
+  .btn.secondary{background:rgba(255,255,255,0.7);color:var(--deep);box-shadow:none;border:2px solid rgba(144,165,255,0.4)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;align-items:center}
+
+  .platform-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    background:linear-gradient(135deg,var(--mint),var(--periwinkle));color:#fff;
+  }
+
+  /* Results */
+  .score-hero{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .score-ring{
+    width:160px;height:160px;border-radius:50%;
+    background:conic-gradient(var(--mint) 0%, var(--periwinkle) var(--p,75%), rgba(255,255,255,0.5) var(--p,75%) 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 28px rgba(99,170,244,0.25);
+    position:relative;
+  }
+  .score-ring::after{
+    content:"";position:absolute;inset:10px;border-radius:50%;background:rgba(255,255,255,0.92);
+  }
+  .score-num{position:relative;z-index:1;text-align:center}
+  .score-num .big{font-family:'Pacifico',cursive;font-size:48px;color:var(--deep);line-height:1}
+  .score-num .small{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase}
+  .verdict{flex:1;min-width:260px}
+  .verdict .grade{font-family:'Pacifico',cursive;font-size:36px;color:var(--deep);margin:0 0 6px;line-height:1.1}
+  .verdict p{margin:0;font-size:15px;color:var(--ink-soft);line-height:1.55}
+
+  .criteria-grid{display:grid;gap:14px;grid-template-columns:1fr 1fr;margin-top:18px}
+  @media(max-width:640px){.criteria-grid{grid-template-columns:1fr}}
+  .crit{
+    background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,219,247,0.45));
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:18px;padding:16px;
+  }
+  .crit .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .crit .name{font-weight:700;font-size:14px;color:var(--deep)}
+  .crit .score-tag{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;color:#fff;letter-spacing:.04em}
+  .bar{height:8px;background:rgba(144,165,255,0.15);border-radius:999px;overflow:hidden;margin:8px 0 10px}
+  .bar > div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot))}
+  .crit .blurb{font-size:13px;color:var(--ink-soft);line-height:1.5}
+
+  ul.checklist{list-style:none;padding:0;margin:8px 0 0}
+  ul.checklist li{padding:8px 0;display:flex;align-items:flex-start;gap:10px;border-bottom:1px dashed rgba(144,165,255,0.25);font-size:14px}
+  ul.checklist li:last-child{border-bottom:none}
+  ul.checklist .mark{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+  .mark.pass{background:linear-gradient(135deg,var(--mint),var(--periwinkle))}
+  .mark.warn{background:linear-gradient(135deg,#FFD580,#FFB07A)}
+  .mark.fail{background:linear-gradient(135deg,#FFB2C8,#FF8AA8)}
+  ul.checklist .what{flex:1}
+  ul.checklist .why{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px}
+
+  .suggestions{background:linear-gradient(135deg, rgba(255,219,247,0.7), rgba(107,228,234,0.45));border-radius:18px;padding:18px 20px;margin-top:14px}
+  .suggestions h3{margin-top:0;color:var(--deep)}
+  .suggestions ol{padding-left:18px;margin:0}
+  .suggestions li{padding:6px 0;font-size:14px;line-height:1.55}
+  /* Hashtag recommendation — strategy + tag pool */
+  .hashtag-rec h4{margin:12px 0 6px;color:var(--deep);font-weight:800;font-size:14px;letter-spacing:.02em}
+  .hashtag-rec h4:first-child{margin-top:0}
+  .hashtag-rec p.intro{margin:0 0 6px;font-size:13.5px;color:var(--ink);line-height:1.5}
+  .hashtag-rec ul.strategy{margin:6px 0 14px;padding-left:20px;font-size:13px;line-height:1.55;color:var(--ink)}
+  .hashtag-rec ul.strategy li{padding:2px 0}
+  .hashtag-rec ul.strategy strong{color:var(--deep)}
+  .hashtag-rec .picks{font-weight:700;font-size:15px;color:var(--deep);background:rgba(255,255,255,0.75);padding:10px 14px;border-radius:10px;line-height:1.6}
+  .tag-pool{display:grid;gap:10px;margin-top:8px}
+  @media(min-width:680px){.tag-pool{grid-template-columns:1fr 1fr 1fr}}
+  .pool-section{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.65)}
+  .pool-section.small{background:linear-gradient(135deg, rgba(255,219,247,0.85), rgba(255,178,240,0.4))}
+  .pool-section.medium{background:linear-gradient(135deg, rgba(144,165,255,0.35), rgba(199,210,255,0.55))}
+  .pool-section.large{background:linear-gradient(135deg, rgba(107,228,234,0.45), rgba(180,240,243,0.55))}
+  .pool-section h5{margin:0 0 4px;font-size:13px;font-weight:800;color:var(--deep)}
+  .pool-section h5 .meta{display:block;font-size:11px;font-weight:500;color:var(--ink-soft);margin-top:1px}
+  .pool-section p{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ink);word-break:break-word}
+
+  .tools-block{margin:8px 0 4px;padding:10px 12px;background:rgba(255,255,255,0.65);border-radius:10px;border-left:3px solid var(--periwinkle);font-size:13px}
+  .tools-block .tools-head{font-weight:800;color:var(--deep);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .tools-block ul{margin:0;padding-left:18px}
+  .tools-block li{padding:3px 0;color:var(--ink);font-size:13px;line-height:1.45}
+  .tools-block strong{color:var(--deep)}
+
+  .hidden{display:none !important}
+  .loading{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,0.5);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .meta-row{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.6);padding:10px 14px;border-radius:14px;margin-top:14px}
+  .meta-row img{width:56px;height:56px;object-fit:cover;border-radius:10px;border:2px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.06)}
+  .meta-row .meta-title{font-weight:700;color:var(--deep);font-size:14px;line-height:1.3}
+  .meta-row .meta-sub{font-size:12px;color:var(--ink-soft)}
+  details{margin-top:10px;border-radius:14px;background:rgba(255,255,255,0.5);padding:10px 14px}
+  details summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--deep);user-select:none}
+  details[open]{background:rgba(255,255,255,0.78)}
+  .err{background:rgba(255,138,168,0.18);border:1px solid rgba(255,138,168,0.4);color:#7a2a3e;padding:12px 14px;border-radius:14px;font-size:14px;margin-top:10px}
+  .ok{background:rgba(107,228,234,0.18);border:1px solid rgba(107,228,234,0.4);color:#1f5e63;padding:12px 14px;border-radius:14px;font-size:14px;margin-top:10px}
+
+  /* Curated resources section */
+  .resources{margin-top:22px;background:linear-gradient(135deg, rgba(144,165,255,0.18), rgba(255,178,240,0.18));border-radius:18px;padding:18px 20px 14px}
+  .resources h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;margin:0 0 6px;color:var(--deep)}
+  .resources > p.intro{margin:0 0 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.55}
+  .res-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr))}
+  .res-card{background:rgba(255,255,255,0.78);border-radius:14px;padding:12px 14px;border:1px solid rgba(255,255,255,0.9)}
+  .res-card h3{margin:0 0 6px;font-size:14px;font-weight:800;color:var(--deep);letter-spacing:.02em}
+  .res-card ul{list-style:none;padding:0;margin:0}
+  .res-card li{padding:5px 0;border-bottom:1px dashed rgba(144,165,255,0.2);font-size:13px;line-height:1.45}
+  .res-card li:last-child{border-bottom:none}
+  .res-card a{color:var(--deep);font-weight:700;text-decoration:none}
+  .res-card a:hover{text-decoration:underline}
+  .res-card .meta{display:block;color:var(--ink-soft);font-size:12px;margin-top:2px}
+
+  /* Ready-to-post pack */
+  .post-pack{margin-top:22px}
+  .post-pack h2{font-family:'Pacifico',cursive;font-weight:400;font-size:28px;margin:0 0 6px;color:var(--deep)}
+  .post-pack > p.intro{margin:0 0 16px;font-size:14px;color:var(--ink-soft);line-height:1.55}
+  .post-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+  @media(max-width:720px){.post-grid{grid-template-columns:1fr}}
+  .post-card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78));
+    border:1.5px solid rgba(144,165,255,0.3);
+    border-radius:18px;
+    padding:16px 18px 14px;
+    box-shadow:0 6px 18px rgba(99,170,244,0.1);
+    display:flex;flex-direction:column;
+  }
+  .post-card .platform-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .post-card .platform-name{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--deep)}
+  .post-card .platform-name .pdot{display:inline-block;width:10px;height:10px;border-radius:50%}
+  .post-card.yt .pdot{background:#FF4444}
+  .post-card.tt .pdot{background:#000}
+  .post-card.ig .pdot{background:linear-gradient(135deg,#FFB2F0,#FFD580)}
+  .post-card.x .pdot{background:#1DA1F2}
+  .post-card .field{margin-top:8px}
+  .post-card .field-label{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px}
+  .post-card .field-content{
+    background:rgba(255,219,247,0.25);
+    border:1px solid rgba(144,165,255,0.2);
+    border-radius:10px;
+    padding:9px 12px;
+    font-family:ui-monospace, 'Menlo','Consolas', monospace;
+    font-size:13px;
+    color:var(--ink);
+    line-height:1.5;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .post-card .field-content.long{font-family:'Quicksand',inherit;font-size:13.5px}
+  .post-card .tip-row{margin-top:10px;font-size:12px;color:var(--ink-soft);background:rgba(107,228,234,0.16);border-radius:10px;padding:6px 10px;line-height:1.45}
+  .post-card .tip-row strong{color:var(--deep)}
+  .post-card .copy-row{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+  .copy-btn{
+    flex:1;
+    padding:8px 14px;
+    background:linear-gradient(135deg,var(--mint),var(--periwinkle));
+    color:#fff;font-weight:700;font-size:13px;border:none;border-radius:999px;cursor:pointer;
+    box-shadow:0 4px 10px rgba(144,165,255,0.25);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .copy-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .copy-btn.copied{background:linear-gradient(135deg,#A8E6BE,#6BE4EA)}
+  .char-count{font-size:11px;color:var(--ink-soft);font-weight:600}
+  .char-count.warn{color:#a35c00}
+  .char-count.bad{color:#a23556}
+
+  /* Step cards */
+  .step-card{position:relative;padding-top:24px;padding-bottom:24px}
+  .step-head{display:flex;align-items:center;gap:14px;margin:0 0 8px}
+  .step-num{
+    flex-shrink:0;
+    width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:'Pacifico',cursive;font-size:22px;
+    box-shadow:0 6px 14px rgba(144,165,255,0.35);
+  }
+  .step-head h2{margin:0;font-family:'Pacifico',cursive;font-weight:400;font-size:30px;color:var(--deep);line-height:1.1}
+  .step-head h2 .sub{font-family:'Quicksand',sans-serif;font-weight:500;font-size:15px;color:var(--ink-soft)}
+  .step-intro{margin:0 0 14px;color:var(--ink-soft);font-size:14.5px;line-height:1.55}
+  .link-shortcut{margin-top:18px;background:rgba(255,255,255,0.55);border:1px dashed rgba(144,165,255,0.45);border-radius:14px;padding:0 16px}
+  .link-shortcut summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--deep);padding:12px 0;list-style:none;user-select:none}
+  .link-shortcut summary::-webkit-details-marker{display:none}
+  .link-shortcut summary::before{content:"▸ ";color:var(--periwinkle)}
+  .link-shortcut[open] summary::before{content:"▾ "}
+  .link-shortcut .note{font-size:12.5px;color:var(--ink-soft);background:rgba(255,219,247,0.4);padding:10px 12px;border-radius:10px;margin:6px 0 12px;line-height:1.5}
+  .big-cta{
+    text-align:center;margin:32px 0 12px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  }
+  .big-cta .btn{font-size:18px;padding:18px 40px}
+
+  /* Tip callout */
+  .tip{
+    background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(144,165,255,0.25));
+    border:1.5px solid rgba(144,165,255,0.35);
+    border-radius:16px;
+    padding:14px 18px;
+    margin:0 0 18px;
+    font-size:14px;
+    color:var(--ink);
+    line-height:1.55;
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .tip .tip-icon{font-size:24px;line-height:1;flex-shrink:0}
+  .tip strong{color:var(--deep)}
+  .tip ol{margin:6px 0 0;padding-left:20px}
+  .tip ol li{padding:2px 0}
+
+  /* Video upload / hook analyzer */
+  details.video-upload{margin-top:14px;border-radius:18px;background:linear-gradient(135deg, rgba(255,219,247,0.7), rgba(107,228,234,0.45));padding:14px 18px;border:2px solid rgba(144,165,255,0.3)}
+  details.video-upload summary{cursor:pointer;font-weight:800;font-size:15px;color:var(--deep);user-select:none;list-style:none;padding:4px 0}
+  details.video-upload summary::-webkit-details-marker{display:none}
+  details.video-upload summary::before{content:"▸ ";color:var(--periwinkle)}
+  details.video-upload[open] summary::before{content:"▾ "}
+  details.video-upload .sub{font-weight:500;color:var(--ink-soft);font-size:13px;display:block;margin-top:4px}
+  .drop-zone{margin-top:12px;border:2px dashed rgba(144,165,255,0.55);background:rgba(255,255,255,0.6);border-radius:14px;padding:24px;text-align:center;transition:background .15s ease, border-color .15s ease;cursor:pointer}
+  .drop-zone.drag{background:rgba(107,228,234,0.25);border-color:var(--mint)}
+  .drop-zone p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.5}
+  .drop-zone .big{font-size:32px;display:block;margin-bottom:6px}
+  .drop-zone input[type=file]{display:none}
+  .video-preview-wrap{margin-top:12px;display:none}
+  .video-preview-wrap.active{display:block}
+  .video-preview-wrap video{width:100%;max-width:280px;border-radius:14px;background:#000;display:block;margin:0 auto;box-shadow:0 8px 24px rgba(99,170,244,0.18)}
+  .vid-progress{margin-top:12px;background:rgba(255,255,255,0.6);border-radius:999px;overflow:hidden;height:10px}
+  .vid-progress > div{height:100%;background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot));width:0;transition:width .2s ease}
+  .vid-status{font-size:13px;color:var(--ink-soft);text-align:center;margin-top:6px}
+  .vid-result{margin-top:14px;background:rgba(255,255,255,0.82);border-radius:14px;padding:14px 16px;display:none}
+  .vid-result.active{display:block}
+  .vid-verdict{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+  .verdict-badge{padding:8px 16px;border-radius:999px;font-weight:800;color:#fff;font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .verdict-badge.strong{background:linear-gradient(135deg,#6BE4EA,#90A5FF)}
+  .verdict-badge.medium{background:linear-gradient(135deg,#FFB2F0,#FFD580)}
+  .verdict-badge.weak{background:linear-gradient(135deg,#FFB2C8,#FF8AA8)}
+  .vid-result ul.bd{list-style:none;padding:0;margin:6px 0 0;font-size:13.5px}
+  .vid-result ul.bd li{padding:6px 0;display:flex;gap:10px;border-bottom:1px dashed rgba(144,165,255,0.25)}
+  .vid-result ul.bd li:last-child{border-bottom:none}
+  .vid-result ul.bd .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .vid-result ul.bd .dot.high{background:#6BE4EA}
+  .vid-result ul.bd .dot.medium{background:#FFD580}
+  .vid-result ul.bd .dot.low{background:#FF8AA8}
+  .vid-result ul.bd .dot.na{background:#ccc}
+
+  /* Self-assess guide */
+  .guide{margin-top:6px;background:rgba(255,255,255,0.55);border:1px dashed rgba(144,165,255,0.4);border-radius:12px;padding:0 12px}
+  .guide summary{cursor:pointer;font-weight:700;font-size:12.5px;color:var(--deep);padding:8px 0;list-style:none;user-select:none}
+  .guide summary::before{content:"▸ ";color:var(--periwinkle);font-size:11px}
+  .guide[open] summary::before{content:"▾ "}
+  .guide .levels{display:grid;gap:6px;padding:4px 0 12px;font-size:13px;line-height:1.45;color:var(--ink-soft)}
+  .guide .levels b{color:var(--deep);display:inline-block;min-width:78px}
+  .guide .levels .strong b{color:#1f6f50}
+  .guide .levels .med b{color:#a35c00}
+  .guide .levels .weak b{color:#a23556}
+
+  footer{text-align:center;font-size:13px;color:var(--ink-soft);margin-top:32px}
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+  <header class="hero">
+    <!--
+      ┌──────────────────────────────────────────────────────────────────────┐
+      │  LOGO SLOT — drop your "Eggie" wordmark into the same folder as this  │
+      │  HTML file and name it  eggie-wordmark.png  (or .svg / .webp — just   │
+      │  update the src below to match). It will replace the SVG mascot.     │
+      │  Until you do, the cute SVG fallback renders.                         │
+      └──────────────────────────────────────────────────────────────────────┘
+    -->
+    <img id="brandLogo" class="brand-logo" src="EGGIE LOGOTYPE - BORDER.png" alt="Eggie" style="display:none"
+         onload="this.style.display='block';document.getElementById('brandLogoFallback').style.display='none';"
+         onerror="this.remove();" />
+
+    <!-- SVG fallback: rendered Eggie mascot inline (always visible until PNG loads) -->
+    <svg id="brandLogoFallback" class="brand-mascot" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="bodyGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stop-color="#C9A8FF"/>
+          <stop offset="40%" stop-color="#A8B5FF"/>
+          <stop offset="100%" stop-color="#6BE4EA"/>
+        </linearGradient>
+        <linearGradient id="tentGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#FFB2F0"/>
+          <stop offset="100%" stop-color="#FFDBF7"/>
+        </linearGradient>
+        <radialGradient id="cheek" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFB2C8" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#FFB2C8" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- Body -->
+      <path d="M110 30 Q60 30 55 95 Q50 130 60 160 L75 190 L90 165 L110 188 L130 165 L145 190 L160 160 Q170 130 165 95 Q160 30 110 30 Z"
+            fill="url(#bodyGrad)" stroke="#7889E0" stroke-width="3"/>
+      <!-- Tentacles up-curled -->
+      <path d="M55 110 Q30 115 28 95 Q26 75 45 78 Q60 80 60 95 Q60 105 45 100"
+            fill="url(#tentGrad)" stroke="#7889E0" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M165 110 Q190 115 192 95 Q194 75 175 78 Q160 80 160 95 Q160 105 175 100"
+            fill="url(#tentGrad)" stroke="#7889E0" stroke-width="3" stroke-linejoin="round"/>
+      <!-- Suckers -->
+      <g fill="#FFF" stroke="#E89DD3" stroke-width="1.2">
+        <circle cx="38" cy="92" r="3"/><circle cx="46" cy="85" r="2.4"/><circle cx="36" cy="100" r="2.4"/>
+        <circle cx="182" cy="92" r="3"/><circle cx="174" cy="85" r="2.4"/><circle cx="184" cy="100" r="2.4"/>
+      </g>
+      <!-- Cheeks -->
+      <ellipse cx="80" cy="118" rx="14" ry="9" fill="url(#cheek)"/>
+      <ellipse cx="140" cy="118" rx="14" ry="9" fill="url(#cheek)"/>
+      <!-- Eyes -->
+      <ellipse cx="90" cy="105" rx="6" ry="8" fill="#3D3478"/>
+      <ellipse cx="130" cy="105" rx="6" ry="8" fill="#3D3478"/>
+      <circle cx="92" cy="102" r="2.2" fill="#fff"/>
+      <circle cx="132" cy="102" r="2.2" fill="#fff"/>
+      <!-- Mouth -->
+      <path d="M104 120 Q110 126 116 120" stroke="#3D3478" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <!-- Sakura on head -->
+      <g transform="translate(74 50)">
+        <g fill="#FFB2C8" stroke="#E89DD3" stroke-width="1.2">
+          <ellipse cx="0" cy="-9" rx="6" ry="10"/>
+          <ellipse cx="9" cy="-3" rx="6" ry="10" transform="rotate(72 9 -3)"/>
+          <ellipse cx="5" cy="9" rx="6" ry="10" transform="rotate(144 5 9)"/>
+          <ellipse cx="-5" cy="9" rx="6" ry="10" transform="rotate(216 -5 9)"/>
+          <ellipse cx="-9" cy="-3" rx="6" ry="10" transform="rotate(288 -9 -3)"/>
+        </g>
+        <circle r="3" fill="#FFF8EC"/>
+      </g>
+      <!-- Sparkles -->
+      <g fill="#fff">
+        <path d="M150 70 l2 4 l4 2 l-4 2 l-2 4 l-2 -4 l-4 -2 l4 -2 z"/>
+        <path d="M70 80 l1.5 3 l3 1.5 l-3 1.5 l-1.5 3 l-1.5 -3 l-3 -1.5 l3 -1.5 z" opacity="0.85"/>
+        <path d="M125 150 l1.5 3 l3 1.5 l-3 1.5 l-1.5 3 l-1.5 -3 l-3 -1.5 l3 -1.5 z" opacity="0.85"/>
+      </g>
+    </svg>
+
+    <h1 class="logo">Eggie's <img class="octo" src="accent.png" alt="" aria-hidden="true" /> Shorts Analyzer</h1>
+    <p class="tag">Paste a link or fill in the details, and I'll tell you <em>what's working and what isn't</em>. Use it before you post to plan it out, or after to figure out why something didn't pop off. <span class="sparkle">✨</span></p>
+  </header>
+
+  <!-- STEP 1: UPLOAD VIDEO -->
+  <section class="card step-card" id="step1">
+    <div class="step-head">
+      <span class="step-num">1</span>
+      <h2>Upload your video <span class="sub">(recommended)</span></h2>
+    </div>
+    <p class="step-intro">Drop your video in and I'll watch the first 3 seconds &mdash; checking your motion, scene cuts, and audio to score your hook for you. Stays on your computer, nothing gets uploaded.</p>
+
+    <label class="drop-zone" id="dropZone" for="videoFile">
+      <span class="big">🐙</span>
+      <p><strong>Click here, or drag in your video</strong><br/>MP4, MOV, or WebM &middot; stays on your computer</p>
+      <input type="file" id="videoFile" accept="video/*" />
+    </label>
+    <div class="video-preview-wrap" id="videoPreviewWrap">
+      <video id="videoPreview" controls muted playsinline></video>
+      <div class="vid-progress"><div id="vidProgressBar"></div></div>
+      <div class="vid-status" id="vidStatus">Ready when you are</div>
+    </div>
+    <div class="vid-result" id="vidResult"></div>
+
+    <details class="link-shortcut" id="linkShortcut">
+      <summary>Don't have the file? Paste a link instead</summary>
+      <div class="note">
+        <strong>Heads up:</strong> a link will only get me your title and thumbnail. YouTube, TikTok, and Instagram don't let me pull descriptions, hashtags, or view counts. You'll still need to fill in Steps 2 and 3 below for a real score.
+      </div>
+      <label for="url">Video link <span class="opt">(YouTube Short, TikTok, or Instagram Reel)</span></label>
+      <input id="url" type="url" placeholder="https://www.youtube.com/shorts/…" autocomplete="off" />
+      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <button class="btn secondary" id="grabLinkBtn" type="button">Grab title from link</button>
+        <span id="platformPill" class="platform-pill hidden"></span>
+      </div>
+      <div id="fetchMsg"></div>
+      <div id="metaPreview" class="meta-row hidden"></div>
+    </details>
+  </section>
+
+  <!-- STEP 2: POST DETAILS -->
+  <section class="card step-card" id="step2">
+    <div class="step-head">
+      <span class="step-num">2</span>
+      <h2>Tell me about your post</h2>
+    </div>
+    <p class="step-intro">Type in what you wrote, or what you're planning to write. The more I know, the better I can help.</p>
+
+    <label for="title">Title</label>
+    <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
+
+    <label for="description">Description / caption</label>
+    <textarea id="description" placeholder="One strong hook sentence + a few keywords / CTA"></textarea>
+
+    <label for="template">Your description template <span class="opt">(socials, links, signoff &mdash; optional, but worth filling in once)</span></label>
+    <textarea id="template" rows="4" placeholder="🐙 Twitch: twitch.tv/eggie&#10;🐙 Twitter: @EggieWeggieVT&#10;🐙 Discord: discord.gg/suckegg&#10;&#10;New shorts every week!"></textarea>
+    <p style="margin:4px 0 0;font-size:12px;color:var(--ink-soft)">I'll stick this at the end of your YouTube description automatically. Fill it in once and it'll show up in every post pack.</p>
+
+    <label for="hashtags">Hashtags <span class="opt">(comma or space separated)</span></label>
+    <input id="hashtags" type="text" placeholder="#VTuber, #VTuberClips, #residentevil" />
+  </section>
+
+  <!-- STEP 3: NUMBERS -->
+  <section class="card step-card" id="step3">
+    <div class="step-head">
+      <span class="step-num">3</span>
+      <h2>Add your numbers <span class="sub">(optional)</span></h2>
+    </div>
+    <p class="step-intro">If you've already posted this and have retention numbers from YouTube Studio, drop them in. If not, skip this &mdash; you'll still get a score from steps 1 and 2.</p>
+
+    <div class="row3">
+      <div>
+        <label for="duration">Length (seconds)</label>
+        <input id="duration" type="number" min="1" max="600" placeholder="e.g. 47" />
+      </div>
+      <div>
+        <label for="retention">Avg. retention (%) <span class="opt">if known</span></label>
+        <input id="retention" type="number" min="0" max="100" placeholder="e.g. 88" />
+      </div>
+      <div>
+        <label for="viewedVsSwiped">Viewed vs. swiped (%) <span class="opt">YT Shorts</span></label>
+        <input id="viewedVsSwiped" type="number" min="0" max="100" placeholder="e.g. 76" />
+      </div>
+    </div>
+
+    <label for="hookStrength">How does the first 1 to 3 seconds feel? <span class="opt">(skip if you uploaded the video &mdash; I'll figure it out)</span></label>
+    <select id="hookStrength">
+      <option value="">— not sure, skip this</option>
+      <option value="strong">Strong — something visual, loud, or a question that stops people scrolling</option>
+      <option value="medium">Medium — interesting, but takes a second to get going</option>
+      <option value="weak">Weak — slow start, just a face talking, nothing really happens</option>
+    </select>
+    <details class="guide">
+      <summary>How do I figure out which one mine is? 🐙</summary>
+      <div class="levels">
+        <p style="margin:0 0 6px"><strong>Try this:</strong> open your short, pause it at 1.5 seconds, and ask yourself: "if a stranger saw this, would they keep watching?" Then check which one fits:</p>
+        <div class="strong"><b>Strong</b> &middot; By 1.5 seconds, something is already happening. Movement on screen, a face reacting, an on-screen question, a sound that kicks in, or the punchline arriving before the setup. Watching it makes you go "wait, what?" <em>Like:</em> the punchline first, then the setup. A jump-cut straight to the wildest part. Text on screen that says "Nobody talks about…"</div>
+        <div class="med"><b>Medium</b> &middot; You can tell what the video is about, but it's not exciting yet. You're easing in. Someone scrolling past would only stop if they already know your channel. <em>Like:</em> "Today I'm gonna show you…", a slow zoom in, a title card with no movement.</div>
+        <div class="weak"><b>Weak</b> &middot; By 1.5 seconds, nobody knows what's going on yet. There's nothing happening visually. <em>Like:</em> your intro logo, a long pause before you start talking, "hey guys welcome back", or a sideways video with black bars.</div>
+      </div>
+    </details>
+
+    <label for="rewatchable">Would people watch it twice? <span class="opt">(like a clean loop, or stuff you'd miss the first time)</span></label>
+    <select id="rewatchable">
+      <option value="">— not sure, skip this</option>
+      <option value="yes">Yes — it loops or there's a lot to catch</option>
+      <option value="no">No — one and done</option>
+    </select>
+    <details class="guide">
+      <summary>What counts as something people would rewatch? 🌸</summary>
+      <div class="levels">
+        <div class="strong"><b>Yes</b> &middot; The ending loops back to the beginning so cleanly that people watch it through twice without realizing. OR it's so packed with stuff that a second watch shows you something new (a background detail, a tiny joke). OR the punchline only makes sense once you've seen the setup, so people scrub back to catch it. <em>Like:</em> a clean looped animation, a clip where the last frame matches the first, or a reaction with a bunch of overlapping text.</div>
+        <div class="weak"><b>No</b> &middot; Once you've seen the joke or the moment, you're done. You're ready to swipe. <em>Most</em> shorts are this, and that's totally fine. It just means you need to nail the 45 to 55 second range instead of relying on loops.</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- BIG CTA -->
+  <div class="big-cta">
+    <button class="btn" id="fetchBtn">🐙 Analyze my short</button>
+    <button class="btn secondary" id="clearBtn" type="button">Clear all</button>
+  </div>
+
+  <!-- RESULTS -->
+  <section class="card hidden" id="resultsCard">
+    <h2>Your score <span style="font-size:18px">💗</span></h2>
+
+    <div class="score-hero">
+      <div class="score-ring" id="scoreRing"><div class="score-num"><div class="big" id="scoreBig">0</div><div class="small">/ 10</div></div></div>
+      <div class="verdict">
+        <h3 class="grade" id="grade">—</h3>
+        <p id="verdictText">—</p>
+      </div>
+    </div>
+
+    <h3>Here's how each part scored</h3>
+    <div class="criteria-grid" id="critGrid"></div>
+
+    <h3 style="margin-top:24px">What's working, what's not</h3>
+    <ul class="checklist" id="checklist"></ul>
+
+    <div class="suggestions">
+      <h3>How to make it better</h3>
+      <div id="critique"></div>
+      <h3 style="margin-top:14px">Try one of these titles instead</h3>
+      <ol id="titleSuggestions"></ol>
+      <h3 style="margin-top:14px">Hashtags I'd use</h3>
+      <div id="hashtagRec"></div>
+    </div>
+
+    <section class="resources">
+      <h2>📚 Resources Eggie loves</h2>
+      <p class="intro">Stuff to actually level up. These are creators, channels, and tools I&apos;ve personally learned from &mdash; bookmark whichever ones match what you&apos;re trying to fix.</p>
+      <div class="res-grid">
+        <div class="res-card">
+          <h3>🎬 Editing &amp; assets</h3>
+          <ul>
+            <li><a href="https://www.youtube.com/@xSaandiEditing" target="_blank" rel="noreferrer">xSaandi Editing</a><span class="meta">Premiere Pro tutorials</span></li>
+            <li><a href="https://xsaandipresets.com" target="_blank" rel="noreferrer">xSaandi Presets</a><span class="meta">Free presets you can drop right in</span></li>
+            <li><a href="https://x.com/xSaandi/status/2047674610288677277" target="_blank" rel="noreferrer">More free assets from xSaandi</a></li>
+          </ul>
+        </div>
+
+        <div class="res-card">
+          <h3>📈 Shorts &amp; growth</h3>
+          <ul>
+            <li><a href="https://www.youtube.com/watch?v=6Ouye9LyMgc" target="_blank" rel="noreferrer">Maxor&apos;s YouTube Workshop</a><span class="meta">1000% level up your shorts</span></li>
+            <li><a href="https://youtu.be/8cQidXgtGmU" target="_blank" rel="noreferrer">How algorithms actually work</a></li>
+            <li><a href="https://www.youtube.com/watch?v=JaYQq0MT6tk" target="_blank" rel="noreferrer">I Blew Up A New Gaming Channel With Shorts</a></li>
+            <li><a href="https://x.com/PerkyPert_/status/1984281716576645173" target="_blank" rel="noreferrer">PerkyPert&apos;s visual guide</a><span class="meta">Short-form structure</span></li>
+            <li><a href="https://x.com/official_caelum/status/2035877154030833960" target="_blank" rel="noreferrer">Caelum on shorts</a></li>
+            <li><a href="https://x.com/nexlevio/status/1979057438151315670" target="_blank" rel="noreferrer">@nexlevio thread</a></li>
+            <li><a href="https://x.com/YouTubeInsider/status/1975200100466258161" target="_blank" rel="noreferrer">@YouTubeInsider thread</a></li>
+            <li><a href="https://x.com/chiseledcactus/status/2046702162915574111" target="_blank" rel="noreferrer">@chiseledcactus (pt 1)</a></li>
+            <li><a href="https://x.com/chiseledcactus/status/2048892748149797191" target="_blank" rel="noreferrer">@chiseledcactus (pt 2)</a></li>
+          </ul>
+        </div>
+
+        <div class="res-card">
+          <h3>📺 Twitch growth</h3>
+          <ul>
+            <li><a href="https://www.youtube.com/watch?v=8wE9l6S9VJ8" target="_blank" rel="noreferrer">How To ACTUALLY Grow On Twitch In 2026</a></li>
+            <li><a href="https://www.youtube.com/watch?v=6Vhlqpi04PU" target="_blank" rel="noreferrer">How To Grow On Twitch FAST</a><span class="meta">Under 5 min</span></li>
+            <li><a href="https://www.youtube.com/watch?v=VGPNY_21JUQ" target="_blank" rel="noreferrer">The ONE trick to be a famous streamer</a></li>
+            <li><a href="https://www.youtube.com/watch?v=n4L4V5-GdDw" target="_blank" rel="noreferrer">Top advice for aspiring streamers</a></li>
+          </ul>
+        </div>
+
+        <div class="res-card">
+          <h3>📖 More to dig into</h3>
+          <ul>
+            <li><a href="https://creatordictionary.com/" target="_blank" rel="noreferrer">Creator Dictionary</a><span class="meta">Words you&apos;ll hear constantly</span></li>
+            <li><a href="https://www.youtube.com/watch?v=h5AKlAOXJlo" target="_blank" rel="noreferrer">Shorts deep-dive (1)</a></li>
+            <li><a href="https://www.youtube.com/watch?v=-QpcCGwUicA" target="_blank" rel="noreferrer">Shorts deep-dive (2)</a></li>
+            <li><a href="https://www.youtube.com/watch?v=yJds3kLNkDs" target="_blank" rel="noreferrer">Shorts deep-dive (3)</a></li>
+            <li><a href="https://www.youtube.com/watch?v=aEYZ76Mf2Zw" target="_blank" rel="noreferrer">Shorts deep-dive (4)</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="post-pack">
+      <h2>📋 Ready to copy and paste</h2>
+      <p class="intro">Made for each app. Just hit copy and paste it in when you're uploading. Use it <strong>before you post</strong> to plan, or <strong>after</strong> to see how your existing post compares.</p>
+      <div class="post-grid" id="postGrid"></div>
+    </section>
+
+    <div class="btn-row">
+      <button class="btn" id="againBtn">Check another short</button>
+      <button class="btn secondary" id="copyBtn">Copy the whole report</button>
+    </div>
+  </section>
+
+  <footer>
+    Made with 💗 by Eggie &middot; Brand by <a href="https://twitter.com/nyxgothica" target="_blank" rel="noreferrer">@nyxgothica</a><br/>
+    Come hang out &mdash; <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> 🐙
+  </footer>
+</div>
+
+<script>
+// ============================================================
+//  EGGIE'S SHORTS ANALYZER  —  client-side scoring engine
+//  Encoded directly from Eggie's growth rubric
+// ============================================================
+
+// ---------- 1. PLATFORM DETECTION ----------
+function detectPlatform(url){
+  if(!url) return null;
+  const u = url.toLowerCase();
+  if(u.includes('youtube.com/shorts') || u.includes('youtu.be/') || u.includes('youtube.com/watch')) return 'youtube';
+  if(u.includes('tiktok.com')) return 'tiktok';
+  if(u.includes('instagram.com/reel') || u.includes('instagram.com/p/') || u.includes('instagram.com/tv/')) return 'instagram';
+  if(u.includes('x.com') || u.includes('twitter.com')) return 'twitter';
+  return null;
+}
+
+// ---------- 2. METADATA FETCH (oEmbed) ----------
+async function fetchMetadata(url, platform){
+  // YouTube + TikTok have permissive oEmbed (CORS-friendly).
+  // Instagram dropped public oEmbed in 2020 — we gracefully fall back.
+  try{
+    if(platform === 'youtube'){
+      const oe = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+      const r = await fetch(oe);
+      if(!r.ok) throw new Error('oEmbed unavailable');
+      const j = await r.json();
+      return {ok:true, title:j.title || '', author:j.author_name || '', thumbnail:j.thumbnail_url || ''};
+    }
+    if(platform === 'tiktok'){
+      const oe = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
+      const r = await fetch(oe);
+      if(!r.ok) throw new Error('oEmbed unavailable');
+      const j = await r.json();
+      return {ok:true, title:j.title || '', author:j.author_name || '', thumbnail:j.thumbnail_url || ''};
+    }
+    if(platform === 'instagram'){
+      return {ok:false, manual:true, msg:"<strong>Instagram doesn't let me grab info from links anymore</strong> &mdash; Meta locked that down a few years ago. Just open the section below and paste your caption, hashtags, and length. You'll still get a full score."};
+    }
+    return {ok:false, manual:true, msg:"I don't recognize that link. Fill in the details below instead."};
+  }catch(e){
+    return {ok:false, manual:true, msg:"Couldn't grab the info (link might be private, or the network is being weird). Fill in the details below and you'll still get a score."};
+  }
+}
+
+// ---------- 3. HELPERS ----------
+function parseHashtags(str){
+  if(!str) return [];
+  return (str.match(/#?[A-Za-z0-9_]+/g) || [])
+    .map(s=>s.replace(/^#/,'').toLowerCase())
+    .filter(s=>s.length>1);
+}
+function uniqueWords(str){
+  if(!str) return [];
+  return str.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/).filter(w=>w.length>2 && !STOP.has(w));
+}
+const STOP = new Set("the and for with that this from your you are not but all any was were has have had can will just into about over there their they them what when where why how which while would could should ".split(' '));
+function clamp(n,lo,hi){return Math.max(lo,Math.min(hi,n));}
+function round1(n){return Math.round(n*10)/10;}
+
+// ---------- 4. SCORING (each criterion returns {key,name,score(0-10),weight,blurb,passes:[{level,what,why}]}) ----------
+
+function scoreHook({title, hookStrength}){
+  let s = 6;
+  const passes = [];
+  const t = (title||'').trim();
+  const lower = t.toLowerCase();
+  const curiosity = /\b(why|how|what|this|wait|here(?:'|’)?s why|the reason|listen|nobody|everyone|i didn'?t|you (won'?t|never))\b/i.test(t);
+  const isQuestion = t.endsWith('?');
+  const hasCapsBurst = (t.match(/\b[A-Z]{3,}\b/g)||[]).length>0;
+  const intense = /\b(crazy|insane|wild|shocking|disgusting|hilarious|unhinged|cursed|wholesome|brutal|chaotic)\b/i.test(t);
+  const generic = /\b(today i|in this video|let'?s talk about|here is a video|my video)\b/i.test(lower);
+
+  if(curiosity){s+=2; passes.push({level:'pass',what:'Your title makes people curious',why:'Words like "why", "how", "nobody", and "wait" make people stop scrolling.'});}
+  else passes.push({level:'warn',what:'Title could be more curious',why:'Try adding "why", "the reason", or "nobody talks about…" to pull people in.'});
+
+  if(isQuestion){s+=1; passes.push({level:'pass',what:'Title is a question',why:'Questions almost always do better than statements.'});}
+  if(hasCapsBurst){s+=1; passes.push({level:'pass',what:'You\'re using CAPS for emphasis',why:'Stands out more when people are scrolling fast.'});}
+  if(intense){s+=1; passes.push({level:'pass',what:'You used a strong emotional word',why:'Gets people to click, and to comment.'});}
+  if(generic){s-=1; passes.push({level:'warn',what:'Title starts kind of generic',why:'Stuff like "today I\'m gonna show you…" doesn\'t grab anyone. Start with whatever the surprise of the video is.'});}
+  if(t.length>70){s-=1; passes.push({level:'warn',what:'Title might be too long',why:'Try to keep it under 65 characters so it doesn\'t get cut off on mobile.'});}
+
+  if(hookStrength === 'strong'){s+=3; passes.push({level:'pass',what:'Strong start',why:'You said the first few seconds are strong — that\'s the biggest single thing you can do right.'});}
+  else if(hookStrength === 'medium'){s+=2; passes.push({level:'pass',what:'Your start is decent',why:'Tightening up the first 1.5 seconds (cutting anything before the good part) would push this to strong.'});}
+  else if(hookStrength === 'weak'){s-=1; passes.push({level:'warn',what:'Weak start — easy fix though',why:'Re-edit the first 1.5 seconds. Start with movement, the punchline, or a question — never with "hey guys".'});}
+
+  return {key:'hook',name:'Hook strength',score:clamp(s,0,10),weight:2.2,blurb:'How your video starts plus what your title says. This is the #1 thing that decides if anyone watches.',passes};
+}
+
+function scoreDuration({duration, rewatchable, platform}){
+  const d = Number(duration)||0;
+  let s = 5;
+  const passes = [];
+  if(!d){
+    return {key:'duration',name:'Length & pacing',score:7,weight:1.2,blurb:'How long the video is. The sweet spot is 45 to 55 seconds.',passes:[{level:'warn',what:'You didn\'t add the length',why:'Drop in the seconds and I can check if you\'re hitting the sweet spot.'}]};
+  }
+  if(d>=45 && d<=55){s=10; passes.push({level:'pass',what:`${d} seconds — that's the sweet spot`,why:'Best length for keeping people watching all the way through.'});}
+  else if((d>=40 && d<45) || (d>55 && d<=60)){s=9; passes.push({level:'pass',what:`${d} seconds — almost ideal`,why:'Right in the zone. A small trim could push it to perfect.'});}
+  else if(d>=30 && d<40){s=8; passes.push({level:'pass',what:`${d} seconds — solid`,why:'A little short of ideal, but still works. Stretching toward 45-55 would help retention.'});}
+  else if(d>=25 && d<30){s=7; passes.push({level:'warn',what:`${d} seconds — usable`,why:'Under 30 seconds works best when it loops or there\'s a lot packed in.'});}
+  else if(d<25){s = rewatchable==='yes' ? 7 : 5; passes.push({level: rewatchable==='yes'?'pass':'warn',what:`${d} seconds — pretty short`,why: rewatchable==='yes' ? 'Loops save it. Next time, even 10 more seconds would unlock more watch time.' : 'Under 25 seconds is tough unless it loops. Aim for 45-55 next time.'});}
+  else if(d>60 && d<=75){s=7; passes.push({level:'warn',what:`${d} seconds — a bit long`,why:'Still in range, but trimming to 55 would help retention.'});}
+  else if(d>75){s=5; passes.push({level:'warn',what:`${d} seconds — too long for shorts`,why:'Tough to keep people watching past about 60 seconds. Trim to under 60 next time.'});}
+
+  if(rewatchable==='yes') passes.push({level:'pass',what:'It loops or has stuff to rewatch',why:'Hidden bonus: the app counts a loop as another full view.'});
+
+  return {key:'duration',name:'Length & pacing',score:s,weight:1.4,blurb:'How long your video is. Best length is 45 to 55 seconds. Never under 25 unless it loops.',passes};
+}
+
+function scoreTitle({title, platform}){
+  const t = (title||'').trim();
+  let s = 5;
+  const passes = [];
+  if(!t){
+    return {key:'title',name:'Title',score:5,weight:1.4,blurb:'The actual title of your video.',passes:[{level:'warn',what:'No title yet',why:'Drop in the title and I can give you real feedback on it.'}]};
+  }
+  if(t.length>=30 && t.length<=70){s+=3; passes.push({level:'pass',what:'Good title length',why:'Long enough to read clearly, short enough that nothing gets cut off on mobile.'});}
+  else if(t.length<30){s+=2; passes.push({level:'warn',what:'Title is on the short side',why:'You\'ve got room to add something specific or a hook word like "why" or "nobody".'});}
+  else if(t.length>70){s+=1; passes.push({level:'warn',what:'Title might be too long',why:'Could get cut off on mobile. Aim for 30-65 characters.'});}
+  if(/\b[A-Z]{3,}\b/.test(t)){s+=1; passes.push({level:'pass',what:'You used CAPS for emphasis',why:'Stands out more in the feed.'});}
+  if(/[?!…]/.test(t)){s+=1; passes.push({level:'pass',what:'Punctuation adds intrigue',why:'A "?", "!", or "…" all add a hook.'});}
+  if(platform==='youtube' && /#\w+/.test(t)){s-=1; passes.push({level:'warn',what:'Hashtag in your YouTube title',why:'On YouTube, hashtags go in the description. Use keywords in the title instead.'});}
+  // Specificity check
+  const words = t.split(/\s+/);
+  const specific = words.slice(1).some(w=>/^[A-Z][a-z]{2,}/.test(w));
+  if(specific){s+=2; passes.push({level:'pass',what:'Title names something specific',why:'Naming the game, person, or thing always beats vague.'});}
+  else passes.push({level:'warn',what:'Title could be more specific',why:'Name the actual thing — the game, the person, the moment. Specifics get clicks.'});
+
+  return {key:'title',name:'Title',score:clamp(s,0,10),weight:1.4,blurb:'Should make people curious. Questions or "what / why / nobody / wait" framings work best.',passes};
+}
+
+function scoreHashtags({hashtags, platform, title, description}){
+  const tags = parseHashtags(hashtags);
+  const n = tags.length;
+  let s = 5;
+  const passes = [];
+  if(platform==='youtube'){
+    if(n>=3 && n<=5){s=10; passes.push({level:'pass',what:`${n} hashtags — perfect`,why:'3 to 5 hashtags in the description is the sweet spot.'});}
+    else if(n>=1 && n<=2){s=8; passes.push({level:'pass',what:`${n} hashtags — good start`,why:'You\'re on the right track. Adding 1 or 2 more (mix of small, medium, large) would max it out.'});}
+    else if(n===0){s=5; passes.push({level:'warn',what:'No hashtags yet',why:'Adding 3 to 5 niche tags will tell the app what your video is about.'});}
+    else if(n<=8){s=7; passes.push({level:'warn',what:`${n} hashtags — a bit too many`,why:'Trim to 3 to 5 that actually fit your video for the best results.'});}
+    else {s=5; passes.push({level:'warn',what:`${n} hashtags — way too many`,why:'Cut down to 3 to 5 with a small, medium, large mix.'});}
+  } else if(platform==='tiktok'){
+    if(n>=3 && n<=5){s=10; passes.push({level:'pass',what:`${n} hashtags — TikTok sweet spot`,why:'3 to 5 with a small, medium, large mix is what works.'});}
+    else if(n>=1 && n<=2){s=8; passes.push({level:'pass',what:`${n} hashtags — good start`,why:'Bumping to 3 to 5 would max it out. Your caption keywords still matter most.'});}
+    else if(n===0){s=5; passes.push({level:'warn',what:'No hashtags yet',why:'Add 3 to 5 hashtags. Caption keywords matter more, but hashtags still help.'});}
+    else if(n<=8){s=7; passes.push({level:'warn',what:`${n} hashtags — a bit too many`,why:'Trim to 3 to 5 that match your video.'});}
+    else {s=5; passes.push({level:'warn',what:`${n} hashtags — way too many`,why:'Cut down to 3 to 5. Stacking tags can actually hurt you.'});}
+  } else if(platform==='instagram'){
+    if(n>=3 && n<=5){s=10; passes.push({level:'pass',what:`${n} hashtags — Reels sweet spot`,why:'3 to 5 with a mix of small, medium, and large tags.'});}
+    else if(n>=1 && n<=2){s=8; passes.push({level:'pass',what:`${n} hashtags — good start`,why:'Add a couple more (try to mix small, medium, and large) to max it out.'});}
+    else if(n>=6 && n<=10){s=7; passes.push({level:'warn',what:`${n} hashtags — a bit too many`,why:'Trim to 3 to 5 that really fit your video.'});}
+    else if(n>10){s=5; passes.push({level:'warn',what:`${n} hashtags — way too many`,why:'That\'s an old-school move. Reels do better with 3 to 5 picked carefully.'});}
+    else {s=4; passes.push({level:'warn',what:'No hashtags on a Reel',why:'Add 3 to 5 with a mix of small, medium, and large.'});}
+  } else if(platform==='twitter'){
+    if(n===0){s=10; passes.push({level:'pass',what:'No hashtags — perfect for X',why:'X rewards keyword-heavy text, not hashtags.'});}
+    else if(n<=2){s=7; passes.push({level:'warn',what:`${n} hashtags — drop them next time`,why:'Hashtags actually hurt your reach on X. Put the keywords in the text instead.'});}
+    else {s=4; passes.push({level:'warn',what:`${n} hashtags — definitely drop these`,why:'Hashtags are a no on X.'});}
+  }
+  // Niche anchor check — only if the content suggests a VTuber context
+  if(platform!=='twitter'){
+    const titleDesc = `${title||''} ${description||''}`.toLowerCase();
+    const contentSuggestsVTuber = /\b(vtuber|live2d|pngtuber|envtuber|hololive|nijisanji)\b/.test(titleDesc);
+    const hasVTuber = tags.some(t=>t.includes('vtuber'));
+    if(contentSuggestsVTuber){
+      if(hasVTuber){passes.push({level:'pass',what:'You\'ve got a VTuber tag',why:'Keeps the right audience seeing your stuff since your content is VTuber-related.'});}
+      else passes.push({level:'warn',what:'No #VTuber tag',why:'Your content reads as VTuber-related — include #VTuber so the app shows it to the right people.'});
+    }
+  }
+  return {key:'hashtags',name:'Hashtags',score:s,weight:1.3,blurb:'Use 3 to 5 hashtags with a mix of small, medium, and large. None on X.',passes};
+}
+
+function scoreCaption({description, platform}){
+  const d = (description||'').trim();
+  let s = 4;
+  const passes = [];
+  if(!d){
+    return {key:'caption',name:'Caption / description',score:4,weight:0.9,blurb:'The text below your video.',passes:[{level:'warn',what:'No caption yet',why:'Add one strong hook sentence with a few keywords.'}]};
+  }
+  const firstSentence = (d.split(/[.!?]/)[0] || '').trim();
+  const fsLower = firstSentence.toLowerCase();
+  const isHookSentence = /\b(why|how|what|this|wait|nobody|everyone|the truth|here(?:'|’)?s)\b/.test(fsLower) || firstSentence.endsWith('?');
+  if(isHookSentence){s+=3; passes.push({level:'pass',what:'Your first sentence hooks',why:'A curious opener gets people to actually read the caption.'});}
+  else passes.push({level:'warn',what:'First sentence could pop more',why:'Try opening with a question, a hot take, or something curious.'});
+
+  if(d.length>=50 && d.length<=200){s+=2; passes.push({level:'pass',what:'Good caption length',why:'Long enough for keywords, short enough to actually read.'});}
+  else if(d.length<50){s+=1; passes.push({level:'warn',what:'Caption is short',why:'Add a few keywords so the app knows what your video is about.'});}
+  else if(d.length>400){passes.push({level:'warn',what:'Caption is long',why:'Trim to your hook plus 2 or 3 keyword sentences for the best engagement.'});}
+
+  if(/https?:\/\//.test(d)){s+=1; passes.push({level:'pass',what:'You\'ve got a link or CTA',why:'Great for sending people to your channel.'});}
+  return {key:'caption',name:'Caption / description',score:clamp(s,0,10),weight:0.9,blurb:'One strong hook sentence. Make it curious or playful.',passes};
+}
+
+function scoreEngagement({title, description}){
+  const text = ((title||'')+' '+(description||'')).toLowerCase();
+  let s = 4;
+  const passes = [];
+  const hardStance = /\b(actually|truth|truly|fact|wrong|never|always|stop|don'?t|do not|the real|the only|every \w+ should|nobody (gets|talks|says|admits))\b/.test(text);
+  const contrarian = /\b(nobody|everyone|most people|popular opinion|hot take|controversial|unpopular)\b/.test(text);
+  const emotion = /\b(love|hate|crying|crazy|insane|wild|cursed|wholesome|brutal|unhinged|chaotic|obsessed|broken)\b/.test(text);
+  const cult = /\b(twitch|vtuber|fromsoft|souls|warhammer|resident evil|persona|elden|minecraft|valorant|league|hololive|nijisanji)\b/.test(text);
+  if(hardStance){s+=2; passes.push({level:'pass',what:'You\'re taking a real stance',why:'Both agreement AND arguments count as engagement. Take a side.'});}
+  else passes.push({level:'warn',what:'Framing could be bolder',why:'Pick a side, even if you\'re exaggerating for the clip. Bold framing gets more comments.'});
+  if(contrarian){s+=2; passes.push({level:'pass',what:'You\'ve got a hot take',why:'"Nobody talks about…" is comment gold.'});}
+  if(emotion){s+=2; passes.push({level:'pass',what:'Using emotional words',why:'Feelings get way more engagement than facts.'});}
+  if(cult){s+=2; passes.push({level:'pass',what:'You named something with a fanbase',why:'Connects you to people who already care about that thing.'});}
+  return {key:'engagement',name:'Comment bait',score:clamp(s,0,10),weight:1.3,blurb:'Comments tell the app your video matters. Take a side, name something people already have feelings about.',passes};
+}
+
+function scoreSEO({title, description, hashtags}){
+  const tWords = uniqueWords(title);
+  const dWords = uniqueWords(description);
+  const tags = parseHashtags(hashtags);
+  let s = 5;
+  const passes = [];
+  const titleSet = new Set(tWords);
+  const descSet = new Set(dWords);
+  const overlap = [...titleSet].filter(w=>descSet.has(w));
+  if(tWords.length===0){
+    return {key:'seo',name:'Keyword match-up',score:5,weight:0.9,blurb:'Whether your title, description, and hashtags use the same words.',passes:[{level:'warn',what:'Add a title to check this',why:'I need a title to see if your keywords match across the post.'}]};
+  }
+  if(overlap.length>=2){s+=3; passes.push({level:'pass',what:`Your title and description share ${overlap.length} keywords`,why:'This is how the app figures out what your video is about.'});}
+  else if(overlap.length===1){s+=2; passes.push({level:'warn',what:'One keyword overlaps — good start',why:'Try to use 2 or 3 of your main words in both the title and the description.'});}
+  else passes.push({level:'warn',what:'Your title and description don\'t share keywords yet',why:'Pick 2 main words and use them in both spots.'});
+
+  const tagOverlap = tags.filter(t=>titleSet.has(t) || descSet.has(t));
+  if(tagOverlap.length>=1){s+=2; passes.push({level:'pass',what:'Your hashtags match your keywords',why:'Tells the app your video is consistent — same topic everywhere.'});}
+  else passes.push({level:'warn',what:'Hashtags don\'t match your title yet',why:'Pick at least one hashtag that uses your main keyword.'});
+
+  if(dWords.length>0){s+=2; passes.push({level:'pass',what:'Description has good keywords',why:'Helps your video get found on different apps.'});}
+
+  return {key:'seo',name:'Keyword match-up',score:clamp(s,0,10),weight:1.0,blurb:'Use the same words across your title, description, and hashtags so the app knows what your video is about.',passes};
+}
+
+function scoreNiche({title, description, hashtags}){
+  const text = ((title||'')+' '+(description||'')+' '+(hashtags||'')).toLowerCase();
+  const detected = detectTopics(text);
+  let s = 4;
+  const passes = [];
+
+  // Most important: a specific topic (game, genre, or content type)
+  const hasSpecificTopic = detected.games.length > 0
+    || detected.genres.filter(g => g !== 'gaming' && g !== 'streaming').length > 0;
+  if(hasSpecificTopic){
+    s+=3;
+    const named = detected.games[0] || detected.genres.find(g => g !== 'gaming' && g !== 'streaming');
+    passes.push({level:'pass',what:`You named a specific thing (${named})`,why:'Being specific beats being a "variety" creator every time. The app shows your video to the right people.'});
+  } else {
+    passes.push({level:'warn',what:'Topic could be more specific',why:'Name the actual thing — the game, the recipe, the workout, the song. Specifics tell the app who to show this to.'});
+  }
+
+  // Content type / format signal
+  if(detected.content.length > 0){
+    s+=2;
+    passes.push({level:'pass',what:`Clear content type (${detected.content[0]})`,why:'The app categorizes you by the kind of video this is — reaction, tutorial, storytime, etc.'});
+  }
+
+  // Niche audience anchors
+  if(detected.hasVTuber){
+    s+=2;
+    passes.push({level:'pass',what:'Clear VTuber niche',why:'Keeps the app showing this to the VTuber audience.'});
+  } else if(detected.genres.includes('streaming')){
+    s+=2;
+    passes.push({level:'pass',what:'You mention that you stream',why:'Helps people who like the clip find your actual stream.'});
+  } else if(detected.genres.includes('gaming')){
+    s+=1;
+    passes.push({level:'pass',what:'Gaming content signal',why:'The app knows this is gaming-flavored — name a specific game to sharpen it further.'});
+  }
+
+  return {key:'niche',name:'Niche signal',score:clamp(s,0,10),weight:0.9,blurb:'Should be describable in one sentence with a specific topic attached. The narrower, the better the app can match it to viewers.',passes};
+}
+
+function scoreRetention({retention, viewedVsSwiped}){
+  const r = Number(retention);
+  const v = Number(viewedVsSwiped);
+  if(!r && !v) return null;
+  let s = 5;
+  const passes = [];
+  if(r){
+    if(r>=85){s=10; passes.push({level:'pass',what:`${r}% retention — amazing`,why:'85% or higher is what YouTube Shorts wants to see.'});}
+    else if(r>=70){s=9; passes.push({level:'pass',what:`${r}% retention — really good`,why:'This is the zone where the app keeps showing your video to more people.'});}
+    else if(r>=50){s=7; passes.push({level:'warn',what:`${r}% retention — solid`,why:'Cutting slow parts and tightening the opening would push you into the pushed-by-the-app zone.'});}
+    else {s=4; passes.push({level:'warn',what:`${r}% retention — work to do`,why:'The app reads this as "people didn\'t finish." Rework the pacing — start with the first 5 seconds.'});}
+  }
+  if(v){
+    let vs = 5;
+    if(v>=75){vs=10; passes.push({level:'pass',what:`${v}% viewed vs. swiped — amazing`,why:'75% or higher is when the app really starts pushing your video.'});}
+    else if(v>=60){vs=8; passes.push({level:'pass',what:`${v}% viewed vs. swiped — really close`,why:'Almost in the zone where things take off. Tighten your first frame.'});}
+    else if(v>=40){vs=7; passes.push({level:'warn',what:`${v}% viewed vs. swiped — middle of the pack`,why:'Your thumbnail or first frame could earn more watches.'});}
+    else {vs=4; passes.push({level:'warn',what:`${v}% viewed vs. swiped — needs work`,why:'The first frame is the issue. Redesign your opener.'});}
+    s = r ? Math.round((s+vs)/2) : vs;
+  }
+  return {key:'retention',name:'Watch-through',score:s,weight:2.0,blurb:'The number the app cares about most. Aim for 85% retention and 75% viewed-vs-swiped.',passes};
+}
+
+// ---------- 5. AGGREGATE + CRITIQUE ----------
+function runAnalysis({platform, title, description, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped}){
+  const criteria = [];
+  criteria.push(scoreHook({title, hookStrength}));
+  criteria.push(scoreDuration({duration, rewatchable, platform}));
+  criteria.push(scoreTitle({title, platform}));
+  criteria.push(scoreHashtags({hashtags, platform, title, description}));
+  criteria.push(scoreCaption({description, platform}));
+  criteria.push(scoreEngagement({title, description}));
+  criteria.push(scoreSEO({title, description, hashtags}));
+  criteria.push(scoreNiche({title, description, hashtags}));
+  const ret = scoreRetention({retention, viewedVsSwiped});
+  if(ret) criteria.push(ret);
+
+  const weighted = criteria.reduce((acc,c)=>{acc.s+=c.score*c.weight; acc.w+=c.weight; return acc;},{s:0,w:0});
+  const overall = round1(weighted.s / weighted.w);
+  const grade = gradeFor(overall);
+  const verdict = verdictFor(overall, criteria);
+  const critique = critiqueFor(criteria, {title, platform});
+  const titleSuggestions = suggestTitles(title, description);
+  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, description);
+  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec};
+}
+
+function gradeFor(o){
+  if(o>=9) return "This one's gonna pop off 🐙✨";
+  if(o>=7.5) return "Really solid 💖";
+  if(o>=6) return "Pretty good — easy wins ahead 🌸";
+  if(o>=4.5) return "Solid start — room to level up 🫧";
+  return "You've got a foundation — let's build on it 💧";
+}
+function verdictFor(o, crits){
+  const worst = [...crits].sort((a,b)=>a.score-b.score)[0];
+  if(o>=9) return "You're doing the stuff that actually works. Keep this pattern going and just post more — that's the only thing left.";
+  if(o>=7.5) return `Really strong work. The one piece holding it back is your ${worst.name.toLowerCase()} — quick wins for that are below.`;
+  if(o>=6) return `Foundation's locked in. Tighten your ${worst.name.toLowerCase()} and you'll see a real jump.`;
+  if(o>=4.5) return `Nice start. Your hook and ${worst.name.toLowerCase()} have the biggest room to grow — fixes are below.`;
+  return "Lots of room to grow here — and that's exciting. Start with the hook and title; even small changes will move this a lot.";
+}
+// Actionable tools / resources, mapped to each criterion's key.
+// These show up under "What needs fixing" so the feedback is real, not abstract.
+const TOOLS_FOR = {
+  hook: {
+    head: 'Tools that help',
+    items: [
+      '<strong>CapCut</strong> (free, mobile + desktop) &mdash; easiest way to add zooms, snap-to-beat cuts, and animated text in the first second',
+      '<strong>StreamLadder</strong> &mdash; literally built for chopping streams into shorts with strong hooks',
+      '<a href="https://www.youtube.com/@xSaandiEditing" target="_blank" rel="noreferrer"><strong>xSaandi Editing</strong></a> &mdash; the Premiere Pro tutorials I learned a lot from',
+      '<a href="https://xsaandipresets.com" target="_blank" rel="noreferrer"><strong>xSaandi Presets</strong></a> &mdash; free editing presets you can drop right in',
+      '<strong>Submagic</strong> or <strong>Veed.io</strong> &mdash; auto captions + viral hook templates'
+    ]
+  },
+  duration: {
+    head: 'How to fix it',
+    items: [
+      'In CapCut, drag the playhead to where the energy dips and hit <strong>Split</strong>. Delete that chunk. Repeat until you\'re in the 45-55s range.',
+      'Open <strong>YouTube Studio &rarr; Analytics &rarr; Audience retention</strong> — wherever the graph drops is exactly what to cut next time'
+    ]
+  },
+  title: {
+    head: 'Tools that help',
+    items: [
+      '<strong>VidIQ</strong> &mdash; free title scoring and keyword suggestions inside YouTube',
+      '<strong>TubeBuddy</strong> &mdash; click-through predictions for titles before you publish',
+      '<strong>AnswerThePublic</strong> &mdash; type your topic, get the actual questions people search for'
+    ]
+  },
+  hashtags: {
+    head: 'Tools that help',
+    items: [
+      '<strong>VidIQ</strong> &mdash; tag research with competition scores so you can pick small/medium/large properly',
+      '<strong>Display Purposes</strong> &mdash; IG-specific hashtag generator',
+      'Open TikTok, search your topic, and look at what hashtags the top videos use'
+    ]
+  },
+  caption: {
+    head: 'How to fix it',
+    items: [
+      '<strong>Hemingway Editor</strong> &mdash; pastes your caption back to you with weak words highlighted',
+      'Write your first sentence as a question or a hot take. Re-read it. If it doesn\'t make you want to keep reading, rewrite it.'
+    ]
+  },
+  engagement: {
+    head: 'How to fix it',
+    items: [
+      'Pick the most controversial opinion you actually have about your niche. Dial it up 20%. That\'s your hook.',
+      'Name a game, streamer, or community by name &mdash; "Why Resident Evil 4 broke me" gets way more comments than "horror games are good"'
+    ]
+  },
+  seo: {
+    head: 'How to fix it',
+    items: [
+      'Pick your top 2 keywords. Put them in: title, first sentence of description, and one of your hashtags. That\'s it.',
+      '<strong>VidIQ</strong> can auto-suggest tags based on your title — way faster than doing it yourself'
+    ]
+  },
+  niche: {
+    head: 'How to fix it',
+    items: [
+      'Write your niche in one sentence: <em>"I [verb] [game/topic] as a [type of VTuber]"</em>. If you can\'t, you\'re too broad.',
+      '<strong>SocialBlade</strong> &mdash; check the top 5 channels in your specific niche to see what they actually do'
+    ]
+  },
+  retention: {
+    head: 'How to fix it',
+    items: [
+      'Watch your own short at 2x speed. The second you\'d swipe &mdash; that\'s your problem spot. Cut it.',
+      'Open YT Studio &rarr; Analytics &rarr; <strong>Audience retention</strong>. Every dip in the graph = a moment to fix in your next short.',
+      '<strong>CapCut\'s</strong> auto-captions keep people watching by default &mdash; subtitled shorts retain way better than unsubtitled ones',
+      '<a href="https://www.youtube.com/watch?v=6Ouye9LyMgc" target="_blank" rel="noreferrer"><strong>Maxor\'s YouTube Workshop</strong></a> &mdash; this one will 1000% level up your shorts'
+    ]
+  }
+};
+
+function critiqueFor(crits, ctx){
+  const sorted = [...crits].sort((a,b)=>a.score-b.score);
+  const weaknesses = sorted.slice(0,3);
+  const strengths = [...crits].sort((a,b)=>b.score-a.score).slice(0,2);
+  const lines = [];
+  lines.push(`<p><strong>What's working:</strong> ${strengths.map(s=>`<em>${s.name}</em> (${s.score}/10)`).join(' &middot; ')}</p>`);
+  lines.push(`<p><strong>Where the biggest wins are:</strong></p><ol>`);
+  weaknesses.forEach(w=>{
+    const fix = bestFixFor(w);
+    const tools = TOOLS_FOR[w.key];
+    lines.push(`<li><strong>${w.name}</strong> (${w.score}/10) &mdash; ${fix}`);
+    if(tools){
+      lines.push(`<div class="tools-block"><div class="tools-head">${tools.head}</div><ul>${tools.items.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
+    }
+    lines.push(`</li>`);
+  });
+  lines.push(`</ol>`);
+  return lines.join('');
+}
+function bestFixFor(c){
+  const fail = c.passes.find(p=>p.level==='fail');
+  const warn = c.passes.find(p=>p.level==='warn');
+  return (fail || warn || c.passes[0] || {why:'Could use some tightening up.'}).why;
+}
+
+// ============================================================
+//  TITLE TEMPLATE DATABASE
+//  Built on common viral title formulas: curiosity gaps, pattern
+//  interrupts, personal POV, contrarian hot takes, numbered lists,
+//  questions, comparisons, and reveals. Each template is a fn
+//  taking the subject and returning a full title string.
+// ============================================================
+const TITLE_TEMPLATES = {
+  // Curiosity / open loop — the most reliable category
+  curiosity: [
+    (l,u,c) => `Nobody talks about ${l}`,
+    (l,u,c) => `The truth about ${l}`,
+    (l,u,c) => `Why ${l} hits different`,
+    (l,u,c) => `What no one tells you about ${l}`,
+    (l,u,c) => `The real reason ${l} is everywhere`,
+  ],
+  // Shock / pattern interrupt
+  shock: [
+    (l,u,c) => `Wait &mdash; ${u}?!`,
+    (l,u,c) => `${c} (you have to see this)`,
+    (l,u,c) => `${u} BROKE ME`,
+    (l,u,c) => `${c} is not what you think`,
+  ],
+  // Personal / POV
+  personal: [
+    (l,u,c) => `I didn't expect ${l} to do this`,
+    (l,u,c) => `What ${l} actually taught me`,
+    (l,u,c) => `POV: you just found ${l}`,
+    (l,u,c) => `${c}, from someone who's been there`,
+  ],
+  // Contrarian / hot take
+  contrarian: [
+    (l,u,c) => `${c} is overrated. Here's why.`,
+    (l,u,c) => `Unpopular opinion: ${l}`,
+    (l,u,c) => `Everyone is wrong about ${l}`,
+    (l,u,c) => `Stop sleeping on ${l}`,
+  ],
+  // Numbered / listicle
+  numbered: [
+    (l,u,c) => `3 things I wish I knew about ${l}`,
+    (l,u,c) => `The 1 thing that changed how I do ${l}`,
+    (l,u,c) => `5 ${l} mistakes you're making`,
+  ],
+  // Direct question
+  question: [
+    (l,u,c) => `Why is ${l} everywhere right now?`,
+    (l,u,c) => `How is ${l} this good?`,
+    (l,u,c) => `Why does ${l} feel different?`,
+  ],
+  // Comparison / superlative
+  comparison: [
+    (l,u,c) => `${c} vs what everyone else does`,
+    (l,u,c) => `The best ${l} I've ever seen`,
+    (l,u,c) => `${c}, ranked`,
+  ],
+  // Reveal / secret
+  reveal: [
+    (l,u,c) => `What they don't show you about ${l}`,
+    (l,u,c) => `The hidden side of ${l}`,
+    (l,u,c) => `${c}: behind the scenes`,
+  ]
+};
+
+function suggestTitles(originalTitle, description){
+  const t = (originalTitle||'').trim();
+  const detected = detectTopics(`${t} ${description||''}`);
+
+  // Pick a subject to plug into templates — use the user's title if it's specific enough,
+  // otherwise use whatever we detected (game / genre / content type), otherwise fallback.
+  let subject = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i)\s+/i,'').trim();
+  if(subject.length < 4){
+    if(detected.games.length) subject = detected.games[0];
+    else if(detected.genres.length){
+      const g = detected.genres.find(g => g !== 'gaming' && g !== 'streaming') || detected.genres[0];
+      subject = g === 'cooking' ? 'this recipe' : g === 'art' ? 'this drawing' : g === 'music' ? 'this song' : g === 'fitness' ? 'this workout' : g === 'beauty' ? 'this look' : g === 'fashion' ? 'this fit' : `this ${g}`;
+    } else if(detected.content.length) {
+      subject = `this ${detected.content[0]}`;
+    } else {
+      subject = 'this';
+    }
+  }
+
+  const lower = subject.toLowerCase();
+  const upper = subject.toUpperCase();
+  const cap = subject.charAt(0).toUpperCase() + subject.slice(1);
+
+  // Pick category mix based on content type. Always include curiosity (works for everything).
+  // Then add the categories most relevant to what the user is making.
+  const pickedCategories = ['curiosity', 'shock'];
+  const c = detected.content;
+  if(c.includes('tutorial') || c.includes('lifehack') || c.includes('review')){
+    pickedCategories.push('numbered','reveal');
+  } else if(c.includes('rant') || c.includes('storytime')){
+    pickedCategories.push('contrarian','personal');
+  } else if(c.includes('reaction') || c.includes('cursed') || c.includes('fail')){
+    pickedCategories.push('question','personal');
+  } else if(c.includes('vlog') || c.includes('bts') || c.includes('debut')){
+    pickedCategories.push('personal','reveal');
+  } else if(c.includes('challenge') || c.includes('compilation')){
+    pickedCategories.push('comparison','numbered');
+  } else if(c.includes('funny') || c.includes('skit')){
+    pickedCategories.push('shock','contrarian');
+  } else {
+    // Default mix — gives variety regardless
+    pickedCategories.push('personal','contrarian');
+  }
+
+  // Take one template per category for variety. Use a simple hash of the subject
+  // so the same subject always gets the same picks (consistent, not random feeling).
+  function hash(str){
+    let h = 0;
+    for(let i=0; i<str.length; i++){ h = ((h<<5)-h) + str.charCodeAt(i); h |= 0; }
+    return Math.abs(h);
+  }
+  const seed = hash(lower);
+  const titles = [];
+  pickedCategories.slice(0,4).forEach((cat, idx)=>{
+    const templates = TITLE_TEMPLATES[cat];
+    if(templates && templates.length){
+      const pick = templates[(seed + idx) % templates.length];
+      titles.push(pick(lower, upper, cap));
+    }
+  });
+  return titles;
+}
+
+// ============================================================
+//  SMART HASHTAG RECOMMENDATION
+//  Detects what the short is actually about, then mixes small,
+//  medium, and large tags relevant to THAT content. Always
+//  anchors with #VTuber per the niche rubric. Built on the
+//  user's hashtag rules + VidIQ relevance-over-volume principle.
+// ============================================================
+// ============================================================
+//  TAG DATABASE  —  last refreshed using VidIQ data: 2026-05-22
+//  Sourced from top-performing breakout VTuber + streamer shorts.
+//  Refresh every few weeks by pulling fresh outlier data.
+// ============================================================
+const TAG_DB = {
+  // VTuber tags — only used if VTuber signals are detected in the content
+  vtuber: {
+    small: ['indievtuber','vtubermemes','vtuberdebut','vtuberen','pngtuber','vtuberuprising','smallvtuber','vtubermoments','vtuberstorytime','vtuberreact','vtuberfunny','vtuberfunnymoments','vtubermodel','vtubertips','vtuberteaser','vtuberpromotion','debutpromotion','vtuberdebutvideo','jellyfishvtuber','dragonvtuber','vtubersupport','vtubermeme','smallstreamer'],
+    medium: ['vtuberclips','envtuber','live2d','vtuberart','animevtuber','asmrvtuber','musicvtuber','virtualyoutuber','vtubing','englishvtuber','vtuberlife','vtuberclip'],
+    large: ['vtuber','vtuberenglish','vtubers','hololive']
+  },
+  // Games — keys are detection phrases (lowercase substrings of title/description)
+  games: {
+    // Souls / FromSoft
+    'elden ring':       {tags:['eldenring','fromsoftware','soulslike','eldenringclips'], sizes:['large','medium','medium','small']},
+    'dark souls':       {tags:['darksouls','fromsoftware','soulsborne'], sizes:['large','medium','small']},
+    'bloodborne':       {tags:['bloodborne','fromsoftware'], sizes:['medium','medium']},
+    'sekiro':           {tags:['sekiro','fromsoftware'], sizes:['medium','medium']},
+    'lies of p':        {tags:['liesofp','soulslike'], sizes:['small','medium']},
+    // Horror
+    'resident evil':    {tags:['residentevil','residentevil4','survivalhorror','capcom'], sizes:['medium','small','medium','large']},
+    'silent hill':      {tags:['silenthill','survivalhorror','konami'], sizes:['medium','medium','medium']},
+    'phasmophobia':     {tags:['phasmophobia','phasmo','horrorgaming'], sizes:['small','small','medium']},
+    'lethal company':   {tags:['lethalcompany','lethalcompanyclips'], sizes:['medium','small']},
+    'dead by daylight': {tags:['deadbydaylight','dbd','dbdclips'], sizes:['medium','large','small']},
+    'outlast':          {tags:['outlast','horrorgaming'], sizes:['small','medium']},
+    "five nights":      {tags:['fnaf','fivenightsatfreddys','horrorgaming'], sizes:['large','small','medium']},
+    'repo':             {tags:['repogame','indiehorror'], sizes:['small','small']},
+    // Sandbox / building
+    'minecraft':        {tags:['minecraft','minecraftshorts','minecraftclips','minecraftbuilds'], sizes:['large','small','small','small']},
+    'terraria':         {tags:['terraria','terrariaclips'], sizes:['medium','small']},
+    'roblox':           {tags:['roblox','robloxedit','robloxshorts'], sizes:['large','small','small']},
+    // Cozy / sim
+    'stardew valley':   {tags:['stardewvalley','cozygaming','farmingsim'], sizes:['medium','small','small']},
+    'animal crossing':  {tags:['animalcrossing','newhorizons','cozygaming'], sizes:['large','medium','small']},
+    'palia':            {tags:['palia','cozygaming'], sizes:['small','small']},
+    // FPS / shooter
+    'apex':             {tags:['apexlegends','apex','apexclips'], sizes:['large','large','medium']},
+    'apex legends':     {tags:['apexlegends','apex','apexclips'], sizes:['large','large','medium']},
+    'valorant':         {tags:['valorant','valorantclips','riotgames'], sizes:['large','medium','medium']},
+    'overwatch':        {tags:['overwatch','overwatch2','overwatchclips'], sizes:['large','medium','small']},
+    'counter-strike':   {tags:['counterstrike','cs2','csgo'], sizes:['large','medium','large']},
+    'fortnite':         {tags:['fortnite','fortniteclips'], sizes:['large','medium']},
+    'call of duty':     {tags:['callofduty','codclips','warzone'], sizes:['large','medium','medium']},
+    'helldivers':       {tags:['helldivers2','helldivers'], sizes:['large','medium']},
+    'marvel rivals':    {tags:['marvelrivals','marvelrivalsclips'], sizes:['medium','small']},
+    // MOBA
+    'league of legends':{tags:['leagueoflegends','lol','leaguelife'], sizes:['large','large','small']},
+    'dota':             {tags:['dota2','dotaclips'], sizes:['medium','small']},
+    // RPG / JRPG
+    'persona':          {tags:['persona5','persona','atlus','jrpg'], sizes:['medium','large','small','small']},
+    'final fantasy':    {tags:['finalfantasy','ffxiv','jrpg'], sizes:['large','medium','small']},
+    'monster hunter':   {tags:['monsterhunter','capcom'], sizes:['large','large']},
+    'baldur':           {tags:['baldursgate3','larian','dnd'], sizes:['large','medium','large']},
+    'cyberpunk':        {tags:['cyberpunk2077','cyberpunk'], sizes:['large','large']},
+    // Action
+    'gta':              {tags:['gta','gtav','gtaonline','gta6'], sizes:['large','medium','medium','medium']},
+    'metroidvania':     {tags:['metroidvania','indiegames'], sizes:['small','medium']},
+    'hollow knight':    {tags:['hollowknight','metroidvania','teamcherry'], sizes:['medium','small','small']},
+    'cuphead':           {tags:['cuphead','runandgun'], sizes:['medium','small']},
+    'sea of thieves':   {tags:['seaofthieves','pirategame'], sizes:['medium','small']},
+    'rust':             {tags:['rust','survivalgame'], sizes:['medium','small']},
+    // Hoyo
+    'genshin':          {tags:['genshinimpact','genshin','hoyoverse'], sizes:['large','large','medium']},
+    'honkai':           {tags:['honkaistarrail','hsr','hoyoverse'], sizes:['large','medium','medium']},
+    'wuthering waves':  {tags:['wutheringwaves','wuwa'], sizes:['medium','small']},
+    // Nintendo
+    'pokemon':          {tags:['pokemon','nintendo','pokemontcg'], sizes:['large','large','small']},
+    'zelda':            {tags:['zelda','totk','nintendo'], sizes:['large','medium','large']},
+    'mario':            {tags:['mario','nintendo','supermario'], sizes:['large','large','medium']},
+    'splatoon':         {tags:['splatoon','splatoon3','nintendo'], sizes:['medium','small','large']},
+    // Tabletop / niche
+    'warhammer':        {tags:['warhammer','warhammer40k','tabletop'], sizes:['medium','medium','small']},
+    'dnd':              {tags:['dnd','dungeonsanddragons','tabletop'], sizes:['large','medium','small']},
+    'among us':         {tags:['amongus','amongusclips'], sizes:['large','small']}
+  },
+  // Genres / categories
+  genres: {
+    horror:        {tags:['horror','horrorgaming','scary','spookytok'], sizes:['large','medium','large','small']},
+    anime:         {tags:['anime','animeclips','weeb','animetiktok','manga'], sizes:['large','small','small','medium','medium']},
+    gaming:        {tags:['gaming','gamer','gameplay','gamingclips','gamingcommunity'], sizes:['large','large','large','medium','small']},
+    streaming:    {tags:['twitch','streamer','twitchstreamer','twitchclips','streamerlife','kickclips','kickstreamer','streamhighlights','streamerclips','livestreamfails','smallstreamer','streamcommunity'], sizes:['large','large','medium','medium','small','medium','small','small','medium','medium','small','small']},
+    cozy:          {tags:['cozygaming','cozystream','cozyvibes'], sizes:['small','small','small']},
+    cosplay:       {tags:['cosplay','cosplayer','animecosplay','cosplaying'], sizes:['large','medium','small','small']},
+    cooking:       {tags:['cooking','recipes','foodtiktok','cookingtutorial','easyrecipes'], sizes:['large','large','medium','small','medium']},
+    food:          {tags:['food','foodie','foodlover','foodporn','yummy'], sizes:['large','large','medium','large','medium']},
+    art:           {tags:['art','artist','digitalart','traditionalart','illustration','drawing','sketch','procreate'], sizes:['large','large','large','medium','medium','large','medium','medium']},
+    music:         {tags:['music','musician','singer','musictok','songoftheday'], sizes:['large','medium','large','medium','small']},
+    fitness:       {tags:['fitness','workout','gym','fitnessmotivation','gymtok','homeworkout'], sizes:['large','large','large','medium','medium','small']},
+    beauty:        {tags:['beauty','makeup','makeuptutorial','skincare','beautytips','glowup'], sizes:['large','large','medium','large','small','medium']},
+    fashion:       {tags:['fashion','style','outfit','ootd','fashiontiktok'], sizes:['large','large','large','medium','medium']},
+    tech:          {tags:['tech','technology','coding','programming','developer','gadgets','techtok'], sizes:['large','large','medium','medium','medium','medium','small']},
+    education:     {tags:['education','learnontiktok','didyouknow','funfacts','history'], sizes:['large','large','large','large','medium']},
+    pets:          {tags:['pets','cats','dogs','puppy','kitten','petsoftiktok','catsoftiktok','dogsoftiktok'], sizes:['large','large','large','medium','medium','large','medium','medium']},
+    sports:        {tags:['sports','football','basketball','soccer','highlights','sportstiktok'], sizes:['large','large','large','large','medium','small']},
+    travel:        {tags:['travel','traveltok','wanderlust','travelgram','adventure'], sizes:['large','medium','medium','medium','medium']},
+    dance:         {tags:['dance','dancer','choreography','dancetiktok','dancers'], sizes:['large','large','medium','medium','small']},
+    aesthetic:     {tags:['aesthetic','aestheticedit','aestheticvideo','aestheticvibes'], sizes:['large','medium','small','small']},
+    movies:        {tags:['movies','film','cinema','movietok','filmtok'], sizes:['large','large','medium','small','small']},
+    tv:            {tags:['tvshow','tvseries','bingewatching'], sizes:['medium','medium','small']},
+    cars:          {tags:['cars','cartok','carenthusiast','carlovers'], sizes:['large','medium','small','small']}
+  },
+  // Content types — what KIND of video it is, not what it's about
+  content: {
+    reaction:      {tags:['reaction','reactionvideo','reactionclip'], sizes:['large','small','small']},
+    funny:         {tags:['funny','funnymoments','funnyvideos','comedy','funnyclips'], sizes:['large','medium','large','large','medium']},
+    tutorial:      {tags:['tutorial','howto','tipsandtricks','learn'], sizes:['large','large','medium','large']},
+    review:        {tags:['review','honestreview','productreview'], sizes:['large','small','medium']},
+    storytime:     {tags:['storytime','storytelling','storytimes'], sizes:['large','medium','medium']},
+    vlog:          {tags:['vlog','vlogger','dayinmylife','dailyvlog'], sizes:['large','medium','medium','medium']},
+    skit:          {tags:['skit','comedyskit','sketch'], sizes:['medium','small','medium']},
+    bts:           {tags:['behindthescenes','bts'], sizes:['medium','large']},
+    qna:           {tags:['qna','askmeanything','aboutme'], sizes:['medium','small','medium']},
+    asmr:          {tags:['asmr','asmrcommunity','asmrsounds','asmrtist'], sizes:['large','medium','small','small']},
+    debut:         {tags:['vtuberdebut','newvtuber','debut'], sizes:['small','small','medium']},
+    cute:          {tags:['cute','adorable','wholesome','cuteness'], sizes:['large','medium','large','medium']},
+    cursed:        {tags:['cursed','cursedclips','cursedvideos'], sizes:['medium','small','small']},
+    rage:          {tags:['rage','ragegaming','gamerrage'], sizes:['medium','small','small']},
+    challenge:     {tags:['challenge','tryingthings','nodeathrun'], sizes:['large','small','small']},
+    rant:          {tags:['rant','hottake','unpopularopinion','hottakes'], sizes:['medium','medium','small','small']},
+    compilation:   {tags:['compilation','bestof','highlights'], sizes:['large','medium','medium']},
+    fail:          {tags:['fail','fails','epicfail','funnyfails'], sizes:['large','medium','medium','small']},
+    edit:          {tags:['edit','edits','aestheticedit'], sizes:['large','large','medium']},
+    lifehack:      {tags:['lifehack','lifehacks','tipsandtricks'], sizes:['large','large','medium']},
+    drama:         {tags:['streamerdrama','twitchdrama','vtuberdrama','contentcreatordrama','drama'], sizes:['small','small','small','small','medium']},
+    facereveal:    {tags:['facereveal','vtuberfacereveal','vtuberreveal'], sizes:['medium','small','small']},
+    clip:          {tags:['clips','bestclips','dailyclips','viralclip','streamclips','funnyclip'], sizes:['large','medium','small','medium','small','medium']}
+  },
+  // Platform / feed tags — last-resort fallbacks (refreshed from VidIQ trending data)
+  platform: {
+    youtube: {tags:['shorts','youtubeshorts','ytshorts','shortvideo','shortsfeed','shortsviral'], sizes:['large','large','medium','large','medium','small']},
+    tiktok:  {tags:['fyp','foryou','foryoupage','viral','trending','viralvideo','trendingvideo','viralvid'], sizes:['large','large','large','large','large','medium','medium','small']},
+    instagram: {tags:['reels','instareels','reelsinstagram','reelitfeelit','explore','explorepage','viralreels','reelvideo'], sizes:['large','medium','medium','small','large','medium','medium','small']}
+  }
+};
+
+function detectTopics(text){
+  const t = (text||'').toLowerCase();
+  const found = {games:[], genres:[], content:[], hasVTuber:false, primary:null};
+
+  // Games — direct substring match
+  for(const g in TAG_DB.games){ if(t.includes(g)) found.games.push(g); }
+
+  // VTuber signals (used to decide whether to anchor with #VTuber)
+  // Expanded with terms found in top-performing VTuber shorts via VidIQ
+  found.hasVTuber = /\b(vtuber|live2d|pngtuber|envtuber|vtuberen|vtubers|vtuberclip|vtuberclips|vtubing|hololive|nijisanji|phase ?connect|holox|holo|kawaii ?model|2d ?avatar|virtual ?youtuber)\b/.test(t);
+
+  // Genres / categories
+  if(/\b(horror|scary|spooky|jumpscare|terrifying|haunted|creepy|nightmare)\b/.test(t)) found.genres.push('horror');
+  if(/\b(anime|weeb|otaku|manga|shonen|shoujo)\b/.test(t)) found.genres.push('anime');
+  if(/\b(stream|streamer|streaming|twitch|live)\b/.test(t)) found.genres.push('streaming');
+  if(/\b(gaming|gamer|gameplay|video ?game|playthrough)\b/.test(t)) found.genres.push('gaming');
+  if(/\b(cozy|chill stream|comfy|chill vibes)\b/.test(t)) found.genres.push('cozy');
+  if(/\b(cosplay|cosplaying|cosplayer)\b/.test(t)) found.genres.push('cosplay');
+  if(/\b(cook|cooking|recipe|baking|chef|kitchen|meal prep)\b/.test(t)) found.genres.push('cooking');
+  if(/\b(food|foodie|tasty|delicious|restaurant|eating|snack|breakfast|dinner|lunch)\b/.test(t)) found.genres.push('food');
+  if(/\b(art|drawing|painting|illustration|sketch|fanart|procreate|digital ?art|tradart)\b/.test(t)) found.genres.push('art');
+  if(/\b(music|song|cover|singing|sing|guitar|piano|producer|beat ?maker|original ?song)\b/.test(t)) found.genres.push('music');
+  if(/\b(workout|fitness|gym|exercise|lifting|cardio|hiit|abs|squats)\b/.test(t)) found.genres.push('fitness');
+  if(/\b(makeup|skincare|beauty|lipstick|eyeliner|foundation|tutorial.*makeup|glow ?up)\b/.test(t)) found.genres.push('beauty');
+  if(/\b(fashion|outfit|ootd|style|clothes|wearing|fashion ?tok)\b/.test(t)) found.genres.push('fashion');
+  if(/\b(tech|coding|programming|developer|software|gadget|laptop|keyboard|build)\b/.test(t)) found.genres.push('tech');
+  if(/\b(learn|education|did you know|facts|history|science|explain)\b/.test(t)) found.genres.push('education');
+  if(/\b(cat|cats|kitten|dog|dogs|puppy|pet|pets)\b/.test(t)) found.genres.push('pets');
+  if(/\b(football|basketball|soccer|baseball|hockey|nba|nfl|mlb|nhl|sports)\b/.test(t)) found.genres.push('sports');
+  if(/\b(travel|vacation|trip|adventure|tourist|country)\b/.test(t)) found.genres.push('travel');
+  if(/\b(dance|dancer|choreo|choreography|dancing)\b/.test(t)) found.genres.push('dance');
+  if(/\b(aesthetic|vibes|moody|dreamy)\b/.test(t)) found.genres.push('aesthetic');
+  if(/\b(movie|film|cinema|blockbuster)\b/.test(t)) found.genres.push('movies');
+  if(/\b(tv ?show|series|netflix|season|episode|binge)\b/.test(t)) found.genres.push('tv');
+  if(/\b(car|cars|driving|automotive|jdm|drift)\b/.test(t)) found.genres.push('cars');
+
+  // Content types (what KIND of video this is — and what's being said in it)
+  if(/\b(react|reacting|reaction|reacted|reactions to)\b/.test(t)) found.content.push('reaction');
+  if(/\b(funny|hilarious|lol|lmao|comedy|joke|meme|memes|that was funny)\b/.test(t)) found.content.push('funny');
+  if(/\b(tutorial|how ?to|guide|tips|teach|step by step|teaching|the right way)\b/.test(t)) found.content.push('tutorial');
+  if(/\b(review|honest review|reviewing|unboxing|first impressions|worth it\??)\b/.test(t)) found.content.push('review');
+  if(/\b(story ?time|storytime|tell.*story|let me tell you|so basically|the way (i|he|she|they)|the time i)\b/.test(t)) found.content.push('storytime');
+  if(/\b(vlog|day in (my|the) life|daily vlog|dailylife|behind the scenes of my)\b/.test(t)) found.content.push('vlog');
+  if(/\b(skit|sketch comedy|skit comedy)\b/.test(t)) found.content.push('skit');
+  if(/\b(behind the scenes|bts|how (i|we) made|making of)\b/.test(t)) found.content.push('bts');
+  if(/\b(q ?and ?a|qna|ask me anything|answering your questions|aboutme|about me)\b/.test(t)) found.content.push('qna');
+  if(/\b(asmr|whisper|tingles|asmr ?ist)\b/.test(t)) found.content.push('asmr');
+  if(/\b(debut|first stream|introducing myself|new vtuber|model reveal)\b/.test(t)) found.content.push('debut');
+  if(/\b(cute|adorable|wholesome|aww|so cute|precious)\b/.test(t)) found.content.push('cute');
+  if(/\b(cursed|haunted|unhinged|wtf|what the actual)\b/.test(t)) found.content.push('cursed');
+  if(/\b(rage|raging|tilted|tilting|tantrum|i (just|literally) lost it|losing my mind)\b/.test(t)) found.content.push('rage');
+  if(/\b(challenge|no death|nuzlocke|hardcore mode|i tried|trying to|24 hours|7 days|30 days|trying for)\b/.test(t)) found.content.push('challenge');
+  if(/\b(rant|hot take|unpopular opinion|disagree|controversial|i'?m gonna say it)\b/.test(t)) found.content.push('rant');
+  if(/\b(compilation|best of|highlights|montage|funniest moments)\b/.test(t)) found.content.push('compilation');
+  if(/\b(fail|failed|epic fail|wipeout|disaster|that did not go|did not work|went so wrong)\b/.test(t)) found.content.push('fail');
+  if(/\b(edit|editing|aesthetic edit|fan edit|amv)\b/.test(t)) found.content.push('edit');
+  if(/\b(life hack|lifehack|hack|trick that|secret to|i wish i knew|things you didn'?t know)\b/.test(t)) found.content.push('lifehack');
+
+  // Emotional / contextual signals — adds to content array if these vibes are present
+  if(/\b(broke me|destroyed me|killed me|made me cry|cried|i can'?t|i'?m crying|literally crying)\b/.test(t)) found.content.push('cursed');
+  if(/\b(wait what|wait,? what|hold on|hold up|what the|wait —|pause)\b/.test(t)) found.content.push('reaction');
+  if(/\b(pov|point of view|when you|what it'?s like|imagine if)\b/.test(t)) found.content.push('storytime');
+  if(/\b(things i (wish|wished)|i wish i knew|stuff (no ?one|nobody) tells you)\b/.test(t)) found.content.push('lifehack');
+  if(/\b(everyone (gets|is|has) wrong|nobody (talks|knows|admits)|stop (doing|saying)|here'?s why)\b/.test(t)) found.content.push('rant');
+  // New content types from VidIQ data
+  if(/\b(drama|cancelled|toxic|fight|beef|controversy|controversial moment)\b/.test(t)) found.content.push('drama');
+  if(/\b(face reveal|model reveal|revealing|finally reveals|big reveal|first look)\b/.test(t)) found.content.push('facereveal');
+  if(/\b(clip|clips|highlight|highlights|best moment|moment from|stream clip)\b/.test(t)) found.content.push('clip');
+
+  // Decide primary topic for the most-specific tag.
+  // Priority: specific game > specific niche genre > content type > generic gaming/streaming
+  // (When there's no specific game, what's HAPPENING in the short matters more than the fact that it IS a gaming clip.)
+  const specificGenre = found.genres.find(g => g !== 'gaming' && g !== 'streaming');
+  if(found.games.length) {
+    found.primary = {type:'game', key:found.games[0]};
+  } else if(specificGenre){
+    found.primary = {type:'genre', key: specificGenre};
+  } else if(found.content.length){
+    found.primary = {type:'content', key: found.content[0]};
+  } else if(found.genres.length){
+    found.primary = {type:'genre', key: found.genres[0]};
+  }
+  return found;
+}
+
+function suggestHashtagsFor(platform, count, text, existingTags){
+  if(platform === 'twitter') return [];
+
+  const detected = detectTopics(text);
+  const existing = new Set((existingTags||[]).map(t=>String(t).toLowerCase().replace(/^#/,'')));
+
+  // Build pool by size. Detected topic-specific tags go FIRST so they take priority.
+  const pool = {small:[], medium:[], large:[]};
+  function addToPool(tag, size){
+    if(!pool[size]) return;
+    const norm = String(tag).toLowerCase();
+    if(existing.has(norm)) return;
+    if(pool[size].some(p => p.toLowerCase() === norm)) return;
+    pool[size].push(tag);
+  }
+  function poolFrom(category, key){
+    const data = (TAG_DB[category]||{})[key];
+    if(!data) return;
+    data.tags.forEach((tag, i)=> addToPool(tag, data.sizes[i] || 'medium'));
+  }
+  // Pool order matters — earlier additions are picked first when filling buckets.
+  // Specific game wins outright. Otherwise: specific niche genres > content types > generic gaming/streaming.
+  detected.games.forEach(g=>poolFrom('games', g));
+  detected.genres.filter(g => g !== 'gaming' && g !== 'streaming').forEach(g=>poolFrom('genres', g));
+  detected.content.forEach(c=>poolFrom('content', c));
+  // Generic gaming/streaming go LAST so context wins when no specific game is named
+  detected.genres.filter(g => g === 'gaming' || g === 'streaming').forEach(g=>poolFrom('genres', g));
+
+  // VTuber: when detected, #VTuber is auto-included as a LARGE tag (1M+ posts).
+  // It jumps to the front of the large bucket so the formula always picks it up.
+  if(detected.hasVTuber){
+    if(!pool.large.some(p => p.toLowerCase() === 'vtuber')){
+      pool.large.unshift('VTuber');
+    }
+    // Then add the rest of the VTuber pool tags to their natural size buckets
+    TAG_DB.vtuber.small.forEach(t => addToPool(t, 'small'));
+    TAG_DB.vtuber.medium.forEach(t => addToPool(t, 'medium'));
+    TAG_DB.vtuber.large.forEach(t => addToPool(t, 'large'));
+  }
+
+  // Platform feed tags as filler (last priority)
+  if(TAG_DB.platform[platform]){
+    const pd = TAG_DB.platform[platform];
+    pd.tags.forEach((t, i)=> addToPool(t, pd.sizes[i] || 'large'));
+  }
+
+  // Follow the rubric: 1 small / 2 medium / 2 large = 5 total
+  const picks = [];
+  function take(size, n){
+    let added = 0;
+    for(const tag of pool[size]){
+      if(added >= n) break;
+      if(!picks.some(p => p.toLowerCase() === tag.toLowerCase())){
+        picks.push(tag);
+        added++;
+      }
+    }
+    return added;
+  }
+  take('small', 1);
+  take('medium', 2);
+  take('large', 2);
+
+  // If a bucket came up short (e.g., no small tags detected), top up from any pool
+  while(picks.length < count){
+    let added = false;
+    for(const size of ['large','medium','small']){
+      for(const tag of pool[size]){
+        if(!picks.some(p => p.toLowerCase() === tag.toLowerCase())){
+          picks.push(tag);
+          added = true;
+          if(picks.length >= count) break;
+        }
+      }
+      if(picks.length >= count) break;
+    }
+    if(!added) break;
+  }
+
+  return picks.slice(0, count).map(t=>'#' + t.replace(/^#/,''));
+}
+
+function recommendHashtags(platform, currentTags, title, description){
+  const text = `${title||''} ${description||''}`;
+  const detected = detectTopics(text);
+  const summary = describeDetection(detected);
+
+  if(platform === 'twitter'){
+    return `<div class="hashtag-rec"><p class="intro">X / Twitter doesn't reward hashtags &mdash; they actually hurt your reach. Use keywords in the tweet text instead.</p>${summary}</div>`;
+  }
+
+  const platformName = platform === 'youtube' ? 'YouTube Shorts' : platform === 'tiktok' ? 'TikTok' : 'Instagram Reels';
+  const picks = suggestHashtagsFor(platform, 5, text, currentTags);
+  const picksHTML = picks.length ? picks.join(' &middot; ') : '<em style="font-weight:500;color:var(--ink-soft)">Add a title or description so I can pick relevant tags</em>';
+
+  // Build a pool of tags by size from everything detected (games, genres, content types)
+  // plus VTuber pool if signals are present, plus platform feed tags as filler.
+  const pool = {small:[], medium:[], large:[]};
+  function poolFrom(category, key){
+    const data = (TAG_DB[category]||{})[key];
+    if(!data) return;
+    data.tags.forEach((tag, i)=>{
+      const size = data.sizes[i] || 'medium';
+      if(pool[size] && !pool[size].includes(tag)) pool[size].push(tag);
+    });
+  }
+  detected.games.forEach(g=>poolFrom('games', g));
+  detected.genres.filter(g => g !== 'gaming' && g !== 'streaming').forEach(g=>poolFrom('genres', g));
+  detected.content.forEach(c=>poolFrom('content', c));
+  detected.genres.filter(g => g === 'gaming' || g === 'streaming').forEach(g=>poolFrom('genres', g));
+  if(detected.hasVTuber){
+    ['small','medium','large'].forEach(sz => TAG_DB.vtuber[sz].forEach(t => { if(!pool[sz].includes(t)) pool[sz].push(t); }));
+  }
+  if(TAG_DB.platform[platform]){
+    const pd = TAG_DB.platform[platform];
+    pd.tags.forEach((t, i)=>{
+      const size = pd.sizes[i] || 'large';
+      if(pool[size] && !pool[size].includes(t)) pool[size].push(t);
+    });
+  }
+
+  function fmtPool(arr){
+    if(!arr.length) return '<em style="color:var(--ink-soft);font-weight:500">Add more topic details to your title or description for tags here</em>';
+    return arr.map(t=>'#'+t).join(' &middot; ');
+  }
+
+  return `
+    <div class="hashtag-rec">
+      <h4>The strategy for ${platformName}</h4>
+      <p class="intro">3 to 5 hashtags per post, mixed sizes &mdash; here's the formula:</p>
+      <ul class="strategy">
+        <li><strong>1 small tag</strong> (under 500k posts) &mdash; low competition, easier to rank in</li>
+        <li><strong>2 medium tags</strong> (500k to 1M posts) &mdash; balanced reach</li>
+        <li><strong>2 large tags</strong> (1M+ posts) &mdash; high exposure</li>
+      </ul>
+
+      <h4>My picks for your short</h4>
+      <p class="picks">${picksHTML}</p>
+
+      <h4 style="margin-top:14px">Or build your own mix from this pool</h4>
+      <div class="tag-pool">
+        <div class="pool-section small">
+          <h5>🔹 Small <span class="meta">under 500k posts</span></h5>
+          <p>${fmtPool(pool.small)}</p>
+        </div>
+        <div class="pool-section medium">
+          <h5>🔸 Medium <span class="meta">500k to 1M posts</span></h5>
+          <p>${fmtPool(pool.medium)}</p>
+        </div>
+        <div class="pool-section large">
+          <h5>🔶 Large <span class="meta">1M+ posts</span></h5>
+          <p>${fmtPool(pool.large)}</p>
+        </div>
+      </div>
+
+      ${summary}
+    </div>
+  `;
+}
+
+function describeDetection(d){
+  const parts = [];
+  if(d.games.length) parts.push(`game: <strong>${d.games[0]}</strong>`);
+  if(d.genres.length) parts.push(`vibe: <strong>${d.genres.join(', ')}</strong>`);
+  if(d.content.length) parts.push(`type: <strong>${d.content.join(', ')}</strong>`);
+  if(!parts.length) return `<p style="font-size:12px;color:var(--ink-soft);margin-top:6px"><em>Tip: add the game name or topic to the title or description so I can pick hashtags that actually match your short.</em></p>`;
+  return `<p style="font-size:12px;color:var(--ink-soft);margin-top:6px">I picked these based on what I spotted: ${parts.join(' &middot; ')}.</p>`;
+}
+
+// ---------- 6. UI WIRING ----------
+const $ = id => document.getElementById(id);
+const urlInput = $('url'), fetchBtn = $('fetchBtn'), grabLinkBtn = $('grabLinkBtn'),
+      fetchMsg = $('fetchMsg'), metaPreview = $('metaPreview'), platformPill = $('platformPill'),
+      linkShortcut = $('linkShortcut'),
+      step1 = $('step1'), resultsCard = $('resultsCard');
+
+function clearAllInputs(){
+  fetchBtn.innerHTML = '🐙 Analyze my short';
+  fetchBtn.disabled = false;
+  fetchMsg.innerHTML = '';
+  metaPreview.innerHTML = '';
+  metaPreview.classList.add('hidden');
+  urlInput.value = '';
+  $('title').value=''; $('description').value=''; $('template').value=''; $('hashtags').value='';
+  $('duration').value=''; $('retention').value=''; $('viewedVsSwiped').value='';
+  $('hookStrength').value=''; $('rewatchable').value='';
+  platformPill.classList.add('hidden');
+  resultsCard.classList.add('hidden');
+  if(linkShortcut) linkShortcut.open = false;
+  // Reset video too
+  videoPreviewWrap.classList.remove('active');
+  vidResult.classList.remove('active');
+  vidResult.innerHTML = '';
+  videoFile.value = '';
+}
+$('clearBtn').addEventListener('click', clearAllInputs);
+
+urlInput.addEventListener('input', ()=>{
+  const p = detectPlatform(urlInput.value);
+  if(p){ platformPill.textContent = p; platformPill.classList.remove('hidden'); }
+  else { platformPill.classList.add('hidden'); }
+});
+
+function hasAnyInputData(){
+  return !!(urlInput.value.trim()
+    || $('title').value.trim()
+    || $('description').value.trim()
+    || $('hashtags').value.trim()
+    || $('duration').value.trim()
+    || $('hookStrength').value
+    || $('retention').value.trim()
+    || $('viewedVsSwiped').value.trim()
+    || (videoFile && videoFile.files && videoFile.files.length>0));
+}
+
+// "Grab title from link" — fetches just the title + thumbnail from a URL
+// and fills it into the Step 2 title field.
+grabLinkBtn.addEventListener('click', async ()=>{
+  fetchMsg.innerHTML = '';
+  metaPreview.classList.add('hidden');
+  const url = urlInput.value.trim();
+  const platform = detectPlatform(url);
+  if(!url){
+    fetchMsg.innerHTML = `<div class="err">Paste a link first.</div>`;
+    return;
+  }
+  if(!platform){
+    fetchMsg.innerHTML = `<div class="err">I don't recognize that link. Try a YouTube Short, TikTok, or Instagram Reel URL.</div>`;
+    return;
+  }
+  grabLinkBtn.innerHTML = '<span class="loading"></span> grabbing…';
+  grabLinkBtn.disabled = true;
+  let meta = {ok:false};
+  try{ meta = await fetchMetadata(url, platform); }
+  catch(e){ meta = {ok:false, msg:'Network issue. Try again or just fill in Step 2 below.'}; }
+  grabLinkBtn.disabled = false;
+  grabLinkBtn.innerHTML = 'Grab title from link';
+
+  if(meta.ok){
+    if(!$('title').value) $('title').value = meta.title || '';
+    metaPreview.innerHTML = `${meta.thumbnail?`<img src="${meta.thumbnail}" alt="thumbnail">`:''}<div><div class="meta-title">${escapeHtml(meta.title||'(no title)')}</div><div class="meta-sub">${escapeHtml(meta.author||'')} &middot; ${platform}</div></div>`;
+    metaPreview.classList.remove('hidden');
+    fetchMsg.innerHTML = `<div class="ok">Got your title! It's filled in below. Now finish Steps 2 and 3 for a real score.</div>`;
+  } else {
+    fetchMsg.innerHTML = `<div class="err">${meta.msg || "Couldn't grab the info. Fill in Step 2 below instead."}</div>`;
+  }
+});
+
+// Main analyze button — always runs analysis with whatever data is in the form.
+fetchBtn.addEventListener('click', ()=>{
+  if(!hasAnyInputData()){
+    fetchMsg.innerHTML = `<div class="err">Upload a video, paste a link, or fill in your post details above first.</div>`;
+    if(linkShortcut) linkShortcut.open = true;
+    step1.scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  runFromUI();
+});
+
+function runFromUI(){
+  const platform = detectPlatform(urlInput.value) || 'youtube';
+  const payload = {
+    platform,
+    title: $('title').value,
+    description: $('description').value,
+    template: $('template').value,
+    hashtags: $('hashtags').value,
+    duration: $('duration').value,
+    hookStrength: $('hookStrength').value,
+    rewatchable: $('rewatchable').value,
+    retention: $('retention').value,
+    viewedVsSwiped: $('viewedVsSwiped').value,
+  };
+  const result = runAnalysis(payload);
+  renderResults(result, payload);
+  resultsCard.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderResults(r, payload){
+  resultsCard.classList.remove('hidden');
+  $('scoreBig').textContent = r.overall.toFixed(1);
+  const pct = Math.round((r.overall/10)*100);
+  $('scoreRing').style.setProperty('--p', pct+'%');
+  $('grade').textContent = r.grade;
+  $('verdictText').textContent = r.verdict;
+
+  // Criteria grid
+  const grid = $('critGrid');
+  grid.innerHTML = '';
+  r.criteria.forEach(c=>{
+    const colour = c.score>=8 ? 'linear-gradient(135deg,#6BE4EA,#90A5FF)' : c.score>=5 ? 'linear-gradient(135deg,#FFB2F0,#90A5FF)' : 'linear-gradient(135deg,#FFB2C8,#FF8AA8)';
+    const html = `
+      <div class="crit">
+        <div class="top">
+          <div class="name">${c.name}</div>
+          <div class="score-tag" style="background:${colour}">${c.score}/10</div>
+        </div>
+        <div class="bar"><div style="width:${(c.score/10)*100}%"></div></div>
+        <div class="blurb">${escapeHtml(c.blurb)}</div>
+      </div>`;
+    grid.insertAdjacentHTML('beforeend', html);
+  });
+
+  // Checklist (flatten all passes)
+  const cl = $('checklist');
+  cl.innerHTML = '';
+  r.criteria.forEach(c=>{
+    c.passes.forEach(p=>{
+      const klass = p.level==='pass' ? 'pass' : p.level==='warn' ? 'warn' : 'fail';
+      const sym = p.level==='pass' ? '✓' : p.level==='warn' ? '!' : '✗';
+      cl.insertAdjacentHTML('beforeend',
+        `<li><span class="mark ${klass}">${sym}</span><span class="what"><strong>${escapeHtml(p.what)}</strong><span class="why">${escapeHtml(p.why||'')}</span></span></li>`);
+    });
+  });
+
+  // Critique
+  $('critique').innerHTML = r.critique;
+  const ts = $('titleSuggestions');
+  ts.innerHTML = '';
+  r.titleSuggestions.forEach(t=> ts.insertAdjacentHTML('beforeend', `<li>${escapeHtml(t)}</li>`));
+  $('hashtagRec').innerHTML = r.hashtagRec;
+
+  // Ready-to-post pack
+  renderPostPack(payload, r);
+}
+
+// ============================================================
+//  READY-TO-POST PACK  —  per-platform copy-paste content
+// ============================================================
+// Detect a "socials / links / template" block at the end of the description
+// and split into actual content (body) and reusable signature (template).
+function parseDescriptionAndTemplate(description){
+  if(!description) return {body:'', template:''};
+  const text = String(description).trim();
+
+  // 1. Try splitting on visible separator lines (---, ===, ——, ~~~)
+  const sepMatch = text.match(/\n[ \t]*[-—–=~_]{3,}[ \t]*\n/);
+  if(sepMatch && sepMatch.index !== undefined){
+    const body = text.slice(0, sepMatch.index).trim();
+    const tmpl = text.slice(sepMatch.index + sepMatch[0].length).trim();
+    if(tmpl.length > 5) return {body, template: tmpl};
+  }
+
+  // 2. Try splitting on 2+ blank lines
+  const blankMatch = text.match(/\n[ \t]*\n[ \t]*\n/);
+  if(blankMatch && blankMatch.index !== undefined){
+    const after = text.slice(blankMatch.index + blankMatch[0].length).trim();
+    // Only treat as template if the second block looks like socials/links
+    if(looksLikeTemplate(after)){
+      const body = text.slice(0, blankMatch.index).trim();
+      return {body, template: after};
+    }
+  }
+
+  // 3. Try splitting at a line that starts a socials block
+  const socialStart = text.search(/(\n|^)(?:[🔗💜🐙✦🌸✨🌟🎀💖]\s*)?(follow me|my socials|my links|find me|socials below|links below|socials:|links:|🐙|🔗|find me on)\b/i);
+  if(socialStart > 30){
+    const body = text.slice(0, socialStart).trim();
+    const tmpl = text.slice(socialStart).trim();
+    if(looksLikeTemplate(tmpl)) return {body, template: tmpl};
+  }
+
+  return {body: text, template: ''};
+}
+function looksLikeTemplate(s){
+  if(!s) return false;
+  // It looks like a template if it has at least one of: a URL, multiple platform names,
+  // a "follow me"/"socials"/"links" header, or a colon-list pattern.
+  const has = {
+    url: /(https?:\/\/|\.com|\.tv|\.gg|\.io)/i.test(s),
+    multiPlatform: ((s.toLowerCase().match(/\b(twitter|x|twitch|youtube|tiktok|instagram|insta|discord|bluesky|threads|patreon|kofi|throne)\b/g)||[]).length) >= 2,
+    header: /\b(follow me|my socials|my links|find me|socials|links)\b/i.test(s),
+    colons: ((s.match(/\b[A-Za-z]{2,}\s*:/g)||[]).length) >= 2
+  };
+  return has.url || has.multiPlatform || has.header || has.colons;
+}
+
+function buildPostPack(payload, analysis){
+  const userTitle = (payload.title||'').trim();
+  const rawDesc = (payload.description||'').trim();
+  const userTemplate = (payload.template||'').trim();
+  const userTags = parseHashtags(payload.hashtags);
+  const formatUserTags = (arr)=> arr.map(t=>'#'+String(t).replace(/^#/,''));
+  const userHasTags = userTags.length > 0;
+  // If user filled the explicit template field, use that. Otherwise fall back to
+  // detecting one inside the description block.
+  let bodyDesc, tmpl;
+  if(userTemplate){
+    bodyDesc = rawDesc;
+    tmpl = userTemplate;
+  } else {
+    const parsed = parseDescriptionAndTemplate(rawDesc);
+    bodyDesc = parsed.body;
+    tmpl = parsed.template;
+  }
+
+  // Use the user's title if it's substantial, otherwise the top suggestion
+  const bestTitle = (userTitle.length >= 18) ? userTitle : (analysis.titleSuggestions[0] || userTitle || 'My short');
+
+  // The "hook line" we'll re-use across platforms — first sentence of body, OR title
+  const firstSentenceOfBody = bodyDesc ? (bodyDesc.split(/[.!?\n]/).filter(s=>s.trim())[0] || bodyDesc).trim() : '';
+  const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || 'Wait until you see this';
+
+  // For the tag-text input (used to pick relevant hashtags)
+  const tagSourceText = `${userTitle} ${bodyDesc}`;
+
+  // ---- YouTube Short ----
+  // Title kept as-is. Description = hook + body (if it adds info) + template (if any) + hashtags
+  // Use the user's own hashtags if they provided any; otherwise suggest a fresh set.
+  const ytHashtags = userHasTags ? formatUserTags(userTags) : suggestHashtagsFor('youtube', 5, tagSourceText, []);
+  const ytLines = [];
+  ytLines.push(hookLine);
+  if(bodyDesc && bodyDesc.trim() !== hookLine.trim() && !bodyDesc.toLowerCase().startsWith(hookLine.toLowerCase())){
+    ytLines.push('');
+    ytLines.push(bodyDesc);
+  }
+  if(tmpl){
+    ytLines.push('');
+    ytLines.push(tmpl);
+  } else {
+    ytLines.push('');
+    ytLines.push('🐙 New shorts every week — hit subscribe so you don\'t miss the next one.');
+  }
+  ytLines.push('');
+  ytLines.push(ytHashtags.join(' '));
+  const ytDescription = ytLines.join('\n');
+
+  // ---- TikTok ----
+  // One tight caption line. Hashtags inline. No template (captions stay short on TikTok).
+  const ttHashtags = userHasTags ? formatUserTags(userTags) : suggestHashtagsFor('tiktok', 5, tagSourceText, []);
+  const ttCaption = `${hookLine}${/[?!…]$/.test(hookLine)?'':' …'}\n\n${ttHashtags.join(' ')}`;
+
+  // ---- Instagram Reels ----
+  // Hook + supporting body + dot pattern + hashtags (no template — IG captions stay tight)
+  const igHashtags = userHasTags ? formatUserTags(userTags) : suggestHashtagsFor('instagram', 5, tagSourceText, []);
+  const igLines = [hookLine];
+  if(bodyDesc && bodyDesc.trim() !== hookLine.trim() && !bodyDesc.toLowerCase().startsWith(hookLine.toLowerCase())){
+    igLines.push('');
+    igLines.push(bodyDesc);
+  }
+  igLines.push('');
+  igLines.push('.'); igLines.push('.'); igLines.push('.');
+  igLines.push(igHashtags.join(' '));
+  const igCaption = igLines.join('\n');
+
+  // ---- X / Twitter ----
+  // Blend the title and the body into one tweet without repeating either.
+  // No hashtags on X. ≤280 chars.
+  let xBody = '';
+  const titleStripped = userTitle.replace(/[.!?…]+$/,'').trim();
+  const bodyStripped = (firstSentenceOfBody || bodyDesc || '').trim();
+
+  function similar(a, b){
+    if(!a || !b) return false;
+    const aLow = a.toLowerCase();
+    const bLow = b.toLowerCase();
+    return aLow.includes(bLow) || bLow.includes(aLow);
+  }
+
+  if(titleStripped && bodyStripped && !similar(titleStripped, bodyStripped)){
+    // Title sets up the hook, body delivers — combine with a natural break.
+    xBody = `${titleStripped} — ${bodyStripped}`;
+  } else if(titleStripped){
+    xBody = titleStripped;
+  } else if(bodyStripped){
+    xBody = bodyStripped;
+  } else {
+    xBody = hookLine;
+  }
+  // Trim to 280 (with ellipsis room)
+  if(xBody.length > 275) xBody = xBody.slice(0, 272).trimEnd() + '…';
+
+  return {
+    youtube: {
+      key:'yt', name:'YouTube Shorts',
+      title: bestTitle,
+      caption: ytDescription,
+      hashtags: ytHashtags.join(' '),
+      tip: (userHasTags ? '<strong>Using your own hashtags</strong> here. ' : '<strong>Suggested hashtags</strong> &mdash; based on what your short is about. ') + (tmpl ? 'Your template is at the bottom so socials show up automatically.' : 'Use 3 to 5 hashtags with a mix of small, medium, and large.'),
+      copyParts: [
+        {label:'title', text: bestTitle},
+        {label:'description', text: ytDescription}
+      ]
+    },
+    tiktok: {
+      key:'tt', name:'TikTok',
+      caption: ttCaption,
+      hashtags: ttHashtags.join(' '),
+      tip: (userHasTags ? '<strong>Using your own hashtags</strong>. ' : '<strong>Suggested hashtags</strong>. ') + 'Use a trending sound if you can. On TikTok the words in your caption matter more than the hashtags do.',
+      copyParts: [{label:'caption', text: ttCaption}]
+    },
+    instagram: {
+      key:'ig', name:'Instagram Reels',
+      caption: igCaption,
+      hashtags: igHashtags.join(' '),
+      tip: (userHasTags ? '<strong>Using your own hashtags</strong>. ' : '<strong>Suggested hashtags</strong>. ') + 'The dots hide the hashtags from the preview so your caption looks clean.',
+      copyParts: [{label:'caption', text: igCaption}]
+    },
+    twitter: {
+      key:'x', name:'X / Twitter',
+      caption: xBody,
+      hashtags: '',
+      tip: 'Don\'t use hashtags on X — they actually hurt your reach. Upload the video directly here, don\'t link to YouTube. Post 3 to 7 times a day.',
+      copyParts: [{label:'tweet', text: xBody}]
+    }
+  };
+}
+
+function renderPostPack(payload, analysis){
+  const pack = buildPostPack(payload, analysis);
+  const grid = $('postGrid');
+  grid.innerHTML = '';
+
+  function postCard(p){
+    const showTitleField = !!p.title;
+    const captionCharCount = (p.caption||'').length;
+    const tweetWarn = p.key==='x' ? (captionCharCount>270?'bad':captionCharCount>250?'warn':'') : '';
+    const titleCharWarn = p.key==='yt' && p.title ? (p.title.length>70?'warn':p.title.length<25?'warn':'') : '';
+    return `
+      <div class="post-card ${p.key}">
+        <div class="platform-head">
+          <div class="platform-name"><span class="pdot"></span>${escapeHtml(p.name)}</div>
+        </div>
+        ${showTitleField ? `
+          <div class="field">
+            <div class="field-label">Title <span class="char-count ${titleCharWarn}">${p.title.length} chars</span></div>
+            <div class="field-content">${escapeHtml(p.title)}</div>
+          </div>` : ''}
+        <div class="field">
+          <div class="field-label">${p.key==='x'?'Tweet':p.key==='yt'?'Description':'Caption'} <span class="char-count ${tweetWarn}">${captionCharCount} chars</span></div>
+          <div class="field-content long">${escapeHtml(p.caption)}</div>
+        </div>
+        <div class="tip-row"><strong>Tip:</strong> ${p.tip}</div>
+        <div class="copy-row">
+          ${(p.copyParts||[]).map(part =>
+            `<button class="copy-btn" data-copy="${escapeHtml(part.text)}">📋 Copy ${escapeHtml(part.label)}</button>`
+          ).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  ['youtube','tiktok','instagram','twitter'].forEach(k=>{
+    grid.insertAdjacentHTML('beforeend', postCard(pack[k]));
+  });
+
+  // Wire copy buttons
+  grid.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const text = btn.getAttribute('data-copy')
+        .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+      navigator.clipboard.writeText(text).then(()=>{
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(()=>{ btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+      });
+    });
+  });
+}
+
+
+$('againBtn').addEventListener('click', ()=>{
+  clearAllInputs();
+  step1.scrollIntoView({behavior:'smooth'});
+});
+$('copyBtn').addEventListener('click', ()=>{
+  const text = generatePlainTextReport();
+  navigator.clipboard.writeText(text).then(()=>{
+    $('copyBtn').textContent = '✓ Copied!';
+    setTimeout(()=>$('copyBtn').textContent='Copy report', 1800);
+  });
+});
+
+function generatePlainTextReport(){
+  const score = $('scoreBig').textContent;
+  const grade = $('grade').textContent;
+  const verdict = $('verdictText').textContent;
+  const crits = [...document.querySelectorAll('.crit')].map(el=>{
+    return `- ${el.querySelector('.name').textContent}: ${el.querySelector('.score-tag').textContent}`;
+  }).join('\n');
+  const checks = [...document.querySelectorAll('#checklist li')].map(li=>{
+    const sym = li.querySelector('.mark').textContent;
+    return `  ${sym} ${li.querySelector('strong').textContent}`;
+  }).join('\n');
+  return `EGGIE'S SHORTS ANALYZER\n=======================\nOverall: ${score}/10 — ${grade}\n${verdict}\n\nHow each part scored:\n${crits}\n\nWhat's working / what's not:\n${checks}\n`;
+}
+
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+
+// ============================================================
+//  VIDEO HOOK ANALYZER  —  client-side frame + audio analysis
+//  Everything below runs in the browser. No upload happens.
+// ============================================================
+
+const dropZone = $('dropZone');
+const videoFile = $('videoFile');
+const videoPreview = $('videoPreview');
+const videoPreviewWrap = $('videoPreviewWrap');
+const vidStatus = $('vidStatus');
+const vidProgressBar = $('vidProgressBar');
+const vidResult = $('vidResult');
+
+['dragenter','dragover'].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.remove('drag');}));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(f && f.type.startsWith('video/')) handleVideoFile(f);
+  else setVidStatus('Hmm, that doesn\'t look like a video file. Try again?', true);
+});
+videoFile.addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(f) handleVideoFile(f);
+});
+
+function setVidStatus(msg, isErr){
+  vidStatus.textContent = msg;
+  vidStatus.style.color = isErr ? '#a23556' : 'var(--ink-soft)';
+}
+function setVidProgress(pct){ vidProgressBar.style.width = Math.min(100,Math.max(0,pct))+'%'; }
+
+async function handleVideoFile(file){
+  vidResult.classList.remove('active');
+  vidResult.innerHTML = '';
+  videoPreviewWrap.classList.add('active');
+  const url = URL.createObjectURL(file);
+  videoPreview.src = url;
+  setVidStatus('Loading video…');
+  setVidProgress(5);
+
+  try{
+    await new Promise((resolve,reject)=>{
+      videoPreview.addEventListener('loadedmetadata', resolve, {once:true});
+      videoPreview.addEventListener('error', ()=>reject(new Error('Couldn\'t load the video. The format might not be supported.')), {once:true});
+      setTimeout(()=>reject(new Error('Video took too long to load.')), 15000);
+    });
+
+    setVidStatus('Looking at the first 3 seconds…');
+    setVidProgress(15);
+
+    // Auto-fill duration if empty
+    if(!$('duration').value && isFinite(videoPreview.duration)) {
+      $('duration').value = Math.round(videoPreview.duration);
+    }
+
+    // Decide sample window — first 3s or full length if shorter
+    const window = Math.min(3.0, videoPreview.duration || 3.0);
+    const times = [];
+    for(let t=0; t<window; t+=0.2) times.push(t);  // every 200ms
+
+    const frames = [];
+    let i = 0;
+    for(const t of times){
+      videoPreview.currentTime = t;
+      await new Promise((resolve)=>{
+        const h = ()=>{videoPreview.removeEventListener('seeked',h); resolve();};
+        videoPreview.addEventListener('seeked', h);
+        setTimeout(resolve, 1500); // safety timeout for browsers that don't fire seeked
+      });
+      const canvas = document.createElement('canvas');
+      canvas.width = 160;
+      canvas.height = Math.max(90, Math.round((videoPreview.videoHeight||320) * (160 / (videoPreview.videoWidth||180))));
+      const ctx = canvas.getContext('2d');
+      try{ ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height); }catch(e){}
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      frames.push({t, img, brightness: avgBrightness(img)});
+      i++;
+      setVidProgress(15 + (i/times.length)*55);
+    }
+
+    setVidStatus('Checking motion and cuts…');
+    setVidProgress(75);
+
+    // Frame diffs
+    const diffs = [];
+    for(let k=1; k<frames.length; k++){
+      diffs.push(frameDiff(frames[k-1].img, frames[k].img));
+    }
+    const motionScore = diffs.length ? diffs.reduce((a,b)=>a+b,0)/diffs.length : 0;
+    // Cuts: count diffs over threshold (calibrated empirically)
+    const cutThreshold = 22;
+    const cuts = diffs.filter(d=>d>cutThreshold).length;
+    // Brightness variance
+    const brightnesses = frames.map(f=>f.brightness);
+    const bMean = brightnesses.reduce((a,b)=>a+b,0)/brightnesses.length;
+    const bVar = Math.sqrt(brightnesses.reduce((a,b)=>a+(b-bMean)*(b-bMean),0)/brightnesses.length);
+
+    // Audio analysis
+    setVidStatus('Listening to the audio…');
+    setVidProgress(85);
+    let audio = {hasAudio:false, max:null, rms:null};
+    try{ audio = await analyzeAudio(file); }catch(e){ /* swallow */ }
+
+    setVidProgress(100);
+    setVidStatus('All done!');
+
+    // Classify
+    const verdict = classifyHookFromVideo({motionScore, cuts, audioMax: audio.max, brightnessDelta: bVar});
+    renderVideoVerdict(verdict, {motionScore, cuts, audio, bVar});
+
+    // Auto-fill the hookStrength dropdown
+    $('hookStrength').value = verdict.classification;
+
+  }catch(err){
+    setVidStatus(err.message || 'Something went wrong looking at the video.', true);
+    setVidProgress(0);
+    console.error(err);
+  }
+}
+
+function avgBrightness(img){
+  let total = 0;
+  const d = img.data;
+  for(let i=0; i<d.length; i+=4){
+    total += (d[i]+d[i+1]+d[i+2])/3;
+  }
+  return total / (d.length/4);
+}
+function frameDiff(a, b){
+  let sum = 0;
+  const d1 = a.data, d2 = b.data;
+  const len = Math.min(d1.length, d2.length);
+  for(let i=0; i<len; i+=4){
+    sum += Math.abs(d1[i]-d2[i]) + Math.abs(d1[i+1]-d2[i+1]) + Math.abs(d1[i+2]-d2[i+2]);
+  }
+  return sum / (a.width * a.height * 3);
+}
+
+async function analyzeAudio(file){
+  const arrayBuffer = await file.arrayBuffer();
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return {hasAudio:false};
+  const audioCtx = new Ctx();
+  let audioBuffer;
+  try{
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+  }catch(e){
+    try{ audioCtx.close(); }catch(_){}
+    return {hasAudio:false};
+  }
+  try{ audioCtx.close(); }catch(_){}
+  if(!audioBuffer || audioBuffer.numberOfChannels===0) return {hasAudio:false};
+  const channel = audioBuffer.getChannelData(0);
+  const sr = audioBuffer.sampleRate;
+  const sliceEnd = Math.min(channel.length, Math.floor(sr * 1.5));
+  let max = 0, rms = 0;
+  for(let i=0; i<sliceEnd; i++){
+    const v = Math.abs(channel[i]);
+    if(v>max) max = v;
+    rms += v*v;
+  }
+  rms = Math.sqrt(rms / Math.max(1,sliceEnd));
+  return {hasAudio:true, max, rms};
+}
+
+function classifyHookFromVideo({motionScore, cuts, audioMax, brightnessDelta}){
+  let pts = 0;
+  const bd = [];
+  // Motion
+  if(motionScore > 25){ pts+=3; bd.push({k:'motion', v:'high', t:`<strong>Lots of motion</strong> &mdash; a lot is happening on screen in the first 3 seconds.`}); }
+  else if(motionScore > 12){ pts+=1; bd.push({k:'motion', v:'medium', t:`<strong>Some motion</strong> &mdash; things are happening, but could be more.`}); }
+  else { bd.push({k:'motion', v:'low', t:`<strong>Barely any motion</strong> &mdash; the opening is too static. In <strong>CapCut</strong>, try the zoom-in/zoom-out effect on your first clip, or add animated text that pops in within the first second.`}); }
+  // Cuts
+  if(cuts >= 3){ pts+=3; bd.push({k:'cuts', v:'high', t:`<strong>${cuts} scene cuts</strong> in the first 3 seconds &mdash; fast pacing keeps people watching.`}); }
+  else if(cuts >= 1){ pts+=2; bd.push({k:'cuts', v:'medium', t:`<strong>${cuts} scene cut${cuts===1?'':'s'}</strong> &mdash; you've got some pacing going.`}); }
+  else { bd.push({k:'cuts', v:'low', t:`<strong>No cuts</strong> &mdash; it's one continuous shot. Use the <strong>Split</strong> tool in CapCut (or StreamLadder for stream clips) to cut to the punchline directly &mdash; skip the setup.`}); }
+  // Audio
+  if(audioMax !== null && audioMax !== undefined){
+    if(audioMax > 0.4){ pts+=2; bd.push({k:'audio', v:'high', t:`<strong>Loud audio</strong> &mdash; probably a sound effect, music drop, or strong voice opener.`}); }
+    else if(audioMax > 0.15){ pts+=1; bd.push({k:'audio', v:'medium', t:`<strong>Audio is okay</strong> &mdash; not too quiet, but not punchy either.`}); }
+    else { bd.push({k:'audio', v:'low', t:`<strong>Audio is quiet</strong> &mdash; grab a free sound effect from <strong>Pixabay</strong>, <strong>MyInstants</strong>, or TikTok's built-in library and lay it on top of your first second.`}); }
+  } else {
+    bd.push({k:'audio', v:'na', t:`<strong>Couldn't check the audio</strong> &mdash; either there's no sound or the browser couldn't read it. Try a server or different browser.`});
+  }
+  // Brightness variance
+  if(brightnessDelta > 25){ pts+=1; bd.push({k:'brightness', v:'high', t:`<strong>Big brightness changes</strong> &mdash; flashes or strong scene contrast.`}); }
+  else if(brightnessDelta > 10){ bd.push({k:'brightness', v:'medium', t:`<strong>Some brightness variation</strong> &mdash; decent visual range.`}); }
+  else { bd.push({k:'brightness', v:'low', t:`<strong>Flat lighting</strong> &mdash; same brightness throughout the first 3 seconds.`}); }
+
+  let classification, summary;
+  if(pts >= 7){ classification='strong'; summary="Your hook works! There's motion, cuts, and good audio happening up front. That's exactly what the app wants to see."; }
+  else if(pts >= 3){ classification='medium'; summary="There's something here, but it's not quite punchy enough yet. Pick one of the things below to fix and you'll see a big difference."; }
+  else { classification='weak'; summary="The first 3 seconds aren't grabbing people. Add some motion, an early cut, or a sound effect &mdash; just one of those would change a lot."; }
+  return {classification, summary, points:pts, breakdown:bd};
+}
+
+function renderVideoVerdict(v){
+  const label = v.classification === 'strong' ? 'Strong hook ✨' : v.classification === 'medium' ? 'Medium hook 🌸' : 'Weak hook 💧';
+  const items = v.breakdown.map(b=>`<li><span class="dot ${b.v}"></span><span>${b.t}</span></li>`).join('');
+  vidResult.innerHTML = `
+    <div class="vid-verdict">
+      <span class="verdict-badge ${v.classification}">${label}</span>
+      <span style="font-size:13px;color:var(--ink-soft)">I filled this into the hook dropdown for you.</span>
+    </div>
+    <p style="margin:6px 0 4px;font-size:14px;color:var(--ink)">${v.summary}</p>
+    <ul class="bd">${items}</ul>
+    <p style="margin-top:10px;font-size:12px;color:var(--ink-soft)"><em>How I did this:</em> I grabbed a frame every 200ms from the first 3 seconds of your video, checked how much was changing between them (that's motion and cuts), and listened to the first 1.5 seconds of audio for loud moments. All in your browser. Nothing got uploaded.</p>
+  `;
+  vidResult.classList.add('active');
+}
+
+</script>
+</body>
+</html>

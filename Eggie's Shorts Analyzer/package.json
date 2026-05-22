@@ -1,0 +1,19 @@
+{
+  "name": "eggie-shorts-analyzer",
+  "version": "1.0.0",
+  "description": "Short-form video analyzer built on Eggie's growth rubric. Drop in a YouTube / TikTok / IG link and get a scored breakdown.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
