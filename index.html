@@ -355,6 +355,18 @@
   .vid-result ul.bd .dot.medium{background:#FFD580}
   .vid-result ul.bd .dot.low{background:#FF8AA8}
   .vid-result ul.bd .dot.na{background:#ccc}
+  /* Whisper transcription progress */
+  .whisper-progress{display:none;margin-top:12px;padding:14px 16px;background:linear-gradient(135deg, rgba(144,165,255,0.18), rgba(107,228,234,0.25));border-radius:14px;border:1px solid rgba(144,165,255,0.3)}
+  .whisper-progress.active{display:block}
+  .whisper-progress .wp-head{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--deep);font-size:14px;margin-bottom:8px}
+  .whisper-progress .wp-spinner{width:18px;height:18px;border:3px solid rgba(144,165,255,0.3);border-top-color:var(--periwinkle);border-radius:50%;animation:wpspin 0.9s linear infinite;flex-shrink:0}
+  @keyframes wpspin{to{transform:rotate(360deg)}}
+  .whisper-progress .wp-stage{font-size:13px;color:var(--ink);margin-bottom:8px}
+  .whisper-progress .wp-bar{height:10px;background:rgba(255,255,255,0.5);border-radius:999px;overflow:hidden}
+  .whisper-progress .wp-bar > div{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot));transition:width .25s ease;border-radius:999px}
+  .whisper-progress .wp-detail{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.4}
+  .whisper-progress .wp-files{font-size:11px;color:var(--ink-soft);margin-top:4px;max-height:60px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace}
+
   .ocr-result{margin-top:12px;background:linear-gradient(135deg, rgba(255,219,247,0.4), rgba(144,165,255,0.2));border-radius:12px;padding:12px 14px;border-left:3px solid var(--periwinkle)}
   .ocr-result strong{color:var(--deep)}
   .ocr-result ul{color:var(--ink)}
@@ -477,6 +489,13 @@
       <video id="videoPreview" controls muted playsinline></video>
       <div class="vid-progress"><div id="vidProgressBar"></div></div>
       <div class="vid-status" id="vidStatus">Ready when you are</div>
+    </div>
+    <div class="whisper-progress" id="whisperProgress">
+      <div class="wp-head"><div class="wp-spinner"></div><span id="wpTitle">Loading transcription model…</span></div>
+      <div class="wp-stage" id="wpStage">Downloading audio recognition model. This only happens the first time.</div>
+      <div class="wp-bar"><div id="wpBar"></div></div>
+      <div class="wp-detail" id="wpDetail">Starting…</div>
+      <div class="wp-files" id="wpFiles"></div>
     </div>
     <div class="vid-result" id="vidResult"></div>
 
@@ -2205,30 +2224,103 @@ async function detectFaces(canvas){
 }
 
 // Whisper transcription (lazy-loaded via transformers.js) — opt-in only.
+// The first-time load downloads ~75MB of model weights, so we wire up a real progress bar.
 let whisperLoader = null;
-async function loadWhisper(){
+function showWhisperPanel(show){
+  const panel = document.getElementById('whisperProgress');
+  if(panel) panel.classList.toggle('active', !!show);
+}
+function setWhisperState({title, stage, percent, detail, fileLog}){
+  if(title !== undefined) document.getElementById('wpTitle').textContent = title;
+  if(stage !== undefined) document.getElementById('wpStage').textContent = stage;
+  if(percent !== undefined) document.getElementById('wpBar').style.width = Math.max(0, Math.min(100, percent)) + '%';
+  if(detail !== undefined) document.getElementById('wpDetail').textContent = detail;
+  if(fileLog !== undefined) document.getElementById('wpFiles').innerHTML = fileLog;
+}
+
+async function loadWhisper(progressCb){
   if(whisperLoader) return whisperLoader;
   whisperLoader = (async ()=>{
     const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
     mod.env.allowLocalModels = false;
-    return mod.pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+    return mod.pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en', {
+      progress_callback: progressCb
+    });
   })();
   return whisperLoader;
 }
-async function transcribeAudio(file, onProgress){
+
+async function transcribeAudio(file){
   try{
-    const recognizer = await loadWhisper();
-    onProgress && onProgress('Transcribing audio…');
+    showWhisperPanel(true);
+    // Track download progress per file (Whisper splits across multiple .onnx/.json files)
+    const fileProgress = {};
+    const onProgress = (info)=>{
+      // info: { status, name, file, loaded, total, progress }
+      if(info.status === 'progress' && info.file){
+        fileProgress[info.file] = {
+          loaded: info.loaded || 0,
+          total: info.total || 0,
+          percent: info.progress || 0
+        };
+        // Total across all files
+        let totalLoaded = 0, totalSize = 0;
+        for(const f of Object.values(fileProgress)){
+          totalLoaded += f.loaded;
+          totalSize += f.total;
+        }
+        const overall = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
+        const mbLoaded = (totalLoaded / 1024 / 1024).toFixed(1);
+        const mbTotal = (totalSize / 1024 / 1024).toFixed(1);
+        setWhisperState({
+          title: 'Downloading transcription model…',
+          stage: `${mbLoaded} MB of ${mbTotal} MB so far. This only happens the first time you transcribe — cached after this.`,
+          percent: overall,
+          detail: `Just over ${Math.round(overall)}% downloaded`
+        });
+      } else if(info.status === 'done' && info.file){
+        const log = document.getElementById('wpFiles');
+        if(log) log.innerHTML += `✓ ${info.file}<br/>`;
+      } else if(info.status === 'ready'){
+        setWhisperState({
+          title: 'Model ready — transcribing your audio…',
+          stage: 'Listening to what\'s being said. Usually 10-30 seconds.',
+          percent: 95,
+          detail: 'Almost there'
+        });
+      } else if(info.status === 'initiate' && info.file){
+        setWhisperState({
+          title: 'Loading transcription model…',
+          stage: `Fetching ${info.file}…`,
+          detail: 'Connecting'
+        });
+      }
+    };
+
+    setWhisperState({
+      title: 'Loading transcription model…',
+      stage: 'Connecting to the model server. The first time, this downloads about 75 MB of model files.',
+      percent: 2,
+      detail: 'Starting'
+    });
+
+    const recognizer = await loadWhisper(onProgress);
+
+    setWhisperState({
+      title: 'Transcribing your audio…',
+      stage: 'Listening to what\'s being said in your short.',
+      percent: 90,
+      detail: 'Working'
+    });
+
     // Decode the audio into a Float32Array at 16kHz mono (what Whisper expects)
     const arrayBuffer = await file.arrayBuffer();
     const Ctx = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new Ctx();
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
     audioCtx.close();
-    // Resample / downmix if needed
     let mono = audioBuffer.getChannelData(0);
     if(audioBuffer.sampleRate !== 16000){
-      // simple downsample by picking every Nth sample (good enough for speech recognition)
       const ratio = audioBuffer.sampleRate / 16000;
       const len = Math.floor(mono.length / ratio);
       const resampled = new Float32Array(len);
@@ -2236,9 +2328,26 @@ async function transcribeAudio(file, onProgress){
       mono = resampled;
     }
     const out = await recognizer(mono);
+
+    setWhisperState({
+      title: 'Done!',
+      stage: 'Transcription complete.',
+      percent: 100,
+      detail: ''
+    });
+    // Hide the panel after a moment so it doesn't clutter the final result
+    setTimeout(()=>showWhisperPanel(false), 1500);
+
     return (out?.text || '').trim();
   }catch(e){
-    console.warn('Whisper transcription failed:', e.message);
+    setWhisperState({
+      title: 'Couldn\'t finish transcription',
+      stage: e.message || 'Model download or transcription failed. We\'ll skip this step.',
+      percent: 0,
+      detail: ''
+    });
+    setTimeout(()=>showWhisperPanel(false), 4000);
+    console.warn('Whisper transcription failed:', e);
     return '';
   }
 }
@@ -2354,12 +2463,11 @@ async function handleVideoFile(file){
       }
     }catch(e){ /* swallow */ }
 
-    // Optional Whisper transcription (only if user opted in)
+    // Optional Whisper transcription (only if user opted in). It has its own progress UI.
     let transcription = '';
     if($('transcribeOpt') && $('transcribeOpt').checked){
-      setVidStatus('Transcribing audio (this can take a minute)…');
-      setVidProgress(76);
-      transcription = await transcribeAudio(file, setVidStatus);
+      setVidStatus('Transcription panel below shows progress…');
+      transcription = await transcribeAudio(file);
     }
 
     // Vibe detection from already-extracted frames (instant, no extra fetch needed)
