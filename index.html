@@ -469,6 +469,10 @@
       <p><strong>Click here, or drag in your video</strong><br/>MP4, MOV, or WebM &middot; stays on your computer</p>
       <input type="file" id="videoFile" accept="video/*" />
     </label>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--ink);cursor:pointer">
+      <input type="checkbox" id="transcribeOpt" style="width:auto;margin:0" />
+      <span>Also transcribe the audio for richer context (slower — loads a ~75MB model the first time)</span>
+    </label>
     <div class="video-preview-wrap" id="videoPreviewWrap">
       <video id="videoPreview" controls muted playsinline></video>
       <div class="vid-progress"><div id="vidProgressBar"></div></div>
@@ -2097,6 +2101,146 @@ function loadTesseract(){
     document.head.appendChild(script);
   });
   return tesseractLoader;
+}
+
+// Color & vibe detection from extracted frames
+function detectVibe(frames){
+  if(!frames || !frames.length) return {vibes:[], guess:null, avgBrightness:0, avgSaturation:0};
+  let sumBright = 0, sumSat = 0, warmCount = 0, coolCount = 0;
+  let frameCount = 0;
+  for(const f of frames){
+    const d = f.img.data;
+    let fb = 0, fs = 0, warm = 0;
+    let n = 0;
+    for(let i = 0; i < d.length; i += 32){ // sample every 8th pixel
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const max = Math.max(r,g,b), min = Math.min(r,g,b);
+      fb += (max + min) / 2;
+      fs += max > 0 ? (max - min) / max : 0;
+      if(r > b + 15) warm++;
+      else if(b > r + 15) warm--;
+      n++;
+    }
+    if(n > 0){
+      sumBright += fb / n;
+      sumSat += fs / n;
+      if(warm > 0) warmCount++; else if(warm < 0) coolCount++;
+      frameCount++;
+    }
+  }
+  if(!frameCount) return {vibes:[], guess:null, avgBrightness:0, avgSaturation:0};
+  const avgBright = sumBright / frameCount;
+  const avgSat = sumSat / frameCount;
+  const vibes = [];
+  if(avgBright < 70) vibes.push('dark');
+  else if(avgBright > 175) vibes.push('bright');
+  if(avgSat > 0.35) vibes.push('saturated');
+  else if(avgSat < 0.12) vibes.push('muted');
+  if(warmCount > coolCount * 1.5) vibes.push('warm');
+  else if(coolCount > warmCount * 1.5) vibes.push('cool');
+
+  // Map combinations to a vibe guess that feeds detectTopics
+  let guess = null;
+  if(vibes.includes('dark') && vibes.includes('saturated')) guess = 'horror';
+  else if(vibes.includes('dark') && (vibes.includes('cool') || vibes.includes('muted'))) guess = 'aesthetic';
+  else if(vibes.includes('warm') && vibes.includes('muted')) guess = 'cozy';
+  else if(vibes.includes('bright') && vibes.includes('saturated')) guess = 'funny';
+  else if(vibes.includes('bright')) guess = 'cute';
+  return {vibes, guess, avgBrightness: avgBright, avgSaturation: avgSat};
+}
+
+// Audio classification: speech vs music vs silence
+function classifyAudio(channel, sampleRate){
+  if(!channel || channel.length < sampleRate) return {kind:'unknown', rms:0, zcr:0};
+  // Take a chunk from the middle (skips intro/outro silence)
+  const chunkSize = Math.min(Math.floor(sampleRate * 5), channel.length);
+  const start = Math.floor((channel.length - chunkSize) / 2);
+  let zeroCrossings = 0, rms = 0;
+  for(let i = 1; i < chunkSize; i++){
+    const a = channel[start + i - 1], b = channel[start + i];
+    if((a >= 0 && b < 0) || (a < 0 && b >= 0)) zeroCrossings++;
+    rms += b * b;
+  }
+  const zcr = zeroCrossings / chunkSize;
+  rms = Math.sqrt(rms / chunkSize);
+  let kind = 'unknown';
+  if(rms < 0.01) kind = 'silent';
+  else if(zcr > 0.06) kind = 'speech';       // high ZCR = voice / consonants
+  else if(zcr > 0.025) kind = 'mixed';        // mix of speech + music
+  else kind = 'music';                        // sustained tones = music
+  return {kind, rms, zcr};
+}
+
+// Aspect ratio classification
+function classifyAspectRatio(w, h){
+  if(!w || !h) return {kind:'unknown', ratio:0};
+  const r = w / h;
+  if(r > 1.4) return {kind:'landscape', ratio:r};   // 16:9 or wider — usually auto-cropped
+  if(r > 0.95 && r < 1.1) return {kind:'square', ratio:r};
+  return {kind:'portrait', ratio:r};                 // 9:16-ish — proper vertical
+}
+
+// Face detection (lazy-loaded). Returns count of faces detected on a canvas, 0 if library failed.
+let faceModelLoader = null;
+async function detectFaces(canvas){
+  if(typeof tf === 'undefined' || typeof blazeface === 'undefined'){
+    try {
+      if(!faceModelLoader){
+        faceModelLoader = new Promise((resolve, reject)=>{
+          let loaded = 0;
+          const want = 2;
+          function onOne(){ loaded++; if(loaded === want) resolve(); }
+          const s1 = document.createElement('script'); s1.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4'; s1.onload=onOne; s1.onerror=reject; document.head.appendChild(s1);
+          const s2 = document.createElement('script'); s2.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.1.0'; s2.onload=onOne; s2.onerror=reject; document.head.appendChild(s2);
+        });
+      }
+      await faceModelLoader;
+    } catch(e){ return 0; }
+  }
+  try{
+    const model = await blazeface.load();
+    const predictions = await model.estimateFaces(canvas, false);
+    return (predictions||[]).length;
+  }catch(e){ return 0; }
+}
+
+// Whisper transcription (lazy-loaded via transformers.js) — opt-in only.
+let whisperLoader = null;
+async function loadWhisper(){
+  if(whisperLoader) return whisperLoader;
+  whisperLoader = (async ()=>{
+    const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+    mod.env.allowLocalModels = false;
+    return mod.pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+  })();
+  return whisperLoader;
+}
+async function transcribeAudio(file, onProgress){
+  try{
+    const recognizer = await loadWhisper();
+    onProgress && onProgress('Transcribing audio…');
+    // Decode the audio into a Float32Array at 16kHz mono (what Whisper expects)
+    const arrayBuffer = await file.arrayBuffer();
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new Ctx();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+    audioCtx.close();
+    // Resample / downmix if needed
+    let mono = audioBuffer.getChannelData(0);
+    if(audioBuffer.sampleRate !== 16000){
+      // simple downsample by picking every Nth sample (good enough for speech recognition)
+      const ratio = audioBuffer.sampleRate / 16000;
+      const len = Math.floor(mono.length / ratio);
+      const resampled = new Float32Array(len);
+      for(let i = 0; i < len; i++) resampled[i] = mono[Math.floor(i * ratio)];
+      mono = resampled;
+    }
+    const out = await recognizer(mono);
+    return (out?.text || '').trim();
+  }catch(e){
+    console.warn('Whisper transcription failed:', e.message);
+    return '';
+  }
 }
 
 // Pick a "title-like" line out of raw OCR text.
