@@ -309,6 +309,43 @@
   .char-count.warn{color:#a35c00}
   .char-count.bad{color:#a23556}
 
+  /* Template preset row */
+  .template-presets{
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    margin:8px 0 8px;
+    padding:10px 12px;
+    background:rgba(255,255,255,0.5);
+    border:1px dashed rgba(144,165,255,0.4);
+    border-radius:12px;
+  }
+  .template-presets select{
+    flex:1; min-width:180px;
+    padding:8px 12px;
+    font-size:13px;
+    border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.85);
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .template-presets .preset-btn{
+    padding:8px 14px;
+    font-size:12.5px;
+    font-weight:700;
+    border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.7);
+    color:var(--deep);
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+    font-family:inherit;
+    transition:background .12s ease;
+  }
+  .template-presets .preset-btn:hover{background:rgba(255,255,255,0.95)}
+  .template-presets .preset-btn.danger{color:#a23556;border-color:rgba(255,138,168,0.4)}
+  .template-presets .preset-btn.danger:hover{background:rgba(255,219,228,0.6)}
+  .template-presets .preset-label{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase}
+
   /* Ko-fi support card */
   .kofi-card{
     background:linear-gradient(135deg, rgba(255,178,240,0.45), rgba(255,219,247,0.6), rgba(144,165,255,0.25));
@@ -599,8 +636,16 @@
     <textarea id="description" placeholder="One strong hook sentence + a few keywords / CTA"></textarea>
 
     <label for="template">Your description template <span class="opt">(socials, links, signoff &mdash; optional, but worth filling in once)</span></label>
+    <div class="template-presets">
+      <span class="preset-label">Saved:</span>
+      <select id="templatePreset" aria-label="Saved description templates">
+        <option value="">— Load a saved template —</option>
+      </select>
+      <button type="button" class="preset-btn" id="saveTemplateBtn">💾 Save as…</button>
+      <button type="button" class="preset-btn danger" id="deleteTemplateBtn">🗑 Delete</button>
+    </div>
     <textarea id="template" rows="4" placeholder="🐙 Twitch: twitch.tv/eggie&#10;🐙 Twitter: @EggieWeggieVT&#10;🐙 Discord: discord.gg/suckegg&#10;&#10;New shorts every week!"></textarea>
-    <p style="margin:4px 0 0;font-size:12px;color:var(--ink-soft)">I'll stick this at the end of your YouTube description automatically. Fill it in once and it'll show up in every post pack.</p>
+    <p style="margin:4px 0 0;font-size:12px;color:var(--ink-soft)">I'll stick this at the end of your YouTube description automatically. Save multiple templates above (saved in your browser) so you can swap between them.</p>
 
     <label for="hashtags">Hashtags <span class="opt">(comma or space separated)</span></label>
     <input id="hashtags" type="text" placeholder="#VTuber, #VTuberClips, #residentevil" />
@@ -629,36 +674,6 @@
       </div>
     </div>
 
-    <label for="hookStrength">How does the first 1 to 3 seconds feel? <span class="opt">(skip if you uploaded the video &mdash; I'll figure it out)</span></label>
-    <select id="hookStrength">
-      <option value="">— not sure, skip this</option>
-      <option value="strong">Strong — something visual, loud, or a question that stops people scrolling</option>
-      <option value="medium">Medium — interesting, but takes a second to get going</option>
-      <option value="weak">Weak — slow start, just a face talking, nothing really happens</option>
-    </select>
-    <details class="guide">
-      <summary>How do I figure out which one mine is? 🐙</summary>
-      <div class="levels">
-        <p style="margin:0 0 6px"><strong>Try this:</strong> open your short, pause it at 1.5 seconds, and ask yourself: "if a stranger saw this, would they keep watching?" Then check which one fits:</p>
-        <div class="strong"><b>Strong</b> &middot; By 1.5 seconds, something is already happening. Movement on screen, a face reacting, an on-screen question, a sound that kicks in, or the punchline arriving before the setup. Watching it makes you go "wait, what?" <em>Like:</em> the punchline first, then the setup. A jump-cut straight to the wildest part. Text on screen that says "Nobody talks about…"</div>
-        <div class="med"><b>Medium</b> &middot; You can tell what the video is about, but it's not exciting yet. You're easing in. Someone scrolling past would only stop if they already know your channel. <em>Like:</em> "Today I'm gonna show you…", a slow zoom in, a title card with no movement.</div>
-        <div class="weak"><b>Weak</b> &middot; By 1.5 seconds, nobody knows what's going on yet. There's nothing happening visually. <em>Like:</em> your intro logo, a long pause before you start talking, "hey guys welcome back", or a sideways video with black bars.</div>
-      </div>
-    </details>
-
-    <label for="rewatchable">Would people watch it twice? <span class="opt">(like a clean loop, or stuff you'd miss the first time)</span></label>
-    <select id="rewatchable">
-      <option value="">— not sure, skip this</option>
-      <option value="yes">Yes — it loops or there's a lot to catch</option>
-      <option value="no">No — one and done</option>
-    </select>
-    <details class="guide">
-      <summary>What counts as something people would rewatch? 🌸</summary>
-      <div class="levels">
-        <div class="strong"><b>Yes</b> &middot; The ending loops back to the beginning so cleanly that people watch it through twice without realizing. OR it's so packed with stuff that a second watch shows you something new (a background detail, a tiny joke). OR the punchline only makes sense once you've seen the setup, so people scrub back to catch it. <em>Like:</em> a clean looped animation, a clip where the last frame matches the first, or a reaction with a bunch of overlapping text.</div>
-        <div class="weak"><b>No</b> &middot; Once you've seen the joke or the moment, you're done. You're ready to swipe. <em>Most</em> shorts are this, and that's totally fine. It just means you need to nail the 45 to 55 second range instead of relying on loops.</div>
-      </div>
-    </details>
   </section>
 
   <!-- BIG CTA -->
@@ -1771,6 +1786,8 @@ const fetchBtn = $('fetchBtn'),
 // Video-detected context (OCR + transcription + filename + signal hints).
 // Populated by handleVideoFile. Used as extra detection text on top of what the user types.
 let videoContextText = '';
+// Auto-detected hook strength from video analysis ('strong' / 'medium' / 'weak'). Replaces the old manual dropdown.
+let videoDetectedHookStrength = '';
 
 function clearAllInputs(){
   fetchBtn.innerHTML = '🐙 Analyze my short';
@@ -1778,9 +1795,9 @@ function clearAllInputs(){
   $('quickContext').value='';
   $('title').value=''; $('description').value=''; $('template').value=''; $('hashtags').value='';
   $('duration').value=''; $('retention').value=''; $('viewedVsSwiped').value='';
-  $('hookStrength').value=''; $('rewatchable').value='';
   resultsCard.classList.add('hidden');
   videoContextText = '';
+  videoDetectedHookStrength = '';
   // Reset video too
   videoPreviewWrap.classList.remove('active');
   vidResult.classList.remove('active');
@@ -1789,13 +1806,89 @@ function clearAllInputs(){
 }
 $('clearBtn').addEventListener('click', clearAllInputs);
 
+// ============================================================
+//  DESCRIPTION TEMPLATE PRESETS  —  saved in localStorage
+//  Survives page reloads. Stored per-browser (not synced across devices).
+// ============================================================
+const TEMPLATE_KEY = 'eggie-shorts-analyzer-templates';
+
+function loadSavedTemplates(){
+  try{
+    const raw = localStorage.getItem(TEMPLATE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){ return []; }
+}
+function saveTemplatesArray(arr){
+  try{ localStorage.setItem(TEMPLATE_KEY, JSON.stringify(arr)); }
+  catch(e){ console.warn('Couldn\'t save templates:', e); }
+}
+function refreshTemplateDropdown(selectName){
+  const select = $('templatePreset');
+  if(!select) return;
+  const templates = loadSavedTemplates();
+  select.innerHTML = '<option value="">— Load a saved template —</option>';
+  templates.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.name;
+    opt.textContent = t.name;
+    if(selectName && t.name === selectName) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+function applyTemplatePreset(name){
+  if(!name) return;
+  const t = loadSavedTemplates().find(t => t.name === name);
+  if(t){ $('template').value = t.text; }
+}
+function saveCurrentAsTemplate(){
+  const text = $('template').value;
+  if(!text.trim()){
+    alert('Type something into the template box first, then save it.');
+    return;
+  }
+  const name = prompt('Name this template (e.g. "Gaming clips" or "Music covers"):');
+  if(!name || !name.trim()) return;
+  const trimmedName = name.trim();
+  const templates = loadSavedTemplates();
+  const existing = templates.findIndex(t => t.name === trimmedName);
+  if(existing >= 0){
+    if(!confirm(`A template called "${trimmedName}" already exists. Overwrite it?`)) return;
+    templates[existing].text = text;
+  } else {
+    templates.push({name: trimmedName, text});
+  }
+  saveTemplatesArray(templates);
+  refreshTemplateDropdown(trimmedName);
+}
+function deleteCurrentTemplate(){
+  const select = $('templatePreset');
+  const name = select.value;
+  if(!name){
+    alert('Pick a saved template from the dropdown first, then delete.');
+    return;
+  }
+  if(!confirm(`Delete the "${name}" template? This can't be undone.`)) return;
+  const templates = loadSavedTemplates().filter(t => t.name !== name);
+  saveTemplatesArray(templates);
+  refreshTemplateDropdown();
+  $('template').value = '';
+}
+
+// Wire up the controls
+$('templatePreset').addEventListener('change', e => applyTemplatePreset(e.target.value));
+$('saveTemplateBtn').addEventListener('click', saveCurrentAsTemplate);
+$('deleteTemplateBtn').addEventListener('click', deleteCurrentTemplate);
+
+// Populate the dropdown on page load
+refreshTemplateDropdown();
+
 function hasAnyInputData(){
   return !!($('quickContext').value.trim()
     || $('title').value.trim()
     || $('description').value.trim()
     || $('hashtags').value.trim()
     || $('duration').value.trim()
-    || $('hookStrength').value
     || $('retention').value.trim()
     || $('viewedVsSwiped').value.trim()
     || videoContextText
@@ -1822,8 +1915,8 @@ function runFromUI(){
     template: $('template').value,
     hashtags: $('hashtags').value,
     duration: $('duration').value,
-    hookStrength: $('hookStrength').value,
-    rewatchable: $('rewatchable').value,
+    hookStrength: videoDetectedHookStrength,
+    rewatchable: '',
     retention: $('retention').value,
     viewedVsSwiped: $('viewedVsSwiped').value,
   };
@@ -2860,8 +2953,8 @@ async function handleVideoFile(file){
     verdict.signals = {vibe, audioKind, aspect, faceCount};
     renderVideoVerdict(verdict, {motionScore, cuts, audio, bVar});
 
-    // Auto-fill the hookStrength dropdown
-    $('hookStrength').value = verdict.classification;
+    // Store the auto-detected hook strength for use in scoring
+    videoDetectedHookStrength = verdict.classification;
 
   }catch(err){
     setVidStatus(err.message || 'Something went wrong looking at the video.', true);
@@ -2976,7 +3069,7 @@ function renderVideoVerdict(v){
   vidResult.innerHTML = `
     <div class="vid-verdict">
       <span class="verdict-badge ${v.classification}">${label}</span>
-      <span style="font-size:13px;color:var(--ink-soft)">I filled this into the hook dropdown for you.</span>
+      <span style="font-size:13px;color:var(--ink-soft)">I'll use this to score your hook automatically.</span>
     </div>
     <p style="margin:6px 0 4px;font-size:14px;color:var(--ink)">${v.summary}</p>
     <ul class="bd">${items}</ul>
