@@ -498,21 +498,6 @@
       <div class="wp-files" id="wpFiles"></div>
     </div>
     <div class="vid-result" id="vidResult"></div>
-
-    <details class="link-shortcut" id="linkShortcut">
-      <summary>Don't have the file? Paste a link instead</summary>
-      <div class="note">
-        <strong>Heads up:</strong> a link will only get me your title and thumbnail. YouTube, TikTok, and Instagram don't let me pull descriptions, hashtags, or view counts. You'll still need to fill in Steps 2 and 3 below for a real score.
-      </div>
-      <label for="url">Video link <span class="opt">(YouTube Short, TikTok, or Instagram Reel)</span></label>
-      <input id="url" type="url" placeholder="https://www.youtube.com/shorts/…" autocomplete="off" />
-      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
-        <button class="btn secondary" id="grabLinkBtn" type="button">Grab title from link</button>
-        <span id="platformPill" class="platform-pill hidden"></span>
-      </div>
-      <div id="fetchMsg"></div>
-      <div id="metaPreview" class="meta-row hidden"></div>
-    </details>
   </section>
 
   <!-- STEP 2: POST DETAILS -->
@@ -521,9 +506,12 @@
       <span class="step-num">2</span>
       <h2>Tell me about your post</h2>
     </div>
-    <p class="step-intro">Type in what you wrote, or what you're planning to write. The more I know, the better I can help.</p>
+    <p class="step-intro">A single sentence is enough &mdash; I'll figure out hashtags, suggest titles, and write your post for you. Or fill in the details below for more accuracy.</p>
 
-    <label for="title">Title</label>
+    <label for="quickContext">What is your short about? <span class="opt">(this is all I need)</span></label>
+    <input id="quickContext" type="text" placeholder="e.g. me getting jumpscared in Phasmophobia / making cherry blossom latte art / Elden Ring death montage" />
+
+    <label for="title" style="margin-top:18px">Title <span class="opt">(optional &mdash; I'll suggest some at the end)</span></label>
     <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
 
     <label for="description">Description / caption</label>
@@ -990,16 +978,23 @@ function scoreRetention({retention, viewedVsSwiped}){
 }
 
 // ---------- 5. AGGREGATE + CRITIQUE ----------
-function runAnalysis({platform, title, description, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped}){
+function runAnalysis(payload){
+  const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped} = payload;
+
+  // Enriched detection text — what the user typed PLUS what we pulled from the video.
+  // Used wherever topic / niche / context detection happens (NOT for keyword overlap or post-pack text).
+  const enriched = [description, quickContext, videoContext].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+
   const criteria = [];
   criteria.push(scoreHook({title, hookStrength}));
   criteria.push(scoreDuration({duration, rewatchable, platform}));
   criteria.push(scoreTitle({title, platform}));
-  criteria.push(scoreHashtags({hashtags, platform, title, description}));
-  criteria.push(scoreCaption({description, platform}));
-  criteria.push(scoreEngagement({title, description}));
-  criteria.push(scoreSEO({title, description, hashtags}));
-  criteria.push(scoreNiche({title, description, hashtags}));
+  // Use enriched context for VTuber niche check + hashtag scoring
+  criteria.push(scoreHashtags({hashtags, platform, title, description: enriched}));
+  criteria.push(scoreCaption({description, platform})); // original — judging the user's actual caption
+  criteria.push(scoreEngagement({title, description: enriched})); // enriched — pick up signals from video
+  criteria.push(scoreSEO({title, description, hashtags})); // original — keyword overlap is about user input
+  criteria.push(scoreNiche({title, description: enriched, hashtags})); // enriched — topic detection wins from video
   const ret = scoreRetention({retention, viewedVsSwiped});
   if(ret) criteria.push(ret);
 
@@ -1008,9 +1003,9 @@ function runAnalysis({platform, title, description, hashtags, duration, hookStre
   const grade = gradeFor(overall);
   const verdict = verdictFor(overall, criteria);
   const critique = critiqueFor(criteria, {title, platform});
-  const titleSuggestions = suggestTitles(title, description);
-  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, description);
-  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec};
+  const titleSuggestions = suggestTitles(title, enriched);
+  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, enriched);
+  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec, enriched};
 }
 
 function gradeFor(o){
@@ -1654,24 +1649,22 @@ function describeDetection(d){
 
 // ---------- 6. UI WIRING ----------
 const $ = id => document.getElementById(id);
-const urlInput = $('url'), fetchBtn = $('fetchBtn'), grabLinkBtn = $('grabLinkBtn'),
-      fetchMsg = $('fetchMsg'), metaPreview = $('metaPreview'), platformPill = $('platformPill'),
-      linkShortcut = $('linkShortcut'),
+const fetchBtn = $('fetchBtn'),
       step1 = $('step1'), resultsCard = $('resultsCard');
+
+// Video-detected context (OCR + transcription + filename + signal hints).
+// Populated by handleVideoFile. Used as extra detection text on top of what the user types.
+let videoContextText = '';
 
 function clearAllInputs(){
   fetchBtn.innerHTML = '🐙 Analyze my short';
   fetchBtn.disabled = false;
-  fetchMsg.innerHTML = '';
-  metaPreview.innerHTML = '';
-  metaPreview.classList.add('hidden');
-  urlInput.value = '';
+  $('quickContext').value='';
   $('title').value=''; $('description').value=''; $('template').value=''; $('hashtags').value='';
   $('duration').value=''; $('retention').value=''; $('viewedVsSwiped').value='';
   $('hookStrength').value=''; $('rewatchable').value='';
-  platformPill.classList.add('hidden');
   resultsCard.classList.add('hidden');
-  if(linkShortcut) linkShortcut.open = false;
+  videoContextText = '';
   // Reset video too
   videoPreviewWrap.classList.remove('active');
   vidResult.classList.remove('active');
@@ -1680,14 +1673,8 @@ function clearAllInputs(){
 }
 $('clearBtn').addEventListener('click', clearAllInputs);
 
-urlInput.addEventListener('input', ()=>{
-  const p = detectPlatform(urlInput.value);
-  if(p){ platformPill.textContent = p; platformPill.classList.remove('hidden'); }
-  else { platformPill.classList.add('hidden'); }
-});
-
 function hasAnyInputData(){
-  return !!(urlInput.value.trim()
+  return !!($('quickContext').value.trim()
     || $('title').value.trim()
     || $('description').value.trim()
     || $('hashtags').value.trim()
@@ -1695,47 +1682,14 @@ function hasAnyInputData(){
     || $('hookStrength').value
     || $('retention').value.trim()
     || $('viewedVsSwiped').value.trim()
+    || videoContextText
     || (videoFile && videoFile.files && videoFile.files.length>0));
 }
 
-// "Grab title from link" — fetches just the title + thumbnail from a URL
-// and fills it into the Step 2 title field.
-grabLinkBtn.addEventListener('click', async ()=>{
-  fetchMsg.innerHTML = '';
-  metaPreview.classList.add('hidden');
-  const url = urlInput.value.trim();
-  const platform = detectPlatform(url);
-  if(!url){
-    fetchMsg.innerHTML = `<div class="err">Paste a link first.</div>`;
-    return;
-  }
-  if(!platform){
-    fetchMsg.innerHTML = `<div class="err">I don't recognize that link. Try a YouTube Short, TikTok, or Instagram Reel URL.</div>`;
-    return;
-  }
-  grabLinkBtn.innerHTML = '<span class="loading"></span> grabbing…';
-  grabLinkBtn.disabled = true;
-  let meta = {ok:false};
-  try{ meta = await fetchMetadata(url, platform); }
-  catch(e){ meta = {ok:false, msg:'Network issue. Try again or just fill in Step 2 below.'}; }
-  grabLinkBtn.disabled = false;
-  grabLinkBtn.innerHTML = 'Grab title from link';
-
-  if(meta.ok){
-    if(!$('title').value) $('title').value = meta.title || '';
-    metaPreview.innerHTML = `${meta.thumbnail?`<img src="${meta.thumbnail}" alt="thumbnail">`:''}<div><div class="meta-title">${escapeHtml(meta.title||'(no title)')}</div><div class="meta-sub">${escapeHtml(meta.author||'')} &middot; ${platform}</div></div>`;
-    metaPreview.classList.remove('hidden');
-    fetchMsg.innerHTML = `<div class="ok">Got your title! It's filled in below. Now finish Steps 2 and 3 for a real score.</div>`;
-  } else {
-    fetchMsg.innerHTML = `<div class="err">${meta.msg || "Couldn't grab the info. Fill in Step 2 below instead."}</div>`;
-  }
-});
-
-// Main analyze button — always runs analysis with whatever data is in the form.
+// Main analyze button — runs analysis with whatever data is in the form.
 fetchBtn.addEventListener('click', ()=>{
   if(!hasAnyInputData()){
-    fetchMsg.innerHTML = `<div class="err">Upload a video, paste a link, or fill in your post details above first.</div>`;
-    if(linkShortcut) linkShortcut.open = true;
+    alert('Upload a video or tell me what your short is about up above first.');
     step1.scrollIntoView({behavior:'smooth'});
     return;
   }
@@ -1743,11 +1697,12 @@ fetchBtn.addEventListener('click', ()=>{
 });
 
 function runFromUI(){
-  const platform = detectPlatform(urlInput.value) || 'youtube';
   const payload = {
-    platform,
+    platform: 'youtube', // Score against YouTube Shorts rules; post-pack still shows all platforms
     title: $('title').value,
     description: $('description').value,
+    quickContext: $('quickContext').value,
+    videoContext: videoContextText,
     template: $('template').value,
     hashtags: $('hashtags').value,
     duration: $('duration').value,
@@ -1882,12 +1837,13 @@ function buildPostPack(payload, analysis){
   // Use the user's title if it's substantial, otherwise the top suggestion
   const bestTitle = (userTitle.length >= 18) ? userTitle : (analysis.titleSuggestions[0] || userTitle || 'My short');
 
-  // The "hook line" we'll re-use across platforms — first sentence of body, OR title
+  // The "hook line" — falls through user-typed description → user title → "what's it about" → generic placeholder
   const firstSentenceOfBody = bodyDesc ? (bodyDesc.split(/[.!?\n]/).filter(s=>s.trim())[0] || bodyDesc).trim() : '';
-  const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || 'Wait until you see this';
+  const quickCtx = (payload.quickContext||'').trim();
+  const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || quickCtx || 'Wait until you see this';
 
-  // For the tag-text input (used to pick relevant hashtags)
-  const tagSourceText = `${userTitle} ${bodyDesc}`;
+  // For the tag-text input (used to pick relevant hashtags) — include everything we know about the short
+  const tagSourceText = `${userTitle} ${bodyDesc} ${payload.quickContext||''} ${payload.videoContext||''}`.replace(/\s+/g,' ').trim();
 
   // ---- YouTube Short ----
   // Title kept as-is. Description = hook + body (if it adds info) + template (if any) + hashtags
@@ -2352,12 +2308,44 @@ async function transcribeAudio(file){
   }
 }
 
-// Pick a "title-like" line out of raw OCR text.
+// Strict validator: rejects OCR garbage (pixel noise, fragmented characters, mostly-symbols junk).
+// Designed to drop the kind of output Tesseract gives on stylized fonts: "ZN EVTS", "/ ? \ \ UN", "y 4 9% Ze)".
+function isRealOcrLine(line){
+  if(!line) return false;
+  const trimmed = line.trim();
+  if(trimmed.length < 5) return false;          // too short
+  if(trimmed.length > 120) return false;        // too long for a caption (probably a paragraph of noise)
+
+  // Calculate ratios
+  const letters = (trimmed.match(/[a-zA-Z]/g) || []).length;
+  const total = trimmed.length;
+  const letterRatio = letters / total;
+  if(letterRatio < 0.55) return false;          // mostly symbols/digits = noise
+
+  // Must contain at least one real word of 3+ consecutive letters
+  if(!/[a-zA-Z]{3,}/.test(trimmed)) return false;
+
+  // Reject lines that are mostly broken-up characters with spaces in between (Tesseract's "y 4 9%" pattern)
+  const realWords = trimmed.split(/\s+/).filter(w => /^[a-zA-Z'']{3,}$/.test(w));
+  if(realWords.length < 1) return false;
+
+  // Reject lines where every word is 1-2 chars (junk fragments like "ZN EVTS", "NAS )")
+  const longishWords = trimmed.split(/\s+/).filter(w => w.replace(/[^a-zA-Z]/g,'').length >= 3);
+  if(longishWords.length < 1) return false;
+
+  // Reject lines with too many uppercase-letter-only short fragments like "ZN" "NAS" (junk pattern)
+  const junkyFragments = trimmed.split(/\s+/).filter(w => /^[A-Z]{2,3}$/.test(w) || /^[A-Z]{2,3}[\W]+$/.test(w));
+  if(junkyFragments.length >= 2) return false;
+
+  return true;
+}
+
+// Pick a "title-like" line out of raw OCR text (after filtering garbage).
 function pickTitleLine(ocrText){
   if(!ocrText) return '';
   const lines = ocrText.split('\n').map(l=>l.trim())
     .filter(l => l.length >= 6 && l.length <= 90)
-    .filter(l => /[a-zA-Z]/.test(l) && !/^[\W\d]+$/.test(l));
+    .filter(isRealOcrLine);
   if(!lines.length) return '';
   return lines.sort((a,b)=>{
     const sa = (/[A-Z]/.test(a)?1:0) + (/[?!]/.test(a)?2:0) + Math.min(a.length/30, 1);
@@ -2494,6 +2482,14 @@ async function handleVideoFile(file){
           Math.max(totalDur - 0.5, totalDur * 0.85)
         ];
         const worker = await Tess.createWorker('eng');
+        // Configure Tesseract for caption-style text (single block, allow common punctuation, drop weird chars)
+        try{
+          await worker.setParameters({
+            tessedit_pageseg_mode: '6',            // Assume a single uniform block of text
+            preserve_interword_spaces: '1',
+            user_defined_dpi: '300'
+          });
+        }catch(e){ /* not all worker versions accept these */ }
         const collectedLines = [];
         for(let idx = 0; idx < ocrTimes.length; idx++){
           videoPreview.currentTime = ocrTimes[idx];
@@ -2505,9 +2501,23 @@ async function handleVideoFile(file){
           const ocrCanvas = document.createElement('canvas');
           const vw = videoPreview.videoWidth || 640;
           const vh = videoPreview.videoHeight || 360;
-          ocrCanvas.width = 720;
-          ocrCanvas.height = Math.round(vh * (720 / vw));
-          try{ ocrCanvas.getContext('2d').drawImage(videoPreview, 0, 0, ocrCanvas.width, ocrCanvas.height); }catch(e){}
+          // Bumped resolution: 1080 wide gives Tesseract a much better shot at stylized caption fonts
+          ocrCanvas.width = 1080;
+          ocrCanvas.height = Math.round(vh * (1080 / vw));
+          try{
+            const ctx = ocrCanvas.getContext('2d');
+            ctx.drawImage(videoPreview, 0, 0, ocrCanvas.width, ocrCanvas.height);
+            // Mild contrast boost to make text pop against backgrounds — helps with anti-aliased / outlined fonts
+            const img = ctx.getImageData(0, 0, ocrCanvas.width, ocrCanvas.height);
+            const d = img.data;
+            const factor = 1.15;
+            for(let i = 0; i < d.length; i += 4){
+              d[i]   = Math.min(255, Math.max(0, (d[i]   - 128) * factor + 128));
+              d[i+1] = Math.min(255, Math.max(0, (d[i+1] - 128) * factor + 128));
+              d[i+2] = Math.min(255, Math.max(0, (d[i+2] - 128) * factor + 128));
+            }
+            ctx.putImageData(img, 0, 0);
+          }catch(e){}
           // Face detection on the first OCR frame only (it's mid-video, representative)
           if(idx === 1){
             try{ faceCount = await detectFaces(ocrCanvas); }catch(e){ /* swallow */ }
@@ -2536,29 +2546,20 @@ async function handleVideoFile(file){
       }
     }catch(e){ console.warn('OCR skipped:', e.message); }
 
-    // Combine all detected context. Whisper transcription is the richest source if available.
-    const titleEl = $('title');
-    const descEl = $('description');
+    // Combine all detected context into a single string. Stored globally — NOT pasted into form fields.
+    // The analyzer uses this as extra detection context on top of whatever the user types in.
     const titleCandidate = pickTitleLine(ocrText) || pickTitleLine(transcription);
-    if(!titleEl.value.trim() && titleCandidate){
-      titleEl.value = titleCandidate;
-    }
-    if(!descEl.value.trim()){
-      const leftoverOcr = ocrText.split('\n').map(l=>l.trim())
-        .filter(l => l && l !== titleCandidate && l.length > 3)
-        .join(' ');
-      const vibeHint = vibe.guess ? `${vibe.guess} vibes` : '';
-      const audioHint = audioKind.kind === 'speech' ? 'voiceover content' : audioKind.kind === 'music' ? 'music-driven' : '';
-      const faceHint = faceCount > 0 ? 'talking head' : '';
-      const parts = [transcription, leftoverOcr, filenameText, vibeHint, audioHint, faceHint]
-        .filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-      if(parts) descEl.value = parts;
-    }
+    const cleanOcr = (ocrText||'').split('\n').filter(isRealOcrLine).join(' ');
+    const vibeHint = vibe.guess ? `${vibe.guess} vibes` : '';
+    const audioHint = audioKind.kind === 'speech' ? 'voiceover content' : audioKind.kind === 'music' ? 'music-driven' : '';
+    const faceHint = faceCount > 0 ? 'talking head' : '';
+    videoContextText = [transcription, cleanOcr, filenameText, vibeHint, audioHint, faceHint]
+      .filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 
     setVidProgress(100);
     setVidStatus('All done!');
 
-    // Classify hook strength (now boosted by audio kind — speech with strong hook = stronger)
+    // Classify hook strength
     const verdict = classifyHookFromVideo({motionScore, cuts, audioMax: audio.max, brightnessDelta: bVar});
     verdict.detectedText = {title: titleCandidate, filename: filenameText, ocr: ocrText, transcription};
     verdict.signals = {vibe, audioKind, aspect, faceCount};
@@ -2658,7 +2659,8 @@ function renderVideoVerdict(v){
   let contextBlock = '';
   const d = v.detectedText || {};
   const s = v.signals || {};
-  const ocrLines = (d.ocr || '').split('\n').map(l=>l.trim()).filter(l=>l.length > 3);
+  // Only show OCR lines that pass the validator (skip the pixel-noise garbage Tesseract sometimes spits)
+  const ocrLines = (d.ocr || '').split('\n').map(l=>l.trim()).filter(isRealOcrLine);
   const hasContext = ocrLines.length || d.filename || d.transcription || s.vibe?.guess || s.audioKind?.kind || s.faceCount > 0 || s.aspect?.kind === 'landscape';
   if(hasContext){
     const ocrPreview = ocrLines.slice(0, 5).map(l=>`<li>"${escapeHtml(l)}"</li>`).join('');
@@ -2674,7 +2676,7 @@ function renderVideoVerdict(v){
         ${d.transcription ? `<p style="margin:8px 0 4px;font-size:13px"><strong>What I heard you say:</strong> "${escapeHtml(d.transcription.slice(0, 240))}${d.transcription.length > 240 ? '…' : ''}"</p>` : ''}
         ${d.filename ? `<p style="margin:8px 0 0;font-size:13px"><strong>Filename keywords:</strong> ${escapeHtml(d.filename)}</p>` : ''}
         ${signalBits.length ? `<ul style="margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.6">${signalBits.map(b=>`<li>${b}</li>`).join('')}</ul>` : ''}
-        <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft)">All of this got filled into your title / description fields above (only if empty). It feeds into the hashtag suggestions too.</p>
+        <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft)">I'll use this when you click Analyze to suggest hashtags + write your post for you. You don't have to type anything else &mdash; but adding a sentence to the "What is your short about?" box above helps a lot.</p>
       </div>
     `;
   }
