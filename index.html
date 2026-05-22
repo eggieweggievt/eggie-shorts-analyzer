@@ -2334,65 +2334,126 @@ async function handleVideoFile(file){
     const bMean = brightnesses.reduce((a,b)=>a+b,0)/brightnesses.length;
     const bVar = Math.sqrt(brightnesses.reduce((a,b)=>a+(b-bMean)*(b-bMean),0)/brightnesses.length);
 
-    // Audio analysis
+    // Audio analysis (energy peaks for hook strength)
     setVidStatus('Listening to the audio…');
-    setVidProgress(80);
+    setVidProgress(72);
     let audio = {hasAudio:false, max:null, rms:null};
     try{ audio = await analyzeAudio(file); }catch(e){ /* swallow */ }
 
+    // Audio classification — speech vs music vs silence
+    let audioKind = {kind:'unknown'};
+    try{
+      const arrayBuffer = await file.arrayBuffer();
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(Ctx){
+        const audioCtx = new Ctx();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+        audioCtx.close();
+        const ch = audioBuffer.getChannelData(0);
+        audioKind = classifyAudio(ch, audioBuffer.sampleRate);
+      }
+    }catch(e){ /* swallow */ }
+
+    // Optional Whisper transcription (only if user opted in)
+    let transcription = '';
+    if($('transcribeOpt') && $('transcribeOpt').checked){
+      setVidStatus('Transcribing audio (this can take a minute)…');
+      setVidProgress(76);
+      transcription = await transcribeAudio(file, setVidStatus);
+    }
+
+    // Vibe detection from already-extracted frames (instant, no extra fetch needed)
+    const vibe = detectVibe(frames);
+
+    // Aspect ratio classification — flags auto-cropped landscape (known retention killer)
+    const aspect = classifyAspectRatio(videoPreview.videoWidth, videoPreview.videoHeight);
+
     // Context extraction — pull text from the video itself.
     // 1. Parse filename keywords (instant)
-    // 2. OCR one frame for on-screen text (a few seconds — graceful fallback if it fails)
+    // 2. OCR three frames for on-screen text (intro / middle / outro)
     setVidStatus('Reading text on screen…');
-    setVidProgress(85);
+    setVidProgress(82);
     const filenameText = parseFilename(file.name);
     let ocrText = '';
+    let faceCount = 0;
     try{
       const Tess = await loadTesseract();
       if(Tess){
-        // Re-extract one higher-res frame for OCR (the small ones we used for motion are too low-res to read text)
-        const ocrTime = Math.min(1.2, (videoPreview.duration || 3.0) * 0.35);
-        videoPreview.currentTime = ocrTime;
-        await new Promise(resolve => {
-          const h = ()=>{ videoPreview.removeEventListener('seeked', h); resolve(); };
-          videoPreview.addEventListener('seeked', h);
-          setTimeout(resolve, 1500);
-        });
-        const ocrCanvas = document.createElement('canvas');
-        const vw = videoPreview.videoWidth || 640;
-        const vh = videoPreview.videoHeight || 360;
-        ocrCanvas.width = 720;
-        ocrCanvas.height = Math.round(vh * (720 / vw));
-        try{ ocrCanvas.getContext('2d').drawImage(videoPreview, 0, 0, ocrCanvas.width, ocrCanvas.height); }catch(e){}
+        const totalDur = videoPreview.duration || 3.0;
+        const ocrTimes = [
+          Math.min(0.5, totalDur * 0.1),
+          totalDur * 0.5,
+          Math.max(totalDur - 0.5, totalDur * 0.85)
+        ];
         const worker = await Tess.createWorker('eng');
-        const result = await worker.recognize(ocrCanvas);
+        const collectedLines = [];
+        for(let idx = 0; idx < ocrTimes.length; idx++){
+          videoPreview.currentTime = ocrTimes[idx];
+          await new Promise(resolve => {
+            const h = ()=>{ videoPreview.removeEventListener('seeked', h); resolve(); };
+            videoPreview.addEventListener('seeked', h);
+            setTimeout(resolve, 1500);
+          });
+          const ocrCanvas = document.createElement('canvas');
+          const vw = videoPreview.videoWidth || 640;
+          const vh = videoPreview.videoHeight || 360;
+          ocrCanvas.width = 720;
+          ocrCanvas.height = Math.round(vh * (720 / vw));
+          try{ ocrCanvas.getContext('2d').drawImage(videoPreview, 0, 0, ocrCanvas.width, ocrCanvas.height); }catch(e){}
+          // Face detection on the first OCR frame only (it's mid-video, representative)
+          if(idx === 1){
+            try{ faceCount = await detectFaces(ocrCanvas); }catch(e){ /* swallow */ }
+          }
+          try{
+            const r = await worker.recognize(ocrCanvas);
+            const txt = (r?.data?.text || '').trim();
+            if(txt) collectedLines.push(txt);
+          }catch(e){}
+          setVidProgress(82 + (idx + 1) * 3);
+        }
         await worker.terminate();
-        ocrText = (result?.data?.text || '').trim();
+        // De-duplicate lines that appear across frames (e.g. permanent watermark)
+        const seen = new Set();
+        const dedupedLines = [];
+        for(const block of collectedLines){
+          for(const line of block.split('\n')){
+            const norm = line.trim().toLowerCase();
+            if(norm && !seen.has(norm)){
+              seen.add(norm);
+              dedupedLines.push(line.trim());
+            }
+          }
+        }
+        ocrText = dedupedLines.join('\n');
       }
     }catch(e){ console.warn('OCR skipped:', e.message); }
 
-    // Auto-fill empty fields from video context (don't overwrite anything the user typed)
+    // Combine all detected context. Whisper transcription is the richest source if available.
     const titleEl = $('title');
     const descEl = $('description');
-    const titleCandidate = pickTitleLine(ocrText);
+    const titleCandidate = pickTitleLine(ocrText) || pickTitleLine(transcription);
     if(!titleEl.value.trim() && titleCandidate){
       titleEl.value = titleCandidate;
     }
-    // Drop remaining OCR + filename into the description if it's empty
     if(!descEl.value.trim()){
       const leftoverOcr = ocrText.split('\n').map(l=>l.trim())
         .filter(l => l && l !== titleCandidate && l.length > 3)
         .join(' ');
-      const descParts = [leftoverOcr, filenameText].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-      if(descParts) descEl.value = descParts;
+      const vibeHint = vibe.guess ? `${vibe.guess} vibes` : '';
+      const audioHint = audioKind.kind === 'speech' ? 'voiceover content' : audioKind.kind === 'music' ? 'music-driven' : '';
+      const faceHint = faceCount > 0 ? 'talking head' : '';
+      const parts = [transcription, leftoverOcr, filenameText, vibeHint, audioHint, faceHint]
+        .filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+      if(parts) descEl.value = parts;
     }
 
     setVidProgress(100);
     setVidStatus('All done!');
 
-    // Classify hook strength
+    // Classify hook strength (now boosted by audio kind — speech with strong hook = stronger)
     const verdict = classifyHookFromVideo({motionScore, cuts, audioMax: audio.max, brightnessDelta: bVar});
-    verdict.detectedText = {title: titleCandidate, filename: filenameText, ocr: ocrText};
+    verdict.detectedText = {title: titleCandidate, filename: filenameText, ocr: ocrText, transcription};
+    verdict.signals = {vibe, audioKind, aspect, faceCount};
     renderVideoVerdict(verdict, {motionScore, cuts, audio, bVar});
 
     // Auto-fill the hookStrength dropdown
@@ -2485,18 +2546,27 @@ function renderVideoVerdict(v){
   const label = v.classification === 'strong' ? 'Strong hook ✨' : v.classification === 'medium' ? 'Medium hook 🌸' : 'Weak hook 💧';
   const items = v.breakdown.map(b=>`<li><span class="dot ${b.v}"></span><span>${b.t}</span></li>`).join('');
 
-  // Build a "context detected" section if OCR or filename pulled anything useful
+  // Build a "context detected" section from everything we scrubbed
   let contextBlock = '';
   const d = v.detectedText || {};
+  const s = v.signals || {};
   const ocrLines = (d.ocr || '').split('\n').map(l=>l.trim()).filter(l=>l.length > 3);
-  if(ocrLines.length || d.filename){
-    const ocrPreview = ocrLines.slice(0, 4).map(l=>`<li>"${escapeHtml(l)}"</li>`).join('');
+  const hasContext = ocrLines.length || d.filename || d.transcription || s.vibe?.guess || s.audioKind?.kind || s.faceCount > 0 || s.aspect?.kind === 'landscape';
+  if(hasContext){
+    const ocrPreview = ocrLines.slice(0, 5).map(l=>`<li>"${escapeHtml(l)}"</li>`).join('');
+    const vibeText = s.vibe?.guess ? `<strong>Vibe:</strong> ${escapeHtml(s.vibe.guess)} (${(s.vibe.vibes||[]).join(', ')})` : '';
+    const audioText = s.audioKind?.kind && s.audioKind.kind !== 'unknown' ? `<strong>Audio:</strong> ${escapeHtml(s.audioKind.kind)}` : '';
+    const faceText = s.faceCount > 0 ? `<strong>Faces detected:</strong> ${s.faceCount} (talking head / on-camera content)` : '';
+    const aspectText = s.aspect?.kind === 'landscape' ? `<strong>⚠️ Landscape video</strong> — looks like this might be auto-cropped from a 16:9 source. The rubric says this kills retention. Re-edit vertically for next time.` : '';
+    const signalBits = [vibeText, audioText, faceText, aspectText].filter(Boolean);
     contextBlock = `
       <div class="ocr-result">
         <strong>Context I pulled from your video 🐙</strong>
         ${ocrLines.length ? `<p style="margin:6px 0 4px;font-size:13px">Text I saw on screen:</p><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.5">${ocrPreview}</ul>` : ''}
+        ${d.transcription ? `<p style="margin:8px 0 4px;font-size:13px"><strong>What I heard you say:</strong> "${escapeHtml(d.transcription.slice(0, 240))}${d.transcription.length > 240 ? '…' : ''}"</p>` : ''}
         ${d.filename ? `<p style="margin:8px 0 0;font-size:13px"><strong>Filename keywords:</strong> ${escapeHtml(d.filename)}</p>` : ''}
-        <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft)">I filled this into the title / description fields above (if they were empty). It'll feed into the hashtag suggestions too.</p>
+        ${signalBits.length ? `<ul style="margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.6">${signalBits.map(b=>`<li>${b}</li>`).join('')}</ul>` : ''}
+        <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft)">All of this got filled into your title / description fields above (only if empty). It feeds into the hashtag suggestions too.</p>
       </div>
     `;
   }
