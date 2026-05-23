@@ -1112,9 +1112,17 @@ function scoreRetention({retention, viewedVsSwiped}){
 function runAnalysis(payload){
   const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped} = payload;
 
-  // Enriched detection text — what the user typed PLUS what we pulled from the video.
-  // Used wherever topic / niche / context detection happens (NOT for keyword overlap or post-pack text).
-  const enriched = [description, quickContext, videoContext].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  // TIERED detection sources — user input wins over auto-detected video signals.
+  // Tier 1: what the user explicitly said the short is about (quickContext + title) — HIGHEST priority
+  // Tier 2: the description they typed
+  // Tier 3: video / audio context (Florence visual description + Whisper transcription + filename + vibe)
+  const detectTier1 = [quickContext, title].filter(Boolean).join(' ').trim();
+  const detectTier2 = (description || '').trim();
+  const detectTier3 = (videoContext || '').trim();
+  const tieredDetect = [detectTier1, detectTier2, detectTier3].filter(Boolean);
+
+  // Enriched single-string version — for keyword-density / regex use that doesn't need priority.
+  const enriched = tieredDetect.join(' ').replace(/\s+/g,' ').trim();
 
   const criteria = [];
   criteria.push(scoreHook({title, hookStrength}));
@@ -1134,9 +1142,10 @@ function runAnalysis(payload){
   const grade = gradeFor(overall);
   const verdict = verdictFor(overall, criteria);
   const critique = critiqueFor(criteria, {title, platform});
-  const titleSuggestions = suggestTitles(title, enriched);
-  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, enriched);
-  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec, enriched};
+  // Pass tiered arrays so primary topic is picked from user input first, video context last
+  const titleSuggestions = suggestTitles(title, tieredDetect);
+  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, tieredDetect);
+  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec, enriched, tieredDetect};
 }
 
 function gradeFor(o){
@@ -1485,7 +1494,6 @@ const TAG_DB = {
     sports:        {tags:['sports','football','basketball','soccer','highlights','sportstiktok'], sizes:['large','large','large','large','medium','small']},
     travel:        {tags:['travel','traveltok','wanderlust','travelgram','adventure'], sizes:['large','medium','medium','medium','medium']},
     dance:         {tags:['dance','dancer','choreography','dancetiktok','dancers'], sizes:['large','large','medium','medium','small']},
-    aesthetic:     {tags:['aesthetic','aestheticedit','aestheticvideo','aestheticvibes'], sizes:['large','medium','small','small']},
     movies:        {tags:['movies','film','cinema','movietok','filmtok'], sizes:['large','large','medium','small','small']},
     tv:            {tags:['tvshow','tvseries','bingewatching'], sizes:['medium','medium','small']},
     cars:          {tags:['cars','cartok','carenthusiast','carlovers'], sizes:['large','medium','small','small']}
@@ -1503,7 +1511,6 @@ const TAG_DB = {
     qna:           {tags:['qna','askmeanything','aboutme'], sizes:['medium','small','medium']},
     asmr:          {tags:['asmr','asmrcommunity','asmrsounds','asmrtist'], sizes:['large','medium','small','small']},
     debut:         {tags:['vtuberdebut','newvtuber','debut'], sizes:['small','small','medium']},
-    cute:          {tags:['cute','adorable','wholesome','cuteness'], sizes:['large','medium','large','medium']},
     cursed:        {tags:['cursed','cursedclips','cursedvideos'], sizes:['medium','small','small']},
     rage:          {tags:['rage','ragegaming','gamerrage'], sizes:['medium','small','small']},
     challenge:     {tags:['challenge','tryingthings','nodeathrun'], sizes:['large','small','small']},
@@ -1524,15 +1531,16 @@ const TAG_DB = {
   }
 };
 
-function detectTopics(text){
+// Scan a single text string for topic matches. Returns games / genres / content / hasVTuber but NOT a primary.
+function _scanTextForTopics(text){
   const t = (text||'').toLowerCase();
-  const found = {games:[], genres:[], content:[], hasVTuber:false, primary:null};
+  const found = {games:[], genres:[], content:[], hasVTuber:false};
+  if(!t) return found;
 
   // Games — direct substring match
   for(const g in TAG_DB.games){ if(t.includes(g)) found.games.push(g); }
 
   // VTuber signals (used to decide whether to anchor with #VTuber)
-  // Expanded with terms found in top-performing VTuber shorts via VidIQ
   found.hasVTuber = /\b(vtuber|live2d|pngtuber|envtuber|vtuberen|vtubers|vtuberclip|vtuberclips|vtubing|hololive|nijisanji|phase ?connect|holox|holo|kawaii ?model|2d ?avatar|virtual ?youtuber)\b/.test(t);
 
   // Genres / categories
@@ -1555,7 +1563,6 @@ function detectTopics(text){
   if(/\b(football|basketball|soccer|baseball|hockey|nba|nfl|mlb|nhl|sports)\b/.test(t)) found.genres.push('sports');
   if(/\b(travel|vacation|trip|adventure|tourist|country)\b/.test(t)) found.genres.push('travel');
   if(/\b(dance|dancer|choreo|choreography|dancing)\b/.test(t)) found.genres.push('dance');
-  if(/\b(aesthetic|vibes|moody|dreamy)\b/.test(t)) found.genres.push('aesthetic');
   if(/\b(movie|film|cinema|blockbuster)\b/.test(t)) found.genres.push('movies');
   if(/\b(tv ?show|series|netflix|season|episode|binge)\b/.test(t)) found.genres.push('tv');
   if(/\b(car|cars|driving|automotive|jdm|drift)\b/.test(t)) found.genres.push('cars');
@@ -1572,7 +1579,6 @@ function detectTopics(text){
   if(/\b(q ?and ?a|qna|ask me anything|answering your questions|aboutme|about me)\b/.test(t)) found.content.push('qna');
   if(/\b(asmr|whisper|tingles|asmr ?ist)\b/.test(t)) found.content.push('asmr');
   if(/\b(debut|first stream|introducing myself|new vtuber|model reveal)\b/.test(t)) found.content.push('debut');
-  if(/\b(cute|adorable|wholesome|aww|so cute|precious)\b/.test(t)) found.content.push('cute');
   if(/\b(cursed|haunted|unhinged|wtf|what the actual)\b/.test(t)) found.content.push('cursed');
   if(/\b(rage|raging|tilted|tilting|tantrum|i (just|literally) lost it|losing my mind)\b/.test(t)) found.content.push('rage');
   if(/\b(challenge|no death|nuzlocke|hardcore mode|i tried|trying to|24 hours|7 days|30 days|trying for)\b/.test(t)) found.content.push('challenge');
@@ -1593,20 +1599,42 @@ function detectTopics(text){
   if(/\b(face reveal|model reveal|revealing|finally reveals|big reveal|first look)\b/.test(t)) found.content.push('facereveal');
   if(/\b(clip|clips|highlight|highlights|best moment|moment from|stream clip)\b/.test(t)) found.content.push('clip');
 
-  // Decide primary topic for the most-specific tag.
-  // Priority: specific game > specific niche genre > content type > generic gaming/streaming
-  // (When there's no specific game, what's HAPPENING in the short matters more than the fact that it IS a gaming clip.)
-  const specificGenre = found.genres.find(g => g !== 'gaming' && g !== 'streaming');
-  if(found.games.length) {
-    found.primary = {type:'game', key:found.games[0]};
-  } else if(specificGenre){
-    found.primary = {type:'genre', key: specificGenre};
-  } else if(found.content.length){
-    found.primary = {type:'content', key: found.content[0]};
-  } else if(found.genres.length){
-    found.primary = {type:'genre', key: found.genres[0]};
-  }
   return found;
+}
+
+// Pick the most-specific primary topic from a scan: game > niche genre > content > generic genre.
+function _pickPrimary(scan){
+  if(!scan) return null;
+  const specificGenre = (scan.genres||[]).find(g => g !== 'gaming' && g !== 'streaming');
+  if((scan.games||[]).length) return {type:'game', key: scan.games[0]};
+  if(specificGenre) return {type:'genre', key: specificGenre};
+  if((scan.content||[]).length) return {type:'content', key: scan.content[0]};
+  if((scan.genres||[]).length) return {type:'genre', key: scan.genres[0]};
+  return null;
+}
+
+// detectTopics now accepts either a single string OR an array of tiered strings (highest priority first).
+// When an array is passed, the primary topic is picked from the FIRST tier that produces a result —
+// so what the user typed always wins over what the video/transcription detected.
+function detectTopics(input){
+  const tiers = Array.isArray(input) ? input.filter(Boolean) : [input || ''];
+  const scans = tiers.map(_scanTextForTopics);
+
+  // Union all detected items across tiers
+  const merged = {games:[], genres:[], content:[], hasVTuber:false, primary:null};
+  for(const scan of scans){
+    for(const g of scan.games) if(!merged.games.includes(g)) merged.games.push(g);
+    for(const g of scan.genres) if(!merged.genres.includes(g)) merged.genres.push(g);
+    for(const c of scan.content) if(!merged.content.includes(c)) merged.content.push(c);
+    merged.hasVTuber = merged.hasVTuber || scan.hasVTuber;
+  }
+
+  // Primary is picked from the EARLIEST tier that has any result — so user input wins
+  for(const scan of scans){
+    const p = _pickPrimary(scan);
+    if(p){ merged.primary = p; break; }
+  }
+  return merged;
 }
 
 function suggestHashtagsFor(platform, count, text, existingTags){
@@ -2113,8 +2141,12 @@ function buildPostPack(payload, analysis){
   const quickCtx = (payload.quickContext||'').trim();
   const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || quickCtx || 'Wait until you see this';
 
-  // For the tag-text input (used to pick relevant hashtags) — include everything we know about the short
-  const tagSourceText = `${userTitle} ${bodyDesc} ${payload.quickContext||''} ${payload.videoContext||''}`.replace(/\s+/g,' ').trim();
+  // Tag detection sources — tiered so user input wins over auto-detected video signals
+  const tagSourceText = [
+    `${userTitle||''} ${payload.quickContext||''}`.trim(),  // Tier 1: user's direct topic
+    bodyDesc,                                                // Tier 2: their description
+    payload.videoContext || ''                               // Tier 3: video / audio fallback
+  ].filter(Boolean);
 
   // ---- YouTube Short ----
   // Title kept as-is. Description = hook + body (if it adds info) + template (if any) + hashtags
@@ -2420,13 +2452,12 @@ function detectVibe(frames){
   if(warmCount > coolCount * 1.5) vibes.push('warm');
   else if(coolCount > warmCount * 1.5) vibes.push('cool');
 
-  // Map combinations to a vibe guess that feeds detectTopics
+  // Map combinations to a vibe guess. Only used as a descriptive display label —
+  // only return guesses that correspond to actual topic detection patterns.
   let guess = null;
   if(vibes.includes('dark') && vibes.includes('saturated')) guess = 'horror';
-  else if(vibes.includes('dark') && (vibes.includes('cool') || vibes.includes('muted'))) guess = 'aesthetic';
   else if(vibes.includes('warm') && vibes.includes('muted')) guess = 'cozy';
-  else if(vibes.includes('bright') && vibes.includes('saturated')) guess = 'funny';
-  else if(vibes.includes('bright')) guess = 'cute';
+  // (Removed 'cute' and 'aesthetic' — they're not real content types or topics.)
   return {vibes, guess, avgBrightness: avgBright, avgSaturation: avgSat};
 }
 
