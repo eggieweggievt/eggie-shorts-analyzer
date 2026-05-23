@@ -1110,19 +1110,21 @@ function scoreRetention({retention, viewedVsSwiped}){
 
 // ---------- 5. AGGREGATE + CRITIQUE ----------
 function runAnalysis(payload){
-  const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped} = payload;
+  const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template} = payload;
 
-  // TIERED detection sources — user input wins over auto-detected video signals.
-  // Tier 1: what the user explicitly said the short is about (quickContext + title) — HIGHEST priority
-  // Tier 2: the description they typed
-  // Tier 3: video / audio context (Florence visual description + Whisper transcription + filename + vibe)
-  const detectTier1 = [quickContext, title].filter(Boolean).join(' ').trim();
-  const detectTier2 = (description || '').trim();
-  const detectTier3 = (videoContext || '').trim();
-  const tieredDetect = [detectTier1, detectTier2, detectTier3].filter(Boolean);
+  // DETECTION SOURCES — user input is EXCLUSIVE when present. Video signals are only used as a
+  // fallback when the user typed nothing at all. Template is included for identity signals
+  // (VTuber / Twitch) so the creator's anchor tags are always picked up regardless of the topic.
+  const userTypedText = [quickContext, title, description, template].filter(Boolean).join(' ').trim();
+  const videoOnlyText = (videoContext || '').trim();
 
-  // Enriched single-string version — for keyword-density / regex use that doesn't need priority.
-  const enriched = tieredDetect.join(' ').replace(/\s+/g,' ').trim();
+  // Detection source for hashtags / titles / post pack — locked to user input when provided.
+  // Falls back to video context ONLY when user gave nothing.
+  const detectionSource = userTypedText ? [userTypedText] : (videoOnlyText ? [videoOnlyText] : []);
+
+  // Enriched single-string version (still includes everything) — used by scoring functions
+  // that just do keyword density / regex matching, not topic categorization.
+  const enriched = [userTypedText, videoOnlyText].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 
   const criteria = [];
   criteria.push(scoreHook({title, hookStrength}));
@@ -1142,10 +1144,11 @@ function runAnalysis(payload){
   const grade = gradeFor(overall);
   const verdict = verdictFor(overall, criteria);
   const critique = critiqueFor(criteria, {title, platform});
-  // Pass tiered arrays so primary topic is picked from user input first, video context last
-  const titleSuggestions = suggestTitles(title, tieredDetect);
-  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, tieredDetect);
-  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec, enriched, tieredDetect};
+  // Hashtag + title detection uses ONLY user-typed input when provided.
+  // Falls back to video-detected context when user typed nothing.
+  const titleSuggestions = suggestTitles(title, detectionSource);
+  const hashtagRec = recommendHashtags(platform, parseHashtags(hashtags), title, detectionSource);
+  return {overall, grade, verdict, criteria, critique, titleSuggestions, hashtagRec, enriched, detectionSource};
 }
 
 function gradeFor(o){
@@ -1397,8 +1400,9 @@ function suggestTitles(originalTitle, description){
 //  user's hashtag rules + VidIQ relevance-over-volume principle.
 // ============================================================
 // ============================================================
-//  TAG DATABASE  —  last refreshed using VidIQ data: 2026-05-22
-//  Sourced from top-performing breakout VTuber + streamer shorts.
+//  TAG DATABASE  —  last refreshed using VidIQ data: 2026-05-23
+//  Sourced from top-performing breakout VTuber + streamer + storytime shorts
+//  and keyword volume research (storytime: 521k/mo, relatable: 82k/mo).
 //  Refresh every few weeks by pulling fresh outlier data.
 // ============================================================
 const TAG_DB = {
@@ -1494,6 +1498,7 @@ const TAG_DB = {
     sports:        {tags:['sports','football','basketball','soccer','highlights','sportstiktok'], sizes:['large','large','large','large','medium','small']},
     travel:        {tags:['travel','traveltok','wanderlust','travelgram','adventure'], sizes:['large','medium','medium','medium','medium']},
     dance:         {tags:['dance','dancer','choreography','dancetiktok','dancers'], sizes:['large','large','medium','medium','small']},
+    relationships: {tags:['relationship','relationships','couples','couplegoals','relationshipgoals','couplescomedy','couplevideos','couplestiktok','marriedlife','marriedcouple','husbandwife','husbandlife','wifelife','datinglife','datelife','dating','relationshipadvice','longdistance','polyamory','polyrelationship','lovestory','partner','myhusband','mywife'], sizes:['large','large','large','large','large','medium','medium','medium','medium','medium','medium','small','small','medium','small','large','medium','small','small','small','large','medium','small','small']},
     movies:        {tags:['movies','film','cinema','movietok','filmtok'], sizes:['large','large','medium','small','small']},
     tv:            {tags:['tvshow','tvseries','bingewatching'], sizes:['medium','medium','small']},
     cars:          {tags:['cars','cartok','carenthusiast','carlovers'], sizes:['large','medium','small','small']}
@@ -1504,7 +1509,8 @@ const TAG_DB = {
     funny:         {tags:['funny','funnymoments','funnyvideos','comedy','funnyclips'], sizes:['large','medium','large','large','medium']},
     tutorial:      {tags:['tutorial','howto','tipsandtricks','learn'], sizes:['large','large','medium','large']},
     review:        {tags:['review','honestreview','productreview'], sizes:['large','small','medium']},
-    storytime:     {tags:['storytime','storytelling','storytimes'], sizes:['large','medium','medium']},
+    storytime:     {tags:['storytime','storytimes','storytelling','story','mystorytime','dramaticstorytime','emotionalstorytime','relatablestorytime','makeupstorytime','hairstorytime','grwmstorytime','familystorytime','momstorytime','dadstorytime','siblingstorytime','textingstories','redditstories','storytimetiktok','myexperience','thetimeix','iremember','crazystory','wildstorytime','funnystorytime'], sizes:['large','medium','medium','large','small','small','small','small','small','small','small','small','small','small','small','medium','medium','small','small','small','small','medium','small','small']},
+    relatable:     {tags:['relatable','relatablecontent','relatablestories','relatablecomedy','relatablemoments','relatabletiktok','relatableshorts','relatablecouple','relatablefamily','relatablesibling','relatableparents','momlife','dadlife','siblinglife','itme','sotrue','wealldoit','everyoneknows'], sizes:['large','medium','small','medium','medium','small','small','small','small','small','small','large','medium','small','small','small','small','small']},
     vlog:          {tags:['vlog','vlogger','dayinmylife','dailyvlog'], sizes:['large','medium','medium','medium']},
     skit:          {tags:['skit','comedyskit','sketch'], sizes:['medium','small','medium']},
     bts:           {tags:['behindthescenes','bts'], sizes:['medium','large']},
@@ -1563,6 +1569,8 @@ function _scanTextForTopics(text){
   if(/\b(football|basketball|soccer|baseball|hockey|nba|nfl|mlb|nhl|sports)\b/.test(t)) found.genres.push('sports');
   if(/\b(travel|vacation|trip|adventure|tourist|country)\b/.test(t)) found.genres.push('travel');
   if(/\b(dance|dancer|choreo|choreography|dancing)\b/.test(t)) found.genres.push('dance');
+  // Relationships / couples / dating — high-volume verticals per VidIQ data
+  if(/\b(relationship|relationships|couple|couples|marriage|married|dating|wingman|wingwoman|wingmaning|polyamory|polyamorous|poly relationship|date night|long distance|girlfriend|boyfriend|husband|wife|spouse|partner)\b/.test(t)) found.genres.push('relationships');
   if(/\b(movie|film|cinema|blockbuster)\b/.test(t)) found.genres.push('movies');
   if(/\b(tv ?show|series|netflix|season|episode|binge)\b/.test(t)) found.genres.push('tv');
   if(/\b(car|cars|driving|automotive|jdm|drift)\b/.test(t)) found.genres.push('cars');
@@ -1587,11 +1595,17 @@ function _scanTextForTopics(text){
   if(/\b(fail|failed|epic fail|wipeout|disaster|that did not go|did not work|went so wrong)\b/.test(t)) found.content.push('fail');
   if(/\b(edit|editing|aesthetic edit|fan edit|amv)\b/.test(t)) found.content.push('edit');
   if(/\b(life hack|lifehack|hack|trick that|secret to|i wish i knew|things you didn'?t know)\b/.test(t)) found.content.push('lifehack');
+  // Relatable / "it me" content — very high-volume per VidIQ keyword research
+  if(/\b(relatable|so true|it me|literally me|we all|us all|everyone (does|knows)|am i the only|why is this so true|when you also|did i just|did anyone else)\b/.test(t)) found.content.push('relatable');
 
   // Emotional / contextual signals — adds to content array if these vibes are present
   if(/\b(broke me|destroyed me|killed me|made me cry|cried|i can'?t|i'?m crying|literally crying)\b/.test(t)) found.content.push('cursed');
   if(/\b(wait what|wait,? what|hold on|hold up|what the|wait —|pause)\b/.test(t)) found.content.push('reaction');
   if(/\b(pov|point of view|when you|what it'?s like|imagine if)\b/.test(t)) found.content.push('storytime');
+  // Personal narrative / relatable storytime: "me X-ing", "my husband/wife/etc", "what happens when"
+  if(/\bme [a-z]+(ing|ed)\b/.test(t)) found.content.push('storytime');
+  if(/\bmy (husband|wife|boyfriend|girlfriend|partner|spouse|roommate|mom|dad|parents|sister|brother|kid|baby|friend|coworker|boss|neighbor)\b/.test(t)) found.content.push('storytime');
+  if(/\b(what happens when|the time (i|we|he|she|they)|once i|so (i|we|she|he|they)) /.test(t)) found.content.push('storytime');
   if(/\b(things i (wish|wished)|i wish i knew|stuff (no ?one|nobody) tells you)\b/.test(t)) found.content.push('lifehack');
   if(/\b(everyone (gets|is|has) wrong|nobody (talks|knows|admits)|stop (doing|saying)|here'?s why)\b/.test(t)) found.content.push('rant');
   // New content types from VidIQ data
@@ -1683,33 +1697,83 @@ function suggestHashtagsFor(platform, count, text, existingTags){
     pd.tags.forEach((t, i)=> addToPool(t, pd.sizes[i] || 'large'));
   }
 
-  // Follow the rubric: 1 small / 2 medium / 2 large = 5 total
+  // VARIETY-FIRST PICK STRATEGY
+  // The goal is one tag from each relevant category so the mix is rich, not all topic-clustered.
+  // Slot 1: most-specific primary topic tag
+  // Slot 2: VTuber anchor (if hasVTuber)
+  // Slot 3: streaming/Twitch anchor (if streaming detected)
+  // Slot 4: content type tag (if different from primary)
+  // Slot 5: platform feed tag (#shorts / #fyp / #reels)
+  // Fill any remaining slots with size-mix from the rest of the pool.
   const picks = [];
+  function addTag(tag){
+    if(!tag) return false;
+    const norm = String(tag).toLowerCase().replace(/^#/,'');
+    if(existing.has(norm)) return false;
+    if(picks.some(p => p.toLowerCase() === norm)) return false;
+    picks.push(tag.replace(/^#/,''));
+    return true;
+  }
+  function firstTagOf(category, key){
+    const data = (TAG_DB[category]||{})[key];
+    return data && data.tags && data.tags[0];
+  }
+
+  // Slot 1: primary specific topic tag
+  if(detected.primary){
+    const cat = detected.primary.type === 'game' ? 'games' : detected.primary.type + 's';
+    addTag(firstTagOf(cat, detected.primary.key));
+  }
+
+  // Slot 2: VTuber anchor (identity, large)
+  if(detected.hasVTuber){
+    addTag('VTuber');
+  }
+
+  // Slot 3: streaming/Twitch anchor (identity)
+  if(detected.genres.includes('streaming')){
+    addTag('twitch');
+  }
+
+  // Slot 4: content type tag (different from primary so it adds variety)
+  if(detected.content.length > 0){
+    const usedAsPrimary = detected.primary && detected.primary.type === 'content';
+    const contentKey = usedAsPrimary
+      ? detected.content.find(c => c !== detected.primary.key) || null
+      : detected.content[0];
+    if(contentKey){
+      addTag(firstTagOf('content', contentKey));
+    }
+  }
+
+  // Slot 5: platform feed tag (#shorts / #fyp / #reels)
+  if(TAG_DB.platform[platform]){
+    addTag(TAG_DB.platform[platform].tags[0]);
+  }
+
+  // Fill any remaining slots from the pool, prioritizing variety from un-used detected categories
+  // and following the 1S/2M/2L size rubric when possible.
   function take(size, n){
     let added = 0;
     for(const tag of pool[size]){
+      if(picks.length >= count) break;
       if(added >= n) break;
-      if(!picks.some(p => p.toLowerCase() === tag.toLowerCase())){
-        picks.push(tag);
-        added++;
-      }
+      if(addTag(tag)) added++;
     }
     return added;
   }
-  take('small', 1);
-  take('medium', 2);
-  take('large', 2);
+  // Top up to hit the count target, biased toward medium and large tags for reach
+  if(picks.length < count) take('medium', 1);
+  if(picks.length < count) take('large', 1);
+  if(picks.length < count) take('small', 1);
 
-  // If a bucket came up short (e.g., no small tags detected), top up from any pool
+  // Final fallback — anything left in the pool by size descending
   while(picks.length < count){
     let added = false;
     for(const size of ['large','medium','small']){
       for(const tag of pool[size]){
-        if(!picks.some(p => p.toLowerCase() === tag.toLowerCase())){
-          picks.push(tag);
-          added = true;
-          if(picks.length >= count) break;
-        }
+        if(picks.length >= count) break;
+        if(addTag(tag)){ added = true; if(picks.length >= count) break; }
       }
       if(picks.length >= count) break;
     }
@@ -2141,12 +2205,13 @@ function buildPostPack(payload, analysis){
   const quickCtx = (payload.quickContext||'').trim();
   const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || quickCtx || 'Wait until you see this';
 
-  // Tag detection sources — tiered so user input wins over auto-detected video signals
-  const tagSourceText = [
-    `${userTitle||''} ${payload.quickContext||''}`.trim(),  // Tier 1: user's direct topic
-    bodyDesc,                                                // Tier 2: their description
-    payload.videoContext || ''                               // Tier 3: video / audio fallback
-  ].filter(Boolean);
+  // Tag detection — LOCKED to user input when present. Video context is ONLY used when the user
+  // typed nothing at all. Template is included so creator identity signals (VTuber / Twitch)
+  // get picked up alongside the topic.
+  const userTypedForPack = [userTitle, payload.quickContext, bodyDesc, payload.template].filter(Boolean).join(' ').trim();
+  const tagSourceText = userTypedForPack
+    ? [userTypedForPack]
+    : ((payload.videoContext||'').trim() ? [(payload.videoContext||'').trim()] : []);
 
   // ---- YouTube Short ----
   // Title kept as-is. Description = hook + body (if it adds info) + template (if any) + hashtags
