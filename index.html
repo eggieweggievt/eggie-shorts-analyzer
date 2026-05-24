@@ -1725,13 +1725,13 @@ const TAG_DB = {
     // FPS / shooter
     'apex':             {tags:['apexlegends','apex','apexclips'], sizes:['large','large','medium']},
     'apex legends':     {tags:['apexlegends','apex','apexclips'], sizes:['large','large','medium']},
-    'valorant':         {tags:['valorant','valorantclips','riotgames'], sizes:['large','medium','medium']},
+    'valorant':         {tags:['valorant','valorantclips','riotgames','valorantmoments','valorantmemes','valorantesports','valorantshorts','valorantfunny','valoranttips','radiantgrind','valorantvtuber'], sizes:['large','medium','medium','medium','medium','medium','small','medium','small','small','small']},
     'overwatch':        {tags:['overwatch','overwatch2','overwatchclips'], sizes:['large','medium','small']},
     'counter-strike':   {tags:['counterstrike','cs2','csgo'], sizes:['large','medium','large']},
     'fortnite':         {tags:['fortnite','fortniteclips'], sizes:['large','medium']},
     'call of duty':     {tags:['callofduty','codclips','warzone'], sizes:['large','medium','medium']},
     'helldivers':       {tags:['helldivers2','helldivers'], sizes:['large','medium']},
-    'marvel rivals':    {tags:['marvelrivals','marvelrivalsclips'], sizes:['medium','small']},
+    'marvel rivals':    {tags:['marvelrivals','marvel','rivals','marvelrivalsclips','marvelrivalsmemes','rivalscreate','marvelgame','marvelfps','marvelrivalsbestclips','marvelrivalsmoments','marvelrivalshorts'], sizes:['large','large','large','medium','medium','small','medium','medium','small','small','small']},
     // MOBA
     'league of legends':{tags:['leagueoflegends','lol','leaguelife'], sizes:['large','large','small']},
     'dota':             {tags:['dota2','dotaclips'], sizes:['medium','small']},
@@ -1758,8 +1758,13 @@ const TAG_DB = {
     'mario':            {tags:['mario','nintendo','supermario'], sizes:['large','large','medium']},
     'splatoon':         {tags:['splatoon','splatoon3','nintendo'], sizes:['medium','small','large']},
     // Tabletop / niche
-    'warhammer':        {tags:['warhammer','warhammer40k','tabletop'], sizes:['medium','medium','small']},
-    'dnd':              {tags:['dnd','dungeonsanddragons','tabletop'], sizes:['large','medium','small']},
+    // Warhammer / 40K — refreshed 2026-05-24 from VidIQ "warhammer 40k paint" outliers
+    'warhammer':        {tags:['warhammer','warhammer40k','40k','warhammer40000','gamesworkshop','warhammercommunity','warhammermeme','miniaturepainter','miniaturepainting','warhammerpainting','tabletoppainting','spacemarines','tabletop','tabletopgame','wargame','wargaming','ageofsigmar','aos','warhammercomicdub'], sizes:['large','large','medium','medium','large','medium','small','medium','medium','medium','small','medium','small','medium','small','small','medium','small','small']},
+    '40k':              {tags:['warhammer40k','40k','warhammer','warhammer40000','gamesworkshop','warhammercommunity','spacemarines','40kpainting','chaos40k','40kclips'], sizes:['large','medium','large','medium','large','medium','medium','small','small','small']},
+    // DnD / TTRPG — refreshed 2026-05-24 from VidIQ "dnd dungeons and dragons ttrpg" outliers
+    'dnd':              {tags:['dnd','dungeonsanddragons','dnd5e','ttrpg','dndmemes','dndtok','dndtiktok','dndplayer','dungeonmaster','dnd5eplay','dndclips','criticalrole','tabletop','tabletoprpg','tabletoproleplaying','roleplay','roleplayinggames','dndanimated','dndcommunity'], sizes:['large','medium','medium','large','large','medium','medium','medium','medium','small','medium','large','medium','medium','small','large','medium','small','medium']},
+    'dungeons':         {tags:['dnd','dungeonsanddragons','dnd5e','ttrpg','dndmemes','dungeonmaster','tabletoprpg','criticalrole'], sizes:['large','medium','medium','large','large','medium','medium','large']},
+    'ttrpg':            {tags:['ttrpg','tabletoprpg','tabletoproleplaying','dnd','dndmemes','roleplayinggames','ttrpgcommunity','d20','indierpg','pathfinder'], sizes:['large','medium','small','large','large','medium','small','small','small','medium']},
     'among us':         {tags:['amongus','amongusclips'], sizes:['large','small']},
     // VR / VTuber crossover — verified high-volume in VidIQ data
     'vrchat':           {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']},
@@ -1815,7 +1820,13 @@ const TAG_DB = {
     // Nostalgia — "remember when / throwback / Y2K" framings, big on TikTok + Shorts
     nostalgia:     {tags:['nostalgia','y2k','nostalgic','nostalgiacore','throwback','throwbackthursday','the90s','the2000s','early2000s','90skid','2000skid','childhoodmemories','rememberthis','iykyk','grewupwith','elementaryschool','nostalgicvibes','retrovibes'], sizes:['large','large','medium','small','large','medium','medium','medium','medium','large','medium','medium','small','large','small','small','small','medium']},
     // Parenting / mom-life — separate from generic dailylife per VidIQ keyword volume
-    parenting:     {tags:['parenting','parentlife','parents','parentingtips','parentingmoments','parentingstruggles','parentinghumor','parentingcomedy','parentingfails','parentingadvice','parentingstories','momlife','dadlife','toddlerlife','newbornlife','momtok','dadtok','realisticparenting','workingmom','stayathomemom'], sizes:['large','medium','large','medium','small','small','medium','small','medium','medium','small','large','medium','medium','small','large','medium','small','medium','small']}
+    parenting:     {tags:['parenting','parentlife','parents','parentingtips','parentingmoments','parentingstruggles','parentinghumor','parentingcomedy','parentingfails','parentingadvice','parentingstories','momlife','dadlife','toddlerlife','newbornlife','momtok','dadtok','realisticparenting','workingmom','stayathomemom'], sizes:['large','medium','large','medium','small','small','medium','small','medium','medium','small','large','medium','medium','small','large','medium','small','medium','small']},
+    // LARP — live-action roleplay community (foam swords, fantasy / medieval, sci-fi LARP)
+    // Verified 2026-05-24 from VidIQ "larp live action roleplay" outliers
+    larp:          {tags:['larp','larping','liveactionroleplay','larpcommunity','larpcosplay','larplife','fantasylarp','medievallarp','scifilarp','larpevent','bofferlarp','foamswords','larpphotography','larpcostume','larpcharacter','larpstory','larpfighter','larpculture'], sizes:['large','medium','medium','medium','small','small','medium','medium','small','small','small','small','small','small','small','small','small','small']},
+    // Gunpla — model kit / Gundam building community, big hobby cluster
+    // Verified 2026-05-24 from VidIQ "gunpla gundam build" outliers
+    gunpla:        {tags:['gunpla','gundam','bandai','plamo','modelkit','gunplacustom','gunplabuilder','gunplakit','gunplahobby','gunplatimelapse','gunplacollectors','everydaygunpla','mecha','mobilesuit','bandaispirits','scalemodel','scalemodelbuilding','mastergrade','realgrade','metalbuild','mecharobot'], sizes:['large','large','large','medium','large','medium','medium','medium','small','small','small','small','medium','small','small','medium','small','medium','small','medium','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
@@ -1922,6 +1933,14 @@ function _scanTextForTopics(text){
   if(/\b(nostalgia|nostalgic|y2k|throwback|remember when|remember (the|that|this)|back in (the )?(90s|2000s|2010s|nineties|two thousands)|the (90s|2000s|nineties|two thousands)|early (2000s|nineties)|growing up|when i was (a kid|little|young|in school|in elementary|in high school|in middle school)|i grew up (with|on)|iykyk|in elementary school|in high school)\b/.test(t)) found.genres.push('nostalgia');
   // Parenting / mom-life — distinct from dailylife when explicitly about raising kids
   if(/\b(parenting|parent life|as a mom|as a dad|as a parent|my (kid|kids|son|daughter|baby|toddler|newborn|child|children)|being a (mom|dad|parent)|raising (a|my) (kid|kids|child|children|family)|toddler life|newborn life|mom ?life|dad ?life|stay at home (mom|dad)|working (mom|dad)|momtok|dadtok)\b/.test(t)) found.genres.push('parenting');
+  // LARP — live-action roleplay (foam-sword fantasy events, sci-fi LARP, character LARP)
+  if(/\b(larp|larping|larper|live ?action ?roleplay|live ?action ?role ?play|boffer|foam sword|foam swords|medieval larp|fantasy larp|sci ?fi larp|larp event|larp character|larp costume|larp community)\b/.test(t)) found.genres.push('larp');
+  // Gunpla — Gundam model kits, plamo, scale-model building (huge hobby crossover with anime audience)
+  if(/\b(gunpla|gundam|plamo|model kit|mobile suit|bandai (spirits|model)|mecha (model|kit)|scale model|master grade|real grade|metal build|hg gundam|mg gundam|rg gundam|kitbash)\b/.test(t)) found.genres.push('gunpla');
+  // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
+  if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) found.games.push('warhammer');
+  // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
+  if(/\b(ttrpg|tabletop rpg|tabletop roleplaying|dungeons (and|&) dragons|dnd ?5e?|dndmemes|dndtok|dungeon master|dm session|critical role|pathfinder rpg|d20 system|game master|tabletop campaign)\b/.test(t)) found.games.push('dnd');
 
   // Content types (what KIND of video this is — and what's being said in it).
   // Reaction includes IRL-react language AND Florence-style visual signals like split-screen
