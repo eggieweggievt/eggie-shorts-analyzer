@@ -1204,27 +1204,32 @@ function scoreRetention({retention, viewedVsSwiped}){
 function runAnalysis(payload){
   const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template, creatorProfile} = payload;
 
-  // DETECTION SOURCES — actual user-typed text is EXCLUSIVE for topic detection when present.
-  // The creator-profile hint is identity-only and gets folded in alongside whatever the
-  // primary topic source is (typed text OR video context fallback) so #VTuber / #twitch /
-  // #clips always travel.
+  // DETECTION SOURCES — tiered.
+  // Tier 1 (highest priority for PRIMARY topic): user-typed text + profile identity hint.
+  // Tier 2 (secondary signal — adds content types / sub-tags without overriding the primary):
+  //   video context (Florence scene description, Whisper transcript, filename, vibe signals).
+  // This way the user's typed topic still wins, but Florence "split-screen showing a video"
+  // can still contribute #reaction and "shocked expression" can still contribute #funny.
   const profileHint = buildProfileHintText(creatorProfile);
   const realUserText = [quickContext, title, description, template].filter(Boolean).join(' ').trim();
   const videoOnlyText = (videoContext || '').trim();
 
-  // Primary topic source: what the user typed wins; otherwise the video context. The profile
-  // hint piggy-backs on whichever wins so it gets folded into detection without breaking the
-  // fallback chain (profile alone doesn't suppress the video context).
-  let primarySource = '';
-  if(realUserText){
-    primarySource = [realUserText, profileHint].filter(Boolean).join(' ').trim();
-  } else if(videoOnlyText){
-    primarySource = [videoOnlyText, profileHint].filter(Boolean).join(' ').trim();
-  } else if(profileHint){
-    primarySource = profileHint;
+  const tierUser = [realUserText, profileHint].filter(Boolean).join(' ').trim();
+  const tierVideo = [videoOnlyText, profileHint].filter(Boolean).join(' ').trim();
+
+  let detectionSource;
+  if(tierUser && tierVideo){
+    detectionSource = [tierUser, tierVideo];          // user wins primary, video adds secondary
+  } else if(tierUser){
+    detectionSource = [tierUser];
+  } else if(tierVideo){
+    detectionSource = [tierVideo];
+  } else {
+    detectionSource = [];
   }
-  const detectionSource = primarySource ? [primarySource] : [];
-  const userTypedText = primarySource; // kept name for the enriched-text + scoring use below
+  // Flattened version for places that want a single string
+  const userTypedText = detectionSource.join(' ').trim();
+  const primarySource = userTypedText; // legacy name retained for downstream use
 
   // Enriched single-string version (still includes everything) — used by scoring functions
   // that just do keyword density / regex matching, not topic categorization.
@@ -1615,7 +1620,18 @@ const TAG_DB = {
     'among us':         {tags:['amongus','amongusclips'], sizes:['large','small']},
     // VR / VTuber crossover — verified high-volume in VidIQ data
     'vrchat':           {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']},
-    'vr chat':          {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']}
+    'vr chat':          {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']},
+    // Additional popular VTuber-streamed games — pulled from VidIQ outliers (May 2026)
+    'subnautica':       {tags:['subnautica','subnautica2','underwaterhorror','survivalgame'], sizes:['medium','medium','small','medium']},
+    'modded minecraft': {tags:['moddedminecraft','minecraftmods','minecraft','modpack'], sizes:['medium','medium','large','small']},
+    'silly hat':        {tags:['indiegame','silly','horrorcomedy'], sizes:['medium','small','small']},
+    'lies of p':        {tags:['liesofp','soulslike'], sizes:['small','medium']},
+    'r6':               {tags:['rainbowsix','siege','r6siege','r6shorts'], sizes:['large','large','medium','small']},
+    'rainbow six':      {tags:['rainbowsix','siege','r6siege','r6shorts'], sizes:['large','large','medium','small']},
+    'expedition 33':    {tags:['expedition33','clairobscur','jrpg','indiegame'], sizes:['medium','small','small','medium']},
+    'clair obscur':     {tags:['clairobscur','expedition33','jrpg'], sizes:['small','medium','small']},
+    'pirate software':  {tags:['piratesoftware','heartbound','gamedev'], sizes:['medium','small','medium']},
+    'pragmata':         {tags:['pragmata','capcom','scifigame'], sizes:['small','large','small']}
   },
   // Genres / categories
   genres: {
@@ -1652,7 +1668,9 @@ const TAG_DB = {
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
-    reaction:      {tags:['reaction','reactionvideo','reactionclip'], sizes:['large','small','small']},
+    // Reaction — refreshed 2026-05-24 from VidIQ "vtuber reacts" + "vtuber reacts to tiktok"
+    // outlier data. VTuber-specific variants get priority when hasVTuber is also detected.
+    reaction:      {tags:['reaction','reactionvideo','reactionclip','reactiontok','reactiontime','reactingto','reactshorts','vtuberreacts','vtuberreaction','vtuberreact','irlreact','tiktokreact','firsttimewatching','watchparty','reactioncontent','livereaction'], sizes:['large','medium','small','small','small','medium','small','medium','medium','medium','medium','medium','medium','small','small','medium']},
     // Funny / entertainment — verified high-volume cluster from VidIQ outlier data
     // ("funny shorts" alone: 832k/mo searches; "comedy video": 574k/mo).
     // Refreshed 2026-05-24 — top breakout funny shorts consistently use #funny + #comedy
@@ -1741,8 +1759,10 @@ function _scanTextForTopics(text){
   // Daily life / day-in-my-life format — common shape for "everyday me" content
   if(/\b(day in (my|the) life|morning routine|night routine|daily (vlog|routine|life)|adulting|adult life|mom ?life|dad ?life|momtok|wife life|parenting|everyday|my day|life update)\b/.test(t)) found.genres.push('dailylife');
 
-  // Content types (what KIND of video this is — and what's being said in it)
-  if(/\b(react|reacting|reaction|reacted|reactions to)\b/.test(t)) found.content.push('reaction');
+  // Content types (what KIND of video this is — and what's being said in it).
+  // Reaction includes IRL-react language AND Florence-style visual signals like split-screen
+  // / "screen showing" — common in VTuber reacts-to-tiktok / reacts-to-IRL content.
+  if(/\b(react|reacting|reaction|reacted|reactions to|reacts to|reacts|reacted to|first time (seeing|watching|hearing)|i had to (see|watch)|watching this|cannot believe what|i'?m watching|just watched|she watches|he watches|they watch|split[\s-]?screen|side by side|screen showing|watching a video|watching a tiktok|reacts to tiktok|reacts to irl|irl react|tiktok react|reacts? to (this|that))\b/.test(t)) found.content.push('reaction');
   // Funny / comedy — broad, includes bodily humor, laughter reactions, and reaction sounds
   // that signal "this is a funny clip" without the word "funny" appearing.
   if(/\b(funny|hilarious|lol|lmao|lmaoo|lmfao|lolol|comedy|joke|meme|memes|that was funny|cackling|crackup|crack up|cracked up|losing it|i'?m dying|i died|wheezing|fart|farting|farted|burp|burping|sneeze|sneezing|hiccup|snort|snorted|chuckled|giggling|haha|hehe|ahaha|bahaha|bruh moment|silly|goofy|unhinged|chaos|chaotic|gremlin moment)\b/.test(t)) found.content.push('funny');
@@ -1784,6 +1804,20 @@ function _scanTextForTopics(text){
   if(/\b(drama|cancelled|toxic|fight|beef|controversy|controversial moment)\b/.test(t)) found.content.push('drama');
   if(/\b(face reveal|model reveal|revealing|finally reveals|big reveal|first look)\b/.test(t)) found.content.push('facereveal');
   if(/\b(clip|clips|highlight|highlights|best moment|moment from|stream clip)\b/.test(t)) found.content.push('clip');
+
+  // FLORENCE-2 visual-signal bridge — Florence describes scenes with visual nouns that don't
+  // contain content-type words on their own. These regexes map common Florence output phrases
+  // to content types so a scrubbed video actually contributes signal to detection.
+  // "shocked expression", "open mouth", "wide eyes", "laughing" → funny / reaction
+  // "split screen showing", "screen with a video", "anime character watching" → reaction
+  // "talking into a microphone" / "headset" / "stream overlay" → streamer / clip
+  if(/\b(shocked expression|surprised expression|surprised face|wide eyes|wide-eyed|open mouth|gasping|laughing|broad smile|smiling broadly|amused expression|grinning)\b/.test(t)) found.content.push('funny');
+  if(/\b(split[\s-]?screen|side[\s-]?by[\s-]?side|screen (showing|with) (a |an )?(video|tiktok|reel|short|image|clip)|watching (a|the) (screen|video|tiktok|reel|clip)|monitor (showing|displaying)|two[\s-]panel|picture in picture)\b/.test(t)) found.content.push('reaction');
+  if(/\b(stream overlay|twitch chat|chat box|donation alert|subscriber alert|webcam (overlay|frame)|streaming setup|gaming setup|headset (on|with)|microphone (on|in front)|stream alert)\b/.test(t)) found.content.push('clip');
+  // VTuber visual signals — boost hasVTuber when Florence describes an anime model on screen
+  if(/\b(anime[\s-]?style (character|girl|boy|avatar|model)|2d (character|model|avatar)|virtual avatar|virtual character|cartoon character (with|wearing)|stylized (character|avatar)|chibi character|live2d model)\b/.test(t)) found.hasVTuber = true;
+  // No-context / random-clip signals from Florence-style "abstract scene" descriptions
+  if(/\b(random scene|chaotic scene|bizarre (scene|moment)|unusual scene)\b/.test(t)) found.content.push('nocontext');
 
   return found;
 }
@@ -1926,7 +1960,11 @@ function suggestHashtagsFor(platform, count, text, existingTags){
   }
 
   // Slot 4: top content type tag (variety — different from primary AND from the identity slot above)
-  if(detected.content.length > 0){
+  // SPECIAL CASE: if VTuber + reaction both detected, prefer the VTuber-specific reaction tag
+  // (#vtuberreacts) — it's the verified-top-performing tag for IRL-reaction VTuber content.
+  if(detected.hasVTuber && detected.content.includes('reaction')){
+    addTag('vtuberreacts');
+  } else if(detected.content.length > 0){
     const primaryContent = detected.primary && detected.primary.type === 'content' ? detected.primary.key : null;
     const usedNorm = new Set(picks.map(p => p.toLowerCase()));
     const contentKey = detected.content.find(c =>
@@ -2470,21 +2508,24 @@ function buildPostPack(payload, analysis){
   const quickCtx = (payload.quickContext||'').trim();
   const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || quickCtx || 'Wait until you see this';
 
-  // Tag detection — real user text wins for topic. Video context fills in when the user
-  // typed nothing. Profile hint piggy-backs on whichever source wins so identity tags
-  // (#VTuber / #twitch / #clips) travel regardless. Profile alone doesn't block the video fallback.
+  // Tag detection — tiered. Tier 1 (user typed + profile) wins for primary topic; tier 2
+  // (video context + profile) adds secondary content-type signals like #reaction or #funny
+  // when Florence saw a split screen or a shocked expression.
   const packProfileHint = buildProfileHintText(payload.creatorProfile);
   const realUserTextForPack = [userTitle, payload.quickContext, bodyDesc, payload.template].filter(Boolean).join(' ').trim();
   const packVideoText = (payload.videoContext || '').trim();
-  let packPrimarySource = '';
-  if(realUserTextForPack){
-    packPrimarySource = [realUserTextForPack, packProfileHint].filter(Boolean).join(' ').trim();
-  } else if(packVideoText){
-    packPrimarySource = [packVideoText, packProfileHint].filter(Boolean).join(' ').trim();
-  } else if(packProfileHint){
-    packPrimarySource = packProfileHint;
+  const packTierUser = [realUserTextForPack, packProfileHint].filter(Boolean).join(' ').trim();
+  const packTierVideo = [packVideoText, packProfileHint].filter(Boolean).join(' ').trim();
+  let tagSourceText;
+  if(packTierUser && packTierVideo){
+    tagSourceText = [packTierUser, packTierVideo];
+  } else if(packTierUser){
+    tagSourceText = [packTierUser];
+  } else if(packTierVideo){
+    tagSourceText = [packTierVideo];
+  } else {
+    tagSourceText = [];
   }
-  const tagSourceText = packPrimarySource ? [packPrimarySource] : [];
 
   // ---- YouTube Short ----
   // Title gets the strongest 2 hashtags appended at the end so the user can copy-paste the
