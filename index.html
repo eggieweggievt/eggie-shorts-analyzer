@@ -1204,22 +1204,31 @@ function scoreRetention({retention, viewedVsSwiped}){
 function runAnalysis(payload){
   const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template, creatorProfile} = payload;
 
-  // DETECTION SOURCES — user input is EXCLUSIVE when present. Video signals are only used as a
-  // fallback when the user typed nothing at all. Template is included for identity signals
-  // (VTuber / Twitch) so the creator's anchor tags are always picked up regardless of the topic.
-  // The creator-profile hint adds identity keywords (vtuber / streamer / clipper) so they're
-  // ALWAYS recognised even when this specific short doesn't mention them in text.
+  // DETECTION SOURCES — actual user-typed text is EXCLUSIVE for topic detection when present.
+  // The creator-profile hint is identity-only and gets folded in alongside whatever the
+  // primary topic source is (typed text OR video context fallback) so #VTuber / #twitch /
+  // #clips always travel.
   const profileHint = buildProfileHintText(creatorProfile);
-  const userTypedText = [quickContext, title, description, template, profileHint].filter(Boolean).join(' ').trim();
+  const realUserText = [quickContext, title, description, template].filter(Boolean).join(' ').trim();
   const videoOnlyText = (videoContext || '').trim();
 
-  // Detection source for hashtags / titles / post pack — locked to user input when provided.
-  // Falls back to video context ONLY when user gave nothing.
-  const detectionSource = userTypedText ? [userTypedText] : (videoOnlyText ? [videoOnlyText] : []);
+  // Primary topic source: what the user typed wins; otherwise the video context. The profile
+  // hint piggy-backs on whichever wins so it gets folded into detection without breaking the
+  // fallback chain (profile alone doesn't suppress the video context).
+  let primarySource = '';
+  if(realUserText){
+    primarySource = [realUserText, profileHint].filter(Boolean).join(' ').trim();
+  } else if(videoOnlyText){
+    primarySource = [videoOnlyText, profileHint].filter(Boolean).join(' ').trim();
+  } else if(profileHint){
+    primarySource = profileHint;
+  }
+  const detectionSource = primarySource ? [primarySource] : [];
+  const userTypedText = primarySource; // kept name for the enriched-text + scoring use below
 
   // Enriched single-string version (still includes everything) — used by scoring functions
   // that just do keyword density / regex matching, not topic categorization.
-  const enriched = [userTypedText, videoOnlyText].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  const enriched = [realUserText, profileHint, videoOnlyText].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 
   const criteria = [];
   criteria.push(scoreHook({title, hookStrength}));
@@ -1448,14 +1457,20 @@ function suggestTitles(originalTitle, description){
 
   // Pick a subject to plug into templates — use the user's title if it's specific enough,
   // otherwise use whatever we detected (game / genre / content type), otherwise fallback.
-  let subject = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i)\s+/i,'').trim();
+  // Strip leading 'she/he/they' too so "she slept through therapy" → "slept through therapy".
+  let subject = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i|she|he|they|we|my)\s+/i,'').trim();
   if(subject.length < 4){
+    const specificGenre = detected.genres.find(g => g !== 'gaming' && g !== 'streaming');
     if(detected.games.length) subject = detected.games[0];
-    else if(detected.genres.length){
-      const g = detected.genres.find(g => g !== 'gaming' && g !== 'streaming') || detected.genres[0];
-      subject = g === 'cooking' ? 'this recipe' : g === 'art' ? 'this drawing' : g === 'music' ? 'this song' : g === 'fitness' ? 'this workout' : g === 'beauty' ? 'this look' : g === 'fashion' ? 'this fit' : `this ${g}`;
+    else if(specificGenre){
+      const g = specificGenre;
+      subject = g === 'cooking' ? 'this recipe' : g === 'art' ? 'this drawing' : g === 'music' ? 'this song' : g === 'fitness' ? 'this workout' : g === 'beauty' ? 'this look' : g === 'fashion' ? 'this fit' : g === 'mentalhealth' ? 'this therapy moment' : g === 'adhd' ? 'this ADHD moment' : g === 'dailylife' ? 'my day' : `this ${g}`;
     } else if(detected.content.length) {
-      subject = `this ${detected.content[0]}`;
+      // Skip generic 'clip' if there's a more specific content type behind it
+      const specificContent = detected.content.find(c => c !== 'clip') || detected.content[0];
+      subject = specificContent === 'funny' ? 'this clip' : specificContent === 'storytime' ? 'this story' : specificContent === 'pov' ? 'this moment' : specificContent === 'reaction' ? 'this reaction' : specificContent === 'nocontext' ? 'this random clip' : `this ${specificContent}`;
+    } else if(detected.hasVTuber){
+      subject = 'this VTuber moment';
     } else {
       subject = 'this';
     }
@@ -1638,7 +1653,11 @@ const TAG_DB = {
   // Content types — what KIND of video it is, not what it's about
   content: {
     reaction:      {tags:['reaction','reactionvideo','reactionclip'], sizes:['large','small','small']},
-    funny:         {tags:['funny','funnymoments','funnyvideos','comedy','funnyclips'], sizes:['large','medium','large','large','medium']},
+    // Funny / entertainment — verified high-volume cluster from VidIQ outlier data
+    // ("funny shorts" alone: 832k/mo searches; "comedy video": 574k/mo).
+    // Refreshed 2026-05-24 — top breakout funny shorts consistently use #funny + #comedy
+    // + #memes + #funnyvideo as anchors, with #funnyclip / #funnymoments mid-tier.
+    funny:         {tags:['funny','comedy','memes','funnyvideo','funnyvideos','funnymoments','funnyclip','funnyclips','funniestclip','comedyclip','comedyclips','comedyshorts','comedyvideo','funnyfail','funnyfails','funnyshorts','funnyaf','funnyshit','funnymoment','trynottolaugh','trynottolaughchallenge','plottwist','haha','lol','lmao','comedyskit','comedymemes','sketchcomedy','laughoutloud','tryingnottolaugh'], sizes:['large','large','large','large','large','medium','medium','medium','small','medium','small','medium','medium','medium','small','small','small','small','medium','medium','medium','small','medium','large','medium','small','small','small','small','medium']},
     tutorial:      {tags:['tutorial','howto','tipsandtricks','learn'], sizes:['large','large','medium','large']},
     review:        {tags:['review','honestreview','productreview'], sizes:['large','small','medium']},
     storytime:     {tags:['storytime','storytimes','storytelling','story','mystorytime','dramaticstorytime','emotionalstorytime','relatablestorytime','makeupstorytime','hairstorytime','grwmstorytime','familystorytime','momstorytime','dadstorytime','siblingstorytime','textingstories','redditstories','storytimetiktok','myexperience','thetimeix','iremember','crazystory','wildstorytime','funnystorytime'], sizes:['large','medium','medium','large','small','small','small','small','small','small','small','small','small','small','small','medium','medium','small','small','small','small','medium','small','small']},
@@ -1661,7 +1680,10 @@ const TAG_DB = {
     facereveal:    {tags:['facereveal','vtuberfacereveal','vtuberreveal'], sizes:['medium','small','small']},
     clip:          {tags:['clips','bestclips','dailyclips','viralclip','streamclips','funnyclip'], sizes:['large','medium','small','medium','small','medium']},
     // POV / "point of view" framing — one of the most-used hook shapes in VidIQ outlier data
-    pov:           {tags:['pov','povs','povtok','povvideos','povshorts','whenyou','imagineif'], sizes:['large','small','medium','small','small','medium','small']}
+    pov:           {tags:['pov','povs','povtok','povvideos','povshorts','whenyou','imagineif'], sizes:['large','small','medium','small','small','medium','small']},
+    // Out-of-context / absurd / no-topic-but-just-funny clips — verified high-volume
+    // ("*Almost* Out Of Context Filian Clip" / "This Wasn't Even a Clip Farm 💀" style winners)
+    nocontext:     {tags:['nocontext','outofcontext','randomclip','randomshorts','wtfmoment','justrandom','randomvideo','chaosgremlin','unhingedmoment','outofpocket'], sizes:['medium','medium','small','small','medium','small','medium','small','small','small']}
   },
   // Platform / feed tags — last-resort fallbacks (refreshed from VidIQ trending data)
   platform: {
@@ -1721,7 +1743,11 @@ function _scanTextForTopics(text){
 
   // Content types (what KIND of video this is — and what's being said in it)
   if(/\b(react|reacting|reaction|reacted|reactions to)\b/.test(t)) found.content.push('reaction');
-  if(/\b(funny|hilarious|lol|lmao|comedy|joke|meme|memes|that was funny)\b/.test(t)) found.content.push('funny');
+  // Funny / comedy — broad, includes bodily humor, laughter reactions, and reaction sounds
+  // that signal "this is a funny clip" without the word "funny" appearing.
+  if(/\b(funny|hilarious|lol|lmao|lmaoo|lmfao|lolol|comedy|joke|meme|memes|that was funny|cackling|crackup|crack up|cracked up|losing it|i'?m dying|i died|wheezing|fart|farting|farted|burp|burping|sneeze|sneezing|hiccup|snort|snorted|chuckled|giggling|haha|hehe|ahaha|bahaha|bruh moment|silly|goofy|unhinged|chaos|chaotic|gremlin moment)\b/.test(t)) found.content.push('funny');
+  // No-context / out-of-pocket / random absurd-comedy clips — winning shape on YT + IG
+  if(/\b(no context|nocontext|out of context|out ?of ?pocket|random clip|random shorts|wtf moment|what just happened|just watch|i can'?t explain|words can'?t describe)\b/.test(t)) found.content.push('nocontext');
   if(/\b(tutorial|how ?to|guide|tips|teach|step by step|teaching|the right way)\b/.test(t)) found.content.push('tutorial');
   if(/\b(review|honest review|reviewing|unboxing|first impressions|worth it\??)\b/.test(t)) found.content.push('review');
   if(/\b(story ?time|storytime|tell.*story|let me tell you|so basically|the way (i|he|she|they)|the time i|slept through|overslept|i forgot to|i missed my|i can'?t believe i|i did(?: ?n'?t)? mean to|the day i|that time (i|we|she|he|they)|guess what (i|we|she|he|they))\b/.test(t)) found.content.push('storytime');
@@ -2444,20 +2470,51 @@ function buildPostPack(payload, analysis){
   const quickCtx = (payload.quickContext||'').trim();
   const hookLine = firstSentenceOfBody || userTitle.replace(/[?!.…]+$/,'') || quickCtx || 'Wait until you see this';
 
-  // Tag detection — LOCKED to user input when present. Video context is ONLY used when the user
-  // typed nothing at all. Template is included so creator identity signals (VTuber / Twitch)
-  // get picked up alongside the topic. The creator-profile hint guarantees VTuber / streamer /
-  // clipper identity tags travel with every short, even when the specific short doesn't mention them.
+  // Tag detection — real user text wins for topic. Video context fills in when the user
+  // typed nothing. Profile hint piggy-backs on whichever source wins so identity tags
+  // (#VTuber / #twitch / #clips) travel regardless. Profile alone doesn't block the video fallback.
   const packProfileHint = buildProfileHintText(payload.creatorProfile);
-  const userTypedForPack = [userTitle, payload.quickContext, bodyDesc, payload.template, packProfileHint].filter(Boolean).join(' ').trim();
-  const tagSourceText = userTypedForPack
-    ? [userTypedForPack]
-    : ((payload.videoContext||'').trim() ? [(payload.videoContext||'').trim()] : []);
+  const realUserTextForPack = [userTitle, payload.quickContext, bodyDesc, payload.template].filter(Boolean).join(' ').trim();
+  const packVideoText = (payload.videoContext || '').trim();
+  let packPrimarySource = '';
+  if(realUserTextForPack){
+    packPrimarySource = [realUserTextForPack, packProfileHint].filter(Boolean).join(' ').trim();
+  } else if(packVideoText){
+    packPrimarySource = [packVideoText, packProfileHint].filter(Boolean).join(' ').trim();
+  } else if(packProfileHint){
+    packPrimarySource = packProfileHint;
+  }
+  const tagSourceText = packPrimarySource ? [packPrimarySource] : [];
 
   // ---- YouTube Short ----
-  // Title kept as-is. Description = hook + body (if it adds info) + template (if any) + hashtags
+  // Title gets the strongest 2 hashtags appended at the end so the user can copy-paste the
+  // whole line straight into the title field. YouTube indexes hashtags in titles AND counts
+  // them as proper tags — appending the top 2 (which are slot-1 primary topic + slot-2
+  // identity from our picker) is verified-effective from VidIQ outlier data.
+  // Description = hook + body (if it adds info) + template (if any) + full hashtag block.
   // Use the user's own hashtags if they provided any; otherwise suggest a fresh set.
   const ytHashtags = userHasTags ? formatUserTags(userTags) : suggestHashtagsFor('youtube', 5, tagSourceText, []);
+
+  // Build the augmented YouTube title (bestTitle + top-2 hashtags, fits in YouTube's 100-char cap).
+  // Don't duplicate hashtags that are already inside the user's typed title.
+  const YT_TITLE_LIMIT = 100;
+  function appendTopTagsToTitle(rawTitle, tagList){
+    const baseTitle = (rawTitle || '').trim();
+    if(!baseTitle || !tagList || !tagList.length) return baseTitle;
+    const lowerTitle = baseTitle.toLowerCase();
+    // Filter out any tag the user already wrote into the title
+    const candidates = tagList.filter(t => !lowerTitle.includes(String(t).toLowerCase()));
+    if(!candidates.length) return baseTitle;
+    // Try top-2 first, then fall back to top-1, then bail to bare title
+    const top2 = candidates.slice(0, 2).join(' ');
+    const withTwo = `${baseTitle} ${top2}`;
+    if(withTwo.length <= YT_TITLE_LIMIT) return withTwo;
+    const withOne = `${baseTitle} ${candidates[0]}`;
+    if(withOne.length <= YT_TITLE_LIMIT) return withOne;
+    return baseTitle;
+  }
+  const ytTitleWithTags = appendTopTagsToTitle(bestTitle, ytHashtags);
+
   const ytLines = [];
   ytLines.push(hookLine);
   if(bodyDesc && bodyDesc.trim() !== hookLine.trim() && !bodyDesc.toLowerCase().startsWith(hookLine.toLowerCase())){
@@ -2523,12 +2580,12 @@ function buildPostPack(payload, analysis){
   return {
     youtube: {
       key:'yt', name:'YouTube Shorts',
-      title: bestTitle,
+      title: ytTitleWithTags,
       caption: ytDescription,
       hashtags: ytHashtags.join(' '),
-      tip: (userHasTags ? '<strong>Using your own hashtags</strong> here. ' : '<strong>Suggested hashtags</strong> &mdash; based on what your short is about. ') + (tmpl ? 'Your template is at the bottom so socials show up automatically.' : 'Use 3 to 5 hashtags with a mix of small, medium, and large.'),
+      tip: (userHasTags ? '<strong>Using your own hashtags</strong> here. ' : '<strong>Suggested hashtags</strong> &mdash; based on what your short is about. ') + (tmpl ? 'Your template is at the bottom so socials show up automatically. ' : 'Use 3 to 5 hashtags with a mix of small, medium, and large. ') + 'Top 2 hashtags are appended to the title so YouTube indexes them as tags — copy the title straight into the title field.',
       copyParts: [
-        {label:'title', text: bestTitle},
+        {label:'title', text: ytTitleWithTags},
         {label:'description', text: ytDescription}
       ]
     },
