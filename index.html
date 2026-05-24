@@ -380,6 +380,83 @@
   .kofi-btn:active{transform:translateY(0)}
   .kofi-btn svg{width:26px;height:26px;flex-shrink:0}
 
+  /* Creator Profile — saved identity (VTuber / Streamer / Clipper) travels with every short */
+  .creator-profile{
+    margin:0 0 24px;
+    background:rgba(255,255,255,0.6);
+    border:1.5px dashed rgba(99,170,244,0.45);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  .creator-profile > summary{
+    cursor:pointer;
+    list-style:none;
+    padding:14px 20px;
+    font-weight:700;font-size:14.5px;
+    color:var(--deep);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    user-select:none;
+  }
+  .creator-profile > summary::-webkit-details-marker{display:none}
+  .creator-profile > summary::before{content:"▸";color:var(--periwinkle);font-size:14px;margin-right:2px}
+  .creator-profile[open] > summary::before{content:"▾"}
+  .creator-profile .profile-tag{
+    display:inline-block;
+    font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    background:rgba(255,178,240,0.4);color:var(--deep);
+    padding:3px 9px;border-radius:999px;
+  }
+  .creator-profile .profile-body{padding:4px 20px 18px}
+  .creator-profile .profile-blurb{
+    font-size:13px;color:var(--ink-soft);line-height:1.5;
+    margin:0 0 12px;
+  }
+  .creator-profile .profile-grid{display:flex;flex-wrap:wrap;gap:8px 10px}
+  .creator-profile .profile-check{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 14px;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.3);
+    border-radius:999px;
+    font-size:13.5px;font-weight:600;color:var(--ink);
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .creator-profile .profile-check:hover{background:rgba(255,255,255,0.95)}
+  .creator-profile .profile-check input{
+    appearance:none;-webkit-appearance:none;
+    width:18px;height:18px;
+    border:2px solid rgba(144,165,255,0.55);
+    border-radius:5px;
+    background:#fff;
+    cursor:pointer;
+    position:relative;flex-shrink:0;
+    margin:0;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .creator-profile .profile-check input:checked{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    border-color:var(--periwinkle);
+  }
+  .creator-profile .profile-check input:checked::after{
+    content:"";
+    position:absolute;left:4px;top:0;
+    width:6px;height:11px;
+    border:solid #fff;border-width:0 2.5px 2.5px 0;
+    transform:rotate(45deg);
+  }
+  .creator-profile .profile-check:has(input:checked){
+    background:rgba(255,178,240,0.28);
+    border-color:rgba(255,178,240,0.6);
+  }
+  .creator-profile .saved-pill{
+    display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;
+    color:#2c8a3c;
+    margin-left:auto;
+    opacity:0;transition:opacity .25s ease;
+  }
+  .creator-profile .saved-pill.show{opacity:1}
+
   /* Step cards */
   .step-card{position:relative;padding-top:24px;padding-bottom:24px}
   .step-head{display:flex;align-items:center;gap:14px;margin:0 0 8px}
@@ -586,6 +663,21 @@
       <span>Buy me a Ko-fi</span>
     </a>
   </div>
+
+  <!-- CREATOR PROFILE — saved in browser so identity tags travel with every short -->
+  <details class="creator-profile" id="creatorProfile">
+    <summary>
+      🐙 Your creator profile
+      <span class="profile-tag">saved in your browser</span>
+      <span class="saved-pill" id="profileSavedPill">Saved ✓</span>
+    </summary>
+    <div class="profile-body">
+      <p class="profile-blurb">Tick this if you're a VTuber and I'll quietly fold #VTuber (and the usual streaming / clip identity tags) into every short you score &mdash; even when this particular short doesn't mention any of that in the title.</p>
+      <div class="profile-grid">
+        <label class="profile-check"><input type="checkbox" id="profileVtuber" /> I'm a VTuber</label>
+      </div>
+    </div>
+  </details>
 
   <!-- STEP 1: UPLOAD VIDEO -->
   <section class="card step-card" id="step1">
@@ -1110,12 +1202,15 @@ function scoreRetention({retention, viewedVsSwiped}){
 
 // ---------- 5. AGGREGATE + CRITIQUE ----------
 function runAnalysis(payload){
-  const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template} = payload;
+  const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template, creatorProfile} = payload;
 
   // DETECTION SOURCES — user input is EXCLUSIVE when present. Video signals are only used as a
   // fallback when the user typed nothing at all. Template is included for identity signals
   // (VTuber / Twitch) so the creator's anchor tags are always picked up regardless of the topic.
-  const userTypedText = [quickContext, title, description, template].filter(Boolean).join(' ').trim();
+  // The creator-profile hint adds identity keywords (vtuber / streamer / clipper) so they're
+  // ALWAYS recognised even when this specific short doesn't mention them in text.
+  const profileHint = buildProfileHintText(creatorProfile);
+  const userTypedText = [quickContext, title, description, template, profileHint].filter(Boolean).join(' ').trim();
   const videoOnlyText = (videoContext || '').trim();
 
   // Detection source for hashtags / titles / post pack — locked to user input when provided.
@@ -1498,7 +1593,7 @@ const TAG_DB = {
     sports:        {tags:['sports','football','basketball','soccer','highlights','sportstiktok'], sizes:['large','large','large','large','medium','small']},
     travel:        {tags:['travel','traveltok','wanderlust','travelgram','adventure'], sizes:['large','medium','medium','medium','medium']},
     dance:         {tags:['dance','dancer','choreography','dancetiktok','dancers'], sizes:['large','large','medium','medium','small']},
-    relationships: {tags:['relationship','relationships','couples','couplegoals','relationshipgoals','couplescomedy','couplevideos','couplestiktok','marriedlife','marriedcouple','husbandwife','husbandlife','wifelife','datinglife','datelife','dating','relationshipadvice','longdistance','polyamory','polyrelationship','lovestory','partner','myhusband','mywife'], sizes:['large','large','large','large','large','medium','medium','medium','medium','medium','medium','small','small','medium','small','large','medium','small','small','small','large','medium','small','small']},
+    relationships: {tags:['relationships','relationship','couples','couplegoals','relationshipgoals','couplescomedy','couplevideos','couplestiktok','marriedlife','marriedcouple','husbandwife','husbandlife','wifelife','datinglife','datelife','dating','relationshipadvice','longdistance','poly','polyam','polyamory','polyamorous','polycule','polyrelationship','polylife','polyship','throuple','wingman','lovestory','partner','myhusband','mywife'], sizes:['large','large','large','large','large','medium','medium','medium','medium','medium','medium','small','small','medium','small','large','medium','small','medium','small','medium','small','small','small','small','small','small','small','small','large','medium','small']},
     movies:        {tags:['movies','film','cinema','movietok','filmtok'], sizes:['large','large','medium','small','small']},
     tv:            {tags:['tvshow','tvseries','bingewatching'], sizes:['medium','medium','small']},
     cars:          {tags:['cars','cartok','carenthusiast','carlovers'], sizes:['large','medium','small','small']}
@@ -1570,7 +1665,7 @@ function _scanTextForTopics(text){
   if(/\b(travel|vacation|trip|adventure|tourist|country)\b/.test(t)) found.genres.push('travel');
   if(/\b(dance|dancer|choreo|choreography|dancing)\b/.test(t)) found.genres.push('dance');
   // Relationships / couples / dating — high-volume verticals per VidIQ data
-  if(/\b(relationship|relationships|couple|couples|marriage|married|dating|wingman|wingwoman|wingmaning|polyamory|polyamorous|poly relationship|date night|long distance|girlfriend|boyfriend|husband|wife|spouse|partner)\b/.test(t)) found.genres.push('relationships');
+  if(/\b(relationship|relationships|couple|couples|marriage|married|dating|wingman|wingwoman|wingmaning|poly|polyam|polyamory|polyamorous|polycule|throuple|date night|long distance|girlfriend|boyfriend|husband|wife|spouse|partner)\b/.test(t)) found.genres.push('relationships');
   if(/\b(movie|film|cinema|blockbuster)\b/.test(t)) found.genres.push('movies');
   if(/\b(tv ?show|series|netflix|season|episode|binge)\b/.test(t)) found.genres.push('tv');
   if(/\b(car|cars|driving|automotive|jdm|drift)\b/.test(t)) found.genres.push('cars');
@@ -1698,13 +1793,19 @@ function suggestHashtagsFor(platform, count, text, existingTags){
   }
 
   // VARIETY-FIRST PICK STRATEGY
-  // The goal is one tag from each relevant category so the mix is rich, not all topic-clustered.
-  // Slot 1: most-specific primary topic tag
-  // Slot 2: VTuber anchor (if hasVTuber)
-  // Slot 3: streaming/Twitch anchor (if streaming detected)
-  // Slot 4: content type tag (if different from primary)
-  // Slot 5: platform feed tag (#shorts / #fyp / #reels)
-  // Fill any remaining slots with size-mix from the rest of the pool.
+  // Pick one tag from each relevant category so the mix is rich, not topic-clustered.
+  // Slot priorities (each is skipped if not applicable; remaining slots fill from pool):
+  //   1. Primary topic tag (most-specific game / genre / content)
+  //   2. VTuber identity anchor
+  //   3. Streamer / clip identity (prefer #clips if it's clip content, else #twitch)
+  //   4. Top content type tag (storytime, reaction, etc — skipped if same as primary or 'clip')
+  //   5. Sub-topic tag from primary's pool whose name appears in the text (e.g. #poly when "poly" was typed)
+  //      Falls back to platform feed (#shorts / #fyp / #reels) if no sub-topic match.
+  // Then top up any remaining slots from the pool with a size mix.
+
+  // Build a flat lowercased version of the input for substring lookups.
+  const fullText = (Array.isArray(text) ? text.join(' ') : (text || '')).toLowerCase();
+
   const picks = [];
   function addTag(tag){
     if(!tag) return false;
@@ -1718,6 +1819,13 @@ function suggestHashtagsFor(platform, count, text, existingTags){
     const data = (TAG_DB[category]||{})[key];
     return data && data.tags && data.tags[0];
   }
+  // Returns tags from a pool whose name appears as a substring in the user's text,
+  // so things like "poly" or "wingman" get pulled in as sub-topic tags.
+  function subTopicMatchesOf(category, key){
+    const data = (TAG_DB[category]||{})[key];
+    if(!data) return [];
+    return data.tags.filter(tag => fullText.includes(tag.toLowerCase()));
+  }
 
   // Slot 1: primary specific topic tag
   if(detected.primary){
@@ -1725,34 +1833,50 @@ function suggestHashtagsFor(platform, count, text, existingTags){
     addTag(firstTagOf(cat, detected.primary.key));
   }
 
-  // Slot 2: VTuber anchor (identity, large)
+  // Slot 2: VTuber identity (large anchor)
   if(detected.hasVTuber){
     addTag('VTuber');
   }
 
-  // Slot 3: streaming/Twitch anchor (identity)
-  if(detected.genres.includes('streaming')){
+  // Slot 3: streamer / clip identity
+  // If the content is clip content (or creator marked themselves as a clipper), use #clips.
+  // Otherwise if the content is streaming-tagged, use #twitch.
+  if(detected.content.includes('clip')){
+    addTag('clips');
+  } else if(detected.genres.includes('streaming')){
     addTag('twitch');
   }
 
-  // Slot 4: content type tag (different from primary so it adds variety)
+  // Slot 4: top content type tag (variety — different from primary AND from the identity slot above)
   if(detected.content.length > 0){
-    const usedAsPrimary = detected.primary && detected.primary.type === 'content';
-    const contentKey = usedAsPrimary
-      ? detected.content.find(c => c !== detected.primary.key) || null
-      : detected.content[0];
+    const primaryContent = detected.primary && detected.primary.type === 'content' ? detected.primary.key : null;
+    const usedNorm = new Set(picks.map(p => p.toLowerCase()));
+    const contentKey = detected.content.find(c =>
+      c !== primaryContent &&
+      c !== 'clip' && // already handled in slot 3
+      !usedNorm.has(c) &&
+      !usedNorm.has(c + 's')
+    );
     if(contentKey){
       addTag(firstTagOf('content', contentKey));
     }
   }
 
-  // Slot 5: platform feed tag (#shorts / #fyp / #reels)
-  if(TAG_DB.platform[platform]){
+  // Slot 5: sub-topic from primary's pool (e.g. #poly from relationships when "poly" appears in text)
+  // Falls back to platform feed if no sub-topic match exists.
+  let slot5Filled = false;
+  if(detected.primary){
+    const cat = detected.primary.type === 'game' ? 'games' : detected.primary.type + 's';
+    const subs = subTopicMatchesOf(cat, detected.primary.key);
+    for(const t of subs){
+      if(addTag(t)){ slot5Filled = true; break; }
+    }
+  }
+  if(!slot5Filled && picks.length < count && TAG_DB.platform[platform]){
     addTag(TAG_DB.platform[platform].tags[0]);
   }
 
-  // Fill any remaining slots from the pool, prioritizing variety from un-used detected categories
-  // and following the 1S/2M/2L size rubric when possible.
+  // Fill any remaining slots from the pool with a size mix
   function take(size, n){
     let added = 0;
     for(const tag of pool[size]){
@@ -1762,7 +1886,6 @@ function suggestHashtagsFor(platform, count, text, existingTags){
     }
     return added;
   }
-  // Top up to hit the count target, biased toward medium and large tags for reach
   if(picks.length < count) take('medium', 1);
   if(picks.length < count) take('large', 1);
   if(picks.length < count) take('small', 1);
@@ -1899,6 +2022,69 @@ function clearAllInputs(){
 $('clearBtn').addEventListener('click', clearAllInputs);
 
 // ============================================================
+//  CREATOR PROFILE  —  one saved flag: am I a VTuber?
+//  When on, the system folds VTuber + streaming + clip identity keywords into
+//  every short, so #VTuber / #twitch / #clips show up even when this specific
+//  short doesn't mention any of them in text.
+// ============================================================
+const PROFILE_KEY = 'eggie-creator-profile';
+
+function loadCreatorProfile(){
+  try{
+    const raw = localStorage.getItem(PROFILE_KEY);
+    const p = raw ? JSON.parse(raw) : null;
+    return p && typeof p === 'object' ? {vtuber: !!p.vtuber} : {vtuber:false};
+  }catch(e){ return {vtuber:false}; }
+}
+function saveCreatorProfile(profile){
+  try{ localStorage.setItem(PROFILE_KEY, JSON.stringify({vtuber: !!(profile && profile.vtuber)})); }catch(e){}
+}
+function readCreatorProfileFromUI(){
+  return {
+    vtuber: !!($('profileVtuber') && $('profileVtuber').checked)
+  };
+}
+function applyCreatorProfileToUI(p){
+  if($('profileVtuber')) $('profileVtuber').checked = !!(p && p.vtuber);
+}
+function flashProfileSaved(){
+  const pill = $('profileSavedPill');
+  if(!pill) return;
+  pill.classList.add('show');
+  clearTimeout(flashProfileSaved._t);
+  flashProfileSaved._t = setTimeout(()=> pill.classList.remove('show'), 1400);
+}
+// Builds a short "identity hint" string we fold into the user's typed text.
+// Single checkbox = VTuber. When that's on, the hint includes streaming + clip
+// keywords too, because that's the typical VTuber content shape (clip-from-stream).
+// If you're a VTuber who only posts scripted shorts, the picker still skips
+// #clips when nothing in your title / video reads as clip content — so it stays
+// honest, just biased toward including identity tags when they fit.
+function buildProfileHintText(profile){
+  if(!profile || !profile.vtuber) return '';
+  return 'vtuber envtuber live2d streamer twitch streaming live clip clips stream highlights';
+}
+// If the checkbox is on by default, expand the details so it's visible
+function maybeOpenProfileOnLoad(p){
+  const det = $('creatorProfile');
+  if(!det) return;
+  if(p && p.vtuber) det.open = true;
+}
+// Restore on page load
+(function(){
+  const initial = loadCreatorProfile();
+  applyCreatorProfileToUI(initial);
+  maybeOpenProfileOnLoad(initial);
+  const el = $('profileVtuber');
+  if(el){
+    el.addEventListener('change', () => {
+      saveCreatorProfile(readCreatorProfileFromUI());
+      flashProfileSaved();
+    });
+  }
+})();
+
+// ============================================================
 //  DESCRIPTION TEMPLATE PRESETS  —  saved in localStorage
 //  Survives page reloads. Stored per-browser (not synced across devices).
 // ============================================================
@@ -2011,6 +2197,7 @@ function runFromUI(){
     rewatchable: '',
     retention: $('retention').value,
     viewedVsSwiped: $('viewedVsSwiped').value,
+    creatorProfile: readCreatorProfileFromUI(),
   };
   const result = runAnalysis(payload);
   renderResults(result, payload);
@@ -2207,8 +2394,10 @@ function buildPostPack(payload, analysis){
 
   // Tag detection — LOCKED to user input when present. Video context is ONLY used when the user
   // typed nothing at all. Template is included so creator identity signals (VTuber / Twitch)
-  // get picked up alongside the topic.
-  const userTypedForPack = [userTitle, payload.quickContext, bodyDesc, payload.template].filter(Boolean).join(' ').trim();
+  // get picked up alongside the topic. The creator-profile hint guarantees VTuber / streamer /
+  // clipper identity tags travel with every short, even when the specific short doesn't mention them.
+  const packProfileHint = buildProfileHintText(payload.creatorProfile);
+  const userTypedForPack = [userTitle, payload.quickContext, bodyDesc, payload.template, packProfileHint].filter(Boolean).join(' ').trim();
   const tagSourceText = userTypedForPack
     ? [userTypedForPack]
     : ((payload.videoContext||'').trim() ? [(payload.videoContext||'').trim()] : []);
