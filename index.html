@@ -309,6 +309,44 @@
   .char-count.warn{color:#a35c00}
   .char-count.bad{color:#a23556}
 
+  /* Short-type pill selector — multi-select tickbox row */
+  .short-type-row{
+    display:flex; flex-wrap:wrap; gap:6px 8px;
+    margin:8px 0 4px;
+  }
+  .type-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.3);
+    border-radius:999px;
+    font-size:13.5px;font-weight:600;color:var(--ink);
+    cursor:pointer;
+    user-select:none;
+    font-family:inherit;
+    transition:background .15s ease, border-color .15s ease, transform .08s ease;
+  }
+  .type-pill:hover{background:rgba(255,255,255,0.95)}
+  .type-pill:active{transform:scale(.97)}
+  .type-pill[aria-pressed="true"]{
+    background:linear-gradient(135deg,rgba(255,178,240,0.38),rgba(144,165,255,0.28));
+    border-color:rgba(255,178,240,0.6);
+    color:var(--deep);
+    box-shadow:0 2px 8px rgba(255,178,240,0.18);
+  }
+  .type-pill .type-icon{font-size:14px;line-height:1}
+  .short-type-custom{
+    display:flex;gap:8px;align-items:center;margin-top:8px;
+  }
+  .short-type-custom input{
+    flex:1;padding:9px 14px;font-size:13.5px;
+    border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.85);
+    font-family:inherit;color:var(--ink);
+  }
+  .short-type-custom input:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+
   /* Template preset row */
   .template-presets{
     display:flex; gap:8px; flex-wrap:wrap; align-items:center;
@@ -720,6 +758,26 @@
 
     <label for="quickContext">What is your short about? <span class="opt">(this is all I need)</span></label>
     <input id="quickContext" type="text" placeholder="e.g. me getting jumpscared in Phasmophobia / making cherry blossom latte art / Elden Ring death montage" />
+
+    <label style="margin-top:14px">What kind of short is this? <span class="opt">(optional &mdash; tick any that fit; helps me pick stronger tags)</span></label>
+    <div class="short-type-row" id="shortTypeRow" role="group" aria-label="Short type">
+      <button type="button" class="type-pill" data-type="gaming" data-keywords="gaming clip gameplay stream highlight twitch clip" aria-pressed="false"><span class="type-icon">🎮</span>Gaming clip</button>
+      <button type="button" class="type-pill" data-type="storytime" data-keywords="storytime story let me tell you so basically the time i" aria-pressed="false"><span class="type-icon">📖</span>Storytime</button>
+      <button type="button" class="type-pill" data-type="tip" data-keywords="tutorial how to tips and tricks lifehack tip video" aria-pressed="false"><span class="type-icon">💡</span>Tip / tutorial</button>
+      <button type="button" class="type-pill" data-type="reaction" data-keywords="reaction reacting to first time seeing watching this irl react" aria-pressed="false"><span class="type-icon">👀</span>Reaction</button>
+      <button type="button" class="type-pill" data-type="funny" data-keywords="funny comedy meme funnymoment no context out of pocket cackling" aria-pressed="false"><span class="type-icon">😂</span>Funny / no context</button>
+      <button type="button" class="type-pill" data-type="vlog" data-keywords="vlog day in my life daily routine adulting" aria-pressed="false"><span class="type-icon">📷</span>Vlog / day in my life</button>
+      <button type="button" class="type-pill" data-type="pov" data-keywords="pov point of view imagine if when you" aria-pressed="false"><span class="type-icon">🎬</span>POV</button>
+      <button type="button" class="type-pill" data-type="drama" data-keywords="drama hot take unpopular opinion rant tea spilling" aria-pressed="false"><span class="type-icon">🍵</span>Drama / hot take</button>
+      <button type="button" class="type-pill" data-type="debut" data-keywords="debut new vtuber first stream introducing myself model reveal" aria-pressed="false"><span class="type-icon">✨</span>Debut</button>
+      <button type="button" class="type-pill" data-type="asmr" data-keywords="asmr whisper tingles soft spoken" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
+      <button type="button" class="type-pill" data-type="cosplay" data-keywords="cosplay cosplaying cosplayer transformation" aria-pressed="false"><span class="type-icon">🎀</span>Cosplay</button>
+      <button type="button" class="type-pill" data-type="music" data-keywords="music song cover singing original song" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
+      <button type="button" class="type-pill" data-type="custom" data-keywords="" aria-pressed="false"><span class="type-icon">➕</span>Other…</button>
+    </div>
+    <div class="short-type-custom" id="shortTypeCustomWrap" style="display:none">
+      <input id="shortTypeCustom" type="text" placeholder="Type your own — e.g. cosplay reveal, art timelapse, oddly satisfying…" maxlength="80" />
+    </div>
 
     <label for="title" style="margin-top:18px">Title <span class="opt">(optional &mdash; I'll suggest some at the end)</span></label>
     <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
@@ -1202,7 +1260,7 @@ function scoreRetention({retention, viewedVsSwiped}){
 
 // ---------- 5. AGGREGATE + CRITIQUE ----------
 function runAnalysis(payload){
-  const {platform, title, description, quickContext, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template, creatorProfile} = payload;
+  const {platform, title, description, quickContext, shortType, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template, creatorProfile} = payload;
 
   // DETECTION SOURCES — tiered.
   // Tier 1 (highest priority for PRIMARY topic): user-typed text + profile identity hint.
@@ -1211,7 +1269,7 @@ function runAnalysis(payload){
   // This way the user's typed topic still wins, but Florence "split-screen showing a video"
   // can still contribute #reaction and "shocked expression" can still contribute #funny.
   const profileHint = buildProfileHintText(creatorProfile);
-  const realUserText = [quickContext, title, description, template].filter(Boolean).join(' ').trim();
+  const realUserText = [quickContext, shortType, title, description, template].filter(Boolean).join(' ').trim();
   const videoOnlyText = (videoContext || '').trim();
 
   const tierUser = [realUserText, profileHint].filter(Boolean).join(' ').trim();
@@ -2286,6 +2344,7 @@ function hasAnyInputData(){
     || $('retention').value.trim()
     || $('viewedVsSwiped').value.trim()
     || videoContextText
+    || (typeof getShortTypeKeywords === 'function' && getShortTypeKeywords())
     || (videoFile && videoFile.files && videoFile.files.length>0));
 }
 
@@ -2299,12 +2358,47 @@ fetchBtn.addEventListener('click', ()=>{
   runFromUI();
 });
 
+// SHORT-TYPE PILLS — multi-select tickbox row in Step 2. Each pressed pill contributes a
+// strong keyword bundle to detection so picks land specific instead of generic. The "Other…"
+// pill reveals a text input for free-form custom types.
+(function(){
+  const row = $('shortTypeRow');
+  const customWrap = $('shortTypeCustomWrap');
+  if(!row) return;
+  row.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.type-pill');
+    if(!btn) return;
+    const isOn = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', isOn ? 'false' : 'true');
+    if(btn.dataset.type === 'custom'){
+      customWrap.style.display = isOn ? 'none' : 'flex';
+      if(!isOn) setTimeout(()=>{ const c = $('shortTypeCustom'); if(c) c.focus(); }, 30);
+    }
+  });
+})();
+
+function getShortTypeKeywords(){
+  const parts = [];
+  document.querySelectorAll('#shortTypeRow .type-pill[aria-pressed="true"]').forEach(btn => {
+    const k = btn.dataset.keywords || '';
+    if(k) parts.push(k);
+  });
+  const customEl = $('shortTypeCustom');
+  const customPillOn = document.querySelector('#shortTypeRow .type-pill[data-type="custom"][aria-pressed="true"]');
+  if(customPillOn && customEl){
+    const v = (customEl.value || '').trim();
+    if(v) parts.push(v);
+  }
+  return parts.join(' ').trim();
+}
+
 function runFromUI(){
   const payload = {
     platform: 'youtube', // Score against YouTube Shorts rules; post-pack still shows all platforms
     title: $('title').value,
     description: $('description').value,
     quickContext: $('quickContext').value,
+    shortType: getShortTypeKeywords(),
     videoContext: videoContextText,
     template: $('template').value,
     hashtags: $('hashtags').value,
@@ -2512,7 +2606,7 @@ function buildPostPack(payload, analysis){
   // (video context + profile) adds secondary content-type signals like #reaction or #funny
   // when Florence saw a split screen or a shocked expression.
   const packProfileHint = buildProfileHintText(payload.creatorProfile);
-  const realUserTextForPack = [userTitle, payload.quickContext, bodyDesc, payload.template].filter(Boolean).join(' ').trim();
+  const realUserTextForPack = [userTitle, payload.quickContext, payload.shortType, bodyDesc, payload.template].filter(Boolean).join(' ').trim();
   const packVideoText = (payload.videoContext || '').trim();
   const packTierUser = [realUserTextForPack, packProfileHint].filter(Boolean).join(' ').trim();
   const packTierVideo = [packVideoText, packProfileHint].filter(Boolean).join(' ').trim();
