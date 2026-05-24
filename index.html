@@ -1421,6 +1421,24 @@ const TITLE_TEMPLATES = {
     (l,u,c) => `What they don't show you about ${l}`,
     (l,u,c) => `The hidden side of ${l}`,
     (l,u,c) => `${c}: behind the scenes`,
+  ],
+  // VTuber — proven hook shapes from the top breakout VidIQ outliers
+  // (refreshed 2026-05-23). These slot in when hasVTuber is detected.
+  vtuber: [
+    (l,u,c) => `This VTuber ${l}?!`,
+    (l,u,c) => `Nobody Can Guess ${c}`,
+    (l,u,c) => `${c} could KILL a VTuber`,
+    (l,u,c) => `How I Accidentally Got Into ${c}`,
+    (l,u,c) => `VTuber ${l} gets completely out of hand`,
+    (l,u,c) => `VTubers EXPLAINED &mdash; ${l} edition`,
+    (l,u,c) => `${c} is not what you think (VTuber moment)`,
+  ],
+  // POV — extracted from top performers across YT + IG
+  pov: [
+    (l,u,c) => `POV: ${l}`,
+    (l,u,c) => `POV you're about to ${l} but it goes wrong`,
+    (l,u,c) => `Imagine if ${l} actually happened`,
+    (l,u,c) => `Send this to a friend who needs to see ${l}`,
   ]
 };
 
@@ -1449,9 +1467,14 @@ function suggestTitles(originalTitle, description){
 
   // Pick category mix based on content type. Always include curiosity (works for everything).
   // Then add the categories most relevant to what the user is making.
-  const pickedCategories = ['curiosity', 'shock'];
+  // If VTuber is detected, prepend the VTuber category so identity-shaped hooks lead the picks.
+  const pickedCategories = [];
+  if(detected.hasVTuber) pickedCategories.push('vtuber');
+  pickedCategories.push('curiosity', 'shock');
   const c = detected.content;
-  if(c.includes('tutorial') || c.includes('lifehack') || c.includes('review')){
+  if(c.includes('pov')){
+    pickedCategories.push('pov','personal');
+  } else if(c.includes('tutorial') || c.includes('lifehack') || c.includes('review')){
     pickedCategories.push('numbered','reveal');
   } else if(c.includes('rant') || c.includes('storytime')){
     pickedCategories.push('contrarian','personal');
@@ -1461,7 +1484,7 @@ function suggestTitles(originalTitle, description){
     pickedCategories.push('personal','reveal');
   } else if(c.includes('challenge') || c.includes('compilation')){
     pickedCategories.push('comparison','numbered');
-  } else if(c.includes('funny') || c.includes('skit')){
+  } else if(c.includes('funny') || c.includes('skit') || c.includes('drama')){
     pickedCategories.push('shock','contrarian');
   } else {
     // Default mix — gives variety regardless
@@ -1501,11 +1524,15 @@ function suggestTitles(originalTitle, description){
 //  Refresh every few weeks by pulling fresh outlier data.
 // ============================================================
 const TAG_DB = {
-  // VTuber tags — only used if VTuber signals are detected in the content
+  // VTuber tags — only used if VTuber signals are detected in the content.
+  // Refreshed 2026-05-23 from VidIQ outlier data across `vtuber`, `vtuber storytime`,
+  // `vtuber clips`, `envtuber`, `vtuber funny moments`, `vtuber relationships`, and
+  // `vtuber drama` keywords (top breakout-score shorts in the last 3-6 months).
+  // Size buckets reflect the actual frequency these tags appear in winning shorts.
   vtuber: {
-    small: ['indievtuber','vtubermemes','vtuberdebut','vtuberen','pngtuber','vtuberuprising','smallvtuber','vtubermoments','vtuberstorytime','vtuberreact','vtuberfunny','vtuberfunnymoments','vtubermodel','vtubertips','vtuberteaser','vtuberpromotion','debutpromotion','vtuberdebutvideo','jellyfishvtuber','dragonvtuber','vtubersupport','vtubermeme','smallstreamer'],
-    medium: ['vtuberclips','envtuber','live2d','vtuberart','animevtuber','asmrvtuber','musicvtuber','virtualyoutuber','vtubing','englishvtuber','vtuberlife','vtuberclip'],
-    large: ['vtuber','vtuberenglish','vtubers','hololive']
+    small: ['indievtuber','smallvtuber','vtuberstorytime','vtubermoments','vtuberlife','vtubermodel','vtubertips','vtuberteaser','vtuberviral','vtuberedit','vtubertok','dragonvtuber','asmrvtuber','animevtuber','musicvtuber','malevtuber','magicalgirlvtuber','femboyvtuber','christianvtuber','pngtuber','live2d','vtubestudio','vshojo','britishvtuber','vtuberdebutvideo','vtubernews','vtuberuprising','filian','ironmouse','figura','blockbench','vtubernerd'],
+    medium: ['vtuberclips','vtuberclip','vtubermemes','vtubermeme','vtuberfunny','vtuberfunnymoments','vtuberreacts','vtuberreaction','vtuberreact','virtualyoutuber','vtubing','englishvtuber','vtuberdebut','vtuberart','vtuberenglish','vtubershort','vtubershorts','vtubercute'],
+    large: ['vtuber','vtubers','envtuber','vtuberen','hololive']
   },
   // Games — keys are detection phrases (lowercase substrings of title/description)
   games: {
@@ -1570,7 +1597,10 @@ const TAG_DB = {
     // Tabletop / niche
     'warhammer':        {tags:['warhammer','warhammer40k','tabletop'], sizes:['medium','medium','small']},
     'dnd':              {tags:['dnd','dungeonsanddragons','tabletop'], sizes:['large','medium','small']},
-    'among us':         {tags:['amongus','amongusclips'], sizes:['large','small']}
+    'among us':         {tags:['amongus','amongusclips'], sizes:['large','small']},
+    // VR / VTuber crossover — verified high-volume in VidIQ data
+    'vrchat':           {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']},
+    'vr chat':          {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']}
   },
   // Genres / categories
   genres: {
@@ -1622,7 +1652,9 @@ const TAG_DB = {
     lifehack:      {tags:['lifehack','lifehacks','tipsandtricks'], sizes:['large','large','medium']},
     drama:         {tags:['streamerdrama','twitchdrama','vtuberdrama','contentcreatordrama','drama'], sizes:['small','small','small','small','medium']},
     facereveal:    {tags:['facereveal','vtuberfacereveal','vtuberreveal'], sizes:['medium','small','small']},
-    clip:          {tags:['clips','bestclips','dailyclips','viralclip','streamclips','funnyclip'], sizes:['large','medium','small','medium','small','medium']}
+    clip:          {tags:['clips','bestclips','dailyclips','viralclip','streamclips','funnyclip'], sizes:['large','medium','small','medium','small','medium']},
+    // POV / "point of view" framing — one of the most-used hook shapes in VidIQ outlier data
+    pov:           {tags:['pov','povs','povtok','povvideos','povshorts','whenyou','imagineif'], sizes:['large','small','medium','small','small','medium','small']}
   },
   // Platform / feed tags — last-resort fallbacks (refreshed from VidIQ trending data)
   platform: {
@@ -1641,8 +1673,12 @@ function _scanTextForTopics(text){
   // Games — direct substring match
   for(const g in TAG_DB.games){ if(t.includes(g)) found.games.push(g); }
 
-  // VTuber signals (used to decide whether to anchor with #VTuber)
-  found.hasVTuber = /\b(vtuber|live2d|pngtuber|envtuber|vtuberen|vtubers|vtuberclip|vtuberclips|vtubing|hololive|nijisanji|phase ?connect|holox|holo|kawaii ?model|2d ?avatar|virtual ?youtuber)\b/.test(t);
+  // VTuber signals (used to decide whether to anchor with #VTuber).
+  // Detection cluster sourced from top breakout VidIQ outliers — covers the term itself,
+  // tooling (Live2D, VTube Studio, PNGtuber, Figura, Blockbench), agencies (Hololive,
+  // VShojo, Niijisanji, Phase Connect), and mainstream-creator name recognition (Filian,
+  // Ironmouse, Vedal/Neuro-sama, Gawr Gura, Mori Calliope, Hakos Baelz).
+  found.hasVTuber = /\b(vtuber|vtubers|envtuber|vtuberen|vtuberclip|vtuberclips|vtubing|live2d|pngtuber|vtube ?studio|figura|blockbench|hololive|vshojo|nijisanji|phase ?connect|holox|holoen|holo ?en|kawaii ?model|2d ?avatar|virtual ?youtuber|filian|ironmouse|vedal|neuro ?sama|gawr ?gura|mori ?calliope|hakos ?baelz|calliope|ceres ?fauna|kronii|magical ?girl ?vtuber|indie ?vtuber|male ?vtuber|femboy ?vtuber)\b/.test(t);
 
   // Genres / categories
   if(/\b(horror|scary|spooky|jumpscare|terrifying|haunted|creepy|nightmare)\b/.test(t)) found.genres.push('horror');
@@ -1696,7 +1732,9 @@ function _scanTextForTopics(text){
   // Emotional / contextual signals — adds to content array if these vibes are present
   if(/\b(broke me|destroyed me|killed me|made me cry|cried|i can'?t|i'?m crying|literally crying)\b/.test(t)) found.content.push('cursed');
   if(/\b(wait what|wait,? what|hold on|hold up|what the|wait —|pause)\b/.test(t)) found.content.push('reaction');
-  if(/\b(pov|point of view|when you|what it'?s like|imagine if)\b/.test(t)) found.content.push('storytime');
+  // POV / "imagine if" framing — one of the most-used winning hook shapes in VidIQ data.
+  // Tagged separately from storytime so each can be picked as its own slot.
+  if(/\b(pov|p\.o\.v\.|point of view|when you|what it'?s like|imagine if|imagine getting|send this to|tell them)\b/.test(t)) found.content.push('pov');
   // Personal narrative / relatable storytime: "me X-ing", "my husband/wife/etc", "what happens when"
   if(/\bme [a-z]+(ing|ed)\b/.test(t)) found.content.push('storytime');
   if(/\bmy (husband|wife|boyfriend|girlfriend|partner|spouse|roommate|mom|dad|parents|sister|brother|kid|baby|friend|coworker|boss|neighbor)\b/.test(t)) found.content.push('storytime');
@@ -1838,9 +1876,10 @@ function suggestHashtagsFor(platform, count, text, existingTags){
     addTag('VTuber');
   }
 
-  // Slot 3: streamer / clip identity
-  // If the content is clip content (or creator marked themselves as a clipper), use #clips.
-  // Otherwise if the content is streaming-tagged, use #twitch.
+  // Slot 3: streamer / clip identity (just one slot, to keep variety across 5 picks)
+  // Prefer #clips when it's clip content (more specific), otherwise #twitch.
+  // Both appear together in top performers' FULL 10-30 tag lists — for our curated 5,
+  // we pick the most-specific one so slots 4 and 5 stay available for content + sub-topic.
   if(detected.content.includes('clip')){
     addTag('clips');
   } else if(detected.genres.includes('streaming')){
