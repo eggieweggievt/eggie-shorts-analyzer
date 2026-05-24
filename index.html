@@ -1626,7 +1626,14 @@ const TAG_DB = {
     relationships: {tags:['relationships','relationship','couples','couplegoals','relationshipgoals','couplescomedy','couplevideos','couplestiktok','marriedlife','marriedcouple','husbandwife','husbandlife','wifelife','datinglife','datelife','dating','relationshipadvice','longdistance','poly','polyam','polyamory','polyamorous','polycule','polyrelationship','polylife','polyship','throuple','wingman','lovestory','partner','myhusband','mywife'], sizes:['large','large','large','large','large','medium','medium','medium','medium','medium','medium','small','small','medium','small','large','medium','small','medium','small','medium','small','small','small','small','small','small','small','small','large','medium','small']},
     movies:        {tags:['movies','film','cinema','movietok','filmtok'], sizes:['large','large','medium','small','small']},
     tv:            {tags:['tvshow','tvseries','bingewatching'], sizes:['medium','medium','small']},
-    cars:          {tags:['cars','cartok','carenthusiast','carlovers'], sizes:['large','medium','small','small']}
+    cars:          {tags:['cars','cartok','carenthusiast','carlovers'], sizes:['large','medium','small','small']},
+    // Mental health / therapy humor — high-volume per VidIQ outlier data
+    // (top breakouts: #therapy, #therapyhumor, #mentalhealth all routinely >100k views)
+    mentalhealth:  {tags:['mentalhealth','therapy','therapyhumor','therapytiktok','therapist','mentalhealthawareness','healingjourney','healing','selfcare','anxiety','depression','vent','venting','wellbeing','mentalhealthmatters','psychology','copingmechanisms'], sizes:['large','large','medium','small','medium','large','medium','medium','large','large','large','medium','small','medium','medium','medium','small']},
+    // ADHD / neurodivergent — massive outlier cluster, very high VPH on relatable shorts
+    adhd:          {tags:['adhd','adhdlife','adhdfunny','adhdrelatable','adhdmoments','adhdcomedy','adhdwomen','adhdadults','adhdstruggles','adhdawareness','adhdbrain','neurodivergent','autism','autistic','autismawareness','autismspectrum','asd','auhd','spectrum','executivedysfunction'], sizes:['large','medium','medium','medium','small','small','medium','small','medium','large','small','large','large','medium','medium','small','small','small','small','small']},
+    // Daily life / "everyday me" content — closely tied to relatable but its own genre
+    dailylife:     {tags:['dayinmylife','dailyvlog','dailylife','morningroutine','nightroutine','daily','myday','adulting','adultinglife','momlife','dadlife','wifeylife','homelife','everydaylife','lifestyle','lifehacks','lifeupdate'], sizes:['large','large','medium','large','medium','medium','small','large','small','large','medium','small','small','medium','large','medium','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
@@ -1705,13 +1712,19 @@ function _scanTextForTopics(text){
   if(/\b(movie|film|cinema|blockbuster)\b/.test(t)) found.genres.push('movies');
   if(/\b(tv ?show|series|netflix|season|episode|binge)\b/.test(t)) found.genres.push('tv');
   if(/\b(car|cars|driving|automotive|jdm|drift)\b/.test(t)) found.genres.push('cars');
+  // Mental health / therapy / self-care — verified high-volume vertical per VidIQ data
+  if(/\b(therapy|therapist|my therapist|mental health|mentalhealth|anxiety|anxious|depression|depressed|panic attack|self ?care|burned out|burnout|exhausted|overwhelmed|overstimulated|healing|coping|coping mechanism|trauma|in therapy|trauma response|inner child)\b/.test(t)) found.genres.push('mentalhealth');
+  // ADHD / autism / neurodivergent — own niche, often crosses with mentalhealth + storytime
+  if(/\b(adhd|a\.d\.h\.d|autism|autistic|asd|auhd|neurodivergent|on the spectrum|executive dysfunction|hyperfixation|rejection sensitive|rsd|stimming|stim toy)\b/.test(t)) found.genres.push('adhd');
+  // Daily life / day-in-my-life format — common shape for "everyday me" content
+  if(/\b(day in (my|the) life|morning routine|night routine|daily (vlog|routine|life)|adulting|adult life|mom ?life|dad ?life|momtok|wife life|parenting|everyday|my day|life update)\b/.test(t)) found.genres.push('dailylife');
 
   // Content types (what KIND of video this is — and what's being said in it)
   if(/\b(react|reacting|reaction|reacted|reactions to)\b/.test(t)) found.content.push('reaction');
   if(/\b(funny|hilarious|lol|lmao|comedy|joke|meme|memes|that was funny)\b/.test(t)) found.content.push('funny');
   if(/\b(tutorial|how ?to|guide|tips|teach|step by step|teaching|the right way)\b/.test(t)) found.content.push('tutorial');
   if(/\b(review|honest review|reviewing|unboxing|first impressions|worth it\??)\b/.test(t)) found.content.push('review');
-  if(/\b(story ?time|storytime|tell.*story|let me tell you|so basically|the way (i|he|she|they)|the time i)\b/.test(t)) found.content.push('storytime');
+  if(/\b(story ?time|storytime|tell.*story|let me tell you|so basically|the way (i|he|she|they)|the time i|slept through|overslept|i forgot to|i missed my|i can'?t believe i|i did(?: ?n'?t)? mean to|the day i|that time (i|we|she|he|they)|guess what (i|we|she|he|they))\b/.test(t)) found.content.push('storytime');
   if(/\b(vlog|day in (my|the) life|daily vlog|dailylife|behind the scenes of my)\b/.test(t)) found.content.push('vlog');
   if(/\b(skit|sketch comedy|skit comedy)\b/.test(t)) found.content.push('skit');
   if(/\b(behind the scenes|bts|how (i|we) made|making of)\b/.test(t)) found.content.push('bts');
