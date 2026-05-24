@@ -122,6 +122,14 @@
   .btn:active{transform:translateY(0)}
   .btn.secondary{background:rgba(255,255,255,0.7);color:var(--deep);box-shadow:none;border:2px solid rgba(144,165,255,0.4)}
   .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;align-items:center}
+  /* Bottom-of-results button row — extra spacing + center so it's obvious where to click next */
+  .btn-row.again-row{
+    margin-top:32px;
+    padding-top:24px;
+    border-top:1.5px dashed rgba(144,165,255,0.35);
+    justify-content:center;
+  }
+  .btn-row.again-row .btn{font-size:16px;padding:14px 28px}
 
   .platform-pill{
     display:inline-flex;align-items:center;gap:6px;
@@ -967,8 +975,8 @@
       <div class="post-grid" id="postGrid"></div>
     </section>
 
-    <div class="btn-row">
-      <button class="btn" id="againBtn">Check another short</button>
+    <div class="btn-row again-row">
+      <button class="btn" id="againBtn">🐙 Analyze another short</button>
       <button class="btn secondary" id="copyBtn">Copy the whole report</button>
     </div>
   </section>
@@ -2939,7 +2947,7 @@ $('copyBtn').addEventListener('click', ()=>{
   const text = generatePlainTextReport();
   navigator.clipboard.writeText(text).then(()=>{
     $('copyBtn').textContent = '✓ Copied!';
-    setTimeout(()=>$('copyBtn').textContent='Copy report', 1800);
+    setTimeout(()=>$('copyBtn').textContent='Copy the whole report', 1800);
   });
 });
 
