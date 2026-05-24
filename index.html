@@ -349,6 +349,37 @@
   .post-card .tip-row{margin-top:10px;font-size:12px;color:var(--ink-soft);background:rgba(107,228,234,0.16);border-radius:10px;padding:6px 10px;line-height:1.45}
   .post-card .tip-row strong{color:var(--deep)}
   .post-card .copy-row{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+  /* Editable hashtag box on each platform card */
+  .post-card .hashtag-edit{
+    margin-top:10px;
+    padding:8px 10px;
+    background:rgba(107,228,234,0.14);
+    border:1.5px dashed rgba(99,170,244,0.4);
+    border-radius:10px;
+  }
+  .post-card .hashtag-edit .field-label{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:5px;
+  }
+  .post-card .hashtag-edit .field-label .reset-tag{
+    cursor:pointer;text-transform:none;letter-spacing:0;font-weight:700;font-size:11px;
+    color:var(--deep);background:rgba(255,255,255,0.7);
+    padding:3px 9px;border-radius:999px;border:1.5px solid rgba(144,165,255,0.4);
+  }
+  .post-card .hashtag-edit .field-label .reset-tag:hover{background:rgba(255,255,255,0.95)}
+  .post-card .hashtag-edit input{
+    width:100%;
+    padding:8px 10px;
+    border-radius:8px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:'Courier New',ui-monospace,monospace;
+    font-size:13px;font-weight:600;color:var(--deep);
+    box-sizing:border-box;
+  }
+  .post-card .hashtag-edit input:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  .post-card .hashtag-edit .hint{font-size:11.5px;color:var(--ink-soft);margin:4px 0 0;line-height:1.45}
   .copy-btn{
     flex:1;
     padding:8px 14px;
@@ -1662,7 +1693,7 @@ const TAG_DB = {
   // `vtuber drama` keywords (top breakout-score shorts in the last 3-6 months).
   // Size buckets reflect the actual frequency these tags appear in winning shorts.
   vtuber: {
-    small: ['indievtuber','smallvtuber','vtuberstorytime','vtubermoments','vtuberlife','vtubermodel','vtubertips','vtuberteaser','vtuberviral','vtuberedit','vtubertok','dragonvtuber','asmrvtuber','animevtuber','musicvtuber','malevtuber','magicalgirlvtuber','femboyvtuber','christianvtuber','pngtuber','live2d','vtubestudio','vshojo','britishvtuber','vtuberdebutvideo','vtubernews','vtuberuprising','filian','ironmouse','figura','blockbench','vtubernerd'],
+    small: ['indievtuber','smallvtuber','vtuberstorytime','vtubermoments','vtuberlife','vtubermodel','vtubertips','vtuberteaser','vtuberviral','vtuberedit','vtubertok','dragonvtuber','asmrvtuber','animevtuber','musicvtuber','malevtuber','magicalgirlvtuber','femboyvtuber','christianvtuber','pngtuber','live2d','vtubestudio','vshojo','britishvtuber','vtuberdebutvideo','vtubernews','vtuberuprising','filian','ironmouse','figura','blockbench','vtubernerd','adultvtuber','oldervtuber','millennialvtuber','vtuber30plus','grownupvtuber','momvtuber','dadvtuber','neurodivergentvtuber','adhdvtuber','autisticvtuber'],
     medium: ['vtuberclips','vtuberclip','vtubermemes','vtubermeme','vtuberfunny','vtuberfunnymoments','vtuberreacts','vtuberreaction','vtuberreact','virtualyoutuber','vtubing','englishvtuber','vtuberdebut','vtuberart','vtuberenglish','vtubershort','vtubershorts','vtubercute'],
     large: ['vtuber','vtubers','envtuber','vtuberen','hololive']
   },
@@ -1752,11 +1783,13 @@ const TAG_DB = {
     gaming:        {tags:['gaming','gamer','gameplay','gamingclips','gamingcommunity'], sizes:['large','large','large','medium','small']},
     streaming:    {tags:['twitch','streamer','twitchstreamer','twitchclips','streamerlife','kickclips','kickstreamer','streamhighlights','streamerclips','livestreamfails','smallstreamer','streamcommunity'], sizes:['large','large','medium','medium','small','medium','small','small','medium','medium','small','small']},
     cozy:          {tags:['cozygaming','cozystream','cozyvibes'], sizes:['small','small','small']},
-    cosplay:       {tags:['cosplay','cosplayer','animecosplay','cosplaying'], sizes:['large','medium','small','small']},
+    // Cosplay — refreshed 2026-05-24 from VidIQ "cosplay transformation" outliers
+    cosplay:       {tags:['cosplay','cosplayer','animecosplay','cosplaying','cosplaytransformation','cosplaymakeup','cosplaytutorial','cosplayshorts','cosplaylife','cosplayphotography','cosplaytiktok','wigtransformation','makeuptransformation','charactercosplay','epiccosplay','cosplaycompilation','cosplayedit'], sizes:['large','medium','medium','small','medium','medium','medium','medium','medium','small','medium','small','small','medium','medium','small','medium']},
     cooking:       {tags:['cooking','recipes','foodtiktok','cookingtutorial','easyrecipes'], sizes:['large','large','medium','small','medium']},
     food:          {tags:['food','foodie','foodlover','foodporn','yummy'], sizes:['large','large','medium','large','medium']},
     art:           {tags:['art','artist','digitalart','traditionalart','illustration','drawing','sketch','procreate'], sizes:['large','large','large','medium','medium','large','medium','medium']},
-    music:         {tags:['music','musician','singer','musictok','songoftheday'], sizes:['large','medium','large','medium','small']},
+    // Music / cover — refreshed 2026-05-24 from VidIQ "music cover shorts" outliers
+    music:         {tags:['music','cover','singing','musician','singer','covermusic','musictok','songoftheday','vocalcover','livecover','originalsong','musicvideo','duet','covershorts','musicshorts','songcover','indiemusic'], sizes:['large','large','large','medium','large','medium','medium','small','small','small','small','large','medium','small','medium','medium','small']},
     fitness:       {tags:['fitness','workout','gym','fitnessmotivation','gymtok','homeworkout'], sizes:['large','large','large','medium','medium','small']},
     beauty:        {tags:['beauty','makeup','makeuptutorial','skincare','beautytips','glowup'], sizes:['large','large','medium','large','small','medium']},
     fashion:       {tags:['fashion','style','outfit','ootd','fashiontiktok'], sizes:['large','large','large','medium','medium']},
@@ -1776,7 +1809,13 @@ const TAG_DB = {
     // ADHD / neurodivergent — massive outlier cluster, very high VPH on relatable shorts
     adhd:          {tags:['adhd','adhdlife','adhdfunny','adhdrelatable','adhdmoments','adhdcomedy','adhdwomen','adhdadults','adhdstruggles','adhdawareness','adhdbrain','neurodivergent','autism','autistic','autismawareness','autismspectrum','asd','auhd','spectrum','executivedysfunction'], sizes:['large','medium','medium','medium','small','small','medium','small','medium','large','small','large','large','medium','medium','small','small','small','small','small']},
     // Daily life / "everyday me" content — closely tied to relatable but its own genre
-    dailylife:     {tags:['dayinmylife','dailyvlog','dailylife','morningroutine','nightroutine','daily','myday','adulting','adultinglife','momlife','dadlife','wifeylife','homelife','everydaylife','lifestyle','lifehacks','lifeupdate'], sizes:['large','large','medium','large','medium','medium','small','large','small','large','medium','small','small','medium','large','medium','small']}
+    dailylife:     {tags:['dayinmylife','dailyvlog','dailylife','morningroutine','nightroutine','daily','myday','adulting','adultinglife','momlife','dadlife','wifeylife','homelife','everydaylife','lifestyle','lifehacks','lifeupdate'], sizes:['large','large','medium','large','medium','medium','small','large','small','large','medium','small','small','medium','large','medium','small']},
+    // Millennial — adult-VTuber / "elder millennial" content per Cyphriee-style outliers
+    millennial:    {tags:['millennial','millenniallife','millennialhumor','millennialmemes','millennialthings','eldermillennial','geriatricmillennial','millennialcontent','millennialnostalgia','millennialvtuber','millennialgamer','adultvtuber','oldervtuber','vtuber30plus','grownupvtuber','30sandfeelingit','almost40'], sizes:['large','medium','medium','medium','small','medium','small','small','small','small','small','small','small','small','small','small','small']},
+    // Nostalgia — "remember when / throwback / Y2K" framings, big on TikTok + Shorts
+    nostalgia:     {tags:['nostalgia','y2k','nostalgic','nostalgiacore','throwback','throwbackthursday','the90s','the2000s','early2000s','90skid','2000skid','childhoodmemories','rememberthis','iykyk','grewupwith','elementaryschool','nostalgicvibes','retrovibes'], sizes:['large','large','medium','small','large','medium','medium','medium','medium','large','medium','medium','small','large','small','small','small','medium']},
+    // Parenting / mom-life — separate from generic dailylife per VidIQ keyword volume
+    parenting:     {tags:['parenting','parentlife','parents','parentingtips','parentingmoments','parentingstruggles','parentinghumor','parentingcomedy','parentingfails','parentingadvice','parentingstories','momlife','dadlife','toddlerlife','newbornlife','momtok','dadtok','realisticparenting','workingmom','stayathomemom'], sizes:['large','medium','large','medium','small','small','medium','small','medium','medium','small','large','medium','medium','small','large','medium','small','medium','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
@@ -1788,25 +1827,32 @@ const TAG_DB = {
     // Refreshed 2026-05-24 — top breakout funny shorts consistently use #funny + #comedy
     // + #memes + #funnyvideo as anchors, with #funnyclip / #funnymoments mid-tier.
     funny:         {tags:['funny','comedy','memes','funnyvideo','funnyvideos','funnymoments','funnyclip','funnyclips','funniestclip','comedyclip','comedyclips','comedyshorts','comedyvideo','funnyfail','funnyfails','funnyshorts','funnyaf','funnyshit','funnymoment','trynottolaugh','trynottolaughchallenge','plottwist','haha','lol','lmao','comedyskit','comedymemes','sketchcomedy','laughoutloud','tryingnottolaugh'], sizes:['large','large','large','large','large','medium','medium','medium','small','medium','small','medium','medium','medium','small','small','small','small','medium','medium','medium','small','medium','large','medium','small','small','small','small','medium']},
-    tutorial:      {tags:['tutorial','howto','tipsandtricks','learn'], sizes:['large','large','medium','large']},
+    // Tutorial / tip / how-to — refreshed 2026-05-24 from VidIQ "tutorial tip shorts" outliers
+    tutorial:      {tags:['tutorial','howto','tips','tipsandtricks','learn','trick','tricktutorial','handymantip','everydaylifehack','diy','quicktip','protip','easytutorial','stepbystep','tutorialshorts','learnonyoutube','howtodoit'], sizes:['large','large','large','medium','large','medium','small','small','small','large','medium','medium','small','small','medium','medium','small']},
     review:        {tags:['review','honestreview','productreview'], sizes:['large','small','medium']},
     storytime:     {tags:['storytime','storytimes','storytelling','story','mystorytime','dramaticstorytime','emotionalstorytime','relatablestorytime','makeupstorytime','hairstorytime','grwmstorytime','familystorytime','momstorytime','dadstorytime','siblingstorytime','textingstories','redditstories','storytimetiktok','myexperience','thetimeix','iremember','crazystory','wildstorytime','funnystorytime'], sizes:['large','medium','medium','large','small','small','small','small','small','small','small','small','small','small','small','medium','medium','small','small','small','small','medium','small','small']},
     relatable:     {tags:['relatable','relatablecontent','relatablestories','relatablecomedy','relatablemoments','relatabletiktok','relatableshorts','relatablecouple','relatablefamily','relatablesibling','relatableparents','momlife','dadlife','siblinglife','itme','sotrue','wealldoit','everyoneknows'], sizes:['large','medium','small','medium','medium','small','small','small','small','small','small','large','medium','small','small','small','small','small']},
-    vlog:          {tags:['vlog','vlogger','dayinmylife','dailyvlog'], sizes:['large','medium','medium','medium']},
+    // Vlog / day-in-my-life — refreshed 2026-05-24 from VidIQ "vlog day in my life" outliers
+    vlog:          {tags:['vlog','vlogger','dayinmylife','dailyvlog','vloglife','diml','vlogging','minivlog','spendthedaywithme','lazyday','productiveday','thatgirl','realisticdayinmylife','morningvlog','weekendvlog','myday','vlogshorts','lifestylevlog'], sizes:['large','medium','large','large','medium','medium','medium','small','small','small','medium','medium','small','small','medium','medium','small','medium']},
     skit:          {tags:['skit','comedyskit','sketch'], sizes:['medium','small','medium']},
     bts:           {tags:['behindthescenes','bts'], sizes:['medium','large']},
     qna:           {tags:['qna','askmeanything','aboutme'], sizes:['medium','small','medium']},
-    asmr:          {tags:['asmr','asmrcommunity','asmrsounds','asmrtist'], sizes:['large','medium','small','small']},
-    debut:         {tags:['vtuberdebut','newvtuber','debut'], sizes:['small','small','medium']},
+    // ASMR — refreshed 2026-05-24 from VidIQ "asmr whisper" outliers
+    asmr:          {tags:['asmr','asmrsounds','asmrtingles','tingles','asmrcommunity','asmrtist','asmrvibes','satisfying','satisfyingvideos','relaxation','whisperasmr','asmrrelax','softspoken','asmrwhisper','asmrshorts','tinglyvibes','sleepasmr','triggerasmr'], sizes:['large','medium','small','medium','medium','small','medium','large','medium','medium','small','small','small','small','medium','small','small','small']},
+    // Debut — refreshed 2026-05-24 from VidIQ VTuber-debut outlier data
+    debut:         {tags:['vtuberdebut','newvtuber','debut','firststream','debutstream','introducingmyself','modelreveal','vtubernewdebut','indiedebut','debutshort','newfacereveal'], sizes:['medium','small','medium','small','medium','small','medium','small','small','small','small']},
     cursed:        {tags:['cursed','cursedclips','cursedvideos'], sizes:['medium','small','small']},
     rage:          {tags:['rage','ragegaming','gamerrage'], sizes:['medium','small','small']},
     challenge:     {tags:['challenge','tryingthings','nodeathrun'], sizes:['large','small','small']},
-    rant:          {tags:['rant','hottake','unpopularopinion','hottakes'], sizes:['medium','medium','small','small']},
+    // Rant / hot take — refreshed 2026-05-24 from VidIQ "drama hot take rant" outliers
+    rant:          {tags:['rant','rantvideo','hottake','hottakes','unpopularopinion','controversial','yapsesh','rambling','venting','soapbox','realtalk','rantshorts'], sizes:['medium','medium','medium','small','medium','medium','small','small','medium','small','medium','small']},
     compilation:   {tags:['compilation','bestof','highlights'], sizes:['large','medium','medium']},
     fail:          {tags:['fail','fails','epicfail','funnyfails'], sizes:['large','medium','medium','small']},
     edit:          {tags:['edit','edits','aestheticedit'], sizes:['large','large','medium']},
-    lifehack:      {tags:['lifehack','lifehacks','tipsandtricks'], sizes:['large','large','medium']},
-    drama:         {tags:['streamerdrama','twitchdrama','vtuberdrama','contentcreatordrama','drama'], sizes:['small','small','small','small','medium']},
+    // Lifehack — refreshed 2026-05-24 from VidIQ "tutorial tip shorts" outliers
+    lifehack:      {tags:['lifehack','lifehacks','tipsandtricks','everydaylifehack','smarttip','quickhack','adultinghack','homehack','kitchenhack','niftytrick','simplehack','easyhack'], sizes:['large','large','medium','small','small','small','small','small','small','small','small','medium']},
+    // Drama — refreshed 2026-05-24 from VidIQ "drama hot take rant" outliers
+    drama:         {tags:['drama','dramaclips','shortdrama','streamerdrama','twitchdrama','vtuberdrama','contentcreatordrama','dramaaddict','dramatime','dramaalert','spillingtea','tea','controversial','dramashorts','beefclips'], sizes:['large','medium','medium','small','small','small','small','small','small','medium','small','medium','medium','small','small']},
     facereveal:    {tags:['facereveal','vtuberfacereveal','vtuberreveal'], sizes:['medium','small','small']},
     clip:          {tags:['clips','bestclips','dailyclips','viralclip','streamclips','funnyclip'], sizes:['large','medium','small','medium','small','medium']},
     // POV / "point of view" framing — one of the most-used hook shapes in VidIQ outlier data
@@ -1870,6 +1916,12 @@ function _scanTextForTopics(text){
   if(/\b(adhd|a\.d\.h\.d|autism|autistic|asd|auhd|neurodivergent|on the spectrum|executive dysfunction|hyperfixation|rejection sensitive|rsd|stimming|stim toy)\b/.test(t)) found.genres.push('adhd');
   // Daily life / day-in-my-life format — common shape for "everyday me" content
   if(/\b(day in (my|the) life|morning routine|night routine|daily (vlog|routine|life)|adulting|adult life|mom ?life|dad ?life|momtok|wife life|parenting|everyday|my day|life update)\b/.test(t)) found.genres.push('dailylife');
+  // Millennial / 30+ VTuber — "elder millennial" energy, often relatable + nostalgia + therapy adjacent
+  if(/\b(millennial|elder millennial|geriatric millennial|i'?m in my (30s|thirties|40s|forties)|i'?m (30|31|32|33|34|35|36|37|38|39|40)\b|in my generation|kids these days|back in my day|when i was your age|grownup vtuber|adult vtuber|30 ?\+|30s and|old enough to remember|when i was a kid)\b/.test(t)) found.genres.push('millennial');
+  // Nostalgia — "remember when", "growing up", "the 90s", "Y2K"; transcription often catches these
+  if(/\b(nostalgia|nostalgic|y2k|throwback|remember when|remember (the|that|this)|back in (the )?(90s|2000s|2010s|nineties|two thousands)|the (90s|2000s|nineties|two thousands)|early (2000s|nineties)|growing up|when i was (a kid|little|young|in school|in elementary|in high school|in middle school)|i grew up (with|on)|iykyk|in elementary school|in high school)\b/.test(t)) found.genres.push('nostalgia');
+  // Parenting / mom-life — distinct from dailylife when explicitly about raising kids
+  if(/\b(parenting|parent life|as a mom|as a dad|as a parent|my (kid|kids|son|daughter|baby|toddler|newborn|child|children)|being a (mom|dad|parent)|raising (a|my) (kid|kids|child|children|family)|toddler life|newborn life|mom ?life|dad ?life|stay at home (mom|dad)|working (mom|dad)|momtok|dadtok)\b/.test(t)) found.genres.push('parenting');
 
   // Content types (what KIND of video this is — and what's being said in it).
   // Reaction includes IRL-react language AND Florence-style visual signals like split-screen
@@ -2849,12 +2901,56 @@ function buildPostPack(payload, analysis){
   // Trim to 280 (with ellipsis room)
   if(xBody.length > 275) xBody = xBody.slice(0, 272).trimEnd() + '…';
 
+  // Recompute helpers — used when the user edits the hashtag box on a platform card.
+  // They take a fresh array of hashtag strings (with or without #) and rebuild the title /
+  // caption / copy-parts using the same composition rules buildPostPack uses upfront.
+  function _normTags(arr){
+    return (arr||[]).map(t => '#' + String(t).replace(/^#/, '').trim()).filter(t => t.length > 1);
+  }
+  function recomputeYT(newHashtagsArr){
+    const tags = _normTags(newHashtagsArr);
+    const lines = [hookLine];
+    if(bodyDesc && bodyDesc.trim() !== hookLine.trim() && !bodyDesc.toLowerCase().startsWith(hookLine.toLowerCase())){
+      lines.push(''); lines.push(bodyDesc);
+    }
+    if(tmpl){ lines.push(''); lines.push(tmpl); }
+    else { lines.push(''); lines.push('🐙 New shorts every week — hit subscribe so you don\'t miss the next one.'); }
+    lines.push(''); lines.push(tags.join(' '));
+    const description = lines.join('\n');
+    const titleWithTags = appendTopTagsToTitle(bestTitle, tags);
+    return {
+      title: titleWithTags,
+      caption: description,
+      hashtags: tags.join(' '),
+      copyParts: [{label:'title', text: titleWithTags}, {label:'description', text: description}]
+    };
+  }
+  function recomputeTT(newHashtagsArr){
+    const tags = _normTags(newHashtagsArr);
+    const caption = `${hookLine}${/[?!…]$/.test(hookLine)?'':' …'}\n\n${tags.join(' ')}`;
+    return {caption, hashtags: tags.join(' '), copyParts: [{label:'caption', text: caption}]};
+  }
+  function recomputeIG(newHashtagsArr){
+    const tags = _normTags(newHashtagsArr);
+    const lines = [hookLine];
+    if(bodyDesc && bodyDesc.trim() !== hookLine.trim() && !bodyDesc.toLowerCase().startsWith(hookLine.toLowerCase())){
+      lines.push(''); lines.push(bodyDesc);
+    }
+    lines.push(''); lines.push('.'); lines.push('.'); lines.push('.');
+    lines.push(tags.join(' '));
+    const caption = lines.join('\n');
+    return {caption, hashtags: tags.join(' '), copyParts: [{label:'caption', text: caption}]};
+  }
+
   return {
     youtube: {
       key:'yt', name:'YouTube Shorts',
       title: ytTitleWithTags,
       caption: ytDescription,
       hashtags: ytHashtags.join(' '),
+      initialHashtags: ytHashtags.join(' '),
+      editable: true,
+      recompute: recomputeYT,
       tip: (userHasTags ? '<strong>Using your own hashtags</strong> here. ' : '<strong>Suggested hashtags</strong> &mdash; based on what your short is about. ') + (tmpl ? 'Your template is at the bottom so socials show up automatically. ' : 'Use 3 to 5 hashtags with a mix of small, medium, and large. ') + 'Top 2 hashtags are appended to the title so YouTube indexes them as tags — copy the title straight into the title field.',
       copyParts: [
         {label:'title', text: ytTitleWithTags},
@@ -2865,6 +2961,9 @@ function buildPostPack(payload, analysis){
       key:'tt', name:'TikTok',
       caption: ttCaption,
       hashtags: ttHashtags.join(' '),
+      initialHashtags: ttHashtags.join(' '),
+      editable: true,
+      recompute: recomputeTT,
       tip: (userHasTags ? '<strong>Using your own hashtags</strong>. ' : '<strong>Suggested hashtags</strong>. ') + 'Use a trending sound if you can. On TikTok the words in your caption matter more than the hashtags do.',
       copyParts: [{label:'caption', text: ttCaption}]
     },
@@ -2872,6 +2971,9 @@ function buildPostPack(payload, analysis){
       key:'ig', name:'Instagram Reels',
       caption: igCaption,
       hashtags: igHashtags.join(' '),
+      initialHashtags: igHashtags.join(' '),
+      editable: true,
+      recompute: recomputeIG,
       tip: (userHasTags ? '<strong>Using your own hashtags</strong>. ' : '<strong>Suggested hashtags</strong>. ') + 'The dots hide the hashtags from the preview so your caption looks clean.',
       copyParts: [{label:'caption', text: igCaption}]
     },
@@ -2879,6 +2981,7 @@ function buildPostPack(payload, analysis){
       key:'x', name:'X / Twitter',
       caption: xBody,
       hashtags: '',
+      editable: false,
       tip: 'Don\'t use hashtags on X — they actually hurt your reach. Upload the video directly here, don\'t link to YouTube. Post 3 to 7 times a day.',
       copyParts: [{label:'tweet', text: xBody}]
     }
@@ -2896,23 +2999,32 @@ function renderPostPack(payload, analysis){
     const tweetWarn = p.key==='x' ? (captionCharCount>270?'bad':captionCharCount>250?'warn':'') : '';
     const titleCharWarn = p.key==='yt' && p.title ? (p.title.length>70?'warn':p.title.length<25?'warn':'') : '';
     return `
-      <div class="post-card ${p.key}">
+      <div class="post-card ${p.key}" data-platform="${p.key}">
         <div class="platform-head">
           <div class="platform-name"><span class="pdot"></span>${escapeHtml(p.name)}</div>
         </div>
         ${showTitleField ? `
-          <div class="field">
-            <div class="field-label">Title <span class="char-count ${titleCharWarn}">${p.title.length} chars</span></div>
-            <div class="field-content">${escapeHtml(p.title)}</div>
+          <div class="field" data-role="title-wrap">
+            <div class="field-label">Title <span class="char-count ${titleCharWarn}" data-role="title-chars">${p.title.length} chars</span></div>
+            <div class="field-content" data-role="title-content">${escapeHtml(p.title)}</div>
           </div>` : ''}
-        <div class="field">
-          <div class="field-label">${p.key==='x'?'Tweet':p.key==='yt'?'Description':'Caption'} <span class="char-count ${tweetWarn}">${captionCharCount} chars</span></div>
-          <div class="field-content long">${escapeHtml(p.caption)}</div>
+        <div class="field" data-role="caption-wrap">
+          <div class="field-label">${p.key==='x'?'Tweet':p.key==='yt'?'Description':'Caption'} <span class="char-count ${tweetWarn}" data-role="caption-chars">${captionCharCount} chars</span></div>
+          <div class="field-content long" data-role="caption-content">${escapeHtml(p.caption)}</div>
         </div>
+        ${p.editable ? `
+          <div class="hashtag-edit" data-role="hashtag-edit">
+            <div class="field-label">
+              <span>✏️ Edit hashtags</span>
+              <button type="button" class="reset-tag" data-role="reset-tags">↺ Reset to suggested</button>
+            </div>
+            <input type="text" data-role="hashtag-input" value="${escapeHtml(p.initialHashtags||'')}" spellcheck="false" />
+            <p class="hint">Tweak these before copying. The title, description, and copy buttons update as you type.</p>
+          </div>` : ''}
         <div class="tip-row"><strong>Tip:</strong> ${p.tip}</div>
         <div class="copy-row">
           ${(p.copyParts||[]).map(part =>
-            `<button class="copy-btn" data-copy="${escapeHtml(part.text)}">📋 Copy ${escapeHtml(part.label)}</button>`
+            `<button class="copy-btn" data-copy="${escapeHtml(part.text)}" data-label="${escapeHtml(part.label)}">📋 Copy ${escapeHtml(part.label)}</button>`
           ).join('')}
         </div>
       </div>
@@ -2921,6 +3033,45 @@ function renderPostPack(payload, analysis){
 
   ['youtube','tiktok','instagram','twitter'].forEach(k=>{
     grid.insertAdjacentHTML('beforeend', postCard(pack[k]));
+  });
+
+  // Wire hashtag editors — on input, recompute caption / title / copy-parts in place
+  function parseHashtagInput(str){
+    return String(str||'').split(/[\s,]+/).map(t => t.trim()).filter(Boolean);
+  }
+  grid.querySelectorAll('.post-card').forEach(card => {
+    const platform = card.getAttribute('data-platform');
+    const p = pack[platform];
+    if(!p || !p.editable) return;
+    const input = card.querySelector('[data-role="hashtag-input"]');
+    const captionEl = card.querySelector('[data-role="caption-content"]');
+    const captionCharsEl = card.querySelector('[data-role="caption-chars"]');
+    const titleEl = card.querySelector('[data-role="title-content"]');
+    const titleCharsEl = card.querySelector('[data-role="title-chars"]');
+    const resetBtn = card.querySelector('[data-role="reset-tags"]');
+    function applyTags(value){
+      const arr = parseHashtagInput(value);
+      const updated = p.recompute(arr);
+      // Update displayed caption + char count
+      if(captionEl){ captionEl.textContent = updated.caption; }
+      if(captionCharsEl){ captionCharsEl.textContent = `${updated.caption.length} chars`; }
+      // Update displayed title (YT only)
+      if(updated.title && titleEl){ titleEl.textContent = updated.title; }
+      if(updated.title && titleCharsEl){ titleCharsEl.textContent = `${updated.title.length} chars`; }
+      // Update copy buttons' data-copy attributes
+      card.querySelectorAll('.copy-btn').forEach(btn => {
+        const label = btn.getAttribute('data-label');
+        const part = updated.copyParts.find(cp => cp.label === label);
+        if(part){ btn.setAttribute('data-copy', escapeHtml(part.text)); }
+      });
+    }
+    input.addEventListener('input', () => applyTags(input.value));
+    if(resetBtn){
+      resetBtn.addEventListener('click', () => {
+        input.value = p.initialHashtags || '';
+        applyTags(input.value);
+      });
+    }
   });
 
   // Wire copy buttons
