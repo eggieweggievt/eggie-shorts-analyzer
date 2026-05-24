@@ -192,7 +192,53 @@
   .hashtag-rec ul.strategy{margin:6px 0 14px;padding-left:20px;font-size:13px;line-height:1.55;color:var(--ink)}
   .hashtag-rec ul.strategy li{padding:2px 0}
   .hashtag-rec ul.strategy strong{color:var(--deep)}
-  .hashtag-rec .picks{font-weight:700;font-size:15px;color:var(--deep);background:rgba(255,255,255,0.75);padding:10px 14px;border-radius:10px;line-height:1.6}
+  .hashtag-rec .picks{font-weight:700;font-size:15px;color:var(--deep);background:rgba(255,255,255,0.75);padding:10px 14px;border-radius:10px;line-height:1.9;display:flex;flex-wrap:wrap;gap:8px}
+  /* Strategy teaching card */
+  .strategy-card{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(199,210,255,0.4), rgba(180,240,243,0.4));
+    border:1.5px solid rgba(144,165,255,0.45);
+    border-radius:14px;
+    padding:14px 16px;
+    margin:0 0 14px;
+  }
+  /* Size badge (S / M / L) shown next to each picked tag */
+  .pick-tag{
+    display:inline-flex;align-items:center;gap:5px;
+    background:rgba(255,255,255,0.9);
+    padding:5px 10px;
+    border-radius:999px;
+    border:1px solid rgba(144,165,255,0.35);
+    font-weight:700;color:var(--deep);
+    font-size:14.5px;
+  }
+  .size-pill{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:18px;height:18px;
+    border-radius:50%;
+    font-size:10px;font-weight:800;
+    color:#fff;cursor:help;
+    letter-spacing:0;
+  }
+  .size-pill.s{background:#E879C5}    /* small — hot pink */
+  .size-pill.m{background:#7E94F4}    /* medium — periwinkle */
+  .size-pill.l{background:#3FB8C0}    /* large — mint */
+  /* Mix summary line under the picks */
+  .mix-summary{
+    margin:8px 0 0;
+    font-size:12.5px;color:var(--ink);
+    line-height:1.7;
+  }
+  .mix-summary .mix-count{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:999px;
+    font-weight:700;
+    margin:0 3px;
+  }
+  .mix-count.ok{background:rgba(107,228,234,0.4);color:#0b6a76}
+  .mix-count.off{background:rgba(255,219,247,0.6);color:#a23556}
+  .mix-summary .mix-ok{margin-left:6px;font-weight:700;color:#0b6a76;font-size:12px}
+  .mix-summary .mix-warn{margin-left:6px;font-style:italic;color:var(--ink-soft);font-size:12px}
   .tag-pool{display:grid;gap:10px;margin-top:8px}
   @media(min-width:680px){.tag-pool{grid-template-columns:1fr 1fr 1fr}}
   .pool-section{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.65)}
@@ -1915,13 +1961,16 @@ function detectTopics(input){
   return merged;
 }
 
-function suggestHashtagsFor(platform, count, text, existingTags){
-  if(platform === 'twitter') return [];
+function suggestHashtagsFor(platform, count, text, existingTags, outMeta){
+  if(platform === 'twitter'){
+    if(outMeta) outMeta.picks = [];
+    return [];
+  }
 
   const detected = detectTopics(text);
   const existing = new Set((existingTags||[]).map(t=>String(t).toLowerCase().replace(/^#/,'')));
 
-  // Build pool by size. Detected topic-specific tags go FIRST so they take priority.
+  // Pool by size — used for filler + size lookups when a slot doesn't fit quota.
   const pool = {small:[], medium:[], large:[]};
   function addToPool(tag, size){
     if(!pool[size]) return;
@@ -1935,149 +1984,203 @@ function suggestHashtagsFor(platform, count, text, existingTags){
     if(!data) return;
     data.tags.forEach((tag, i)=> addToPool(tag, data.sizes[i] || 'medium'));
   }
-  // Pool order matters — earlier additions are picked first when filling buckets.
-  // Specific game wins outright. Otherwise: specific niche genres > content types > generic gaming/streaming.
   detected.games.forEach(g=>poolFrom('games', g));
   detected.genres.filter(g => g !== 'gaming' && g !== 'streaming').forEach(g=>poolFrom('genres', g));
   detected.content.forEach(c=>poolFrom('content', c));
-  // Generic gaming/streaming go LAST so context wins when no specific game is named
   detected.genres.filter(g => g === 'gaming' || g === 'streaming').forEach(g=>poolFrom('genres', g));
-
-  // VTuber: when detected, #VTuber is auto-included as a LARGE tag (1M+ posts).
-  // It jumps to the front of the large bucket so the formula always picks it up.
   if(detected.hasVTuber){
     if(!pool.large.some(p => p.toLowerCase() === 'vtuber')){
       pool.large.unshift('VTuber');
     }
-    // Then add the rest of the VTuber pool tags to their natural size buckets
     TAG_DB.vtuber.small.forEach(t => addToPool(t, 'small'));
     TAG_DB.vtuber.medium.forEach(t => addToPool(t, 'medium'));
     TAG_DB.vtuber.large.forEach(t => addToPool(t, 'large'));
   }
-
-  // Platform feed tags as filler (last priority)
   if(TAG_DB.platform[platform]){
     const pd = TAG_DB.platform[platform];
     pd.tags.forEach((t, i)=> addToPool(t, pd.sizes[i] || 'large'));
   }
 
-  // VARIETY-FIRST PICK STRATEGY
-  // Pick one tag from each relevant category so the mix is rich, not topic-clustered.
-  // Slot priorities (each is skipped if not applicable; remaining slots fill from pool):
-  //   1. Primary topic tag (most-specific game / genre / content)
-  //   2. VTuber identity anchor
-  //   3. Streamer / clip identity (prefer #clips if it's clip content, else #twitch)
-  //   4. Top content type tag (storytime, reaction, etc — skipped if same as primary or 'clip')
-  //   5. Sub-topic tag from primary's pool whose name appears in the text (e.g. #poly when "poly" was typed)
-  //      Falls back to platform feed (#shorts / #fyp / #reels) if no sub-topic match.
-  // Then top up any remaining slots from the pool with a size mix.
+  // QUOTA-ENFORCED VARIETY PICKER
+  // Eggie's growth rubric: 5 tags = 1 small + 2 medium + 2 large.
+  // Variety order still drives WHICH slots get filled (primary topic → VTuber → clip/twitch →
+  // content type → sub-topic), but within each slot we prefer tags whose size still has open
+  // quota. After the variety pass, a rebalance step swaps non-critical over-quota picks for
+  // pool tags of the under-quota size, so the 1S/2M/2L mix is hit when the data allows.
 
-  // Build a flat lowercased version of the input for substring lookups.
+  const TARGET = {small: 1, medium: 2, large: 2};
+  const remaining = {small: 1, medium: 2, large: 2};
+  const picks = []; // {tag, size, slotIdx, critical}
+
   const fullText = (Array.isArray(text) ? text.join(' ') : (text || '')).toLowerCase();
 
-  const picks = [];
-  function addTag(tag){
-    if(!tag) return false;
-    const norm = String(tag).toLowerCase().replace(/^#/,'');
-    if(existing.has(norm)) return false;
-    if(picks.some(p => p.toLowerCase() === norm)) return false;
-    picks.push(tag.replace(/^#/,''));
-    return true;
-  }
-  function firstTagOf(category, key){
-    const data = (TAG_DB[category]||{})[key];
-    return data && data.tags && data.tags[0];
-  }
-  // Returns tags from a pool whose name appears as a substring in the user's text,
-  // so things like "poly" or "wingman" get pulled in as sub-topic tags.
-  function subTopicMatchesOf(category, key){
+  function candsFromCategory(category, key){
     const data = (TAG_DB[category]||{})[key];
     if(!data) return [];
-    return data.tags.filter(tag => fullText.includes(tag.toLowerCase()));
+    return data.tags.map((t, i) => ({tag: t, size: data.sizes[i] || 'medium'}));
+  }
+  function pickFromCandidates(cands, slotIdx, critical){
+    if(!cands || !cands.length) return false;
+    // First pass: prefer size with open quota
+    for(const c of cands){
+      if(!c || !c.tag) continue;
+      const norm = String(c.tag).toLowerCase().replace(/^#/,'');
+      if(existing.has(norm) || picks.some(p => p.tag.toLowerCase() === norm)) continue;
+      if(remaining[c.size] > 0){
+        picks.push({tag: String(c.tag).replace(/^#/,''), size: c.size, slotIdx, critical: !!critical});
+        remaining[c.size]--;
+        return true;
+      }
+    }
+    // Second pass: take the highest-priority candidate regardless of quota (variety wins)
+    for(const c of cands){
+      if(!c || !c.tag) continue;
+      const norm = String(c.tag).toLowerCase().replace(/^#/,'');
+      if(existing.has(norm) || picks.some(p => p.tag.toLowerCase() === norm)) continue;
+      picks.push({tag: String(c.tag).replace(/^#/,''), size: c.size, slotIdx, critical: !!critical});
+      if(remaining[c.size] > 0) remaining[c.size]--;
+      return true;
+    }
+    return false;
   }
 
-  // Slot 1: primary specific topic tag
+  // Slot 1: primary topic (CRITICAL — never gets swapped out)
   if(detected.primary){
     const cat = detected.primary.type === 'game' ? 'games' : detected.primary.type + 's';
-    addTag(firstTagOf(cat, detected.primary.key));
+    pickFromCandidates(candsFromCategory(cat, detected.primary.key), 1, true);
   }
-
-  // Slot 2: VTuber identity (large anchor)
+  // Slot 2: VTuber identity (CRITICAL when detected)
   if(detected.hasVTuber){
-    addTag('VTuber');
+    const vCands = [
+      {tag:'VTuber', size:'large'},
+      ...TAG_DB.vtuber.medium.map(t => ({tag:t, size:'medium'})),
+      ...TAG_DB.vtuber.small.map(t => ({tag:t, size:'small'}))
+    ];
+    pickFromCandidates(vCands, 2, true);
   }
-
-  // Slot 3: streamer / clip identity (just one slot, to keep variety across 5 picks)
-  // Prefer #clips when it's clip content (more specific), otherwise #twitch.
-  // Both appear together in top performers' FULL 10-30 tag lists — for our curated 5,
-  // we pick the most-specific one so slots 4 and 5 stay available for content + sub-topic.
+  // Slot 3: clip / stream identity (non-critical — may get swapped)
   if(detected.content.includes('clip')){
-    addTag('clips');
+    pickFromCandidates(candsFromCategory('content', 'clip'), 3, false);
   } else if(detected.genres.includes('streaming')){
-    addTag('twitch');
+    pickFromCandidates(candsFromCategory('genres', 'streaming'), 3, false);
   }
-
-  // Slot 4: top content type tag (variety — different from primary AND from the identity slot above)
-  // SPECIAL CASE: if VTuber + reaction both detected, prefer the VTuber-specific reaction tag
-  // (#vtuberreacts) — it's the verified-top-performing tag for IRL-reaction VTuber content.
+  // Slot 4: content type tag (VTuber-reaction special case bumps #vtuberreacts to the front)
   if(detected.hasVTuber && detected.content.includes('reaction')){
-    addTag('vtuberreacts');
+    pickFromCandidates([
+      {tag:'vtuberreacts', size:'medium'},
+      {tag:'vtuberreaction', size:'medium'},
+      ...candsFromCategory('content','reaction')
+    ], 4, false);
   } else if(detected.content.length > 0){
     const primaryContent = detected.primary && detected.primary.type === 'content' ? detected.primary.key : null;
-    const usedNorm = new Set(picks.map(p => p.toLowerCase()));
+    const usedNorm = new Set(picks.map(p => p.tag.toLowerCase()));
     const contentKey = detected.content.find(c =>
-      c !== primaryContent &&
-      c !== 'clip' && // already handled in slot 3
-      !usedNorm.has(c) &&
-      !usedNorm.has(c + 's')
+      c !== primaryContent && c !== 'clip' && !usedNorm.has(c) && !usedNorm.has(c + 's')
     );
     if(contentKey){
-      addTag(firstTagOf('content', contentKey));
+      pickFromCandidates(candsFromCategory('content', contentKey), 4, false);
     }
   }
-
-  // Slot 5: sub-topic from primary's pool (e.g. #poly from relationships when "poly" appears in text)
-  // Falls back to platform feed if no sub-topic match exists.
-  let slot5Filled = false;
+  // Slot 5: sub-topic from primary's pool whose tag appears in text (#poly, #wingman, etc).
+  // Falls back to platform feed when no sub-topic match exists.
+  let slot5Done = false;
   if(detected.primary){
     const cat = detected.primary.type === 'game' ? 'games' : detected.primary.type + 's';
-    const subs = subTopicMatchesOf(cat, detected.primary.key);
-    for(const t of subs){
-      if(addTag(t)){ slot5Filled = true; break; }
-    }
-  }
-  if(!slot5Filled && picks.length < count && TAG_DB.platform[platform]){
-    addTag(TAG_DB.platform[platform].tags[0]);
-  }
-
-  // Fill any remaining slots from the pool with a size mix
-  function take(size, n){
-    let added = 0;
-    for(const tag of pool[size]){
-      if(picks.length >= count) break;
-      if(added >= n) break;
-      if(addTag(tag)) added++;
-    }
-    return added;
-  }
-  if(picks.length < count) take('medium', 1);
-  if(picks.length < count) take('large', 1);
-  if(picks.length < count) take('small', 1);
-
-  // Final fallback — anything left in the pool by size descending
-  while(picks.length < count){
-    let added = false;
-    for(const size of ['large','medium','small']){
-      for(const tag of pool[size]){
-        if(picks.length >= count) break;
-        if(addTag(tag)){ added = true; if(picks.length >= count) break; }
+    const data = (TAG_DB[cat]||{})[detected.primary.key];
+    if(data){
+      const subs = data.tags
+        .map((t, i) => ({tag:t, size: data.sizes[i] || 'medium'}))
+        .filter(c => fullText.includes(c.tag.toLowerCase()));
+      if(subs.length){
+        slot5Done = pickFromCandidates(subs, 5, false);
       }
-      if(picks.length >= count) break;
     }
-    if(!added) break;
+  }
+  if(!slot5Done && TAG_DB.platform[platform]){
+    const pd = TAG_DB.platform[platform];
+    const cands = pd.tags.map((t, i) => ({tag:t, size: pd.sizes[i] || 'large'}));
+    pickFromCandidates(cands, 5, false);
   }
 
-  return picks.slice(0, count).map(t=>'#' + t.replace(/^#/,''));
+  // Top up unfilled slots from the pool, preferring sizes with open quota
+  function topUp(){
+    while(picks.length < count){
+      let added = false;
+      // Pass 1: prefer open-quota sizes
+      for(const sz of ['small','medium','large']){
+        if(remaining[sz] <= 0) continue;
+        for(const t of pool[sz]){
+          const norm = String(t).toLowerCase().replace(/^#/,'');
+          if(existing.has(norm) || picks.some(p => p.tag.toLowerCase() === norm)) continue;
+          picks.push({tag: String(t).replace(/^#/,''), size: sz, slotIdx: 99, critical: false});
+          remaining[sz]--;
+          added = true;
+          break;
+        }
+        if(added) break;
+      }
+      if(added) continue;
+      // Pass 2: any remaining pool tag
+      for(const sz of ['large','medium','small']){
+        for(const t of pool[sz]){
+          const norm = String(t).toLowerCase().replace(/^#/,'');
+          if(existing.has(norm) || picks.some(p => p.tag.toLowerCase() === norm)) continue;
+          picks.push({tag: String(t).replace(/^#/,''), size: sz, slotIdx: 99, critical: false});
+          added = true;
+          break;
+        }
+        if(added) break;
+      }
+      if(!added) break;
+    }
+  }
+  topUp();
+
+  // REBALANCE — if quota target is unmet (usually missing a small), swap the lowest-priority
+  // non-critical pick from an over-quota size for a quota-fitting tag from the pool.
+  function rebalance(){
+    for(let pass = 0; pass < 4; pass++){
+      // Find an under-quota size we still need
+      const needSize = ['small','medium'].find(sz =>
+        picks.filter(p => p.size === sz).length < TARGET[sz]
+      );
+      if(!needSize) return;
+      // Pool candidate of that size not already picked
+      const cand = pool[needSize].find(t => {
+        const norm = String(t).toLowerCase().replace(/^#/,'');
+        return !existing.has(norm) && !picks.some(p => p.tag.toLowerCase() === norm);
+      });
+      if(!cand) return;
+      // Identify an over-quota size (count > TARGET)
+      const overSize = ['large','medium'].find(sz =>
+        picks.filter(p => p.size === sz).length > TARGET[sz]
+      );
+      if(!overSize) return;
+      // Pick the lowest-priority non-critical pick of overSize to drop
+      let swapIdx = -1;
+      let worstSlot = -1;
+      picks.forEach((p, i) => {
+        if(p.size === overSize && !p.critical && p.slotIdx > worstSlot){
+          worstSlot = p.slotIdx;
+          swapIdx = i;
+        }
+      });
+      if(swapIdx < 0) return;
+      picks[swapIdx] = {tag: String(cand).replace(/^#/,''), size: needSize, slotIdx: 98, critical: false};
+    }
+  }
+  rebalance();
+
+  // Sort picks by slotIdx so the title append uses the highest-priority tags first
+  picks.sort((a, b) => a.slotIdx - b.slotIdx);
+
+  if(outMeta){
+    outMeta.picks = picks.slice(0, count).map(p => ({tag: '#' + p.tag.replace(/^#/,''), size: p.size}));
+    outMeta.targetMix = {...TARGET};
+    outMeta.actualMix = {small:0, medium:0, large:0};
+    outMeta.picks.forEach(p => { outMeta.actualMix[p.size]++; });
+  }
+  return picks.slice(0, count).map(p => '#' + p.tag.replace(/^#/,''));
 }
 
 function recommendHashtags(platform, currentTags, title, description){
@@ -2090,8 +2193,30 @@ function recommendHashtags(platform, currentTags, title, description){
   }
 
   const platformName = platform === 'youtube' ? 'YouTube Shorts' : platform === 'tiktok' ? 'TikTok' : 'Instagram Reels';
-  const picks = suggestHashtagsFor(platform, 5, text, currentTags);
-  const picksHTML = picks.length ? picks.join(' &middot; ') : '<em style="font-weight:500;color:var(--ink-soft)">Add a title or description so I can pick relevant tags</em>';
+  const meta = {};
+  const picks = suggestHashtagsFor(platform, 5, text, currentTags, meta);
+  // Render each pick with a coloured size badge so the formula is visible at a glance.
+  const sizeBadge = (sz) => {
+    if(sz === 'small') return '<span class="size-pill s" title="Small — under 500k posts. Low competition, easier to rank in.">S</span>';
+    if(sz === 'medium') return '<span class="size-pill m" title="Medium — 500k to 1M posts. Balanced reach.">M</span>';
+    return '<span class="size-pill l" title="Large — 1M+ posts. High exposure.">L</span>';
+  };
+  const picksHTML = picks.length
+    ? meta.picks.map(p => `<span class="pick-tag">${escapeHtml(p.tag)}${sizeBadge(p.size)}</span>`).join(' ')
+    : '<em style="font-weight:500;color:var(--ink-soft)">Add a title or description so I can pick relevant tags</em>';
+  // Mix summary — shows whether the picks hit the 1S/2M/2L target.
+  const actual = meta.actualMix || {small:0, medium:0, large:0};
+  const target = meta.targetMix || {small:1, medium:2, large:2};
+  const hitsTarget = actual.small === target.small && actual.medium === target.medium && actual.large === target.large;
+  const mixSummary = picks.length ? `
+    <p class="mix-summary">
+      <strong>Your mix:</strong>
+      <span class="mix-count ${actual.small === target.small ? 'ok' : 'off'}">${actual.small} small</span> ·
+      <span class="mix-count ${actual.medium === target.medium ? 'ok' : 'off'}">${actual.medium} medium</span> ·
+      <span class="mix-count ${actual.large === target.large ? 'ok' : 'off'}">${actual.large} large</span>
+      ${hitsTarget ? '<span class="mix-ok">✓ matches the 1S/2M/2L formula</span>' : '<span class="mix-warn">— your topic doesn\'t have tags in every size, but this is the best mix I can do with what\'s detected</span>'}
+    </p>
+  ` : '';
 
   // Build a pool of tags by size from everything detected (games, genres, content types)
   // plus VTuber pool if signals are present, plus platform feed tags as filler.
@@ -2126,16 +2251,20 @@ function recommendHashtags(platform, currentTags, title, description){
 
   return `
     <div class="hashtag-rec">
-      <h4>The strategy for ${platformName}</h4>
-      <p class="intro">3 to 5 hashtags per post, mixed sizes &mdash; here's the formula:</p>
-      <ul class="strategy">
-        <li><strong>1 small tag</strong> (under 500k posts) &mdash; low competition, easier to rank in</li>
-        <li><strong>2 medium tags</strong> (500k to 1M posts) &mdash; balanced reach</li>
-        <li><strong>2 large tags</strong> (1M+ posts) &mdash; high exposure</li>
-      </ul>
+      <div class="strategy-card">
+        <h4 style="margin:0 0 6px">🎯 The 5-tag formula &mdash; why this mix matters</h4>
+        <p class="intro" style="margin:0 0 10px">YouTube + TikTok + Instagram all push content through a series of test audiences. The right MIX of hashtag sizes makes sure your video can perform at ANY stage of that algorithm:</p>
+        <ul class="strategy">
+          <li><strong>1 small tag</strong> <span class="size-pill s">S</span> &mdash; under 500k posts. <em>Low competition, easier to rank in.</em> This is your easy-win slot.</li>
+          <li><strong>2 medium tags</strong> <span class="size-pill m">M</span> &mdash; 500k to 1M posts. <em>Balanced reach.</em> Where most of your discoverability lives.</li>
+          <li><strong>2 large tags</strong> <span class="size-pill l">L</span> &mdash; 1M+ posts. <em>High exposure if you break out.</em> Don't lean on these alone &mdash; you'll get buried.</li>
+        </ul>
+        <p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-soft);line-height:1.5"><strong>Why?</strong> If you only use big tags, you compete with millions of posts and the algorithm can't surface you. If you only use small tags, you cap your reach. The mix means you can rank in the small one, get tested in the mediums, and break out via the large ones.</p>
+      </div>
 
       <h4>My picks for your short</h4>
       <p class="picks">${picksHTML}</p>
+      ${mixSummary}
 
       <h4 style="margin-top:14px">Or build your own mix from this pool</h4>
       <div class="tag-pool">
