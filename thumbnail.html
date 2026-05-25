@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thumbnail Checker 🐙 — Will your thumbnail actually get the click?</title>
+<meta name="description" content="Upload your YouTube or Twitch thumbnail and find out if it'll actually get the click. Free in-browser scoring for contrast, text readability, focal clarity, face presence, and what it looks like at every real display size." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/thumbnail.html" />
+<meta property="og:title" content="Thumbnail Checker 🐙" />
+<meta property="og:description" content="Will your thumbnail actually get the click? Free in-browser scoring for YouTube + Twitch." />
+<meta property="og:image" content="preview.png" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@EggieWeggieVT" />
+<meta name="twitter:creator" content="@EggieWeggieVT" />
+<meta name="twitter:title" content="Thumbnail Checker 🐙" />
+<meta name="twitter:description" content="Will your thumbnail get the click? Free in-browser scoring." />
+<meta name="twitter:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 88%, rgba(255,255,255,0.55) 0 3px, transparent 4px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;position:relative;z-index:1}
+
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  header.hero{text-align:center;padding:18px 0 8px;overflow:visible}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(34px, 6vw, 52px);
+    line-height:1.5;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);
+    margin:18px auto 10px;padding:20px 12px 28px;
+    display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:16.5px;
+    margin:8px auto 0;max-width:640px;line-height:1.55;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.78);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:28px 30px;margin:22px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:30px;
+    margin:0 0 14px;color:var(--deep);
+  }
+  .card h3{
+    font-size:17px;font-weight:800;margin:18px 0 8px;color:var(--deep);
+  }
+  .card p{margin:0 0 10px;font-size:15px;color:var(--ink)}
+  .card strong{color:var(--deep)}
+
+  /* Step card */
+  .step-card{position:relative;padding-top:24px;padding-bottom:24px}
+  .step-head{display:flex;align-items:center;gap:14px;margin:0 0 8px}
+  .step-num{
+    flex-shrink:0;width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:'Pacifico',cursive;font-size:22px;
+    box-shadow:0 6px 14px rgba(144,165,255,0.35);
+  }
+  .step-head h2{margin:0;font-size:30px;line-height:1.1}
+  .step-head h2 .sub{font-family:'Quicksand',sans-serif;font-weight:500;font-size:15px;color:var(--ink-soft)}
+  .step-intro{margin:0 0 14px;color:var(--ink-soft);font-size:14.5px;line-height:1.55}
+
+  /* Drop zone */
+  .drop-zone{
+    margin-top:12px;border:2px dashed rgba(144,165,255,0.55);
+    background:rgba(255,255,255,0.6);
+    border-radius:14px;padding:32px;text-align:center;
+    transition:background .15s ease, border-color .15s ease;cursor:pointer;
+  }
+  .drop-zone.drag{background:rgba(107,228,234,0.25);border-color:var(--mint)}
+  .drop-zone p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.5}
+  .drop-zone .big{font-size:42px;display:block;margin-bottom:6px}
+  .drop-zone input[type=file]{display:none}
+
+  /* Uploaded thumbnail preview at full size */
+  .thumb-preview-wrap{display:none;margin-top:16px;text-align:center}
+  .thumb-preview-wrap.active{display:block}
+  .thumb-preview{
+    display:block;max-width:100%;width:auto;
+    border-radius:12px;background:#000;
+    margin:0 auto;
+    box-shadow:0 10px 28px rgba(99,170,244,0.22);
+  }
+  .thumb-stats{
+    margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+    font-size:12.5px;color:var(--ink-soft);
+  }
+  .thumb-stat{
+    background:rgba(255,255,255,0.7);padding:5px 12px;border-radius:999px;
+    border:1px solid rgba(144,165,255,0.3);
+    font-weight:600;color:var(--deep);
+  }
+  .thumb-stat.warn{background:rgba(255,213,138,0.4);color:#a35c00;border-color:rgba(255,178,138,0.5)}
+  .thumb-stat.bad{background:rgba(255,178,200,0.5);color:#a23556;border-color:rgba(255,138,168,0.6)}
+
+  /* Multi-size simulator */
+  .size-grid{
+    display:grid;gap:16px;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    margin-top:6px;
+  }
+  .size-card{
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(144,165,255,0.25);
+    border-radius:14px;
+    padding:14px;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .size-card .platform-mock{
+    position:relative;
+    background:#0f0f0f;border-radius:8px;overflow:hidden;
+    margin-bottom:10px;
+  }
+  .size-card .platform-mock img{display:block;width:100%;height:100%;object-fit:cover}
+  /* Play button overlay (mobile feed) */
+  .size-card .play-overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+  .size-card .play-overlay::after{
+    content:"";width:28%;aspect-ratio:1;
+    background:rgba(0,0,0,0.55);border-radius:50%;
+    display:block;
+  }
+  .size-card .play-overlay::before{
+    content:"";position:absolute;
+    width:0;height:0;
+    border-left:10px solid #fff;
+    border-top:7px solid transparent;
+    border-bottom:7px solid transparent;
+    z-index:1;margin-left:3px;
+  }
+  /* Duration badge (bottom-right corner) */
+  .size-card .duration-badge{
+    position:absolute;bottom:4px;right:4px;
+    background:rgba(0,0,0,0.85);color:#fff;
+    padding:1px 5px;border-radius:3px;
+    font-size:9px;font-weight:700;font-family:Arial,sans-serif;
+    z-index:2;
+  }
+  .size-card .progress-bar{
+    position:absolute;left:0;right:0;bottom:0;
+    height:3px;background:rgba(255,255,255,0.25);
+  }
+  .size-card .progress-bar::after{
+    content:"";display:block;width:40%;height:100%;background:#ff0000;
+  }
+  .size-card .size-label{
+    font-size:11px;font-weight:800;color:var(--deep);
+    text-transform:uppercase;letter-spacing:.05em;text-align:center;
+  }
+  .size-card .size-meta{
+    font-size:10.5px;color:var(--ink-soft);text-align:center;margin-top:2px;
+  }
+  /* The mocks themselves get explicit widths */
+  .size-card.s-mobile .platform-mock{width:120px;aspect-ratio:16/9}
+  .size-card.s-search .platform-mock{width:168px;aspect-ratio:16/9}
+  .size-card.s-grid .platform-mock{width:246px;aspect-ratio:16/9}
+  .size-card.s-watchnext .platform-mock{width:168px;aspect-ratio:16/9}
+  .size-card.s-twitch .platform-mock{width:260px;aspect-ratio:16/9}
+
+  /* Score hero */
+  .score-hero{
+    display:flex;align-items:center;gap:28px;flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .score-ring{
+    width:160px;height:160px;border-radius:50%;
+    background:conic-gradient(var(--mint) 0%, var(--periwinkle) var(--p,75%), rgba(255,255,255,0.5) var(--p,75%) 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 28px rgba(99,170,244,0.25);
+    position:relative;flex-shrink:0;
+  }
+  .score-ring::after{content:"";position:absolute;inset:10px;border-radius:50%;background:rgba(255,255,255,0.92)}
+  .score-num{position:relative;z-index:1;text-align:center}
+  .score-num .big{font-family:'Pacifico',cursive;font-size:48px;color:var(--deep);line-height:1}
+  .score-num .small{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase}
+  .verdict{flex:1;min-width:260px}
+  .verdict .grade{font-family:'Pacifico',cursive;font-size:36px;color:var(--deep);margin:0 0 6px;line-height:1.1}
+  .verdict p{margin:0;font-size:15px;color:var(--ink-soft);line-height:1.55}
+
+  /* Criterion bars */
+  .criteria-grid{display:grid;gap:14px;grid-template-columns:1fr 1fr;margin-top:18px}
+  @media(max-width:640px){.criteria-grid{grid-template-columns:1fr}}
+  .crit{
+    background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,219,247,0.45));
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:18px;padding:14px 16px;
+    border-top:3px solid rgba(144,165,255,0.3);
+  }
+  .crit.impact-high{border-top-color:#FF8AA8}
+  .crit.impact-mid{border-top-color:#90A5FF}
+  .crit.impact-low{border-top-color:rgba(144,165,255,0.3)}
+  .crit .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .crit .name{font-weight:800;font-size:14px;color:var(--deep)}
+  .crit .score-tag{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;color:#fff;letter-spacing:.04em}
+  .bar{height:8px;background:rgba(144,165,255,0.15);border-radius:999px;overflow:hidden;margin:6px 0 8px}
+  .bar > div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot))}
+  .crit .blurb{font-size:13px;color:var(--ink-soft);line-height:1.5}
+
+  /* What I see */
+  .insight-grid{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    margin-top:6px;
+  }
+  .insight-card{
+    background:rgba(255,255,255,0.6);
+    border:1px dashed rgba(144,165,255,0.4);
+    border-radius:14px;padding:14px;
+  }
+  .insight-card h4{
+    margin:0 0 6px;font-size:13px;font-weight:800;color:var(--deep);
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .insight-card .insight-body{font-size:14px;color:var(--ink);line-height:1.5}
+  .insight-card .insight-body code{
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
+    background:rgba(255,219,247,0.4);padding:1px 6px;border-radius:5px;
+  }
+  /* Dominant color swatches */
+  .swatch-row{display:flex;gap:6px;margin-top:6px}
+  .swatch{
+    width:32px;height:32px;border-radius:8px;
+    border:2px solid rgba(255,255,255,0.85);
+    box-shadow:0 2px 6px rgba(99,170,244,0.18);
+  }
+
+  /* Checklist */
+  ul.checklist{list-style:none;padding:0;margin:8px 0 0}
+  ul.checklist li{
+    padding:10px 0;display:flex;align-items:flex-start;gap:10px;
+    border-bottom:1px dashed rgba(144,165,255,0.25);font-size:14px;
+  }
+  ul.checklist li:last-child{border-bottom:none}
+  ul.checklist .mark{
+    flex-shrink:0;width:22px;height:22px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:#fff;
+  }
+  .mark.pass{background:linear-gradient(135deg,var(--mint),var(--periwinkle))}
+  .mark.warn{background:linear-gradient(135deg,#FFD580,#FFB07A)}
+  .mark.fail{background:linear-gradient(135deg,#FFB2C8,#FF8AA8)}
+  ul.checklist .what{flex:1;font-weight:600;color:var(--ink)}
+  ul.checklist .why{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px;font-weight:500}
+
+  /* Progress panel for model loads */
+  .progress-panel{
+    display:none;margin-top:12px;padding:14px 16px;
+    background:linear-gradient(135deg, rgba(144,165,255,0.18), rgba(107,228,234,0.25));
+    border-radius:14px;border:1px solid rgba(144,165,255,0.3);
+  }
+  .progress-panel.active{display:block}
+  .progress-panel .pp-head{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--deep);font-size:14px;margin-bottom:8px}
+  .progress-panel .pp-spinner{
+    width:18px;height:18px;border:3px solid rgba(144,165,255,0.3);
+    border-top-color:var(--periwinkle);border-radius:50%;
+    animation:ppspin .9s linear infinite;flex-shrink:0;
+  }
+  @keyframes ppspin{to{transform:rotate(360deg)}}
+  .progress-panel .pp-stage{font-size:13px;color:var(--ink);margin-bottom:8px}
+  .progress-panel .pp-bar{height:10px;background:rgba(255,255,255,0.5);border-radius:999px;overflow:hidden}
+  .progress-panel .pp-bar > div{
+    height:100%;width:0;
+    background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot));
+    transition:width .25s ease;border-radius:999px;
+  }
+  .progress-panel .pp-detail{font-size:12px;color:var(--ink-soft);margin-top:6px}
+
+  .err{
+    background:rgba(255,138,168,0.18);border:1px solid rgba(255,138,168,0.4);
+    color:#7a2a3e;padding:12px 14px;border-radius:14px;font-size:14px;margin-top:10px;
+  }
+
+  /* Hidden util */
+  .hidden{display:none !important}
+
+  footer{
+    text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5;
+  }
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  footer a:hover{color:var(--pink-hot)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="analyzer.html" class="back-link">🛠️ Shorts analyzer</a>
+    <a href="growth.html" class="back-link">🌱 Growth playbook</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Thumbnail Checker 🐙</h1>
+    <p class="tag">Drop in a thumbnail and I'll tell you <em>if it'll actually get the click</em>. Built for YouTube long-form and Twitch stream previews. Runs in your browser &mdash; nothing gets uploaded. ✨</p>
+  </header>
+
+  <!-- STEP 1: UPLOAD -->
+  <section class="card step-card" id="step1">
+    <div class="step-head">
+      <span class="step-num">1</span>
+      <h2>Drop your thumbnail <span class="sub">PNG, JPG, or WebP</span></h2>
+    </div>
+    <p class="step-intro">Ideal: <strong>1280×720</strong> (16:9). I&apos;ll grade it for click-through readability and show you what it actually looks like at every size people will see it.</p>
+
+    <label class="drop-zone" id="dropZone" for="thumbFile">
+      <span class="big">🖼️</span>
+      <p><strong>Click here, or drag in a thumbnail</strong><br/>1280×720 ideal &middot; stays on your computer</p>
+      <input type="file" id="thumbFile" accept="image/*" />
+    </label>
+
+    <div class="thumb-preview-wrap" id="thumbPreviewWrap">
+      <img id="thumbPreview" class="thumb-preview" alt="Your thumbnail" />
+      <div class="thumb-stats" id="thumbStats"></div>
+    </div>
+
+    <div class="progress-panel" id="progressPanel">
+      <div class="pp-head"><div class="pp-spinner"></div><span id="ppTitle">Loading models…</span></div>
+      <div class="pp-stage" id="ppStage">First time runs download ~240MB of model files. Cached after that.</div>
+      <div class="pp-bar"><div id="ppBar"></div></div>
+      <div class="pp-detail" id="ppDetail"></div>
+    </div>
+  </section>
+
+  <!-- STEP 2: MULTI-SIZE PREVIEW -->
+  <section class="card step-card hidden" id="step2">
+    <div class="step-head">
+      <span class="step-num">2</span>
+      <h2>What it looks like at every size <span class="sub">scroll-test in one place</span></h2>
+    </div>
+    <p class="step-intro">Most people will see your thumbnail at <strong>120–250px wide</strong>. If your text is illegible at this size, you lose the click. Look for: text that disappears, faces that vanish, key details hidden by the duration badge or play button.</p>
+    <div class="size-grid" id="sizeGrid"></div>
+  </section>
+
+  <!-- STEP 3: SCORE -->
+  <section class="card step-card hidden" id="step3">
+    <div class="step-head">
+      <span class="step-num">3</span>
+      <h2>The score</h2>
+    </div>
+    <div class="score-hero">
+      <div class="score-ring" id="scoreRing"><div class="score-num"><span class="big" id="scoreBig">—</span><span class="small">out of 10</span></div></div>
+      <div class="verdict">
+        <h3 class="grade" id="scoreGrade">Analyzing…</h3>
+        <p id="scoreSummary">Hold tight while I look at your thumbnail.</p>
+      </div>
+    </div>
+    <div class="criteria-grid" id="criteriaGrid"></div>
+  </section>
+
+  <!-- STEP 4: WHAT I SEE -->
+  <section class="card step-card hidden" id="step4">
+    <div class="step-head">
+      <span class="step-num">4</span>
+      <h2>What I see in your thumbnail</h2>
+    </div>
+    <div class="insight-grid" id="insightGrid"></div>
+  </section>
+
+  <!-- STEP 5: CHECKLIST -->
+  <section class="card step-card hidden" id="step5">
+    <div class="step-head">
+      <span class="step-num">5</span>
+      <h2>What to fix</h2>
+    </div>
+    <ul class="checklist" id="checklist"></ul>
+  </section>
+
+  <footer>
+    Made with 💗 by Eggie &middot; <a href="growth.html#titles">📖 Title + thumbnail strategy in the playbook</a><br/>
+    Everything runs in your browser &mdash; nothing is uploaded.
+  </footer>
+
+</div>
+
+<script>
+// ============================================================
+//  THUMBNAIL CHECKER — client-side image analysis
+//  Reuses Florence-2 (OCR) and BlazeFace (face detection)
+//  models that get cached after first download.
+// ============================================================
+
+const $ = id => document.getElementById(id);
+const dropZone = $('dropZone');
+const thumbFile = $('thumbFile');
+const thumbPreview = $('thumbPreview');
+const thumbPreviewWrap = $('thumbPreviewWrap');
+const thumbStats = $('thumbStats');
+const progressPanel = $('progressPanel');
+const ppTitle = $('ppTitle');
+const ppStage = $('ppStage');
+const ppBar = $('ppBar');
+const ppDetail = $('ppDetail');
+
+// Wire up drop / click / change handlers (defensive, in DOMContentLoaded too)
+function wireUpload(){
+  try{
+    if(!dropZone || !thumbFile) return;
+    dropZone.addEventListener('click', e => {
+      if(e.target !== thumbFile){
+        try{ thumbFile.click(); }catch(_){}
+      }
+    });
+    ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => {
+      e.preventDefault(); dropZone.classList.add('drag');
+    }));
+    ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
+      e.preventDefault(); dropZone.classList.remove('drag');
+    }));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if(f && f.type && f.type.startsWith('image/')) handleThumb(f);
+      else showError('Hmm, that didn\'t look like an image file. Try a PNG, JPG, or WebP.');
+    });
+    thumbFile.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0];
+      if(f) handleThumb(f);
+    });
+  }catch(err){ console.error('Upload wiring failed:', err); }
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireUpload, {once:true});
+else wireUpload();
+
+function showError(msg){
+  const exist = document.querySelector('.err');
+  if(exist) exist.remove();
+  const e = document.createElement('div');
+  e.className = 'err';
+  e.textContent = msg;
+  $('step1').appendChild(e);
+}
+
+function setProgress(open, title, stage, pct, detail){
+  if(!open){ progressPanel.classList.remove('active'); return; }
+  progressPanel.classList.add('active');
+  if(title !== undefined) ppTitle.textContent = title;
+  if(stage !== undefined) ppStage.innerHTML = stage;
+  if(pct !== undefined) ppBar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  if(detail !== undefined) ppDetail.textContent = detail;
+}
+
+// ----- Florence-2 loader (mirrors analyzer.html) -----
+let florenceLoader = null;
+async function loadFlorence(progressCb){
+  if(florenceLoader) return florenceLoader;
+  florenceLoader = (async () => {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+    mod.env.allowLocalModels = false;
+    const modelId = 'onnx-community/Florence-2-base-ft';
+    const [model, processor, tokenizer] = await Promise.all([
+      mod.Florence2ForConditionalGeneration.from_pretrained(modelId, {dtype:'fp16', progress_callback: progressCb}),
+      mod.AutoProcessor.from_pretrained(modelId, {progress_callback: progressCb}),
+      mod.AutoTokenizer.from_pretrained(modelId, {progress_callback: progressCb})
+    ]);
+    return {mod, model, processor, tokenizer};
+  })();
+  return florenceLoader;
+}
+
+async function runFlorenceTask(canvas, task, maxTokens){
+  try{
+    const {mod, model, processor, tokenizer} = await loadFlorence();
+    const prompts = processor.construct_prompts(task);
+    const text_inputs = tokenizer(prompts);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const image = await mod.RawImage.fromBlob(blob);
+    const vision_inputs = await processor(image);
+    const generated_ids = await model.generate({...text_inputs, ...vision_inputs, max_new_tokens: maxTokens || 200, num_beams: 1});
+    const generated_text = tokenizer.batch_decode(generated_ids, {skip_special_tokens:false})[0];
+    const result = processor.post_process_generation(generated_text, task, image.size);
+    const out = result[task];
+    if(typeof out === 'string') return out.trim();
+    if(out && typeof out === 'object'){
+      if(Array.isArray(out.labels)) return out.labels.join(' ').trim();
+      if(Array.isArray(out)) return out.join(' ').trim();
+    }
+    return '';
+  }catch(e){
+    console.warn('Florence-2 task', task, 'failed:', e.message || e);
+    return '';
+  }
+}
+
+function sanitizeOcrText(text){
+  if(!text) return '';
+  let cleaned = String(text).replace(/[\x00-\x1F\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
+  return cleaned.split(/\n+/).filter(line => /\w{2,}/.test(line)).join(' ').trim();
+}
+
+// ----- BlazeFace loader (reuses TF.js + BlazeFace from CDN) -----
+let blazeLoader = null;
+async function loadBlazeface(){
+  if(blazeLoader) return blazeLoader;
+  blazeLoader = (async () => {
+    if(!window.tf){
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    if(!window.blazeface){
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.1.0/dist/blazeface.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    return await window.blazeface.load();
+  })();
+  return blazeLoader;
+}
+
+async function detectFaces(canvas){
+  try{
+    const model = await loadBlazeface();
+    const preds = await model.estimateFaces(canvas, false);
+    return preds; // array with { topLeft, bottomRight, probability, landmarks }
+  }catch(e){
+    console.warn('BlazeFace failed:', e.message || e);
+    return [];
+  }
+}
+
+// ============================================================
+//  Color + contrast analysis
+// ============================================================
+function getImageDataFromCanvas(canvas){
+  const ctx = canvas.getContext('2d');
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+// Relative luminance per WCAG
+function relLum(r, g, b){
+  const f = c => {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+function contrastRatio(l1, l2){
+  const a = Math.max(l1, l2), b = Math.min(l1, l2);
+  return (a + 0.05) / (b + 0.05);
+}
+
+// Compute global color stats from a downsampled canvas
+function analyzeColor(imgData){
+  const d = imgData.data;
+  let rSum=0, gSum=0, bSum=0, lumSum=0, lumSqSum=0, satSum=0, n=0;
+  // Bucket dominant colors (HSV-ish: hue / value)
+  const buckets = {};
+  let warmCount=0, coolCount=0;
+  for(let i=0; i<d.length; i+=4){
+    const r=d[i], g=d[i+1], b=d[i+2];
+    rSum+=r; gSum+=g; bSum+=b;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b);
+    const val=(max+min)/2;
+    const sat = max > 0 ? (max - min) / max : 0;
+    const lum = relLum(r,g,b);
+    lumSum += lum; lumSqSum += lum*lum;
+    satSum += sat;
+    if(r > b + 18) warmCount++;
+    else if(b > r + 18) coolCount++;
+    // Bucket by quantized RGB
+    const key = `${Math.round(r/32)*32},${Math.round(g/32)*32},${Math.round(b/32)*32}`;
+    buckets[key] = (buckets[key] || 0) + 1;
+    n++;
+  }
+  const avgR = rSum/n, avgG = gSum/n, avgB = bSum/n;
+  const avgLum = lumSum / n;
+  const lumVar = Math.sqrt(lumSqSum / n - avgLum * avgLum);
+  const avgSat = satSum / n;
+  // Top 5 dominant colors
+  const sorted = Object.entries(buckets).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  const dominant = sorted.map(([k]) => k.split(',').map(Number));
+  return {
+    avgR, avgG, avgB, avgLum, lumVar, avgSat,
+    warmCount, coolCount, totalSamples: n,
+    dominant
+  };
+}
+
+// Region-based focal clarity — divide image into 3x3 grid, find variance per cell
+function analyzeFocal(imgData){
+  const {width: W, height: H, data: D} = imgData;
+  const rows = 3, cols = 3;
+  const cellW = Math.floor(W / cols), cellH = Math.floor(H / rows);
+  const cells = [];
+  for(let cy=0; cy<rows; cy++){
+    for(let cx=0; cx<cols; cx++){
+      let sumL = 0, sumSq = 0, n = 0;
+      for(let y = cy*cellH; y < (cy+1)*cellH && y < H; y++){
+        for(let x = cx*cellW; x < (cx+1)*cellW && x < W; x++){
+          const i = (y*W + x) * 4;
+          const lum = (D[i] + D[i+1] + D[i+2]) / 3;
+          sumL += lum;
+          sumSq += lum*lum;
+          n++;
+        }
+      }
+      if(n === 0) continue;
+      const mean = sumL / n;
+      const variance = Math.sqrt(sumSq/n - mean*mean);
+      cells.push({cx, cy, mean, variance, idx: cy * cols + cx});
+    }
+  }
+  // Highest-variance cell is the "focal area"
+  cells.sort((a, b) => b.variance - a.variance);
+  const focal = cells[0];
+  const allVarMean = cells.reduce((a,c) => a + c.variance, 0) / cells.length;
+  // Focal clarity = how much the top cell stands out vs the rest
+  const standoutRatio = focal.variance / (allVarMean || 1);
+  return {focal, allVarMean, standoutRatio, cells};
+}
+
+// Edge-of-frame safety check — bottom-right is where duration badge sits.
+// Center is where the play button sits in mobile feed.
+function analyzeEdgeSafety(imgData){
+  const {width: W, height: H, data: D} = imgData;
+  // Bottom-right 15% — duration badge zone
+  const brX1 = Math.floor(W * 0.78), brY1 = Math.floor(H * 0.82);
+  // Center 20% — play button zone (mobile feed)
+  const cX1 = Math.floor(W * 0.4), cY1 = Math.floor(H * 0.4);
+  const cX2 = Math.floor(W * 0.6), cY2 = Math.floor(H * 0.6);
+
+  function regionVariance(x1, y1, x2, y2){
+    let sumL = 0, sumSq = 0, n = 0;
+    for(let y = y1; y < y2 && y < H; y++){
+      for(let x = x1; x < x2 && x < W; x++){
+        const i = (y*W + x) * 4;
+        const lum = (D[i] + D[i+1] + D[i+2]) / 3;
+        sumL += lum; sumSq += lum*lum; n++;
+      }
+    }
+    if(n === 0) return 0;
+    const mean = sumL / n;
+    return Math.sqrt(sumSq/n - mean*mean);
+  }
+  const brVar = regionVariance(brX1, brY1, W, H);
+  const centerVar = regionVariance(cX1, cY1, cX2, cY2);
+  return {brVar, centerVar};
+}
+
+// ============================================================
+//  Main flow
+// ============================================================
+async function handleThumb(file){
+  // Reset UI
+  ['step2','step3','step4','step5'].forEach(id => $(id).classList.add('hidden'));
+  document.querySelectorAll('.err').forEach(e => e.remove());
+
+  // Load preview
+  const url = URL.createObjectURL(file);
+  thumbPreview.src = url;
+  thumbPreviewWrap.classList.add('active');
+
+  await new Promise((res, rej) => {
+    thumbPreview.onload = res;
+    thumbPreview.onerror = () => rej(new Error('Couldn\'t load that image.'));
+    setTimeout(() => rej(new Error('Image took too long to load.')), 10000);
+  }).catch(err => { showError(err.message); throw err; });
+
+  const W = thumbPreview.naturalWidth, H = thumbPreview.naturalHeight;
+  const fileSize = file.size;
+  const aspect = W / H;
+  const aspectName = aspect > 1.7 && aspect < 1.83 ? '16:9 ✓' : (aspect >= 0.9 && aspect <= 1.1 ? '1:1 (square)' : (aspect < 0.9 ? `${aspect.toFixed(2)} (portrait)` : `${aspect.toFixed(2)} (custom)`));
+
+  // Build stats line
+  const idealSize = W === 1280 && H === 720;
+  const sizeOK = W >= 1280 && H >= 720;
+  const aspectOK = aspect > 1.7 && aspect < 1.83;
+  const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
+  thumbStats.innerHTML = `
+    <span class="thumb-stat ${idealSize ? '' : (sizeOK ? '' : 'warn')}">${W} × ${H}px${idealSize ? ' (perfect)' : ''}</span>
+    <span class="thumb-stat ${aspectOK ? '' : 'bad'}">${aspectName}</span>
+    <span class="thumb-stat ${fileSize > 2*1024*1024 ? 'warn' : ''}">${fileSizeMB} MB</span>
+  `;
+
+  // Render multi-size simulator immediately
+  renderSizeSimulator(url);
+  $('step2').classList.remove('hidden');
+
+  // Prepare analysis canvas (downsample to 320 wide max for speed)
+  const targetW = Math.min(640, W);
+  const targetH = Math.round(targetW * (H / W));
+  const canvasSmall = document.createElement('canvas');
+  canvasSmall.width = targetW;
+  canvasSmall.height = targetH;
+  canvasSmall.getContext('2d').drawImage(thumbPreview, 0, 0, targetW, targetH);
+
+  // Higher-res canvas for OCR (Florence likes ~768px)
+  const ocrTargetW = Math.min(896, W);
+  const ocrTargetH = Math.round(ocrTargetW * (H / W));
+  const canvasOcr = document.createElement('canvas');
+  canvasOcr.width = ocrTargetW;
+  canvasOcr.height = ocrTargetH;
+  canvasOcr.getContext('2d').drawImage(thumbPreview, 0, 0, ocrTargetW, ocrTargetH);
+
+  // ---- Color analysis (fast, sync) ----
+  const imgData = getImageDataFromCanvas(canvasSmall);
+  const colorStats = analyzeColor(imgData);
+  const focalStats = analyzeFocal(imgData);
+  const edgeStats = analyzeEdgeSafety(imgData);
+
+  // ---- Florence-2 OCR ----
+  setProgress(true, 'Reading text on the thumbnail…', 'Loading Florence-2 vision model (~240MB, cached after first run).', 5, '');
+  const fileProgress = {};
+  const florenceProgressCb = info => {
+    if(info.status === 'progress' && info.file){
+      fileProgress[info.file] = {loaded: info.loaded || 0, total: info.total || 0};
+      let totalLoaded = 0, totalSize = 0;
+      for(const f of Object.values(fileProgress)){ totalLoaded += f.loaded; totalSize += f.total; }
+      const overall = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
+      const mbLoaded = (totalLoaded / 1024 / 1024).toFixed(1);
+      const mbTotal = (totalSize / 1024 / 1024).toFixed(1);
+      setProgress(true, 'Downloading vision model (Florence-2)…', `${mbLoaded} MB of ${mbTotal} MB &mdash; first time only.`, overall, `~${Math.round(overall)}% downloaded`);
+    } else if(info.status === 'ready'){
+      setProgress(true, 'Reading text…', 'Running OCR on your thumbnail.', 95, '');
+    }
+  };
+  try{ await loadFlorence(florenceProgressCb); }catch(e){ console.warn('Florence load failed:', e); }
+  setProgress(true, 'Reading text on the thumbnail…', 'OCR pass…', 95, '');
+  let ocrRaw = '';
+  try{ ocrRaw = await runFlorenceTask(canvasOcr, '<OCR>', 200); }catch(e){}
+  const ocrText = sanitizeOcrText(ocrRaw);
+
+  // ---- Face detection ----
+  setProgress(true, 'Looking for faces…', 'BlazeFace running on the thumbnail.', 97, '');
+  let faces = [];
+  try{ faces = await detectFaces(canvasSmall); }catch(e){}
+
+  setProgress(false);
+
+  // ---- Score everything ----
+  const verdict = scoreThumbnail({
+    W, H, aspect, fileSize, ocrText, faces, colorStats, focalStats, edgeStats, canvasSmall
+  });
+
+  // Render results
+  renderScore(verdict);
+  renderInsights({ocrText, faces, colorStats, focalStats, edgeStats});
+  renderChecklist(verdict);
+  ['step3','step4','step5'].forEach(id => $(id).classList.remove('hidden'));
+}
+
+// ============================================================
+//  Scoring
+// ============================================================
+function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, colorStats, focalStats, edgeStats}){
+  const crits = [];
+
+  // 1. DIMENSIONS / ASPECT — 1.0 weight
+  let dim = 10;
+  const dimNotes = [];
+  const aspectOK = aspect > 1.7 && aspect < 1.83;
+  if(!aspectOK){ dim -= 5; dimNotes.push('Not a 16:9 ratio (YouTube + Twitch both expect 16:9)'); }
+  if(W < 1280){ dim -= 3; dimNotes.push(`Width is ${W}px — under YouTube's 1280px ideal`); }
+  if(H < 720){ dim -= 2; dimNotes.push(`Height is ${H}px — under 720px ideal`); }
+  if(W === 1280 && H === 720) dimNotes.push('Perfect 1280×720 dimensions ✓');
+  if(fileSize > 2 * 1024 * 1024) dimNotes.push(`File is ${(fileSize/1024/1024).toFixed(1)}MB — YouTube allows up to 2MB`);
+  crits.push({key:'dim', name:'Dimensions + aspect', score:Math.max(0, dim), weight:1.0, impact:'mid',
+    blurb: dimNotes.length ? dimNotes.join('. ') + '.' : 'Standard 16:9 thumbnail dimensions.'});
+
+  // 2. CONTRAST — 2.0 weight
+  // High lumVar = strong contrast scene. We want lumVar > 0.15 ideally.
+  let contrast = Math.min(10, Math.round(colorStats.lumVar * 70));
+  if(contrast < 4) contrast = 4 + Math.round(colorStats.lumVar * 30); // small floor
+  const contrastBlurb = colorStats.lumVar > 0.18 ? 'Strong light/dark contrast — scroll-stopping.' :
+                        colorStats.lumVar > 0.12 ? 'Decent contrast, could pop harder.' :
+                        'Low overall contrast — risks blending into the feed.';
+  crits.push({key:'contrast', name:'Contrast', score:Math.max(2, Math.min(10, contrast)), weight:2.0, impact:'high', blurb:contrastBlurb});
+
+  // 3. TEXT LEGIBILITY — 2.0 weight
+  let text = 7;
+  const textNotes = [];
+  const wordCount = ocrText ? ocrText.split(/\s+/).filter(Boolean).length : 0;
+  const charCount = ocrText.length;
+  if(!ocrText){
+    text = 6;
+    textNotes.push('No text detected — that\'s fine for face-focused thumbnails, but a 2-3 word hook usually helps');
+  } else if(wordCount <= 3 && charCount <= 22){
+    text = 10; textNotes.push(`${wordCount}-word hook, ${charCount} chars — perfect for legibility at small sizes`);
+  } else if(wordCount <= 5 && charCount <= 35){
+    text = 8; textNotes.push(`${wordCount} words, ${charCount} chars — readable at most sizes`);
+  } else if(wordCount <= 8 && charCount <= 55){
+    text = 5; textNotes.push(`${wordCount} words / ${charCount} chars — will be a blur at mobile size (120px)`);
+  } else {
+    text = 2; textNotes.push(`${wordCount} words / ${charCount} chars — way too much. Cut to 3 words max.`);
+  }
+  crits.push({key:'text', name:'Text legibility', score:text, weight:2.0, impact:'high', blurb:textNotes.join('. ')});
+
+  // 4. FOCAL CLARITY — 1.5 weight
+  // Strong standoutRatio (>1.4) = clear subject
+  let focal = Math.min(10, Math.round(focalStats.standoutRatio * 5 + 3));
+  const focalCenter = focalStats.focal;
+  const focalPos = focalCenter ? `${['left','center','right'][focalCenter.cx]} ${['top','middle','bottom'][focalCenter.cy]}` : 'middle';
+  const focalBlurb = focalStats.standoutRatio > 1.5 ? `Strong focal area (${focalPos}) — viewer's eye knows where to land.` :
+                     focalStats.standoutRatio > 1.2 ? `Decent focal area in the ${focalPos}.` :
+                     'No clear focal area — image reads as visually flat.';
+  crits.push({key:'focal', name:'Focal point clarity', score:Math.max(3, Math.min(10, focal)), weight:1.5, impact:'mid', blurb:focalBlurb});
+
+  // 5. SATURATION — 1.0 weight
+  // avgSat > 0.35 = saturated, < 0.15 = muted
+  let sat = Math.min(10, Math.round(colorStats.avgSat * 25 + 3));
+  const satBlurb = colorStats.avgSat > 0.35 ? 'Highly saturated colors — these scroll-stop well.' :
+                   colorStats.avgSat > 0.22 ? 'Moderate saturation. Bumping vibrance could help.' :
+                   'Muted / desaturated palette. Aesthetic, but disappears in the feed.';
+  crits.push({key:'sat', name:'Color saturation', score:Math.max(3, Math.min(10, sat)), weight:1.0, impact:'mid', blurb:satBlurb});
+
+  // 6. FACE PRESENCE — 1.5 weight
+  let face = 5;
+  const faceBlurb = (() => {
+    if(faces.length === 0) return 'No face detected. Face thumbnails consistently beat faceless ones — try adding one.';
+    if(faces.length === 1){
+      const f = faces[0];
+      const [tx, ty] = f.topLeft;
+      const [bx, by] = f.bottomRight;
+      const fw = bx - tx, fh = by - ty;
+      const imgArea = focalStats.cells[0] ? 1 : 1; // placeholder, see below
+      // We don't have direct image dims here — recompute from canvasSmall passed implicitly. We'll skip ratio and just note.
+      return `1 clear face detected — strong personal hook.`;
+    }
+    return `${faces.length} faces detected — busy but personal.`;
+  })();
+  if(faces.length === 1) face = 9;
+  else if(faces.length === 2) face = 8;
+  else if(faces.length >= 3) face = 6;
+  else face = 4;
+  crits.push({key:'face', name:'Face presence', score:face, weight:1.5, impact:'mid', blurb:faceBlurb});
+
+  // 7. EDGE SAFETY — 1.0 weight
+  // High variance in bottom-right or dead center = content that'll get covered by UI overlays
+  let edge = 10;
+  const edgeNotes = [];
+  if(edgeStats.brVar > 22){
+    edge -= 4;
+    edgeNotes.push('Important content in the bottom-right — the YouTube duration badge will sit on top of it');
+  }
+  if(edgeStats.centerVar > 28 && wordCount > 0){
+    edge -= 3;
+    edgeNotes.push('Busy center — TikTok / mobile play button overlays here');
+  }
+  if(edge === 10) edgeNotes.push('Clear edges — UI overlays won\'t cover your key content');
+  crits.push({key:'edge', name:'Edge-of-frame safety', score:Math.max(2, edge), weight:1.0, impact:'low', blurb:edgeNotes.join('. ')});
+
+  // Total weighted score out of 10
+  const totalWeight = crits.reduce((a,c) => a + c.weight, 0);
+  const weightedSum = crits.reduce((a,c) => a + c.score * c.weight, 0);
+  const overall = Math.round((weightedSum / totalWeight) * 10) / 10;
+
+  // Grade + summary
+  let grade, summary;
+  if(overall >= 8.5){ grade = 'Click magnet 💗'; summary = 'This will scroll-stop in basically any feed. Ship it.'; }
+  else if(overall >= 7){ grade = 'Solid clicker ✨'; summary = 'Good thumbnail. Tighten the items below and it\'ll really pop.'; }
+  else if(overall >= 5.5){ grade = 'Has potential 🌱'; summary = 'The bones are there. Fix the highlighted items and you\'ll see a real CTR bump.'; }
+  else if(overall >= 4){ grade = 'Needs work 🛠️'; summary = 'Several things are working against the click. Walk through the checklist below.'; }
+  else { grade = 'Back to the drawing board 💭'; summary = 'Multiple issues stacking against you. Easier to rebuild than patch.'; }
+
+  return {overall, grade, summary, crits};
+}
+
+// ============================================================
+//  Renderers
+// ============================================================
+function renderSizeSimulator(url){
+  const sizes = [
+    {key:'mobile', cls:'s-mobile', label:'Mobile feed', meta:'~120px wide', showPlay:true, showDur:true},
+    {key:'search', cls:'s-search', label:'YT search / suggested', meta:'~168px wide', showPlay:false, showDur:true},
+    {key:'watchnext', cls:'s-watchnext', label:'YT watch-next', meta:'~168px wide', showPlay:false, showDur:true},
+    {key:'grid', cls:'s-grid', label:'YT homepage grid', meta:'~246px wide', showPlay:false, showDur:true},
+    {key:'twitch', cls:'s-twitch', label:'Twitch directory', meta:'~260px wide', showPlay:false, showDur:false, showProgress:false}
+  ];
+  const grid = $('sizeGrid');
+  grid.innerHTML = sizes.map(s => `
+    <div class="size-card ${s.cls}">
+      <div class="platform-mock">
+        <img src="${url}" alt="" />
+        ${s.showPlay ? '<div class="play-overlay"></div>' : ''}
+        ${s.showDur ? '<span class="duration-badge">5:42</span>' : ''}
+      </div>
+      <div class="size-label">${s.label}</div>
+      <div class="size-meta">${s.meta}</div>
+    </div>
+  `).join('');
+}
+
+function renderScore(v){
+  const ring = $('scoreRing');
+  ring.style.setProperty('--p', `${v.overall * 10}%`);
+  $('scoreBig').textContent = v.overall.toFixed(1);
+  $('scoreGrade').textContent = v.grade;
+  $('scoreSummary').textContent = v.summary;
+
+  const grid = $('criteriaGrid');
+  // Sort by impact, then by how far the score is from 10
+  const ordered = [...v.crits].sort((a,b) => {
+    const order = {high:0, mid:1, low:2};
+    if(order[a.impact] !== order[b.impact]) return order[a.impact] - order[b.impact];
+    return a.score - b.score;
+  });
+  grid.innerHTML = ordered.map(c => {
+    const pct = c.score * 10;
+    const tagColor = c.score >= 8 ? 'linear-gradient(135deg,var(--mint),var(--periwinkle))' :
+                     c.score >= 6 ? 'linear-gradient(135deg,#FFD580,#FFB07A)' :
+                     'linear-gradient(135deg,#FFB2C8,#FF8AA8)';
+    return `<div class="crit impact-${c.impact}">
+      <div class="top">
+        <span class="name">${c.name}</span>
+        <span class="score-tag" style="background:${tagColor}">${c.score}/10</span>
+      </div>
+      <div class="bar"><div style="width:${pct}%"></div></div>
+      <div class="blurb">${c.blurb}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderInsights({ocrText, faces, colorStats, focalStats, edgeStats}){
+  const grid = $('insightGrid');
+  const swatchHtml = colorStats.dominant.slice(0, 5).map(([r,g,b]) =>
+    `<div class="swatch" title="rgb(${r},${g},${b})" style="background:rgb(${r},${g},${b})"></div>`
+  ).join('');
+  const ocrDisplay = ocrText ? `"${escapeHtml(ocrText.slice(0, 180))}${ocrText.length > 180 ? '…' : ''}"` :
+                              '<em>No text detected on the thumbnail.</em>';
+  grid.innerHTML = `
+    <div class="insight-card">
+      <h4>📝 Text I read on screen</h4>
+      <div class="insight-body">${ocrDisplay}</div>
+    </div>
+    <div class="insight-card">
+      <h4>😀 Faces detected</h4>
+      <div class="insight-body">${faces.length} face${faces.length === 1 ? '' : 's'}.${faces.length > 0 ? ' Confidence: <code>' + faces.map(f => (f.probability ? (typeof f.probability === 'number' ? (f.probability*100).toFixed(0) : Array.isArray(f.probability) ? (f.probability[0]*100).toFixed(0) : '?') : '?') + '%').join(', ') + '</code>.' : ''}</div>
+    </div>
+    <div class="insight-card">
+      <h4>🎨 Dominant colors</h4>
+      <div class="insight-body">
+        <div class="swatch-row">${swatchHtml}</div>
+        <p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-soft)">Saturation: <code>${(colorStats.avgSat*100).toFixed(0)}%</code> &middot; Contrast: <code>${(colorStats.lumVar*100).toFixed(0)}</code></p>
+      </div>
+    </div>
+    <div class="insight-card">
+      <h4>🎯 Focal area</h4>
+      <div class="insight-body">Strongest visual region: <code>${['left','center','right'][focalStats.focal.cx]} ${['top','middle','bottom'][focalStats.focal.cy]}</code>. Standout ratio: <code>${focalStats.standoutRatio.toFixed(2)}×</code>.</div>
+    </div>
+  `;
+}
+
+function renderChecklist(v){
+  const ul = $('checklist');
+  const items = [];
+  v.crits.forEach(c => {
+    if(c.score >= 8){
+      items.push({level:'pass', what:`${c.name}: ${c.score}/10`, why:c.blurb});
+    } else if(c.score >= 5){
+      items.push({level:'warn', what:`${c.name}: ${c.score}/10`, why:c.blurb});
+    } else {
+      items.push({level:'fail', what:`${c.name}: ${c.score}/10 — fix this first`, why:c.blurb});
+    }
+  });
+  // Sort fails to top, then warns, then passes
+  const rank = {fail:0, warn:1, pass:2};
+  items.sort((a,b) => rank[a.level] - rank[b.level]);
+  ul.innerHTML = items.map(i => `
+    <li>
+      <span class="mark ${i.level}">${i.level === 'pass' ? '✓' : i.level === 'warn' ? '!' : '✕'}</span>
+      <div>
+        <div class="what">${i.what}</div>
+        <span class="why">${i.why}</span>
+      </div>
+    </li>
+  `).join('');
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

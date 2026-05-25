@@ -135,7 +135,7 @@
   /* TILE GRID */
   .tiles{
     display:grid;gap:22px;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
     margin:0 0 32px;
   }
   @media(max-width:760px){.tiles{grid-template-columns:1fr}}
@@ -166,6 +166,7 @@
   }
   .tile-art.analyzer-art{background:linear-gradient(135deg, rgba(107,228,234,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))}
   .tile-art.playbook-art{background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.4), rgba(199,210,255,0.55))}
+  .tile-art.thumb-art{background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,178,240,0.5))}
   .tile-art img{
     max-height:90%;max-width:90%;
     object-fit:contain;
@@ -399,6 +400,29 @@
       </div>
     </a>
 
+    <a class="tile" href="thumbnail.html">
+      <div class="tile-art thumb-art">
+        <!--
+          ┌─────────────────────────────────────────────────────────────────┐
+          │  TILE IMAGE SLOT — drop a PNG named  tile-thumbnail.png  in   │
+          │  this folder. Suggested: the clapperboard character.          │
+          └─────────────────────────────────────────────────────────────────┘
+        -->
+        <img src="tile-thumbnail.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🖼️'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Thumbnail Checker</h2>
+        <p class="tile-desc">Drop in a YouTube or Twitch thumbnail and find out if it'll actually get the click. Reads your text, finds your faces, shows you what it looks like at every real display size.</p>
+        <ul class="tile-bullets">
+          <li>Multi-size preview from 120px mobile to 1280px full</li>
+          <li>Contrast + focal point + face detection scoring</li>
+          <li>Florence-2 OCR reads any text on the thumbnail</li>
+        </ul>
+        <span class="tile-cta">Check a thumbnail</span>
+      </div>
+    </a>
+
   </div>
 
   <!-- COMING SOON — placeholder so the user knows this is a living site -->
@@ -407,7 +431,6 @@
     <p class="intro">This hub will grow over time. Things I'm planning or actively building:</p>
     <div class="coming-grid">
       <div class="coming-item"><span class="icon">📅</span><div><strong>Posting scheduler helper</strong><span>Best times to post per platform</span></div></div>
-      <div class="coming-item"><span class="icon">🎨</span><div><strong>Thumbnail checker</strong><span>Contrast + readability scoring</span></div></div>
       <div class="coming-item"><span class="icon">🧵</span><div><strong>Thread + bio writer</strong><span>X bio + pinned post templates</span></div></div>
       <div class="coming-item"><span class="icon">💌</span><div><strong>Sponsor pitch builder</strong><span>Media kit + cold-email templates</span></div></div>
       <div class="coming-item"><span class="icon">🎭</span><div><strong>Debut prep checklist</strong><span>Everything to lock in before launch</span></div></div>
