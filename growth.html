@@ -964,5 +964,65 @@
     Come hang out &mdash; <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> 🐙
   </footer>
 </div>
+
+<script>
+// TOC pill click → auto-expand the target details section + scroll to it.
+// Without this the anchor link would scroll to a still-collapsed section, which is confusing.
+(function(){
+  function wireTocExpand(){
+    document.querySelectorAll('.growth-toc a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if(!href || href.length < 2) return;
+        const target = document.querySelector(href);
+        if(!target) return;
+        // If the target is a <details> (collapsible section), open it
+        if(target.tagName === 'DETAILS'){
+          target.open = true;
+        } else {
+          // Otherwise find a parent details and open that
+          const parentDetails = target.closest('details');
+          if(parentDetails) parentDetails.open = true;
+        }
+        // Smooth scroll into view — small delay so the expand animation lands first
+        setTimeout(() => {
+          target.scrollIntoView({behavior:'smooth', block:'start'});
+          // Focus the summary for accessibility
+          const summary = target.querySelector('summary');
+          if(summary) summary.focus({preventScroll:true});
+        }, 60);
+        // Prevent default jump-scroll so our smooth scroll takes over
+        e.preventDefault();
+        // Update the URL hash without re-triggering the jump
+        if(history.replaceState) history.replaceState(null, '', href);
+      });
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wireTocExpand, {once:true});
+  } else {
+    wireTocExpand();
+  }
+
+  // Also: if the page loads with a hash already (e.g. linked from another page),
+  // auto-expand that section on first paint.
+  function expandFromHash(){
+    if(!location.hash || location.hash.length < 2) return;
+    const target = document.querySelector(location.hash);
+    if(!target) return;
+    if(target.tagName === 'DETAILS') target.open = true;
+    else {
+      const parent = target.closest('details');
+      if(parent) parent.open = true;
+    }
+    setTimeout(() => target.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', expandFromHash, {once:true});
+  } else {
+    expandFromHash();
+  }
+})();
+</script>
 </body>
 </html>

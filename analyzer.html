@@ -137,8 +137,8 @@
     background:linear-gradient(135deg,var(--mint),var(--periwinkle));color:#fff;
   }
 
-  /* Results */
-  .score-hero{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  /* Results — score hero gets generous breathing room above + below so the tabs don't crowd the verdict */
+  .score-hero{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin:22px 0 32px}
   .score-ring{
     width:160px;height:160px;border-radius:50%;
     background:conic-gradient(var(--mint) 0%, var(--periwinkle) var(--p,75%), rgba(255,255,255,0.5) var(--p,75%) 100%);
@@ -150,8 +150,23 @@
     content:"";position:absolute;inset:10px;border-radius:50%;background:rgba(255,255,255,0.92);
   }
   .score-num{position:relative;z-index:1;text-align:center}
-  .score-num .big{font-family:'Pacifico',cursive;font-size:48px;color:var(--deep);line-height:1}
-  .score-num .small{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase}
+  .score-num .big{font-family:'Pacifico',cursive;font-size:44px;color:var(--deep);line-height:1}
+  .score-num .small{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;margin-top:2px}
+  /* VidIQ-style letter grade pill — sits above the verdict text for instant glanceability */
+  .score-grade-row{margin:0 0 6px}
+  .score-grade-pill{
+    display:inline-block;
+    padding:4px 12px;border-radius:999px;
+    font-size:12px;font-weight:800;letter-spacing:.04em;
+    color:#fff;
+    background:linear-gradient(135deg,var(--periwinkle),var(--mint));
+    text-transform:uppercase;
+  }
+  .score-grade-pill.grade-a{background:linear-gradient(135deg,#3FB8C0,#6BE4EA);color:#0a4a52}
+  .score-grade-pill.grade-b{background:linear-gradient(135deg,#6BE4EA,#90A5FF);color:#fff}
+  .score-grade-pill.grade-c{background:linear-gradient(135deg,#FFD580,#FFB07A);color:#7a3a05}
+  .score-grade-pill.grade-d{background:linear-gradient(135deg,#FFB07A,#FF8AA8);color:#6b1a30}
+  .score-grade-pill.grade-f{background:linear-gradient(135deg,#FF8AA8,#FFB2C8);color:#6b1a30}
   .verdict{flex:1;min-width:260px}
   .verdict .grade{font-family:'Pacifico',cursive;font-size:36px;color:var(--deep);margin:0 0 6px;line-height:1.1}
   .verdict p{margin:0;font-size:15px;color:var(--ink-soft);line-height:1.55}
@@ -833,7 +848,7 @@
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     border:1px solid rgba(255,255,255,0.9);
     border-radius:999px;
-    padding:6px;margin:0 0 18px;
+    padding:6px;margin:8px 0 24px;
     box-shadow:0 4px 16px rgba(99,170,244,0.18);
   }
   .results-tabs button{
@@ -1006,13 +1021,12 @@
     <p class="tag">Paste a link or fill in the details, and I'll tell you <em>what's working and what isn't</em>. Use it before you post to plan it out, or after to figure out why something didn't pop off. <span class="sparkle">✨</span></p>
   </header>
 
-  <!-- WIZARD PROGRESS BAR — shows where you are in the 4-step flow -->
+  <!-- WIZARD PROGRESS BAR — shows where you are in the 3-step flow -->
   <nav class="wizard-progress" id="wizardProgress" aria-label="Analyzer steps">
     <ol>
       <li class="active" data-step="1" tabindex="0"><span class="step-dot"><span>1</span></span><span class="step-label">Upload</span></li>
-      <li data-step="2" tabindex="0"><span class="step-dot"><span>2</span></span><span class="step-label">What's it about?</span></li>
-      <li data-step="3" tabindex="0"><span class="step-dot"><span>3</span></span><span class="step-label">Numbers</span></li>
-      <li data-step="4" tabindex="0"><span class="step-dot"><span>4</span></span><span class="step-label">Analyze</span></li>
+      <li data-step="2" tabindex="0"><span class="step-dot"><span>2</span></span><span class="step-label">Tell me about it</span></li>
+      <li data-step="3" tabindex="0"><span class="step-dot"><span>3</span></span><span class="step-label">Analyze</span></li>
     </ol>
   </nav>
 
@@ -1116,7 +1130,7 @@
     <div class="vid-result" id="vidResult"></div>
 
     <div class="step-nav">
-      <span class="step-nav-counter">Step 1 of 4</span>
+      <span class="step-nav-counter">Step 1 of 3</span>
       <button class="nav-btn next" type="button" data-go="next">Continue →</button>
     </div>
   </section>
@@ -1211,52 +1225,26 @@
 
     <div class="step-nav">
       <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
-      <span class="step-nav-counter">Step 2 of 4</span>
+      <span class="step-nav-counter">Step 2 of 3</span>
       <button class="nav-btn next" type="button" data-go="next">Continue →</button>
     </div>
   </section>
 
-  <!-- STEP 3: NUMBERS -->
+  <!-- Legacy retention inputs — kept in DOM (hidden) so the existing scoring + clearAllInputs JS
+       continues to work without refactoring 47+ references. Duration auto-fills from video upload. -->
+  <div style="display:none" aria-hidden="true">
+    <input id="duration" type="number" />
+    <input id="retention" type="number" />
+    <input id="viewedVsSwiped" type="number" />
+  </div>
+
+  <!-- STEP 3: ANALYZE -->
   <section class="card step-card" id="step3">
     <div class="step-head">
       <span class="step-num">3</span>
-      <h2>Add your numbers <span class="sub">(optional)</span></h2>
-    </div>
-    <p class="step-intro">If you've already posted this and have retention numbers from YouTube Studio, drop them in. If not, skip this &mdash; you'll still get a score from steps 1 and 2.</p>
-
-    <div class="row3">
-      <div>
-        <label for="duration">Length (seconds)</label>
-        <input id="duration" type="number" min="1" max="600" placeholder="e.g. 47" />
-        <span class="field-help">Sweet spot: 45–55s. Auto-filled from your video upload.</span>
-      </div>
-      <div>
-        <label for="retention">Avg. retention (%) <span class="opt">if known</span></label>
-        <input id="retention" type="number" min="0" max="100" placeholder="e.g. 88" />
-        <span class="field-help">YT Studio → Analytics. Skip if you haven't posted yet.</span>
-      </div>
-      <div>
-        <label for="viewedVsSwiped">Viewed vs. swiped (%) <span class="opt">YT Shorts</span></label>
-        <input id="viewedVsSwiped" type="number" min="0" max="100" placeholder="e.g. 76" />
-        <span class="field-help">% of viewers who watched instead of swiping. Aim for 75%+.</span>
-      </div>
-    </div>
-
-    <div class="step-nav">
-      <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
-      <span class="step-nav-counter">Step 3 of 4 · optional</span>
-      <button class="nav-btn next" type="button" data-go="next">Continue →</button>
-    </div>
-
-  </section>
-
-  <!-- STEP 4: ANALYZE -->
-  <section class="card step-card" id="step4">
-    <div class="step-head">
-      <span class="step-num">4</span>
       <h2>Ready to analyze?</h2>
     </div>
-    <p class="step-intro">When you click below I'll run the full pipeline &mdash; multi-frame Florence-2 vision, Whisper transcription, BlazeFace, OCR, hook detection, hashtag scoring, the VidIQ-style second opinion, all of it. Takes about 30 seconds after the models are cached.</p>
+    <p class="step-intro">Click below to run the full pipeline &mdash; multi-frame vision, transcription, OCR, hook scoring, hashtags, the VidIQ-style second opinion, all of it. About 30 seconds after the models are cached.</p>
 
     <div class="big-cta" style="margin-top:8px">
       <button class="btn" id="fetchBtn">🐙 Analyze my short</button>
@@ -1265,7 +1253,7 @@
 
     <div class="step-nav">
       <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
-      <span class="step-nav-counter">Step 4 of 4</span>
+      <span class="step-nav-counter">Step 3 of 3</span>
       <span style="flex-shrink:0;font-size:12px;color:var(--ink-soft)">↑ click Analyze when ready</span>
     </div>
   </section>
@@ -1280,8 +1268,11 @@
 
     <!-- Score hero stays above the tabs — it's the always-visible summary -->
     <div class="score-hero">
-      <div class="score-ring" id="scoreRing"><div class="score-num"><div class="big" id="scoreBig">0</div><div class="small">/ 10</div></div></div>
+      <div class="score-ring" id="scoreRing"><div class="score-num"><div class="big" id="scoreBig">0</div><div class="small">/ 100</div></div></div>
       <div class="verdict">
+        <div class="score-grade-row">
+          <span class="score-grade-pill" id="scoreGradePill">—</span>
+        </div>
         <h3 class="grade" id="grade">—</h3>
         <p id="verdictText">—</p>
       </div>
@@ -3786,7 +3777,7 @@ function renderResults(r, payload){
   // Hide the wizard flow when results take over the view — focus shifts to the score.
   const wizard = document.getElementById('wizardProgress');
   if(wizard) wizard.style.display = 'none';
-  for(let i = 1; i <= 4; i++){
+  for(let i = 1; i <= 3; i++){
     const c = document.getElementById('step' + i);
     if(c) c.setAttribute('data-wizard-hidden', 'true');
   }
@@ -3797,9 +3788,23 @@ function renderResults(r, payload){
   setTimeout(() => resultsCard.scrollIntoView({behavior:'smooth', block:'start'}), 80);
 
   renderSafetySection(payload, r);
-  $('scoreBig').textContent = r.overall.toFixed(1);
-  const pct = Math.round((r.overall/10)*100);
+  // VidIQ-style 0-100 score display (was 0-10) — multiply + round to int.
+  const score100 = Math.round(r.overall * 10);
+  $('scoreBig').textContent = score100;
+  const pct = Math.max(0, Math.min(100, score100));
   $('scoreRing').style.setProperty('--p', pct+'%');
+  // Letter-grade pill mapping (VidIQ-style colored band)
+  const gradePill = $('scoreGradePill');
+  if(gradePill){
+    let letter, klass;
+    if(score100 >= 90){ letter='A · Excellent'; klass='grade-a'; }
+    else if(score100 >= 80){ letter='B · Good'; klass='grade-b'; }
+    else if(score100 >= 65){ letter='C · OK'; klass='grade-c'; }
+    else if(score100 >= 50){ letter='D · Needs work'; klass='grade-d'; }
+    else { letter='F · Rework'; klass='grade-f'; }
+    gradePill.textContent = letter;
+    gradePill.className = 'score-grade-pill ' + klass;
+  }
   $('grade').textContent = r.grade;
   $('verdictText').textContent = r.verdict;
 
@@ -3812,13 +3817,15 @@ function renderResults(r, payload){
     const impact = c.weight >= 2.0 ? {tier:'high', label:'High impact'} :
                    c.weight >= 1.2 ? {tier:'mid',  label:'Mid impact'}  :
                                      {tier:'low',  label:'Low impact'};
+    // VidIQ-style: per-criterion score shown as a percentage instead of X/10
+    const critPct = Math.round((c.score / 10) * 100);
     const html = `
       <div class="crit impact-${impact.tier}">
         <div class="top">
           <div class="name"><span class="impact-badge ${impact.tier}">${impact.label}</span>${c.name}</div>
-          <div class="score-tag" style="background:${colour}">${c.score}/10</div>
+          <div class="score-tag" style="background:${colour}">${critPct}%</div>
         </div>
-        <div class="bar"><div style="width:${(c.score/10)*100}%"></div></div>
+        <div class="bar"><div style="width:${critPct}%"></div></div>
         <div class="blurb">${escapeHtml(c.blurb)}</div>
       </div>`;
     grid.insertAdjacentHTML('beforeend', html);
@@ -4352,7 +4359,7 @@ if(document.readyState === 'loading'){
 //  WIZARD — step navigation, progress bar sync, show/hide
 // ============================================================
 let currentStep = 1;
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 3;
 function showStep(n){
   n = Math.max(1, Math.min(TOTAL_STEPS, n));
   currentStep = n;
@@ -5360,6 +5367,10 @@ async function handleVideoFile(file){
     const filenameText = parseFilename(file.name);
     let visualDescription = '';
     let faceCount = 0;
+    // Hoisted so the burned-caption + safe-zone analysis below the try block can read them.
+    let ocrPerFrame = [];
+    let faceBoxes = [];
+    let faceImgW = 0, faceImgH = 0;
     try{
       showWhisperPanel(true);
       const fileProgress = {};
@@ -5408,9 +5419,9 @@ async function handleVideoFile(file){
       const sampleTimes = [totalDur * 0.25, totalDur * 0.5, totalDur * 0.75];
       const descriptions = [];
       const ocrTexts = [];
-      const ocrPerFrame = []; // tracks which frame each OCR came from for burn-detection
+      // ocrPerFrame / faceBoxes / faceImgW / faceImgH are HOISTED above this try block
+      // so the burned-caption + safe-zone analysis after the try can read them.
       const stageNames = ['opening', 'middle', 'closing'];
-      let faceBoxes = []; let faceImgW = 0, faceImgH = 0;
 
       for(let i = 0; i < sampleTimes.length; i++){
         const tag = stageNames[i];
