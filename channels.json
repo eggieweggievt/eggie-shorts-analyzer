@@ -1,0 +1,20 @@
+{
+  "lastRefreshed": "2026-05-25",
+  "note": "Watchlist of VTuber / streamer channels Eggie wants to track for tag pool growth. The weekly channel-watchlist scheduled task pulls each channel's latest videos via VidIQ and extracts vocabulary not yet in tags.json. Add channels by appending to the list — handle, channelId, or YouTube URL all work.",
+
+  "channels": [
+    { "handle": "@Mifuyu",         "channelId": "UCItXWcbtEEUrFOS_HE1TRSQ", "notes": "Curated 2026-05" },
+    { "handle": "@Draugr_VT",       "channelId": null,                       "notes": "Curated 2026-05" },
+    { "handle": "@NoxKingVT",       "channelId": null,                       "notes": "Curated 2026-05" },
+    { "handle": "@nyoomiepiyu",     "channelId": null,                       "notes": "Curated 2026-05" },
+    { "handle": "@rotlia",          "channelId": null,                       "notes": "Curated 2026-05" },
+    { "handle": "@adarablekitten",  "channelId": null,                       "notes": "Curated 2026-05" },
+    { "handle": "@RheyaHeart",      "channelId": null,                       "notes": "Curated 2026-05" }
+  ],
+
+  "settings": {
+    "videosPerChannel": 10,
+    "minOccurrencesToFlag": 2,
+    "credits": "~5 per channel per run (channel_videos call)"
+  }
+}
