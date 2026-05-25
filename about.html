@@ -273,6 +273,61 @@
   .tech-item h4{margin:0 0 4px;font-size:14.5px;color:var(--deep);font-weight:800}
   .tech-item p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.5}
 
+  /* Growth knowledge base — collapsible sections + tip lists */
+  .growth-toc{
+    display:flex;flex-wrap:wrap;gap:6px 8px;
+    margin:8px 0 14px;
+  }
+  .growth-toc a{
+    display:inline-block;padding:6px 12px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:12.5px;
+    text-decoration:none;
+    transition:background .15s ease;
+  }
+  .growth-toc a:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
+  .growth-section{
+    background:rgba(255,255,255,0.6);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:14px;
+    margin:10px 0;
+    overflow:hidden;
+  }
+  .growth-section > summary{
+    cursor:pointer;list-style:none;
+    padding:14px 18px;
+    font-weight:800;font-size:15px;color:var(--deep);
+    user-select:none;
+    display:flex;align-items:center;gap:8px;
+  }
+  .growth-section > summary::-webkit-details-marker{display:none}
+  .growth-section > summary::before{content:"▸";color:var(--periwinkle);font-size:14px}
+  .growth-section[open] > summary::before{content:"▾"}
+  .growth-section > summary:hover{background:rgba(255,255,255,0.4)}
+  .growth-body{padding:4px 20px 16px;font-size:14px;line-height:1.65;color:var(--ink)}
+  .growth-body p{margin:8px 0}
+  .growth-body strong{color:var(--deep)}
+  .growth-body ul{margin:6px 0 8px;padding-left:22px}
+  .growth-body ul li{margin:3px 0}
+  .growth-body .callout{
+    background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(199,210,255,0.4));
+    border-left:3px solid var(--periwinkle);
+    padding:10px 14px;border-radius:10px;
+    margin:10px 0;font-size:13.5px;
+  }
+  .growth-body .callout strong{color:var(--deep)}
+  .growth-body .ref-list{margin:8px 0 0;padding-left:0;list-style:none;font-size:13px}
+  .growth-body .ref-list li{padding:3px 0}
+  .growth-body .ref-list li::before{content:"🔗  ";color:var(--periwinkle)}
+  .growth-body a{color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dashed var(--periwinkle)}
+  .growth-body a:hover{color:var(--pink-hot);border-bottom-color:var(--pink-hot)}
+  .growth-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  .growth-body table th,
+  .growth-body table td{padding:8px 12px;text-align:left;border-bottom:1px solid rgba(144,165,255,0.25)}
+  .growth-body table th{font-weight:800;color:var(--deep);background:rgba(255,255,255,0.5)}
+
   footer{
     text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5;
   }
@@ -319,22 +374,23 @@
     <h3>The detection pipeline</h3>
     <div class="tech-grid">
       <div class="tech-item">
-        <h4>👁️ Florence-2 vision model</h4>
-        <p>Generates a rich scene description from a middle frame — picks up things like "anime character with shocked expression on split-screen showing a TikTok".</p>
+        <h4>👁️ Florence-2 vision model (×3 frames)</h4>
+        <p>Samples <strong>3 frames</strong> — opening (25%), middle (50%), closing (75%) — and runs <strong>both</strong> a rich scene caption <em>and</em> an OCR pass per frame. So it catches things like "anime character with shocked expression on split-screen" <em>and</em> reads any on-screen text like "POV: you walked in on…", caption overlays, chat boxes, or stream alerts. Duplicate overlays across frames get deduped.</p>
       </div>
       <div class="tech-item">
-        <h4>🎙️ Whisper transcription</h4>
-        <p>Listens to the audio and transcribes whatever's being said. Catches storytime phrases, character names, mental-health language, slang.</p>
+        <h4>🎙️ Whisper transcription (base.en)</h4>
+        <p>Upgraded from <code>tiny.en</code> to <code>whisper-base.en</code> (~140MB) — substantially better at catching slang, character names, fast speech, and the mental-health / storytime phrasing that makes or breaks the right tags. Transcribes whatever's being said and hands it to the detector.</p>
       </div>
       <div class="tech-item">
         <h4>🎞️ Frame + audio analysis</h4>
-        <p>Multi-frame motion / cut detection, audio loudness, face detection, color vibe, aspect ratio. Used to auto-score your hook strength.</p>
+        <p>Multi-frame motion / cut detection, audio loudness, BlazeFace face detection (on the middle frame), color vibe, aspect ratio. Used to auto-score your hook strength.</p>
       </div>
       <div class="tech-item">
-        <h4>📝 Your typed text + pills</h4>
-        <p>What you type in "What is your short about?" and the short-type pills (gaming clip, storytime, reaction, etc.) are tier-1 signal — they always win.</p>
+        <h4>📝 Your typed text + pills (tier-1)</h4>
+        <p>What you type in "What is your short about?" and the short-type pills (gaming clip, storytime, IRL storytime, reaction, comic dub, etc.) are <strong>tier-1 signal</strong> — they always win over what the video shows. Emojis you type get translated to keywords (💀 → funny / dead, 🥺 → wholesome / cute, 🍵 → drama / tea), and any <code>#hashtags</code> you drop in get extracted as explicit topic signals too.</p>
       </div>
     </div>
+    <p style="margin-top:10px;font-size:13.5px;color:var(--ink-soft)">First analysis downloads the models (~380MB total). After that they're cached in your browser, so subsequent shorts run faster and stay fully offline.</p>
 
     <h3>The 1S / 2M / 2L hashtag formula</h3>
     <div class="formula-card">
@@ -590,6 +646,337 @@
       </div>
 
     </div>
+  </section>
+
+  <!-- GROWTH KNOWLEDGE BASE -->
+  <section class="card" id="growth">
+    <h2>The growth playbook 🌱</h2>
+    <p>Everything I've learned about getting shorts (and your stream) actually seen. Click any section to expand.</p>
+
+    <div class="growth-toc">
+      <a href="#alg">📊 How the algorithm works</a>
+      <a href="#metrics">🎯 3 metrics that matter</a>
+      <a href="#fourCriteria">✅ The 4-criteria rule</a>
+      <a href="#ytshorts">📺 YouTube Shorts specifics</a>
+      <a href="#comments">💬 Driving comments</a>
+      <a href="#platforms">📱 Platform-specific rules</a>
+      <a href="#hashtags">🏷️ Hashtag strategy</a>
+      <a href="#twitch">🌱 Growing on Twitch</a>
+      <a href="#titles">📝 Title strategy</a>
+      <a href="#chat">🗣️ Getting chatters engaged</a>
+      <a href="#funnel">🔄 Conversion + retention</a>
+      <a href="#monetize">💰 Monetization + sponsors</a>
+    </div>
+
+    <details class="growth-section" id="alg" open>
+      <summary>📊 How the algorithm actually works</summary>
+      <div class="growth-body">
+        <p>Every social-media platform has one goal: <strong>keep people scrolling</strong>. The algorithm is a matchmaker between content and viewers. When you post a video, the platform builds a "digital fingerprint" of it using:</p>
+        <ul>
+          <li><strong>Computer vision</strong> — what's happening visually</li>
+          <li><strong>Audio fingerprinting</strong> — what's being said</li>
+          <li><strong>Metadata</strong> — captions, hashtags, creator info</li>
+        </ul>
+        <p>Then it picks ~200 people to test your video on first. <strong>Most of those 200 are non-followers</strong> — the algorithm wants to see if strangers like it. If they engage, the video gets pushed to 2,000 → 20,000 → 200,000 in waves. If they don't, the push slows or stops immediately.</p>
+        <div class="callout">
+          <strong>What this means for you:</strong> the first few seconds of performance are everything. Posting to the wrong audience = bad data = the algorithm stops pushing. This is why niching down is critical — it keeps your test sample consistent. One viral hit to the WRONG audience can tank your next several videos. Followers matter less than you think — strangers engaging is the real signal.
+        </div>
+      </div>
+    </details>
+
+    <details class="growth-section" id="metrics">
+      <summary>🎯 The 3 metrics that actually matter</summary>
+      <div class="growth-body">
+        <ul>
+          <li><strong>Average watch time + completion rate</strong> — how long viewers stay, and what % finish</li>
+          <li><strong>Engagement rate</strong> — likes + comments + shares ÷ views</li>
+          <li><strong>Watchtime session share</strong> — how much of a user's TOTAL session was YOUR content. You can't see this anywhere in your analytics dashboard, but the algorithm weighs it heavily.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="fourCriteria">
+      <summary>✅ The 4-criteria content rule</summary>
+      <div class="growth-body">
+        <p>Your video needs to hit all four of these to get pushed:</p>
+        <ul>
+          <li><strong>Relevant</strong> — solves a real problem your target viewer has</li>
+          <li><strong>Non-obvious</strong> — says something they haven't heard before</li>
+          <li><strong>Absorbable</strong> — communicated clearly enough to actually understand</li>
+          <li><strong>Actionable</strong> — they can implement it and get a result</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="ytshorts">
+      <summary>📺 YouTube Shorts specifics</summary>
+      <div class="growth-body">
+        <ul>
+          <li>Shorts are fed through a queue — no impressions, just <strong>views vs. swipes</strong></li>
+          <li>Aim for <strong>45–55 seconds</strong> with <strong>85–90% retention</strong> for best results</li>
+          <li>Don't go under 25 seconds unless your short is extremely rewatchable</li>
+          <li>The <strong>"viewed vs. swiped"</strong> stat is your most important early metric — aim for 75%+</li>
+          <li><strong>Edit your shorts. Always.</strong> Auto-converting landscape clips does not work — vertical-first or it dies</li>
+          <li>Watch shorts in your niche for 1–2 hours a week — study what's working</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="comments">
+      <summary>💬 Driving more comments (algorithm boost)</summary>
+      <div class="growth-body">
+        <ul>
+          <li><strong>Take a hard stance</strong> — people comment when they strongly agree OR disagree</li>
+          <li>Pick the contrarian side when you can</li>
+          <li>Ratchet up your framing — be bold, not wishy-washy</li>
+          <li>Talk about cult-loved brands, games, or communities people already have opinions on</li>
+          <li>Make people FEEL something — emotion drives comments more than logic</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="platforms">
+      <summary>📱 Platform-specific posting rules</summary>
+      <div class="growth-body">
+        <table>
+          <tr><th>Platform</th><th>What works</th></tr>
+          <tr><td><strong>Twitter/X</strong></td><td>Keyword-rich text, <strong>NO hashtags</strong>, post 3–7× daily, short looping clips, upload video directly (don't link to YouTube)</td></tr>
+          <tr><td><strong>Instagram</strong></td><td><strong>5–7 hashtags</strong> sweet spot, great for discoverability, use Stories, dots hide hashtags from preview</td></tr>
+          <tr><td><strong>TikTok</strong></td><td>Stay in your lane, <strong>keywords in caption</strong>, minimal hashtags (1–3 max), trending sound &gt; perfect tags</td></tr>
+          <tr><td><strong>YouTube Shorts</strong></td><td>Include <strong>2–3 brand-relevant hashtags</strong>, treat it like its own TV channel, top 2 in title for indexing</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="growth-section" id="hashtags">
+      <summary>🏷️ The hashtag formula (built into the analyzer)</summary>
+      <div class="growth-body">
+        <p>Always use a mix of <strong>small / medium / large</strong> tags so your content can perform at ANY stage of the algorithm:</p>
+        <ul>
+          <li><strong>Small tags</strong> (under 500k posts) — low competition, easier to rank in. Your easy-win slot.</li>
+          <li><strong>Medium tags</strong> (500k – 1M) — balanced reach. Most of your discoverability lives here.</li>
+          <li><strong>Large tags</strong> (1M+) — high exposure if you break out. Don't lean on these alone or you'll get buried.</li>
+        </ul>
+        <p><strong>Standard mix:</strong> 1 small / 2 medium / 2 large. If you already have audience traction, lean more on medium + large.</p>
+        <div class="callout">
+          <strong>What the analyzer does:</strong> picks 5 tags per platform from a curated pool, enforces the 1S/2M/2L mix, and shows you the size badge on every pick so you can verify the formula was hit.
+        </div>
+      </div>
+    </details>
+
+    <details class="growth-section" id="twitch">
+      <summary>🌱 Growing on Twitch (the real strategy)</summary>
+      <div class="growth-body">
+        <p><strong>Twitch's discovery system is broken for small streamers.</strong> Categories are sorted highest viewers first — you get buried. Streaming alone and hoping people find you will not work. You need to build your audience BEFORE relying on Twitch to push you.</p>
+
+        <p><strong>The actual strategy:</strong></p>
+        <ul>
+          <li>Build your presence on a platform with a <strong>working algorithm</strong> first (TikTok, YouTube Shorts, Instagram Reels)</li>
+          <li>Funnel viewers from short-form into your stream</li>
+          <li>Even 1% click-through compounds over time</li>
+          <li>More viewers → higher in category → Twitch starts pushing you organically</li>
+        </ul>
+
+        <p><strong>Niching down is non-negotiable:</strong></p>
+        <ul>
+          <li>"Variety streamer" puts you in a box with 300,000 other people</li>
+          <li>You need to be describable in <strong>one sentence</strong></li>
+          <li>Example: <em>"I play Souls games, love Warhammer, and give VTuber tips"</em></li>
+          <li>Pick games with viewers but LOW streamer competition — use TwitchTracker to find peak ratio time slots</li>
+        </ul>
+
+        <p><strong>Mindset shift:</strong></p>
+        <ul>
+          <li>Consistency ≠ streaming every day — it means <strong>reliable patterns</strong></li>
+          <li>Don't chase trends blindly — find where trends OVERLAP with your content</li>
+          <li>Passion alone grabs attention. Passion + strategy keeps it.</li>
+          <li>You don't need to go viral. You need to compound.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="titles">
+      <summary>📝 Title strategy (this matters more than you think)</summary>
+      <div class="growth-body">
+        <p><strong>New viewers only see your title before clicking.</strong> A good title creates curiosity, shock, or confusion — anything that makes them stop scrolling.</p>
+
+        <p><strong>Format that works on Twitch:</strong></p>
+        <p><code>[Aesthetic emoji/decoration] + [Hook/Meme] + [Game] + [VTuber] + [Commands]</code></p>
+
+        <ul>
+          <li><strong>"Chill vibes"</strong> tells nobody anything — give them a reason to click</li>
+          <li>Challenges work great: <em>"If I die, I restart"</em> beats <em>"cozy stream"</em> every time</li>
+          <li><em>"24 hour stream"</em> creates instant curiosity</li>
+          <li>Questions work extremely well — <em>"HE DID WHAT WITH THAT SPATULA?!"</em></li>
+          <li>Goal: create confusion, shock, or curiosity → drive clicks</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="chat">
+      <summary>🗣️ Getting chatters actually engaged</summary>
+      <div class="growth-body">
+        <p><strong>If a new viewer types in chat they're 50% more likely to return.</strong> Welcome EVERY new chatter — sounds obvious but most streamers don't do it.</p>
+        <ul>
+          <li>Use <strong>open-ended questions</strong>, not yes/no — "What's your favorite game from childhood that still holds up?" not "do you like this game?"</li>
+          <li>Put a <strong>question or hot take IN your stream title</strong> to prime engagement before they click</li>
+          <li>Stream Elements timers — remind viewers of commands and follows on a loop</li>
+          <li>Loyalty points + commands like <code>!gamble</code> or <code>!heist</code> keep chat participating</li>
+          <li>Fun commands like <code>!iq</code> or <code>!based</code> give chatters something to spam at each other</li>
+          <li>Words on Stream, Gartic, or chat-controlled game mods spike engagement fast — these also trick the algorithm into thinking your chat is more active than it is</li>
+        </ul>
+        <div class="callout">
+          <strong>Community culture takes time.</strong> You cannot force or fake it. Encourage in-jokes when they appear naturally. A slow chat does NOT mean you're boring — lurkers are the backbone of Twitch. Focus on making great content first; chat activity follows.
+        </div>
+
+        <p><strong>Stream structure tips:</strong></p>
+        <ul>
+          <li>Have a routine 20 minutes before going live — helps you show up consistently</li>
+          <li>Introduce yourself every time someone new follows or raids — <em>"Hi I'm [name], I play [X], love [Y], welcome to the cult"</em></li>
+          <li>Always be plugging what you're working toward — fundraisers, goals, milestones</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="growth-section" id="funnel">
+      <summary>🔄 Conversion + retention (don't treat short-form as just a funnel)</summary>
+      <div class="growth-body">
+        <p><strong>Core mindset shift:</strong> if you only post to drive people elsewhere, you'll struggle on ALL platforms. Learn each platform for what it IS — growth on those will naturally convert. People who bond with you on short-form will seek out your stream on their own. You don't need constant CTAs — if they like you, they'll find you.</p>
+
+        <p><strong>Why short-form converts at all:</strong></p>
+        <ul>
+          <li>Short-form gives viewers a concentrated taste of your personality</li>
+          <li>They see the edited, best-of version of you first</li>
+          <li>If they like THAT, they'll want the unfiltered live version</li>
+          <li>Make sure your short-form and stream personality are <strong>consistent</strong> — high-energy shorts + dead-silent stream = they leave</li>
+        </ul>
+
+        <p><strong>What actually converts:</strong></p>
+        <ul>
+          <li>Stream schedule clearly visible in your bio everywhere</li>
+          <li>Content backlog — new viewers want old videos to binge</li>
+          <li>Discord ready BEFORE you go viral — people need somewhere to land</li>
+          <li>Consistent upload schedule signals you're worth following long-term</li>
+        </ul>
+
+        <div class="callout">
+          <strong>The retention problem:</strong> when you blow up, new viewers immediately ask — Who is this? Discord? Old videos? Schedule? If the answer to any of those is no, they leave. Don't panic and change your content after a growth spike — you'll lose what made them click in the first place. <strong>Growth without retention is just a spike on a graph.</strong>
+        </div>
+
+        <p><strong>Funneling YouTube → Twitch:</strong></p>
+        <ul>
+          <li>Don't start your YouTube stream until you begin gaming — YouTube hates category switches mid-stream</li>
+          <li>Do your Just Chatting / reaction segment first, THEN start the YouTube VOD</li>
+          <li>Keeps your YouTube content clean and focused for the algorithm</li>
+          <li>Clip your stream highlights and post them as shorts — double duty</li>
+        </ul>
+
+        <p><strong>Content that travels:</strong> your model is a costume — the CONTENT is what gets viewership. Always ask: <em>"Would someone who has never heard of VTubing still find this funny, useful, or interesting?"</em> If no, go back to the drawing board. Reaction videos, gaming fails, hot takes, and unhinged opinions travel furthest. Inside jokes and VTuber-only memes keep your growth flatlined.</p>
+      </div>
+    </details>
+
+    <details class="growth-section" id="monetize">
+      <summary>💰 Monetization + sponsors (you're a virtual busker)</summary>
+      <div class="growth-body">
+        <p><strong>Mindset first:</strong> you are not begging your audience — you are a virtual busker. Buskers perform, and if you like them, you throw coins in the case. Entertainment has value. You are allowed to ask for support. You earned it by showing up. Shift from <em>"I hope someone donates"</em> to <em>"here's what we're working towards."</em></p>
+
+        <p><strong>Diversify your income — don't rely on one source:</strong></p>
+        <ul>
+          <li>Twitch subs + bits</li>
+          <li>YouTube ad revenue</li>
+          <li>Sponsorships + affiliate codes</li>
+          <li>Merchandise</li>
+          <li>Tip jar / StreamElements</li>
+          <li>Throne wishlist</li>
+          <li>Paid collaborations</li>
+        </ul>
+
+        <p><strong>Getting sponsors — where to start:</strong></p>
+        <ul>
+          <li>Audit your socials first — sponsors will look before they respond</li>
+          <li>Remove or avoid: sad posting, drama, heavy personal venting on your main</li>
+          <li>Keep branding consistent across ALL platforms — everything should look like it came from the same character</li>
+          <li>Make sure your email and a link to your media kit are easy to find</li>
+          <li>A Carrd or Linktree is the minimum — a full media kit is better</li>
+        </ul>
+
+        <p><strong>Your media kit should include:</strong></p>
+        <ul>
+          <li>Your creator name + region</li>
+          <li>Follower counts across all platforms</li>
+          <li>Average viewership + total views</li>
+          <li>Engagement rate</li>
+          <li>Audience age range</li>
+          <li>Content genres + popular videos</li>
+          <li>Past collaborations and partnerships</li>
+          <li>Current and past sponsors</li>
+        </ul>
+
+        <p><strong>Writing your sponsor letter:</strong></p>
+        <ul>
+          <li>Treat it like a cover letter — sell yourself in the best light</li>
+          <li>Include: who you are, what platforms you're on, your content type, your best stats</li>
+          <li>Add a personal story related to the brand — makes you memorable</li>
+          <li>Keep a generic template and customize per sponsor</li>
+          <li>Worst they can say is no — doors reopen</li>
+        </ul>
+
+        <p><strong>Where to find sponsors:</strong></p>
+        <ul>
+          <li>Twitter — keep an eye on new game releases and partner programs</li>
+          <li>Publisher partnerships — Bandai Namco, Capcom, etc. all have creator programs</li>
+          <li>Lurkit — sign up for game keys + paid sponsorship opportunities</li>
+          <li>Affiliate portals — most brands have them at the bottom of their website</li>
+          <li>This community! (Eggie's Discord)</li>
+          <li>Don't wait to be approached — pitch first, pitch often</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Vetting your sponsors matters.</strong> Only partner with brands you have genuine experience with or can endorse. If something goes wrong with a sponsor it can fall back on YOU. If it sounds too good to be true, it probably is. You're trusting them with your brand just as much as they're trusting you.
+        </div>
+
+        <p><strong>Small channel? You still qualify.</strong> CCV is not the only metric that matters. A small but engaged audience is valuable to the right brand. You can guest at conventions, land collabs, and get sponsors at any size. The difference between those who get opportunities and those who don't? <strong>They applied. That's it. Apply.</strong></p>
+      </div>
+    </details>
+
+    <details class="growth-section" id="resources">
+      <summary>📚 Resources mentioned in this guide</summary>
+      <div class="growth-body">
+        <p><strong>Algorithm + short-form growth:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://youtu.be/8cQidXgtGmU" target="_blank" rel="noreferrer">How Social Media Algorithms Actually Work</a></li>
+          <li><a href="https://www.youtube.com/watch?v=JaYQq0MT6tk" target="_blank" rel="noreferrer">I Blew Up A New Gaming Channel With YouTube Shorts</a></li>
+        </ul>
+        <p><strong>Twitch growth:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://www.youtube.com/watch?v=8wE9l6S9VJ8" target="_blank" rel="noreferrer">How To ACTUALLY Grow On Twitch In 2026</a></li>
+          <li><a href="https://www.youtube.com/watch?v=6Vhlqpi04PU" target="_blank" rel="noreferrer">How To Grow On Twitch FAST (Under 5 Min)</a></li>
+          <li><a href="https://www.youtube.com/watch?v=VGPNY_21JUQ" target="_blank" rel="noreferrer">This ONE Trick Will Make You A Famous Streamer</a></li>
+          <li><a href="https://www.youtube.com/watch?v=n4L4V5-GdDw" target="_blank" rel="noreferrer">Top Advice for Aspiring Streamers</a></li>
+        </ul>
+        <p><strong>Stream + chat engagement:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://www.youtube.com/watch?v=rZas_lshpW0" target="_blank" rel="noreferrer">7 Easy Tips To Get More Chatters On Twitch</a></li>
+          <li><a href="https://www.youtube.com/watch?v=s_XsBMLCFSg" target="_blank" rel="noreferrer">Small Streamers: Do THIS and Viewers Will LOVE You</a></li>
+        </ul>
+        <p><strong>Conversion + retention:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://www.youtube.com/watch?v=BTSyjVigpJk" target="_blank" rel="noreferrer">Converting TikTok Audience to Twitch</a></li>
+          <li><a href="https://www.youtube.com/watch?v=O-pWBN75Ymg" target="_blank" rel="noreferrer">Full-Time VTuber in 2026 — Content System Workshop</a></li>
+          <li><a href="https://www.youtube.com/watch?v=dOAOKyrB40c" target="_blank" rel="noreferrer">Every Small VTuber Makes THESE Mistakes</a></li>
+        </ul>
+        <p><strong>Monetization + sponsors:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://www.youtube.com/watch?v=QOMPW1j_2rk" target="_blank" rel="noreferrer">VTubers Are Doing Sponsorships Wrong — How To Get Sponsors</a></li>
+          <li><a href="https://www.youtube.com/watch?v=O-pWBN75Ymg" target="_blank" rel="noreferrer">Full-Time VTuber in 2026 — Monetization Section</a></li>
+        </ul>
+        <p><strong>Eggie's threads:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://x.com/eggieweggievt/status/2049511545982382239" target="_blank" rel="noreferrer">Eggie on growth + niching</a></li>
+          <li><a href="https://x.com/EggieWeggieVT/status/2049851295394095420" target="_blank" rel="noreferrer">Eggie's follow-up thread</a></li>
+        </ul>
+      </div>
+    </details>
   </section>
 
   <!-- CONTACT -->
