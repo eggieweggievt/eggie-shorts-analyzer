@@ -83,19 +83,22 @@
   .back-link:hover{background:rgba(255,255,255,0.95)}
 
   /* Header — title goes on its own block-level row so it stays centered + can wrap */
-  header.hero{text-align:center;padding:18px 0 8px}
+  header.hero{text-align:center;padding:18px 0 12px;overflow:visible}
   .logo{
     font-family:'Pacifico',cursive;
     font-size:clamp(34px, 6vw, 52px);
-    line-height:1.2;
+    /* Pacifico has long descenders + swooshes — needs generous line-height + bottom padding
+       or the bottoms of letters like "y" / "g" get clipped, especially with background-clip:text */
+    line-height:1.5;
     background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     text-shadow:0 4px 16px rgba(99,170,244,0.18);
-    margin:14px auto 8px;
-    padding:8px 4px 12px;
+    margin:18px auto 10px;
+    padding:20px 12px 28px;
     display:block;
     word-wrap:break-word;
     overflow-wrap:break-word;
+    overflow:visible;
   }
   header.hero p.tag{
     font-weight:600;color:var(--ink-soft);font-size:16.5px;
@@ -401,6 +404,8 @@
           <li>Honkai Star Rail</li>
           <li>Honkai Impact 3rd</li>
           <li>Identity V</li>
+          <li>Jujutsu Kaisen / JJK (anime crossover)</li>
+          <li>Jujutsu Shenanigans (Roblox)</li>
           <li>Just Chatting / IRL / yapping</li>
           <li>League of Legends</li>
           <li>Lethal Company</li>
@@ -423,7 +428,7 @@
           <li>Palworld</li>
           <li>Path of Exile / PoE 2</li>
           <li>Peak</li>
-          <li>Persona</li>
+          <li>Persona / Persona 5 Royal</li>
           <li>Phasmophobia</li>
           <li>Pirate Software</li>
           <li>Plate Up</li>
@@ -445,6 +450,7 @@
           <li>Slay the Spire</li>
           <li>Snowbreak</li>
           <li>Splatoon</li>
+          <li>SpongeBob (cartoon nostalgia)</li>
           <li>S.T.A.L.K.E.R. 2</li>
           <li>Stardew Valley</li>
           <li>Subnautica 2</li>
@@ -465,7 +471,7 @@
       </div>
 
       <div class="pool-section genres">
-        <h3>🎨 Genres / topics <span class="count">36</span></h3>
+        <h3>🎨 Genres / topics <span class="count">38</span></h3>
         <ul class="pool-list">
           <li>ADHD / neurodivergent / autism</li>
           <li>Anime</li>
@@ -486,6 +492,7 @@
           <li>Gaming (generic, used as fallback)</li>
           <li>Gunpla / model building</li>
           <li>Horror</li>
+          <li>Kawaii / cute VTuber</li>
           <li>LARP / live-action roleplay</li>
           <li>LGBTQ+ creator identity</li>
           <li>Mental health / therapy / self-care</li>
@@ -503,14 +510,16 @@
           <li>Trans creator identity</li>
           <li>Travel</li>
           <li>TV / series / binge</li>
+          <li>Wholesome / seiso VTuber</li>
         </ul>
       </div>
 
       <div class="pool-section content">
-        <h3>📋 Content types <span class="count">26</span></h3>
+        <h3>📋 Content types <span class="count">27</span></h3>
         <ul class="pool-list">
           <li>ASMR</li>
           <li>Behind the scenes (BTS)</li>
+          <li>Brainrot (skibidi, italian brainrot, sigma)</li>
           <li>Challenge</li>
           <li>Clip (stream highlight)</li>
           <li>Compilation / best of / montage</li>

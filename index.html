@@ -862,6 +862,8 @@
       <button type="button" class="type-pill" data-type="lgbt" data-keywords="lgbt lgbtq queer pride queer creator queer vtuber sapphic wlw mlm" aria-pressed="false"><span class="type-icon">🏳️‍🌈</span>LGBTQ+ creator</button>
       <button type="button" class="type-pill" data-type="trans" data-keywords="trans transgender trans creator trans vtuber transmasc transfemme nonbinary" aria-pressed="false"><span class="type-icon">🏳️‍⚧️</span>Trans creator</button>
       <button type="button" class="type-pill" data-type="poc" data-keywords="poc creator black creator black vtuber latina vtuber asian vtuber indigenous creator representation matters" aria-pressed="false"><span class="type-icon">✊🏾</span>POC creator</button>
+      <button type="button" class="type-pill" data-type="wholesome" data-keywords="wholesome seiso wholesome vtuber seiso vtuber cute kawaii wholesome content sfw vtuber family friendly" aria-pressed="false"><span class="type-icon">🌸</span>Wholesome / seiso</button>
+      <button type="button" class="type-pill" data-type="brainrot" data-keywords="brainrot brainrot meme skibidi italian brainrot sigma only in ohio gyatt rizzler" aria-pressed="false"><span class="type-icon">🧠</span>Brainrot humor</button>
       <button type="button" class="type-pill" data-type="custom" data-keywords="" aria-pressed="false"><span class="type-icon">➕</span>Other…</button>
     </div>
     <div class="short-type-custom" id="shortTypeCustomWrap" style="display:none">
@@ -1914,7 +1916,18 @@ const TAG_DB = {
     'plateup':          {tags:['plateup','plateupgame','cookinggame','indiegame','plateupmemes'], sizes:['small','small','medium','medium','small']},
     'golf it':          {tags:['golfit','golfitmultiplayer','partygame','indiegame'], sizes:['medium','small','large','medium']},
     // Helldivers 2 (refresh)
-    'helldivers 2':     {tags:['helldivers2','helldivers','arrowheadgames','helldiversclips','helldiversmemes','democracy'], sizes:['large','medium','small','small','medium','small']}
+    'helldivers 2':     {tags:['helldivers2','helldivers','arrowheadgames','helldiversclips','helldiversmemes','democracy'], sizes:['large','medium','small','small','medium','small']},
+    // Persona 5 Royal — explicit key for the most-VTuber-streamed JRPG sub-title
+    'persona 5':        {tags:['persona5','persona5royal','p5','p5r','atlus','jrpg','persona5shorts','persona5clips','phantomthieves','jokerpersona','akirakurusu'], sizes:['large','large','medium','medium','large','medium','medium','small','medium','small','small']},
+    'persona 5 royal':  {tags:['persona5royal','p5r','persona5','atlus','jrpg','phantomthieves','jokerpersona'], sizes:['large','large','large','large','medium','medium','small']},
+    // SpongeBob — recurring VTuber reaction / brainrot reference, cartoon nostalgia
+    'spongebob':        {tags:['spongebob','spongebobsquarepants','spongebobmemes','patrickstar','squidward','bikinibottom','spongebobshorts','nicktoons','2000snostalgia','cartoonnostalgia'], sizes:['large','large','medium','medium','medium','medium','small','medium','medium','small']},
+    'spongebob squarepants':{tags:['spongebobsquarepants','spongebob','spongebobmemes','patrickstar','bikinibottom','nicktoons'], sizes:['large','large','medium','medium','medium','medium']},
+    // Jujutsu Kaisen — anime crossover, often referenced in VTuber content ("Domain Expansion")
+    'jujutsu kaisen':   {tags:['jujutsukaisen','jjk','jjkmemes','jjkclips','jjkcommunity','animememes','domainexpansion','gojo','itadori','sukuna','jjkanime','jjkfanart'], sizes:['large','large','medium','medium','medium','large','medium','large','medium','medium','small','small']},
+    'jjk':              {tags:['jjk','jujutsukaisen','jjkmemes','jjkclips','gojo','domainexpansion','animememes'], sizes:['large','large','medium','medium','large','medium','large']},
+    // Jujutsu Shenanigans — Roblox JJK game (heavily VTuber-streamed per LARP data earlier)
+    'jujutsu shenanigans':{tags:['jujutsushenanigans','jjs','jjsroblox','roblox','jjkanime','robloxgame','jjsclips','jjsmoments'], sizes:['medium','medium','small','large','medium','medium','small','small']}
   },
   // Genres / categories
   genres: {
@@ -1975,7 +1988,12 @@ const TAG_DB = {
     // Trans / transgender creator identity — separate from lgbt so it can be picked as its own slot
     trans:         {tags:['trans','transgender','transtok','transman','transwoman','transmasc','transfemme','transrights','transcommunity','transcreator','transvtuber','ftm','mtf','translove','translives','translivesmatter','transpride','enbylife','nonbinary'], sizes:['large','large','medium','medium','medium','medium','medium','large','medium','small','small','medium','medium','small','small','medium','large','small','large']},
     // POC creator identity — Black / Latinx / Asian / Indigenous representation tag pools
-    poc:           {tags:['poc','poccreator','poctwitch','pocvtuber','blackcreator','blackvtuber','blackgirlsstream','blacktwitch','blackgamer','blackcontentcreator','latinx','latinavtuber','latinacreator','latinx','latinotwitch','hispaniccreator','asianvtuber','asianstreamer','aapi','aapivtuber','indigenousvtuber','indigenouscreator','ndn','afrolatinx','representationmatters','blackcontent'], sizes:['large','small','small','small','medium','medium','small','medium','small','small','medium','small','small','medium','small','small','small','small','medium','small','small','small','small','small','medium','small']}
+    poc:           {tags:['poc','poccreator','poctwitch','pocvtuber','blackcreator','blackvtuber','blackgirlsstream','blacktwitch','blackgamer','blackcontentcreator','latinx','latinavtuber','latinacreator','latinx','latinotwitch','hispaniccreator','asianvtuber','asianstreamer','aapi','aapivtuber','indigenousvtuber','indigenouscreator','ndn','afrolatinx','representationmatters','blackcontent'], sizes:['large','small','small','small','medium','medium','small','medium','small','small','medium','small','small','medium','small','small','small','small','medium','small','small','small','small','small','medium','small']},
+    // Wholesome VTuber — verified-major sub-niche per SimplyMysti's signature content (10+ titles).
+    // "Wholesome", "seiso" (Japanese for pure/clean), cute, non-edgy content. Huge in VTuber community.
+    wholesome:     {tags:['wholesome','wholesomevtuber','wholesomemoments','wholesomeshorts','wholesomecontent','wholesomememe','wholesomecommunity','wholesomevibes','wholesomevtubermoments','seiso','seisovtuber','seisostream','cleanvtuber','sfwvtuber','familyfriendlyvtuber','cutevtuber','wholesomeenvtuber'], sizes:['large','medium','medium','small','medium','small','medium','small','small','medium','medium','small','small','small','small','medium','small']},
+    // Kawaii / cute — VTuber cute-style identity, distinct from wholesome
+    kawaii:        {tags:['kawaii','cute','cutevtuber','kawaiivtuber','cutuber','kawaiicommunity','kawaiiaesthetic','kawaiianime','kawaiimemes','cutemoments','cuteshorts','adorablecontent','cutiestreamer','kawaiiculture'], sizes:['large','large','medium','medium','small','medium','medium','medium','small','medium','small','small','small','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
@@ -2019,7 +2037,10 @@ const TAG_DB = {
     pov:           {tags:['pov','povs','povtok','povvideos','povshorts','whenyou','imagineif'], sizes:['large','small','medium','small','small','medium','small']},
     // Out-of-context / absurd / no-topic-but-just-funny clips — verified high-volume
     // ("*Almost* Out Of Context Filian Clip" / "This Wasn't Even a Clip Farm 💀" style winners)
-    nocontext:     {tags:['nocontext','outofcontext','randomclip','randomshorts','wtfmoment','justrandom','randomvideo','chaosgremlin','unhingedmoment','outofpocket'], sizes:['medium','medium','small','small','medium','small','medium','small','small','small']}
+    nocontext:     {tags:['nocontext','outofcontext','randomclip','randomshorts','wtfmoment','justrandom','randomvideo','chaosgremlin','unhingedmoment','outofpocket'], sizes:['medium','medium','small','small','medium','small','medium','small','small','small']},
+    // Brainrot — current internet humor (skibidi, italian brainrot, surreal absurdist memes)
+    // Big crossover with VTuber content per SimplyMysti / "Brainrotsti" naming patterns
+    brainrot:      {tags:['brainrot','brainrotmemes','brainrottok','brainrotvideos','brainrothumor','italianbrainrot','skibidi','skibiditoilet','tunglsneezeerg','sigma','sigmamoment','onlyinohio','gyatt','rizzler','fanumtax','gen z humor','genalpha','brainrotcontent'], sizes:['large','medium','medium','small','small','medium','large','medium','small','small','small','medium','medium','small','small','medium','small','small']}
   },
   // Platform / feed tags — last-resort fallbacks (refreshed from VidIQ trending data)
   platform: {
@@ -2154,6 +2175,20 @@ function _scanTextForTopics(text){
   // POC creator identity — Black / Latinx / Asian / Indigenous self-ID + community-language tags.
   // Only fires on explicit self-identification.
   if(/\b(as a (black|latina|latino|latinx|hispanic|asian|indigenous|native|aapi|brown|pacific islander)|black (creator|vtuber|streamer|girl who streams|gamer|twitch|content creator)|latin[ax] (vtuber|creator|streamer|content creator)|asian (vtuber|streamer|creator|aapi)|indigenous (vtuber|creator|streamer)|afro ?latin[ax]|aapi (vtuber|creator|content)|representation matters|poc (creator|vtuber|twitch|streamer)|brown (girl|boy) who streams|black ?streamer ?community|brown ?streamer ?community)\b/.test(t)) found.genres.push('poc');
+  // Wholesome / Seiso VTuber — signature sub-niche for soft, non-edgy content
+  if(/\b(wholesome|seiso|wholesome ?vtuber|seiso ?vtuber|clean ?vtuber|family ?friendly ?vtuber|sfw ?vtuber|wholesome ?content|wholesome ?moments|wholesome ?vibes)\b/.test(t)) found.genres.push('wholesome');
+  // Kawaii / cute VTuber identity
+  if(/\b(kawaii|cute ?vtuber|kawaii ?vtuber|cutuber|cutie ?streamer|kawaii ?aesthetic|adorable ?content|kawaii ?culture|cute ?moments)\b/.test(t)) found.genres.push('kawaii');
+  // Brainrot — current internet humor cluster (skibidi, italian brainrot, sigma, etc.)
+  if(/\b(brainrot|skibidi|skibidi ?toilet|italian ?brainrot|sigma|sigma ?moment|only ?in ?ohio|gyatt|rizzler|fanum ?tax|tung ?tung|tralalero|chimpanzini|brainrotsti|brainrot ?meme|brainrot ?tok)\b/.test(t)) found.content.push('brainrot');
+  // SpongeBob — cartoon nostalgia + VTuber crossover (Mysti's "purple dino vs hardest spongebob level")
+  if(/\b(spongebob|sponge ?bob|spongebobsquarepants|patrick ?star|squidward|bikini ?bottom|krabby ?patty|mr ?krabs|nicktoon)\b/.test(t)) found.games.push('spongebob');
+  // Persona 5 / Royal — explicit detection beyond generic 'persona'
+  if(/\b(persona ?5(?: ?royal)?|p5r?|phantom ?thieves|joker ?persona|akira ?kurusu|ren ?amamiya|atlus)\b/.test(t)) found.games.push('persona 5');
+  // JJK / Jujutsu Kaisen — anime crossover
+  if(/\b(jujutsu ?kaisen|jjk|domain ?expansion|gojo|itadori|sukuna|cursed ?technique|jjk ?anime|jjk ?clips)\b/.test(t)) found.games.push('jujutsu kaisen');
+  // Jujutsu Shenanigans (Roblox JJK game) — separately keyed
+  if(/\b(jujutsu ?shenanigans|jjs ?roblox|jjs ?clips)\b/.test(t)) found.games.push('jujutsu shenanigans');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) found.games.push('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
