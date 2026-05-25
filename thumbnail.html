@@ -156,71 +156,218 @@
   .thumb-stat.warn{background:rgba(255,213,138,0.4);color:#a35c00;border-color:rgba(255,178,138,0.5)}
   .thumb-stat.bad{background:rgba(255,178,200,0.5);color:#a23556;border-color:rgba(255,138,168,0.6)}
 
-  /* Multi-size simulator */
-  .size-grid{
-    display:grid;gap:16px;
-    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-    margin-top:6px;
+  /* YouTube mockup previews — mobile + desktop */
+  .yt-preview-grid{
+    display:grid;gap:22px;
+    grid-template-columns:minmax(280px, 360px) 1fr;
+    margin-top:6px;align-items:start;
   }
-  .size-card{
-    background:rgba(255,255,255,0.55);
-    border:1px solid rgba(144,165,255,0.25);
+  @media(max-width:780px){.yt-preview-grid{grid-template-columns:1fr;justify-items:center}}
+  .yt-mock{
+    background:#fff;
     border-radius:14px;
-    padding:14px;
-    display:flex;flex-direction:column;align-items:center;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(99,170,244,0.22);
   }
-  .size-card .platform-mock{
-    position:relative;
-    background:#0f0f0f;border-radius:8px;overflow:hidden;
+  .yt-mock-label{
+    font-size:11px;font-weight:800;color:var(--deep);
+    text-transform:uppercase;letter-spacing:.06em;text-align:center;
     margin-bottom:10px;
   }
-  .size-card .platform-mock img{display:block;width:100%;height:100%;object-fit:cover}
-  /* Play button overlay (mobile feed) */
-  .size-card .play-overlay{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;
+  .yt-mock-label span{
+    display:inline-block;
+    padding:4px 12px;
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;
   }
-  .size-card .play-overlay::after{
-    content:"";width:28%;aspect-ratio:1;
-    background:rgba(0,0,0,0.55);border-radius:50%;
-    display:block;
+
+  /* ---- YouTube MOBILE mockup (phone frame) ---- */
+  .yt-mobile-wrap{display:flex;flex-direction:column;align-items:center}
+  .yt-mobile{
+    width:320px;
+    background:#fff;
+    border-radius:28px;
+    padding:8px;
+    border:8px solid #1a1a1a;
+    box-shadow:0 14px 36px rgba(99,170,244,0.28);
+    position:relative;
+    overflow:hidden;
   }
-  .size-card .play-overlay::before{
-    content:"";position:absolute;
-    width:0;height:0;
-    border-left:10px solid #fff;
-    border-top:7px solid transparent;
-    border-bottom:7px solid transparent;
-    z-index:1;margin-left:3px;
+  .yt-mobile .notch{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:90px;height:18px;background:#1a1a1a;
+    border-radius:0 0 14px 14px;z-index:5;
   }
-  /* Duration badge (bottom-right corner) */
-  .size-card .duration-badge{
-    position:absolute;bottom:4px;right:4px;
+  .yt-mobile-inner{background:#fff;border-radius:18px;overflow:hidden;font-family:Roboto,Arial,sans-serif}
+  .yt-mobile-statusbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 16px 4px;font-size:11px;font-weight:700;color:#222;
+  }
+  .yt-mobile-topbar{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 12px 10px;border-bottom:1px solid #eee;
+  }
+  .yt-mobile-topbar .yt-logo-mark{
+    display:inline-flex;align-items:center;gap:2px;
+    font-weight:900;font-size:13px;color:#222;
+  }
+  .yt-mobile-topbar .yt-logo-mark::before{
+    content:"";display:inline-block;width:18px;height:13px;
+    background:#FF0000;border-radius:4px;position:relative;margin-right:3px;
+  }
+  .yt-mobile-topbar .yt-logo-mark::after{
+    content:"";position:absolute;width:0;height:0;
+    border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent;
+    margin-left:-13px;margin-top:3px;
+  }
+  .yt-mobile-topbar .spacer{flex:1}
+  .yt-mobile-topbar .icon-dot{
+    width:22px;height:22px;border-radius:50%;
+    background:#eee;display:inline-block;
+  }
+  .yt-mobile-feed-item{padding:0 0 8px}
+  .yt-mobile-feed-item .thumb-area{
+    width:100%;aspect-ratio:16/9;position:relative;
+    background:#000;overflow:hidden;
+  }
+  .yt-mobile-feed-item .thumb-area img{
+    display:block;width:100%;height:100%;object-fit:cover;
+  }
+  .yt-mobile-feed-item .duration-badge{
+    position:absolute;bottom:6px;right:6px;
     background:rgba(0,0,0,0.85);color:#fff;
-    padding:1px 5px;border-radius:3px;
-    font-size:9px;font-weight:700;font-family:Arial,sans-serif;
-    z-index:2;
+    padding:2px 5px;border-radius:3px;
+    font-size:10px;font-weight:700;
+    font-family:Roboto,Arial,sans-serif;
   }
-  .size-card .progress-bar{
+  .yt-mobile-feed-item .progress-bar{
     position:absolute;left:0;right:0;bottom:0;
     height:3px;background:rgba(255,255,255,0.25);
   }
-  .size-card .progress-bar::after{
-    content:"";display:block;width:40%;height:100%;background:#ff0000;
+  .yt-mobile-feed-item .progress-bar::after{
+    content:"";display:block;width:35%;height:100%;background:#ff0000;
   }
-  .size-card .size-label{
-    font-size:11px;font-weight:800;color:var(--deep);
-    text-transform:uppercase;letter-spacing:.05em;text-align:center;
+  .yt-mobile-meta{
+    display:grid;
+    grid-template-columns:36px 1fr 16px;
+    gap:10px;align-items:start;
+    padding:10px 12px 4px;
   }
-  .size-card .size-meta{
-    font-size:10.5px;color:var(--ink-soft);text-align:center;margin-top:2px;
+  .yt-mobile-meta .channel-avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
   }
-  /* The mocks themselves get explicit widths */
-  .size-card.s-mobile .platform-mock{width:120px;aspect-ratio:16/9}
-  .size-card.s-search .platform-mock{width:168px;aspect-ratio:16/9}
-  .size-card.s-grid .platform-mock{width:246px;aspect-ratio:16/9}
-  .size-card.s-watchnext .platform-mock{width:168px;aspect-ratio:16/9}
-  .size-card.s-twitch .platform-mock{width:260px;aspect-ratio:16/9}
+  .yt-mobile-meta .text-col{min-width:0}
+  .yt-mobile-meta .title{
+    font-size:13.5px;font-weight:700;color:#0f0f0f;
+    line-height:1.3;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    word-break:break-word;
+  }
+  .yt-mobile-meta .sub{
+    font-size:11.5px;color:#606060;margin-top:3px;
+    line-height:1.3;
+  }
+  .yt-mobile-meta .dots{
+    color:#606060;font-size:16px;line-height:1;text-align:right;font-weight:800;
+  }
+  .yt-mobile-feed-peek{
+    margin:6px 12px 8px;height:1px;background:#eee;
+  }
+  .yt-mobile-feed-peek-thumb{
+    width:100%;aspect-ratio:16/9;background:#eee;border-radius:6px;
+    margin:0 0 8px;opacity:0.55;
+  }
+
+  /* ---- YouTube DESKTOP mockup ---- */
+  .yt-desktop-wrap{display:flex;flex-direction:column}
+  .yt-desktop{
+    border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;
+    background:#fff;font-family:Roboto,Arial,sans-serif;
+  }
+  .yt-desktop-header{
+    display:flex;align-items:center;gap:14px;
+    padding:8px 14px;border-bottom:1px solid #e5e5e5;
+  }
+  .yt-desktop-header .hamburger{
+    width:18px;height:14px;display:inline-block;
+    background:linear-gradient(to bottom, #0f0f0f 2px, transparent 2px, transparent 6px, #0f0f0f 6px, #0f0f0f 8px, transparent 8px, transparent 12px, #0f0f0f 12px, #0f0f0f 14px);
+  }
+  .yt-desktop-header .yt-logo-mark{
+    display:inline-flex;align-items:center;gap:4px;
+    font-weight:900;font-size:14px;color:#0f0f0f;letter-spacing:-0.5px;
+    position:relative;
+  }
+  .yt-desktop-header .yt-logo-mark::before{
+    content:"";display:inline-block;width:22px;height:16px;
+    background:#FF0000;border-radius:5px;position:relative;
+  }
+  .yt-desktop-header .yt-logo-mark::after{
+    content:"";position:absolute;left:8px;top:50%;transform:translateY(-50%);
+    width:0;height:0;
+    border-left:6px solid #fff;border-top:4px solid transparent;border-bottom:4px solid transparent;
+  }
+  .yt-desktop-header .search{
+    flex:1;max-width:340px;margin:0 auto;
+    height:30px;border:1px solid #ccc;border-radius:999px;
+    display:flex;align-items:center;padding:0 14px;
+    color:#888;font-size:12px;
+  }
+  .yt-desktop-header .signin{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 11px;
+    border:1px solid #1c62b9;color:#1c62b9;border-radius:999px;
+    font-size:12px;font-weight:700;
+  }
+  .yt-desktop-header .signin::before{
+    content:"";display:inline-block;width:12px;height:12px;
+    border-radius:50%;border:1.5px solid #1c62b9;
+  }
+  .yt-desktop-grid{
+    display:grid;gap:16px;
+    grid-template-columns:1fr 1fr 1fr;
+    padding:18px 14px;
+  }
+  .yt-desktop-card{display:flex;flex-direction:column;min-width:0}
+  .yt-desktop-card .thumb-area{
+    width:100%;aspect-ratio:16/9;position:relative;
+    background:#000;border-radius:10px;overflow:hidden;
+  }
+  .yt-desktop-card .thumb-area img{display:block;width:100%;height:100%;object-fit:cover}
+  .yt-desktop-card .duration-badge{
+    position:absolute;bottom:6px;right:6px;
+    background:rgba(0,0,0,0.85);color:#fff;
+    padding:1px 5px;border-radius:3px;
+    font-size:10px;font-weight:700;font-family:Roboto,Arial,sans-serif;
+  }
+  .yt-desktop-card.placeholder .thumb-area{background:#e9e9e9}
+  .yt-desktop-card.placeholder .thumb-area::after{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(45deg, transparent 0 8px, rgba(0,0,0,0.04) 8px 16px);
+  }
+  .yt-desktop-meta{
+    display:grid;
+    grid-template-columns:32px 1fr;gap:10px;
+    margin-top:10px;
+  }
+  .yt-desktop-meta .channel-avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--periwinkle),var(--mint));
+  }
+  .yt-desktop-card.placeholder .channel-avatar{background:#d9d9d9}
+  .yt-desktop-meta .title{
+    font-size:13px;font-weight:700;color:#0f0f0f;
+    line-height:1.3;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    word-break:break-word;
+  }
+  .yt-desktop-meta .sub{
+    font-size:11.5px;color:#606060;margin-top:2px;line-height:1.3;
+  }
+  .yt-desktop-card.placeholder .title{background:#e9e9e9;height:13px;border-radius:3px;margin-bottom:5px}
+  .yt-desktop-card.placeholder .title-2{background:#e9e9e9;height:13px;border-radius:3px;width:65%}
+  .yt-desktop-card.placeholder .sub{background:#e9e9e9;height:11px;border-radius:3px;width:50%;margin-top:6px}
 
   /* Score hero */
   .score-hero{
@@ -386,14 +533,14 @@
     </div>
   </section>
 
-  <!-- STEP 2: MULTI-SIZE PREVIEW -->
+  <!-- STEP 2: YOUTUBE PREVIEW (mobile + desktop) -->
   <section class="card step-card hidden" id="step2">
     <div class="step-head">
       <span class="step-num">2</span>
-      <h2>What it looks like at every size <span class="sub">scroll-test in one place</span></h2>
+      <h2>What it looks like on YouTube <span class="sub">mobile + desktop, side by side</span></h2>
     </div>
-    <p class="step-intro">Most people will see your thumbnail at <strong>120–250px wide</strong>. If your text is illegible at this size, you lose the click. Look for: text that disappears, faces that vanish, key details hidden by the duration badge or play button.</p>
-    <div class="size-grid" id="sizeGrid"></div>
+    <p class="step-intro">Most people will see your thumbnail in the <strong>YouTube mobile feed</strong> (the small thumbnail on a phone) or the <strong>YouTube homepage grid</strong> on desktop. If your text disappears at this size, you lose the click. Look for: tiny text, vanishing faces, key details hidden by the duration badge.</p>
+    <div class="yt-preview-grid" id="ytPreviewGrid"></div>
   </section>
 
   <!-- STEP 3: SCORE -->
@@ -504,8 +651,10 @@ function setProgress(open, title, stage, pct, detail){
   if(detail !== undefined) ppDetail.textContent = detail;
 }
 
-// ----- Florence-2 loader (mirrors analyzer.html) -----
-let florenceLoader = null;
+// ----- Florence-2 loader (mirrors analyzer.html, SHARED across pages) -----
+// Stash on window so analyzer.html + thumbnail.html share the same loader instance —
+// once one page has Florence-2 in memory, the other page reuses it instead of re-initializing.
+let florenceLoader = window.__sharedFlorenceLoader || null;
 async function loadFlorence(progressCb){
   if(florenceLoader) return florenceLoader;
   florenceLoader = (async () => {
@@ -519,6 +668,7 @@ async function loadFlorence(progressCb){
     ]);
     return {mod, model, processor, tokenizer};
   })();
+  window.__sharedFlorenceLoader = florenceLoader;
   return florenceLoader;
 }
 
@@ -552,8 +702,8 @@ function sanitizeOcrText(text){
   return cleaned.split(/\n+/).filter(line => /\w{2,}/.test(line)).join(' ').trim();
 }
 
-// ----- BlazeFace loader (reuses TF.js + BlazeFace from CDN) -----
-let blazeLoader = null;
+// ----- BlazeFace loader (reuses TF.js + BlazeFace from CDN, SHARED across pages) -----
+let blazeLoader = window.__sharedBlazeLoader || null;
 async function loadBlazeface(){
   if(blazeLoader) return blazeLoader;
   blazeLoader = (async () => {
@@ -575,6 +725,7 @@ async function loadBlazeface(){
     }
     return await window.blazeface.load();
   })();
+  window.__sharedBlazeLoader = blazeLoader;
   return blazeLoader;
 }
 
@@ -587,6 +738,45 @@ async function detectFaces(canvas){
     console.warn('BlazeFace failed:', e.message || e);
     return [];
   }
+}
+
+// ---- Anime / VTuber character detection via Florence-2 ----
+// BlazeFace only fires on real human faces. For anime / VTuber models we need a different
+// signal. Florence-2's caption + grounded-detection gives us "is there a stylized character
+// in this thumbnail" by reading the scene description and looking for character vocabulary.
+async function detectCharacters(canvas){
+  let caption = '';
+  try{
+    caption = await runFlorenceTask(canvas, '<MORE_DETAILED_CAPTION>', 150);
+  }catch(e){
+    console.warn('Florence-2 caption failed:', e.message || e);
+    return {hasCharacter:false, characterType:'none', caption:'', kind:'none'};
+  }
+  if(!caption) return {hasCharacter:false, characterType:'none', caption:'', kind:'none'};
+  const c = caption.toLowerCase();
+
+  // Strong character signals — these vocabularies indicate a person / VTuber / anime character
+  // is the focal subject of the image even if BlazeFace missed them.
+  const animeWords = ['anime','vtuber','vtube','illustrated','illustration','cartoon','chibi','manga',
+                       'drawn','drawing','stylized','cel-shaded','animation','animated','art style',
+                       'cartoon character','anime character','anime girl','anime boy'];
+  const realPersonWords = ['woman','man','girl','boy','person','people','face','portrait','selfie',
+                            'streamer','streaming','live','headshot'];
+  const characterWords = ['character','avatar','mascot','model','figure','hero','vtuber model'];
+  const hasAnime = animeWords.some(w => c.includes(w));
+  const hasReal = realPersonWords.some(w => c.includes(w));
+  const hasCharacter = characterWords.some(w => c.includes(w));
+
+  let kind = 'none';
+  if(hasAnime) kind = 'anime';
+  else if(hasReal) kind = 'real';
+  else if(hasCharacter) kind = 'character';
+
+  return {
+    hasCharacter: kind !== 'none',
+    kind,
+    caption: caption.slice(0, 280)
+  };
 }
 
 // ============================================================
@@ -743,8 +933,8 @@ async function handleThumb(file){
     <span class="thumb-stat ${fileSize > 2*1024*1024 ? 'warn' : ''}">${fileSizeMB} MB</span>
   `;
 
-  // Render multi-size simulator immediately
-  renderSizeSimulator(url);
+  // Render YouTube mockup previews immediately (titleText filled in after OCR)
+  renderYTMockups(url, '');
   $('step2').classList.remove('hidden');
 
   // Prepare analysis canvas (downsample to 320 wide max for speed)
@@ -791,21 +981,37 @@ async function handleThumb(file){
   try{ ocrRaw = await runFlorenceTask(canvasOcr, '<OCR>', 200); }catch(e){}
   const ocrText = sanitizeOcrText(ocrRaw);
 
-  // ---- Face detection ----
-  setProgress(true, 'Looking for faces…', 'BlazeFace running on the thumbnail.', 97, '');
+  // ---- Face detection (BlazeFace — real human faces only) ----
+  setProgress(true, 'Looking for faces…', 'BlazeFace running on the thumbnail.', 96, '');
   let faces = [];
   try{ faces = await detectFaces(canvasSmall); }catch(e){}
 
+  // ---- Character detection (Florence-2 — catches anime / VTuber models) ----
+  setProgress(true, 'Looking for VTuber characters…', 'Florence-2 captioning to spot stylized characters BlazeFace misses.', 98, '');
+  let characterInfo = {hasCharacter:false, kind:'none', caption:''};
+  try{ characterInfo = await detectCharacters(canvasOcr); }catch(e){ console.warn('Character detect failed:', e); }
+
   setProgress(false);
+
+  // Combined "character presence" signal — counts real faces + anime / VTuber characters.
+  const personPresence = {
+    realFaceCount: faces.length,
+    animeOrCharacter: characterInfo.hasCharacter,
+    kind: characterInfo.kind,
+    sceneCaption: characterInfo.caption
+  };
+
+  // Re-render YT mockups with the OCR'd text so the title slot reflects what we read
+  renderYTMockups(url, ocrText || '');
 
   // ---- Score everything ----
   const verdict = scoreThumbnail({
-    W, H, aspect, fileSize, ocrText, faces, colorStats, focalStats, edgeStats, canvasSmall
+    W, H, aspect, fileSize, ocrText, faces, personPresence, colorStats, focalStats, edgeStats, canvasSmall
   });
 
   // Render results
   renderScore(verdict);
-  renderInsights({ocrText, faces, colorStats, focalStats, edgeStats});
+  renderInsights({ocrText, faces, personPresence, colorStats, focalStats, edgeStats});
   renderChecklist(verdict);
   ['step3','step4','step5'].forEach(id => $(id).classList.remove('hidden'));
 }
@@ -813,7 +1019,7 @@ async function handleThumb(file){
 // ============================================================
 //  Scoring
 // ============================================================
-function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, colorStats, focalStats, edgeStats}){
+function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, personPresence, colorStats, focalStats, edgeStats}){
   const crits = [];
 
   // 1. DIMENSIONS / ASPECT — 1.0 weight
@@ -874,26 +1080,41 @@ function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, colorStats, foc
                    'Muted / desaturated palette. Aesthetic, but disappears in the feed.';
   crits.push({key:'sat', name:'Color saturation', score:Math.max(3, Math.min(10, sat)), weight:1.0, impact:'mid', blurb:satBlurb});
 
-  // 6. FACE PRESENCE — 1.5 weight
+  // 6. CHARACTER / FACE PRESENCE — 1.5 weight
+  // Combine BlazeFace (real human faces) with Florence-2 caption-derived character detection
+  // (catches anime / VTuber models that BlazeFace can't see).
   let face = 5;
-  const faceBlurb = (() => {
-    if(faces.length === 0) return 'No face detected. Face thumbnails consistently beat faceless ones — try adding one.';
-    if(faces.length === 1){
-      const f = faces[0];
-      const [tx, ty] = f.topLeft;
-      const [bx, by] = f.bottomRight;
-      const fw = bx - tx, fh = by - ty;
-      const imgArea = focalStats.cells[0] ? 1 : 1; // placeholder, see below
-      // We don't have direct image dims here — recompute from canvasSmall passed implicitly. We'll skip ratio and just note.
-      return `1 clear face detected — strong personal hook.`;
-    }
-    return `${faces.length} faces detected — busy but personal.`;
-  })();
-  if(faces.length === 1) face = 9;
-  else if(faces.length === 2) face = 8;
-  else if(faces.length >= 3) face = 6;
-  else face = 4;
-  crits.push({key:'face', name:'Face presence', score:face, weight:1.5, impact:'mid', blurb:faceBlurb});
+  let faceBlurb = '';
+  const pp = personPresence || {realFaceCount:0, animeOrCharacter:false, kind:'none'};
+  const realCount = pp.realFaceCount;
+  const hasChar = pp.animeOrCharacter;
+  const kind = pp.kind;
+
+  if(realCount === 0 && !hasChar){
+    face = 4;
+    faceBlurb = 'No face or character detected. Thumbnails with a clear character / face consistently outperform faceless ones — try adding your model.';
+  } else if(realCount === 1 && !hasChar){
+    face = 9;
+    faceBlurb = '1 real face detected (BlazeFace) — strong personal hook.';
+  } else if(realCount >= 2 && !hasChar){
+    face = realCount === 2 ? 8 : 6;
+    faceBlurb = `${realCount} real faces detected — ${realCount === 2 ? 'good duo energy' : 'busy but personal'}.`;
+  } else if(hasChar && realCount === 0){
+    // Anime / VTuber character detected via Florence-2, BlazeFace missed it (expected for illustrated models)
+    if(kind === 'anime') face = 9;
+    else if(kind === 'character') face = 8;
+    else face = 7;
+    faceBlurb = kind === 'anime'
+      ? 'VTuber / anime character spotted in the scene (Florence-2). Strong personal hook for VTuber content — BlazeFace misses illustrated models, that\'s why this signal is here.'
+      : kind === 'real'
+        ? 'Person mentioned in scene description but no clear face — try a closer / clearer shot of the subject.'
+        : 'Character / mascot detected. Solid personal hook for the thumbnail.';
+  } else {
+    // Both signals firing
+    face = 10;
+    faceBlurb = `Real face${realCount > 1 ? 's' : ''} + ${kind === 'anime' ? 'anime / VTuber' : 'character'} both detected — IRL + model combo always pops.`;
+  }
+  crits.push({key:'face', name:'Character / face presence', score:face, weight:1.5, impact:'mid', blurb:faceBlurb});
 
   // 7. EDGE SAFETY — 1.0 weight
   // High variance in bottom-right or dead center = content that'll get covered by UI overlays
@@ -929,26 +1150,99 @@ function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, colorStats, foc
 // ============================================================
 //  Renderers
 // ============================================================
-function renderSizeSimulator(url){
-  const sizes = [
-    {key:'mobile', cls:'s-mobile', label:'Mobile feed', meta:'~120px wide', showPlay:true, showDur:true},
-    {key:'search', cls:'s-search', label:'YT search / suggested', meta:'~168px wide', showPlay:false, showDur:true},
-    {key:'watchnext', cls:'s-watchnext', label:'YT watch-next', meta:'~168px wide', showPlay:false, showDur:true},
-    {key:'grid', cls:'s-grid', label:'YT homepage grid', meta:'~246px wide', showPlay:false, showDur:true},
-    {key:'twitch', cls:'s-twitch', label:'Twitch directory', meta:'~260px wide', showPlay:false, showDur:false, showProgress:false}
-  ];
-  const grid = $('sizeGrid');
-  grid.innerHTML = sizes.map(s => `
-    <div class="size-card ${s.cls}">
-      <div class="platform-mock">
-        <img src="${url}" alt="" />
-        ${s.showPlay ? '<div class="play-overlay"></div>' : ''}
-        ${s.showDur ? '<span class="duration-badge">5:42</span>' : ''}
+function renderYTMockups(url, titleText){
+  const grid = $('ytPreviewGrid');
+  const titleSafe = escapeHtml((titleText || 'Your video title will show up right here — keep it under ~60 chars on desktop').slice(0, 100));
+  const channelName = 'Your Channel';
+  const meta = '1.2K views · 2 hours ago';
+  grid.innerHTML = `
+    <!-- MOBILE -->
+    <div class="yt-mobile-wrap">
+      <div class="yt-mock-label"><span>📱 YouTube mobile app</span></div>
+      <div class="yt-mobile">
+        <div class="notch"></div>
+        <div class="yt-mobile-inner">
+          <div class="yt-mobile-statusbar">
+            <span>9:41</span>
+            <span>● ● ●  📶 🔋</span>
+          </div>
+          <div class="yt-mobile-topbar">
+            <span class="yt-logo-mark">YouTube</span>
+            <span class="spacer"></span>
+            <span class="icon-dot"></span>
+            <span class="icon-dot"></span>
+            <span class="icon-dot"></span>
+          </div>
+          <div class="yt-mobile-feed-item">
+            <div class="thumb-area">
+              <img src="${url}" alt="Your thumbnail in mobile feed" />
+              <span class="duration-badge">5:42</span>
+              <div class="progress-bar"></div>
+            </div>
+            <div class="yt-mobile-meta">
+              <div class="channel-avatar"></div>
+              <div class="text-col">
+                <div class="title">${titleSafe}</div>
+                <div class="sub">${channelName} · ${meta}</div>
+              </div>
+              <div class="dots">⋮</div>
+            </div>
+            <div class="yt-mobile-feed-peek-thumb"></div>
+          </div>
+        </div>
       </div>
-      <div class="size-label">${s.label}</div>
-      <div class="size-meta">${s.meta}</div>
     </div>
-  `).join('');
+
+    <!-- DESKTOP -->
+    <div class="yt-desktop-wrap">
+      <div class="yt-mock-label"><span>🖥️ YouTube desktop homepage</span></div>
+      <div class="yt-desktop">
+        <div class="yt-desktop-header">
+          <span class="hamburger"></span>
+          <span class="yt-logo-mark">YouTube</span>
+          <div class="search">Search</div>
+          <span class="signin">Sign in</span>
+        </div>
+        <div class="yt-desktop-grid">
+          <div class="yt-desktop-card placeholder">
+            <div class="thumb-area"></div>
+            <div class="yt-desktop-meta">
+              <div class="channel-avatar"></div>
+              <div>
+                <div class="title"></div>
+                <div class="title title-2"></div>
+                <div class="sub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="yt-desktop-card">
+            <div class="thumb-area">
+              <img src="${url}" alt="Your thumbnail in desktop grid" />
+              <span class="duration-badge">5:42</span>
+            </div>
+            <div class="yt-desktop-meta">
+              <div class="channel-avatar"></div>
+              <div>
+                <div class="title">${titleSafe}</div>
+                <div class="sub">${channelName}<br/>${meta}</div>
+              </div>
+            </div>
+          </div>
+          <div class="yt-desktop-card placeholder">
+            <div class="thumb-area"></div>
+            <div class="yt-desktop-meta">
+              <div class="channel-avatar"></div>
+              <div>
+                <div class="title"></div>
+                <div class="title title-2"></div>
+                <div class="sub"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderScore(v){
@@ -981,21 +1275,44 @@ function renderScore(v){
   }).join('');
 }
 
-function renderInsights({ocrText, faces, colorStats, focalStats, edgeStats}){
+function renderInsights({ocrText, faces, personPresence, colorStats, focalStats, edgeStats}){
   const grid = $('insightGrid');
   const swatchHtml = colorStats.dominant.slice(0, 5).map(([r,g,b]) =>
     `<div class="swatch" title="rgb(${r},${g},${b})" style="background:rgb(${r},${g},${b})"></div>`
   ).join('');
   const ocrDisplay = ocrText ? `"${escapeHtml(ocrText.slice(0, 180))}${ocrText.length > 180 ? '…' : ''}"` :
                               '<em>No text detected on the thumbnail.</em>';
+
+  // Combined character / face card — explain the two detection systems
+  const pp = personPresence || {realFaceCount:0, animeOrCharacter:false, kind:'none', sceneCaption:''};
+  const real = pp.realFaceCount;
+  let charLine;
+  if(real === 0 && !pp.animeOrCharacter){
+    charLine = '<em>No character or face detected.</em>';
+  } else {
+    const bits = [];
+    if(real > 0) bits.push(`<strong>${real}</strong> real ${real===1?'face':'faces'} (BlazeFace)`);
+    if(pp.animeOrCharacter){
+      const kindLabel = pp.kind === 'anime' ? 'anime / VTuber model' :
+                        pp.kind === 'real' ? 'person described' :
+                        'character / mascot';
+      bits.push(`<strong>${kindLabel}</strong> (Florence-2 caption)`);
+    }
+    charLine = bits.join(' + ');
+  }
+  const sceneLine = pp.sceneCaption ? `<p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);line-height:1.45">Scene: <em>${escapeHtml(pp.sceneCaption.slice(0, 200))}${pp.sceneCaption.length > 200 ? '…' : ''}</em></p>` : '';
+
   grid.innerHTML = `
     <div class="insight-card">
       <h4>📝 Text I read on screen</h4>
       <div class="insight-body">${ocrDisplay}</div>
     </div>
     <div class="insight-card">
-      <h4>😀 Faces detected</h4>
-      <div class="insight-body">${faces.length} face${faces.length === 1 ? '' : 's'}.${faces.length > 0 ? ' Confidence: <code>' + faces.map(f => (f.probability ? (typeof f.probability === 'number' ? (f.probability*100).toFixed(0) : Array.isArray(f.probability) ? (f.probability[0]*100).toFixed(0) : '?') : '?') + '%').join(', ') + '</code>.' : ''}</div>
+      <h4>😀 Character / face detection</h4>
+      <div class="insight-body">
+        ${charLine}
+        ${sceneLine}
+      </div>
     </div>
     <div class="insight-card">
       <h4>🎨 Dominant colors</h4>
