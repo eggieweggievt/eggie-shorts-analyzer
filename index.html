@@ -847,7 +847,7 @@
       <input type="file" id="videoFile" accept="video/*" />
     </label>
     <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
-      First time you upload a video, I download two small models (about ~310MB total) so I can <em>see</em> what's in your video and <em>hear</em> what's being said. After that they're cached forever and analysis is fast.
+      First time you upload a video, I download two small models (about ~380MB total) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, and <em>hear</em> what's being said. After that they're cached forever and analysis is fast.
     </p>
     <div class="video-preview-wrap" id="videoPreviewWrap">
       <video id="videoPreview" controls muted playsinline></video>
@@ -2217,9 +2217,65 @@ const TAG_DB = {
   }
 };
 
+// EMOJI → KEYWORD map. VTuber + meme short titles lean heavily on emoji to set the vibe,
+// and the detection regex doesn't see emoji. We append text equivalents to the input so the
+// regex matchers can fire on emotional signals like 💀 (funny fail) or 🥺 (wholesome).
+const EMOJI_KEYWORDS = {
+  '💀': 'funny dead lmao', '🤣': 'funny lmao hilarious', '😂': 'funny lmao', '😹': 'funny lmao',
+  '🥹': 'wholesome relatable emotional', '🥺': 'wholesome cute pleading', '🩷': 'wholesome cute',
+  '💗': 'wholesome cute love', '💕': 'wholesome cute love', '💖': 'wholesome cute love', '🫶': 'wholesome love',
+  '😭': 'crying emotional funny', '😢': 'sad emotional', '😔': 'sad emotional',
+  '🍵': 'drama tea spilling', '👀': 'reaction watching curious', '🫣': 'reaction shocked peek',
+  '😳': 'shocked reaction blushing', '😱': 'shocked reaction scream', '🤯': 'shocked mindblown reaction',
+  '✨': 'wholesome sparkle aesthetic', '🌸': 'wholesome cute kawaii', '🐙': 'cute mascot',
+  '🎮': 'gaming gameplay', '🕹️': 'gaming retro', '🎧': 'asmr music headphones',
+  '🎤': 'singing music cover', '🎵': 'music song', '🎶': 'music song',
+  '💜': 'wholesome', '💙': 'wholesome', '🤍': 'wholesome', '🖤': 'cursed unhinged',
+  '😤': 'rage tilted angry', '😡': 'rage angry', '🙄': 'rant unimpressed',
+  '🔥': 'fire viral hype', '💯': 'relatable so true real',
+  '🥵': 'spicy hot reaction', '🥶': 'cold shocked reaction',
+  '🤡': 'cursed clown funny fail', '💩': 'cringe funny fail',
+  '🍕': 'food', '🍜': 'mukbang food eating', '🍣': 'food sushi', '🥘': 'cooking food', '🧋': 'food bubble tea',
+  '🐱': 'cat pets cute', '🐶': 'dog pets cute', '🐰': 'rabbit pets cute', '🦊': 'fox cute',
+  '👻': 'horror spooky', '🎃': 'spooky halloween', '🧛': 'horror vampire',
+  '🏳️‍🌈': 'lgbt pride queer', '🏳️‍⚧️': 'trans transgender pride',
+  '🫩': 'tired exhausted relatable',
+  '🐉': 'dragon vtuber', '🐲': 'dragon vtuber',
+  '👑': 'cute queen vtuber',
+  '🎬': 'film cinema pov', '🎙️': 'podcast voiceover'
+};
+function expandEmojis(text){
+  if(!text) return '';
+  let extras = [];
+  // Iterate by code point so multi-codeunit emoji match correctly
+  for(const ch of String(text)){
+    if(EMOJI_KEYWORDS[ch]) extras.push(EMOJI_KEYWORDS[ch]);
+  }
+  return extras.length ? (text + ' ' + extras.join(' ')) : text;
+}
+
+// HASHTAG EXTRACTOR — pulls #foo #bar tokens from arbitrary text. Used so #vtuber typed
+// inline in a title or description is treated as a strong topic signal, not ambient text.
+function extractHashtagKeywords(text){
+  if(!text) return '';
+  const matches = String(text).match(/#([A-Za-z0-9_]+)/g);
+  if(!matches) return '';
+  // Strip the # and join with spaces so the detection regex sees them as separate words
+  return matches.map(h => h.slice(1)).join(' ');
+}
+
+// Combined normalize — apply both transforms to any input text before detection.
+function normalizeForDetection(text){
+  const expanded = expandEmojis(text || '');
+  const hashtagText = extractHashtagKeywords(text || '');
+  return hashtagText ? (expanded + ' ' + hashtagText) : expanded;
+}
+
 // Scan a single text string for topic matches. Returns games / genres / content / hasVTuber but NOT a primary.
 function _scanTextForTopics(text){
-  const t = (text||'').toLowerCase();
+  // Normalize emoji + extract hashtag keywords before lowercasing for regex matching
+  const normalized = normalizeForDetection(text);
+  const t = (normalized||'').toLowerCase();
   const found = {games:[], genres:[], content:[], hasVTuber:false};
   if(!t) return found;
 
@@ -3757,10 +3813,11 @@ async function loadFlorence(progressCb){
 }
 
 // Generate a rich scene description for one frame (canvas) using Florence-2.
-async function describeFrame(canvas){
+// Run a Florence-2 task on a canvas frame. Supports any of Florence's named tasks
+// (<MORE_DETAILED_CAPTION>, <OCR>, <DENSE_REGION_CAPTION>, <OD>, etc).
+async function runFlorenceTask(canvas, task, maxTokens){
   try{
     const {mod, model, processor, tokenizer} = await loadFlorence();
-    const task = '<MORE_DETAILED_CAPTION>';
     const prompts = processor.construct_prompts(task);
     const text_inputs = tokenizer(prompts);
 
@@ -3771,16 +3828,42 @@ async function describeFrame(canvas){
     const generated_ids = await model.generate({
       ...text_inputs,
       ...vision_inputs,
-      max_new_tokens: 150,
+      max_new_tokens: maxTokens || 150,
       num_beams: 1
     });
     const generated_text = tokenizer.batch_decode(generated_ids, {skip_special_tokens: false})[0];
     const result = processor.post_process_generation(generated_text, task, image.size);
-    return (result[task] || '').trim();
+    const out = result[task];
+    if(typeof out === 'string') return out.trim();
+    if(out && typeof out === 'object'){
+      // OCR_WITH_REGION returns {quad_boxes, labels}. <OCR> task returns the text directly.
+      if(Array.isArray(out.labels)) return out.labels.join(' ').trim();
+      if(Array.isArray(out)) return out.join(' ').trim();
+    }
+    return '';
   }catch(e){
-    console.warn('Florence-2 failed:', e.message || e);
+    console.warn('Florence-2 task', task, 'failed:', e.message || e);
     return '';
   }
+}
+
+// Legacy alias — describes the scene using Florence-2's MORE_DETAILED_CAPTION.
+async function describeFrame(canvas){
+  return runFlorenceTask(canvas, '<MORE_DETAILED_CAPTION>', 150);
+}
+
+// Reads any on-screen text using Florence-2's OCR task. Returns the text string.
+async function ocrFrame(canvas){
+  return runFlorenceTask(canvas, '<OCR>', 200);
+}
+
+// Filter / sanitize OCR output — strip obvious garbage, very short fragments, control chars.
+function sanitizeOcrText(text){
+  if(!text) return '';
+  // Remove control chars + collapse whitespace
+  let cleaned = String(text).replace(/[ -]/g, ' ').replace(/\s+/g, ' ').trim();
+  // Strip single-char noise lines, only keep lines with at least 2 word chars
+  return cleaned.split(/\n+/).filter(line => /\w{2,}/.test(line)).join(' ').trim();
 }
 
 // Color & vibe detection from extracted frames
@@ -3903,7 +3986,10 @@ async function loadWhisper(progressCb){
   whisperLoader = (async ()=>{
     const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
     mod.env.allowLocalModels = false;
-    return mod.pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en', {
+    // whisper-base.en (~140MB) — substantially better at slang, fast speech, and proper nouns
+    // than whisper-tiny.en (~75MB). Cached after first load, so first-run is slower but every
+    // subsequent analysis is the same speed.
+    return mod.pipeline('automatic-speech-recognition', 'Xenova/whisper-base.en', {
       progress_callback: progressCb
     });
   })();
@@ -4308,38 +4394,82 @@ async function handleVideoFile(file){
       // Pre-load Florence with progress reporting
       await loadFlorence(florenceProgressCb);
 
-      // Grab one high-res frame from the middle of the video — that's the most representative shot
+      // MULTI-FRAME SAMPLING — grab 3 high-res frames at 25%, 50%, 75% of the video so we
+      // catch the opening hook, middle action, AND the punchline. For each frame, run BOTH
+      // the scene-description task AND the OCR task to read any text overlays.
       const totalDur = videoPreview.duration || 3.0;
-      videoPreview.currentTime = totalDur * 0.5;
-      await new Promise(resolve => {
+      const seekTo = async (t) => new Promise(resolve => {
+        videoPreview.currentTime = Math.min(Math.max(t, 0.05), totalDur - 0.05);
         const h = ()=>{ videoPreview.removeEventListener('seeked', h); resolve(); };
         videoPreview.addEventListener('seeked', h);
         setTimeout(resolve, 1500);
       });
-      const visCanvas = document.createElement('canvas');
-      const vw = videoPreview.videoWidth || 640;
-      const vh = videoPreview.videoHeight || 360;
-      visCanvas.width = 768;
-      visCanvas.height = Math.round(vh * (768 / vw));
-      try{ visCanvas.getContext('2d').drawImage(videoPreview, 0, 0, visCanvas.width, visCanvas.height); }catch(e){}
+      const grabCanvas = () => {
+        const c = document.createElement('canvas');
+        const vw = videoPreview.videoWidth || 640;
+        const vh = videoPreview.videoHeight || 360;
+        c.width = 768;
+        c.height = Math.round(vh * (768 / vw));
+        try{ c.getContext('2d').drawImage(videoPreview, 0, 0, c.width, c.height); }catch(e){}
+        return c;
+      };
 
-      // Run face detection on the same frame while we have it
-      try{ faceCount = await detectFaces(visCanvas); }catch(e){ /* swallow */ }
+      const sampleTimes = [totalDur * 0.25, totalDur * 0.5, totalDur * 0.75];
+      const descriptions = [];
+      const ocrTexts = [];
+      const stageNames = ['opening', 'middle', 'closing'];
 
-      setWhisperState({title:'Looking at your video…', stage:'Florence-2 is describing the scene…', percent:97});
-      visualDescription = await describeFrame(visCanvas);
-      setVidProgress(90);
+      for(let i = 0; i < sampleTimes.length; i++){
+        const tag = stageNames[i];
+        setWhisperState({
+          title:'Looking at your video…',
+          stage:`Sampling the ${tag} frame and reading any on-screen text…`,
+          percent: 85 + (i * 4)
+        });
+        await seekTo(sampleTimes[i]);
+        const c = grabCanvas();
+        // Face detection only needs one frame — middle is most representative
+        if(i === 1){
+          try{ faceCount = await detectFaces(c); }catch(e){ /* swallow */ }
+        }
+        // Florence-2: scene description for THIS frame
+        try{
+          const desc = await runFlorenceTask(c, '<MORE_DETAILED_CAPTION>', 150);
+          if(desc) descriptions.push(desc);
+        }catch(e){ /* swallow per-frame errors */ }
+        // Florence-2: OCR on the same frame — reads text overlays, meme captions, POV: text, etc.
+        try{
+          const raw = await runFlorenceTask(c, '<OCR>', 200);
+          const cleaned = sanitizeOcrText(raw);
+          if(cleaned) ocrTexts.push(cleaned);
+        }catch(e){ /* swallow per-frame errors */ }
+      }
+      // Join with newlines so dedupe is easier and each frame's signal is distinct
+      visualDescription = descriptions.join(' \n ').trim();
+      // Dedupe the OCR text — same text overlay often persists across 2-3 frames
+      const ocrSeen = new Set();
+      const ocrUnique = [];
+      ocrTexts.forEach(t => {
+        const norm = t.toLowerCase().replace(/\s+/g, ' ').trim();
+        if(!ocrSeen.has(norm)){ ocrSeen.add(norm); ocrUnique.push(t); }
+      });
+      var onScreenText = ocrUnique.join(' · ').trim();
+      setVidProgress(95);
     }catch(e){
       console.warn('Florence-2 skipped:', e.message);
     }
+    // Hoist onScreenText for the videoContext composition below
+    if(typeof onScreenText === 'undefined') var onScreenText = '';
 
     // Combine all detected context into a single string. Stored globally — NOT pasted into form fields.
     // The analyzer uses this as extra detection context on top of whatever the user types in.
-    const titleCandidate = pickTitleLine(transcription);
+    // ON-SCREEN TEXT (from Florence's OCR pass) is a very strong signal — it's literally what
+    // the viewer reads on screen — so we include it prominently.
+    const titleCandidate = pickTitleLine(onScreenText || transcription);
     const vibeHint = vibe.guess ? `${vibe.guess} vibes` : '';
     const audioHint = audioKind.kind === 'speech' ? 'voiceover content' : audioKind.kind === 'music' ? 'music-driven' : '';
     const faceHint = faceCount > 0 ? 'talking head' : '';
-    videoContextText = [visualDescription, transcription, filenameText, vibeHint, audioHint, faceHint]
+    videoContextText = [visualDescription, onScreenText, transcription, filenameText, vibeHint, audioHint, faceHint]
       .filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 
     setVidProgress(100);
@@ -4347,7 +4477,7 @@ async function handleVideoFile(file){
 
     // Classify hook strength
     const verdict = classifyHookFromVideo({motionScore, cuts, audioMax: audio.max, brightnessDelta: bVar});
-    verdict.detectedText = {title: titleCandidate, filename: filenameText, visualDescription, transcription};
+    verdict.detectedText = {title: titleCandidate, filename: filenameText, visualDescription, transcription, onScreenText};
     verdict.signals = {vibe, audioKind, aspect, faceCount};
     renderVideoVerdict(verdict, {motionScore, cuts, audio, bVar});
 
@@ -4445,7 +4575,7 @@ function renderVideoVerdict(v){
   let contextBlock = '';
   const d = v.detectedText || {};
   const s = v.signals || {};
-  const hasContext = d.visualDescription || d.filename || d.transcription || s.vibe?.guess || s.audioKind?.kind || s.faceCount > 0 || s.aspect?.kind === 'landscape';
+  const hasContext = d.visualDescription || d.filename || d.transcription || d.onScreenText || s.vibe?.guess || s.audioKind?.kind || s.faceCount > 0 || s.aspect?.kind === 'landscape';
   if(hasContext){
     const vibeText = s.vibe?.guess ? `<strong>Vibe:</strong> ${escapeHtml(s.vibe.guess)} (${(s.vibe.vibes||[]).join(', ')})` : '';
     const audioText = s.audioKind?.kind && s.audioKind.kind !== 'unknown' ? `<strong>Audio:</strong> ${escapeHtml(s.audioKind.kind)}` : '';
@@ -4455,7 +4585,8 @@ function renderVideoVerdict(v){
     contextBlock = `
       <div class="ocr-result">
         <strong>Context I pulled from your video 🐙</strong>
-        ${d.visualDescription ? `<p style="margin:6px 0 4px;font-size:13px"><strong>What I see in the video:</strong> ${escapeHtml(d.visualDescription)}</p>` : ''}
+        ${d.visualDescription ? `<p style="margin:6px 0 4px;font-size:13px"><strong>What I see in the video:</strong> ${escapeHtml(d.visualDescription.slice(0, 400))}${d.visualDescription.length > 400 ? '…' : ''}</p>` : ''}
+        ${d.onScreenText ? `<p style="margin:8px 0 4px;font-size:13px"><strong>Text I read on screen:</strong> "${escapeHtml(d.onScreenText.slice(0, 240))}${d.onScreenText.length > 240 ? '…' : ''}"</p>` : ''}
         ${d.transcription ? `<p style="margin:8px 0 4px;font-size:13px"><strong>What I heard you say:</strong> "${escapeHtml(d.transcription.slice(0, 240))}${d.transcription.length > 240 ? '…' : ''}"</p>` : ''}
         ${d.filename ? `<p style="margin:8px 0 0;font-size:13px"><strong>Filename keywords:</strong> ${escapeHtml(d.filename)}</p>` : ''}
         ${signalBits.length ? `<ul style="margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.6">${signalBits.map(b=>`<li>${b}</li>`).join('')}</ul>` : ''}
