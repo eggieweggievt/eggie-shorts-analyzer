@@ -1927,7 +1927,20 @@ const TAG_DB = {
     'jujutsu kaisen':   {tags:['jujutsukaisen','jjk','jjkmemes','jjkclips','jjkcommunity','animememes','domainexpansion','gojo','itadori','sukuna','jjkanime','jjkfanart'], sizes:['large','large','medium','medium','medium','large','medium','large','medium','medium','small','small']},
     'jjk':              {tags:['jjk','jujutsukaisen','jjkmemes','jjkclips','gojo','domainexpansion','animememes'], sizes:['large','large','medium','medium','large','medium','large']},
     // Jujutsu Shenanigans — Roblox JJK game (heavily VTuber-streamed per LARP data earlier)
-    'jujutsu shenanigans':{tags:['jujutsushenanigans','jjs','jjsroblox','roblox','jjkanime','robloxgame','jjsclips','jjsmoments'], sizes:['medium','medium','small','large','medium','medium','small','small']}
+    'jujutsu shenanigans':{tags:['jujutsushenanigans','jjs','jjsroblox','roblox','jjkanime','robloxgame','jjsclips','jjsmoments'], sizes:['medium','medium','small','large','medium','medium','small','small']},
+    // === From @Mifuyu channel scan (2026-05-25) ===
+    // Code Vein / Code Vein 2 — anime souls-like, popular with VTubers per Mifuyu's clips
+    'code vein':        {tags:['codevein','codevein2','bandainamco','animesouls','soulslike','codeveinclips','codeveinmemes','revenant'], sizes:['medium','medium','large','medium','medium','small','small','small']},
+    'code vein 2':      {tags:['codevein2','codevein','bandainamco','animesouls','soulslike','codevein2clips'], sizes:['medium','medium','large','medium','medium','small']},
+    // Mongil: Star Dive — newer gacha title
+    'mongil star dive': {tags:['mongilstardive','mongilstardiveclips','mongilstardivememes','gachagame','newgacha','mongil'], sizes:['medium','small','small','large','small','small']},
+    'mongil':           {tags:['mongilstardive','mongil','gachagame','newgacha'], sizes:['medium','small','large','small']},
+    // Hatsune Miku — Vocaloid icon, frequent VTuber + Fortnite collab + music crossover reference
+    'hatsune miku':     {tags:['hatsunemiku','miku','vocaloid','mikuhatsune','mikumikumiku','cryptonfuturemedia','mikuexpo','mikufanart','projectsekai','vocaloidsong'], sizes:['large','large','large','small','small','small','small','medium','medium','medium']},
+    'miku':             {tags:['hatsunemiku','miku','vocaloid','mikuhatsune','projectsekai','mikufanart'], sizes:['large','large','large','small','medium','medium']},
+    'vocaloid':         {tags:['vocaloid','hatsunemiku','vocaloidmusic','vocaloidsong','synthv','utau','vocaloidcommunity','vocaloidcover','vocaloidfanart','projectsekai'], sizes:['large','large','medium','medium','small','small','small','medium','medium','medium']},
+    // Project Sekai — Hatsune Miku rhythm game, popular gacha
+    'project sekai':    {tags:['projectsekai','prseka','colorfulstage','sekai','hatsunemiku','vocaloid','prsekaen','rhythmgame'], sizes:['large','medium','medium','medium','large','large','small','medium']}
   },
   // Genres / categories
   genres: {
@@ -2219,6 +2232,14 @@ function _scanTextForTopics(text){
   if(/\b(jujutsu ?kaisen|jjk|domain ?expansion|gojo|itadori|sukuna|cursed ?technique|jjk ?anime|jjk ?clips)\b/.test(t)) pushGame('jujutsu kaisen');
   // Jujutsu Shenanigans (Roblox JJK game) — separately keyed
   if(/\b(jujutsu ?shenanigans|jjs ?roblox|jjs ?clips)\b/.test(t)) pushGame('jujutsu shenanigans');
+  // Code Vein / Code Vein 2 — anime souls-like
+  if(/\b(code ?vein( ?2)?|bandai namco souls|anime soulslike|revenant souls)\b/.test(t)) pushGame('code vein');
+  // Mongil: Star Dive — newer gacha
+  if(/\b(mongil ?star ?dive|mongilstardive|\bmongil\b)\b/.test(t)) pushGame('mongil star dive');
+  // Hatsune Miku / Vocaloid — character references trigger both the miku key and vocaloid genre layer
+  if(/\b(hatsune ?miku|miku ?hatsune|vocaloid|miku ?expo|miku ?fanart|crypton ?future|project ?sekai|colorful ?stage|prseka)\b/.test(t)) pushGame('hatsune miku');
+  // Leon Kennedy / Resident Evil — character trigger fires the existing 'resident evil' key
+  if(/\b(leon ?kennedy|leon ?s ?kennedy|leon ?with the hair|claire ?redfield|jill ?valentine|ada ?wong|umbrella corp|raccoon city)\b/.test(t)) pushGame('resident evil');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) pushGame('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
