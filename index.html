@@ -858,6 +858,10 @@
       <button type="button" class="type-pill" data-type="asmr" data-keywords="asmr whisper tingles soft spoken" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
       <button type="button" class="type-pill" data-type="cosplay" data-keywords="cosplay cosplaying cosplayer transformation" aria-pressed="false"><span class="type-icon">🎀</span>Cosplay</button>
       <button type="button" class="type-pill" data-type="music" data-keywords="music song cover singing original song" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
+      <button type="button" class="type-pill" data-type="friendslop" data-keywords="friendslop coop chaos playing with friends squad night game night" aria-pressed="false"><span class="type-icon">🤹</span>Friendslop / co-op</button>
+      <button type="button" class="type-pill" data-type="lgbt" data-keywords="lgbt lgbtq queer pride queer creator queer vtuber sapphic wlw mlm" aria-pressed="false"><span class="type-icon">🏳️‍🌈</span>LGBTQ+ creator</button>
+      <button type="button" class="type-pill" data-type="trans" data-keywords="trans transgender trans creator trans vtuber transmasc transfemme nonbinary" aria-pressed="false"><span class="type-icon">🏳️‍⚧️</span>Trans creator</button>
+      <button type="button" class="type-pill" data-type="poc" data-keywords="poc creator black creator black vtuber latina vtuber asian vtuber indigenous creator representation matters" aria-pressed="false"><span class="type-icon">✊🏾</span>POC creator</button>
       <button type="button" class="type-pill" data-type="custom" data-keywords="" aria-pressed="false"><span class="type-icon">➕</span>Other…</button>
     </div>
     <div class="short-type-custom" id="shortTypeCustomWrap" style="display:none">
@@ -1709,13 +1713,17 @@ const TAG_DB = {
     'resident evil':    {tags:['residentevil','residentevil4','survivalhorror','capcom'], sizes:['medium','small','medium','large']},
     'silent hill':      {tags:['silenthill','survivalhorror','konami'], sizes:['medium','medium','medium']},
     'phasmophobia':     {tags:['phasmophobia','phasmo','horrorgaming'], sizes:['small','small','medium']},
-    'lethal company':   {tags:['lethalcompany','lethalcompanyclips'], sizes:['medium','small']},
+    // Lethal Company — friendslop co-op horror, refreshed 2026-05-24
+    'lethal company':   {tags:['lethalcompany','lethalcompanyclips','lethalcompanyfunny','lethalcompanymemes','lethalcompanymoments','lethalcompanyshorts','lethalcompanycoop','lethalcompanyhorror','friendslop','coopclips','coophorror','companyclips'], sizes:['large','medium','medium','medium','small','small','small','small','small','medium','medium','small']},
+    'lethal':           {tags:['lethalcompany','lethalcompanyclips','lethalcompanyfunny','lethalcompanymemes','friendslop','coopclips'], sizes:['large','medium','medium','medium','small','medium']},
     'dead by daylight': {tags:['deadbydaylight','dbd','dbdclips'], sizes:['medium','large','small']},
     'outlast':          {tags:['outlast','horrorgaming'], sizes:['small','medium']},
     "five nights":      {tags:['fnaf','fivenightsatfreddys','horrorgaming'], sizes:['large','small','medium']},
     'repo':             {tags:['repogame','indiehorror'], sizes:['small','small']},
     // Sandbox / building
-    'minecraft':        {tags:['minecraft','minecraftshorts','minecraftclips','minecraftbuilds'], sizes:['large','small','small','small']},
+    // Minecraft — refreshed 2026-05-24, top-3 most-streamed Twitch game + universal VTuber staple.
+    // Pool covers survival, build, hardcore, SMP, PvP, speedrun, and the MCYT community.
+    'minecraft':        {tags:['minecraft','minecraftshorts','minecraftclips','minecraftbuilds','minecraftmemes','minecraftcommunity','minecraftbuildtutorial','mcyt','minecraftmoments','hardcoreminecraft','minecraftnoob','minecraftpro','minecraftgameplay','minecraftpvp','minecraftspeedrun','minecraftcombat','minecraftarchitecture','minecraftparkour','minecrafttok','minecraftlife','mojang','minecraftcreative','minecraftsurvival','minecraftvtuber','minecraftsmp','moddedminecraft','minecraftserver','minecraftfunny','minecrafthorror'], sizes:['large','medium','medium','medium','large','medium','small','large','medium','medium','small','small','medium','medium','medium','small','small','small','medium','medium','large','medium','medium','small','medium','medium','small','medium','small']},
     'terraria':         {tags:['terraria','terrariaclips'], sizes:['medium','small']},
     'roblox':           {tags:['roblox','robloxedit','robloxshorts'], sizes:['large','small','small']},
     // Cozy / sim
@@ -1791,7 +1799,9 @@ const TAG_DB = {
     'dnd':              {tags:['dnd','dungeonsanddragons','dnd5e','ttrpg','dndmemes','dndtok','dndtiktok','dndplayer','dungeonmaster','dnd5eplay','dndclips','criticalrole','tabletop','tabletoprpg','tabletoproleplaying','roleplay','roleplayinggames','dndanimated','dndcommunity'], sizes:['large','medium','medium','large','large','medium','medium','medium','medium','small','medium','large','medium','medium','small','large','medium','small','medium']},
     'dungeons':         {tags:['dnd','dungeonsanddragons','dnd5e','ttrpg','dndmemes','dungeonmaster','tabletoprpg','criticalrole'], sizes:['large','medium','medium','large','large','medium','medium','large']},
     'ttrpg':            {tags:['ttrpg','tabletoprpg','tabletoproleplaying','dnd','dndmemes','roleplayinggames','ttrpgcommunity','d20','indierpg','pathfinder'], sizes:['large','medium','small','large','large','medium','small','small','small','medium']},
-    'among us':         {tags:['amongus','amongusclips'], sizes:['large','small']},
+    // Among Us — friendslop classic, refreshed 2026-05-24 with the new social-deduction era
+    'among us':         {tags:['amongus','amongusclips','amongusmemes','amongusmoments','amongusfunny','amongusshorts','amonguscommunity','sus','innersloth','impostor','crewmate','impostormemes','friendslop'], sizes:['large','medium','large','medium','medium','small','small','large','medium','medium','small','small','medium']},
+    'amongus':          {tags:['amongus','amongusclips','amongusmemes','sus','innersloth','impostor'], sizes:['large','medium','large','large','medium','medium']},
     // VR / VTuber crossover — verified high-volume in VidIQ data
     'vrchat':           {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']},
     'vr chat':          {tags:['vrchat','vrchatfunny','vrchatclips','vr','vrchatmoments','vrchatcommunity'], sizes:['large','medium','medium','large','small','small']},
@@ -1861,8 +1871,21 @@ const TAG_DB = {
     'the finals':       {tags:['thefinals','embarkstudios','thefinalsclips','thefinalsmemes','arenaShooter','thefinalsshorts'], sizes:['medium','small','small','small','small','small']},
     // Marvel Snap
     'marvel snap':      {tags:['marvelsnap','marvelsnapgame','marvelsnapclips','marvelsnapdecks','digitalcardgame','seconddinner'], sizes:['large','medium','small','small','medium','small']},
-    // Content Warning — co-op horror like Lethal Company
-    'content warning':  {tags:['contentwarning','contentwarninggame','landfall','spookilyhorror','indiehorror','cwgame'], sizes:['medium','small','small','small','medium','small']},
+    // Content Warning — co-op horror like Lethal Company, refreshed 2026-05-24
+    'content warning':  {tags:['contentwarning','contentwarninggame','landfall','spookilyhorror','indiehorror','cwgame','contentwarningfunny','contentwarningclips','friendslop','coophorror'], sizes:['medium','small','small','small','medium','small','medium','small','medium','medium']},
+    // Peak — 2025 friendslop hit from Aggro Crab + Landfall, mountain-climbing chaos
+    'peak':             {tags:['peakgame','peak','aggrocrab','landfall','peakgameplay','peakclips','peakmemes','peakmoments','friendslop','climbgame','peakcoop','peakfunny'], sizes:['large','large','medium','small','medium','medium','medium','small','medium','small','small','medium']},
+    // Overcooked — couch / online co-op chaos staple
+    'overcooked':       {tags:['overcooked','overcooked2','overcookedallyoucaneat','team17','ghosttowngames','overcookedmemes','overcookedclips','overcookedfunny','friendslop','cookingchaos','coopgame','partygame'], sizes:['large','medium','small','small','small','small','small','medium','medium','small','medium','large']},
+    // Yap Yap — friendslop voice / chat-based party game
+    'yap yap':          {tags:['yapyap','yapyapgame','yapyapclips','partygame','friendslop','yapyapmemes','yapyapfunny'], sizes:['medium','small','small','large','medium','small','small']},
+    'yapyap':           {tags:['yapyap','yapyapgame','yapyapclips','partygame','friendslop','yapyapmemes'], sizes:['medium','small','small','large','medium','small']},
+    // Got To Go — friendslop chaos party game
+    'got to go':        {tags:['gottago','gottagogame','gottagoclips','partygame','friendslop','gottagofunny','gottagocoop'], sizes:['medium','small','small','large','medium','small','small']},
+    'gottago':          {tags:['gottago','gottagogame','gottagoclips','partygame','friendslop'], sizes:['medium','small','small','large','medium']},
+    // Fall Guys — friendslop party-game classic (worth adding for completeness)
+    'fall guys':        {tags:['fallguys','fallguysclips','fallguysmemes','mediatonic','fallguyswins','fallguysfunny','partygame','friendslop'], sizes:['large','medium','medium','medium','small','small','large','medium']},
+    'fallguys':         {tags:['fallguys','fallguysclips','fallguysmemes','partygame','friendslop'], sizes:['large','medium','medium','large','medium']},
     // Disney Dreamlight Valley — cozy
     'dreamlight valley':{tags:['disneydreamlightvalley','dreamlightvalley','ddlv','gameloft','cozygame','disneygame'], sizes:['medium','large','medium','medium','medium','medium']},
     'disney dreamlight':{tags:['disneydreamlightvalley','dreamlightvalley','ddlv','gameloft','cozygame'], sizes:['medium','large','medium','medium','medium']},
@@ -1940,7 +1963,18 @@ const TAG_DB = {
     gunpla:        {tags:['gunpla','gundam','bandai','plamo','modelkit','gunplacustom','gunplabuilder','gunplakit','gunplahobby','gunplatimelapse','gunplacollectors','everydaygunpla','mecha','mobilesuit','bandaispirits','scalemodel','scalemodelbuilding','mastergrade','realgrade','metalbuild','mecharobot'], sizes:['large','large','large','medium','large','medium','medium','medium','small','small','small','small','medium','small','small','medium','small','medium','small','medium','small']},
     // Gacha — cross-niche identity layer for any gacha-flavored short (pull / rolling / banner / 5-star etc.)
     // Lets the picker still add identity tags when the specific game isn't named.
-    gacha:         {tags:['gacha','gachagame','gachalife','gachatok','gachapull','gachaaddict','gachacommunity','gachamemes','gachareels','gachavtuber','gachashorts','rollinggacha','fivestarpull','sparkpity','primogems','jadegrind','wishpull','gachafail'], sizes:['large','large','medium','medium','medium','small','medium','medium','small','small','medium','small','small','small','medium','small','small','small']}
+    gacha:         {tags:['gacha','gachagame','gachalife','gachatok','gachapull','gachaaddict','gachacommunity','gachamemes','gachareels','gachavtuber','gachashorts','rollinggacha','fivestarpull','sparkpity','primogems','jadegrind','wishpull','gachafail'], sizes:['large','large','medium','medium','medium','small','medium','medium','small','small','medium','small','small','small','medium','small','small','small']},
+    // Friendslop — co-op chaos / party / coop-horror cluster (REPO, Peak, Lethal Co, Content Warning,
+    // Among Us, Overcooked, Yap Yap, Got To Go, Fall Guys). Lets the picker tag a generic "friendslop"
+    // session even when no specific game is named.
+    friendslop:    {tags:['friendslop','coopgame','coopchaos','coopclips','partygame','couchcoop','coophorror','multiplayermemes','friendgroup','squadclips','friendsclips','multiplayermayhem','coopmoments','onlineparty','chaosgaming'], sizes:['medium','large','small','medium','large','medium','medium','small','medium','small','small','small','small','small','medium']},
+    // LGBTQ+ creator identity — anchor pool for queer / trans / nonbinary / ace / bi creators
+    // so picks reflect community when the user opts in via text or profile.
+    lgbt:          {tags:['lgbt','lgbtq','lgbtqia','lgbtqplus','pride','pridemonth','queer','queertok','queercommunity','queerclips','queervtuber','lesbian','lesbiantok','gay','gaytok','bisexual','bi','pansexual','pan','asexual','ace','aroace','nonbinary','enby','genderfluid','sapphic','wlw','mlm','lgbtvtuber','lgbtcreator','outandproud'], sizes:['large','large','medium','medium','large','large','large','large','medium','medium','small','large','medium','large','medium','large','medium','medium','medium','large','small','small','large','medium','small','medium','medium','medium','small','small','small']},
+    // Trans / transgender creator identity — separate from lgbt so it can be picked as its own slot
+    trans:         {tags:['trans','transgender','transtok','transman','transwoman','transmasc','transfemme','transrights','transcommunity','transcreator','transvtuber','ftm','mtf','translove','translives','translivesmatter','transpride','enbylife','nonbinary'], sizes:['large','large','medium','medium','medium','medium','medium','large','medium','small','small','medium','medium','small','small','medium','large','small','large']},
+    // POC creator identity — Black / Latinx / Asian / Indigenous representation tag pools
+    poc:           {tags:['poc','poccreator','poctwitch','pocvtuber','blackcreator','blackvtuber','blackgirlsstream','blacktwitch','blackgamer','blackcontentcreator','latinx','latinavtuber','latinacreator','latinx','latinotwitch','hispaniccreator','asianvtuber','asianstreamer','aapi','aapivtuber','indigenousvtuber','indigenouscreator','ndn','afrolatinx','representationmatters','blackcontent'], sizes:['large','small','small','small','medium','medium','small','medium','small','small','medium','small','small','medium','small','small','small','small','medium','small','small','small','small','small','medium','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
@@ -2098,6 +2132,27 @@ function _scanTextForTopics(text){
   if(/\b(black myth wukong|wukong (run|boss|build)|game science wukong|journey to the west)\b/.test(t)) found.games.push('black myth wukong');
   // Throne and Liberty
   if(/\b(throne and liberty|\btl\b mmo|t&l mmorpg|ncsoft tl)\b/.test(t)) found.games.push('throne and liberty');
+  // Friendslop / co-op chaos session — when the user describes a multiplayer-with-friends vibe
+  // even without naming a specific game
+  if(/\b(friendslop|coop (chaos|horror|game|moments|session)|playing with friends|squad night|game night|stream night|friend ?group session|co[\s-]?op (with|in) (the )?(friends|chat|squad))\b/.test(t)) found.genres.push('friendslop');
+  // Peak — friendslop mountain-climbing chaos
+  if(/\b(peak game|peak coop|aggro ?crab|peak (chaos|climb|fall|stream))\b/.test(t)) found.games.push('peak');
+  // Overcooked
+  if(/\b(overcooked|overcooked ?2|overcooked all you can eat|cooking chaos|ghost town games|team17)\b/.test(t)) found.games.push('overcooked');
+  // Yap Yap
+  if(/\b(yap ?yap (game|coop|chaos)?|yap ?yap clips)\b/.test(t)) found.games.push('yap yap');
+  // Got To Go
+  if(/\b(got to go|gotta go (game|chaos)|got to go clips)\b/.test(t)) found.games.push('got to go');
+  // Fall Guys
+  if(/\b(fall guys|fall ?guys (clips|run|wins)|mediatonic)\b/.test(t)) found.games.push('fall guys');
+  // LGBTQ+ identity — explicit self-identification or community language. Erring on the side of
+  // self-ID to avoid false positives on incidental mentions.
+  if(/\b(lgbt|lgbtq|lgbtqia|lgbtq\+|lgbtq plus|pride month|i'?m (queer|gay|lesbian|bi|bisexual|pan|pansexual|ace|asexual|aroace|aro|nonbinary|non[\s-]?binary|enby|genderfluid|trans)|coming out|queer ?(creator|vtuber|tok|community|content)|sapphic|wlw|mlm|gaytok|lesbiantok|achillean|achilles|bi ?wife ?energy|out and proud|she\/?they|he\/?they|they\/?them|any pronouns)\b/.test(t)) found.genres.push('lgbt');
+  // Trans creator identity — separate signal layer
+  if(/\b(i'?m trans|i'?m transgender|trans ?(creator|vtuber|man|woman|masc|femme|tok|community|pride|rights)|transman|transwoman|ftm|mtf|hrt update|estrogen update|testosterone update|trans ?(person|vibe|joy|love)|enby|nonbinary)\b/.test(t)) found.genres.push('trans');
+  // POC creator identity — Black / Latinx / Asian / Indigenous self-ID + community-language tags.
+  // Only fires on explicit self-identification.
+  if(/\b(as a (black|latina|latino|latinx|hispanic|asian|indigenous|native|aapi|brown|pacific islander)|black (creator|vtuber|streamer|girl who streams|gamer|twitch|content creator)|latin[ax] (vtuber|creator|streamer|content creator)|asian (vtuber|streamer|creator|aapi)|indigenous (vtuber|creator|streamer)|afro ?latin[ax]|aapi (vtuber|creator|content)|representation matters|poc (creator|vtuber|twitch|streamer)|brown (girl|boy) who streams|black ?streamer ?community|brown ?streamer ?community)\b/.test(t)) found.genres.push('poc');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) found.games.push('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
