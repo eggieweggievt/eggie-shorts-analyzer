@@ -716,6 +716,213 @@
   footer{text-align:center;font-size:13px;color:var(--ink-soft);margin-top:32px}
   footer a{color:var(--deep);text-decoration:none;font-weight:700}
 
+  /* ============================================================ */
+  /*  WIZARD UI — progress bar + step-show/hide + step navigation  */
+  /* ============================================================ */
+  .wizard-progress{
+    position:sticky;top:0;z-index:10;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:999px;
+    padding:10px 14px;
+    margin:0 0 20px;
+    box-shadow:0 4px 16px rgba(99,170,244,0.18);
+  }
+  .wizard-progress ol{
+    list-style:none;padding:0;margin:0;
+    display:flex;align-items:center;gap:4px;
+    overflow-x:auto;
+  }
+  .wizard-progress ol::-webkit-scrollbar{display:none}
+  .wizard-progress li{
+    flex:1;min-width:0;
+    display:flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:999px;
+    font-size:13px;font-weight:700;color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .wizard-progress li:hover{background:rgba(255,255,255,0.6);color:var(--deep)}
+  .wizard-progress li.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.25),rgba(144,165,255,0.2));
+    color:var(--deep);
+  }
+  .wizard-progress li.done{color:var(--deep)}
+  .wizard-progress li .step-dot{
+    flex-shrink:0;
+    width:24px;height:24px;border-radius:50%;
+    background:rgba(144,165,255,0.25);color:var(--deep);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:'Pacifico',cursive;font-size:13px;line-height:1;
+    transition:background .15s ease, color .15s ease;
+  }
+  .wizard-progress li.active .step-dot{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;
+    box-shadow:0 3px 8px rgba(144,165,255,0.4);
+  }
+  .wizard-progress li.done .step-dot{
+    background:linear-gradient(135deg,var(--mint),var(--periwinkle));
+    color:#fff;
+  }
+  .wizard-progress li.done .step-dot::before{content:"✓";font-family:'Quicksand',sans-serif;font-weight:800;font-size:13px}
+  .wizard-progress li.done .step-dot span{display:none}
+  .wizard-progress li .step-label{font-weight:700;font-size:12.5px}
+  @media(max-width:560px){
+    .wizard-progress li .step-label{display:none}
+    .wizard-progress li{justify-content:center;padding:6px}
+  }
+
+  /* Hide non-active wizard steps. Existing .step-card spacing preserved. */
+  .step-card[data-wizard-hidden="true"]{display:none}
+
+  /* Per-step navigation row (prev / counter / next) */
+  .step-nav{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin-top:20px;padding-top:18px;
+    border-top:1.5px dashed rgba(144,165,255,0.35);
+  }
+  .step-nav .step-nav-counter{
+    flex:1;text-align:center;
+    font-size:13px;font-weight:600;color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+  .step-nav .nav-btn{
+    flex-shrink:0;
+    padding:11px 22px;border-radius:999px;
+    font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+    border:none;
+    transition:transform .12s ease, filter .15s ease, box-shadow .15s ease;
+  }
+  .step-nav .nav-btn.prev{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);
+  }
+  .step-nav .nav-btn.prev:hover{background:rgba(255,255,255,0.95)}
+  .step-nav .nav-btn.next{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+  }
+  .step-nav .nav-btn.next:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .step-nav .nav-btn.next:disabled,
+  .step-nav .nav-btn.next[disabled]{
+    background:rgba(144,165,255,0.3);box-shadow:none;cursor:not-allowed;opacity:0.7;
+  }
+  .step-nav .nav-btn.skip{
+    background:transparent;color:var(--ink-soft);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    font-weight:600;font-size:13px;
+  }
+  .step-nav .nav-btn.skip:hover{color:var(--deep);border-color:var(--periwinkle)}
+  @media(max-width:560px){
+    .step-nav{flex-wrap:wrap;gap:10px}
+    .step-nav .step-nav-counter{order:-1;flex-basis:100%;text-align:left}
+    .step-nav .nav-btn{flex:1;min-width:120px}
+  }
+
+  /* ============================================================ */
+  /*  RESULTS TABS                                                 */
+  /* ============================================================ */
+  .results-tabs{
+    position:sticky;top:0;z-index:9;
+    display:flex;gap:4px;flex-wrap:wrap;
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:999px;
+    padding:6px;margin:0 0 18px;
+    box-shadow:0 4px 16px rgba(99,170,244,0.18);
+  }
+  .results-tabs button{
+    flex:1;min-width:90px;
+    padding:9px 14px;border-radius:999px;
+    background:transparent;border:none;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .results-tabs button:hover{background:rgba(255,255,255,0.55);color:var(--deep)}
+  .results-tabs button.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
+    color:var(--deep);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.6);
+  }
+  .results-panel[data-tab-hidden="true"]{display:none}
+
+  /* ============================================================ */
+  /*  CONSOLIDATED ANALYZING OVERLAY                               */
+  /* ============================================================ */
+  .analyzing-banner{
+    display:none;
+    margin:0 0 18px;
+    padding:18px 22px;
+    background:linear-gradient(135deg, rgba(255,219,247,0.7), rgba(199,210,255,0.5), rgba(180,240,243,0.5));
+    border:1.5px solid rgba(144,165,255,0.45);
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(99,170,244,0.18);
+  }
+  .analyzing-banner.active{display:block}
+  .analyzing-banner .ab-head{
+    display:flex;align-items:center;gap:12px;
+    font-weight:800;font-size:15px;color:var(--deep);
+    margin-bottom:10px;
+  }
+  .analyzing-banner .ab-spinner{
+    width:22px;height:22px;border:3px solid rgba(144,165,255,0.35);
+    border-top-color:var(--periwinkle);border-radius:50%;
+    animation:abspin .9s linear infinite;flex-shrink:0;
+  }
+  @keyframes abspin{to{transform:rotate(360deg)}}
+  .analyzing-banner .ab-stage{font-size:13.5px;color:var(--ink);margin-bottom:8px;line-height:1.55}
+  .analyzing-banner .ab-bar{height:10px;background:rgba(255,255,255,0.55);border-radius:999px;overflow:hidden}
+  .analyzing-banner .ab-bar > div{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot));transition:width .25s ease;border-radius:999px}
+  .analyzing-banner .ab-detail{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.45}
+
+  /* ============================================================ */
+  /*  FORM HELPER TEXT + EXAMPLES                                  */
+  /* ============================================================ */
+  .field-help{
+    display:block;font-size:12.5px;color:var(--ink-soft);font-weight:500;
+    margin:4px 0 0;line-height:1.5;
+  }
+  .field-example{
+    display:inline-block;font-size:11.5px;color:var(--deep);font-weight:600;
+    background:rgba(199,210,255,0.35);
+    padding:2px 8px;border-radius:999px;
+    margin-top:6px;
+  }
+  .field-example::before{content:"💡 "}
+  label .required{color:#a23556;font-weight:800;margin-left:3px}
+
+  /* ============================================================ */
+  /*  MOBILE POLISH                                                */
+  /* ============================================================ */
+  @media(max-width:560px){
+    .wrap{padding:24px 14px 60px}
+    .card{padding:20px 18px}
+    .step-head h2{font-size:24px}
+    .score-ring{width:120px;height:120px}
+    .score-ring::after{inset:8px}
+    .score-num .big{font-size:38px}
+    .score-num .small{font-size:11px}
+    .verdict .grade{font-size:28px}
+    .big-cta .btn{font-size:16px;padding:14px 24px;width:100%}
+    .post-grid{grid-template-columns:1fr}
+    .creator-profile > summary{flex-wrap:wrap}
+    .short-type-row .pill-group-label{font-size:11px}
+  }
+  /* Bigger touch targets on mobile for pills + buttons */
+  @media(max-width:560px) and (pointer:coarse){
+    .type-pill{padding:10px 14px;min-height:42px}
+    .btn{min-height:48px}
+    .nav-btn{min-height:44px}
+    input[type=text],input[type=url],input[type=number],textarea,select{font-size:16px;padding:13px 14px} /* 16px prevents iOS zoom */
+  }
+
 </style>
 </head>
 <body>
@@ -798,6 +1005,24 @@
     <h1 class="logo">Eggie's <img class="octo" src="accent.png" alt="" aria-hidden="true" /> Shorts Analyzer</h1>
     <p class="tag">Paste a link or fill in the details, and I'll tell you <em>what's working and what isn't</em>. Use it before you post to plan it out, or after to figure out why something didn't pop off. <span class="sparkle">✨</span></p>
   </header>
+
+  <!-- WIZARD PROGRESS BAR — shows where you are in the 4-step flow -->
+  <nav class="wizard-progress" id="wizardProgress" aria-label="Analyzer steps">
+    <ol>
+      <li class="active" data-step="1" tabindex="0"><span class="step-dot"><span>1</span></span><span class="step-label">Upload</span></li>
+      <li data-step="2" tabindex="0"><span class="step-dot"><span>2</span></span><span class="step-label">What's it about?</span></li>
+      <li data-step="3" tabindex="0"><span class="step-dot"><span>3</span></span><span class="step-label">Numbers</span></li>
+      <li data-step="4" tabindex="0"><span class="step-dot"><span>4</span></span><span class="step-label">Analyze</span></li>
+    </ol>
+  </nav>
+
+  <!-- Consolidated "Analyzing..." banner — replaces stacked progress bars while ML runs -->
+  <div class="analyzing-banner" id="analyzingBanner" aria-live="polite">
+    <div class="ab-head"><div class="ab-spinner"></div><span id="abTitle">Analyzing your video…</span></div>
+    <div class="ab-stage" id="abStage">Getting started.</div>
+    <div class="ab-bar"><div id="abBar"></div></div>
+    <div class="ab-detail" id="abDetail"></div>
+  </div>
 
   <!-- KO-FI SUPPORT CARD -->
   <div class="kofi-card">
@@ -889,6 +1114,11 @@
       <div class="wp-files" id="wpFiles"></div>
     </div>
     <div class="vid-result" id="vidResult"></div>
+
+    <div class="step-nav">
+      <span class="step-nav-counter">Step 1 of 4</span>
+      <button class="nav-btn next" type="button" data-go="next">Continue →</button>
+    </div>
   </section>
 
   <!-- STEP 2: POST DETAILS -->
@@ -901,6 +1131,8 @@
 
     <label for="quickContext">What is your short about? <span class="opt">(this is all I need)</span></label>
     <input id="quickContext" type="text" placeholder="e.g. me getting jumpscared in Phasmophobia / making cherry blossom latte art / Elden Ring death montage" />
+    <span class="field-help">One sentence is plenty. The more specific you are, the better the hashtag picks. Mention the game, the topic, or the moment — not just the vibe.</span>
+    <span class="field-example">"I almost died trying to beat Elden Ring DLC"</span>
 
     <label style="margin-top:14px">What kind of short is this? <span class="req">(required &mdash; tick at least one; the more accurate, the better your tags)</span></label>
     <div class="short-type-row" id="shortTypeRow" role="group" aria-label="Short type">
@@ -955,6 +1187,7 @@
     </div>
 
     <label for="title" style="margin-top:18px">Title <span class="opt">(optional &mdash; I'll suggest some at the end)</span></label>
+    <span class="field-help">Skip if you don't have one yet — I'll generate 3 options for you. If you do have one, paste it so I can score it.</span>
     <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
 
     <label for="description">Description / caption</label>
@@ -974,6 +1207,13 @@
 
     <label for="hashtags">Hashtags <span class="opt">(comma or space separated)</span></label>
     <input id="hashtags" type="text" placeholder="#VTuber, #VTuberClips, #residentevil" />
+    <span class="field-help">Leave blank to let me pick the optimal 1S/2M/2L mix for you. Or paste hashtags you've been using and I'll score them.</span>
+
+    <div class="step-nav">
+      <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
+      <span class="step-nav-counter">Step 2 of 4</span>
+      <button class="nav-btn next" type="button" data-go="next">Continue →</button>
+    </div>
   </section>
 
   <!-- STEP 3: NUMBERS -->
@@ -988,33 +1228,57 @@
       <div>
         <label for="duration">Length (seconds)</label>
         <input id="duration" type="number" min="1" max="600" placeholder="e.g. 47" />
+        <span class="field-help">Sweet spot: 45–55s. Auto-filled from your video upload.</span>
       </div>
       <div>
         <label for="retention">Avg. retention (%) <span class="opt">if known</span></label>
         <input id="retention" type="number" min="0" max="100" placeholder="e.g. 88" />
+        <span class="field-help">YT Studio → Analytics. Skip if you haven't posted yet.</span>
       </div>
       <div>
         <label for="viewedVsSwiped">Viewed vs. swiped (%) <span class="opt">YT Shorts</span></label>
         <input id="viewedVsSwiped" type="number" min="0" max="100" placeholder="e.g. 76" />
+        <span class="field-help">% of viewers who watched instead of swiping. Aim for 75%+.</span>
       </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
+      <span class="step-nav-counter">Step 3 of 4 · optional</span>
+      <button class="nav-btn next" type="button" data-go="next">Continue →</button>
     </div>
 
   </section>
 
-  <!-- BIG CTA -->
-  <div class="big-cta">
-    <button class="btn" id="fetchBtn">🐙 Analyze my short</button>
-    <button class="btn secondary" id="clearBtn" type="button">Clear all</button>
-  </div>
+  <!-- STEP 4: ANALYZE -->
+  <section class="card step-card" id="step4">
+    <div class="step-head">
+      <span class="step-num">4</span>
+      <h2>Ready to analyze?</h2>
+    </div>
+    <p class="step-intro">When you click below I'll run the full pipeline &mdash; multi-frame Florence-2 vision, Whisper transcription, BlazeFace, OCR, hook detection, hashtag scoring, the VidIQ-style second opinion, all of it. Takes about 30 seconds after the models are cached.</p>
+
+    <div class="big-cta" style="margin-top:8px">
+      <button class="btn" id="fetchBtn">🐙 Analyze my short</button>
+      <button class="btn secondary" id="clearBtn" type="button">Clear all</button>
+    </div>
+
+    <div class="step-nav">
+      <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
+      <span class="step-nav-counter">Step 4 of 4</span>
+      <span style="flex-shrink:0;font-size:12px;color:var(--ink-soft)">↑ click Analyze when ready</span>
+    </div>
+  </section>
 
   <!-- RESULTS -->
   <section class="card hidden" id="resultsCard">
 
-    <!-- Content safety verdict — appears at top when anything is flagged -->
+    <!-- Content safety verdict — appears at top when anything is flagged (always visible regardless of tab) -->
     <div id="safetySection" class="hidden"></div>
 
     <h2>Your score <span style="font-size:18px">💗</span></h2>
 
+    <!-- Score hero stays above the tabs — it's the always-visible summary -->
     <div class="score-hero">
       <div class="score-ring" id="scoreRing"><div class="score-num"><div class="big" id="scoreBig">0</div><div class="small">/ 10</div></div></div>
       <div class="verdict">
@@ -1023,13 +1287,26 @@
       </div>
     </div>
 
-    <h3>Here's how each part scored</h3>
-    <p class="grid-intro">Sorted by how much each one moves your score. <strong>High-impact</strong> stuff at the top &mdash; fixing those first gives you the biggest jump.</p>
-    <div class="criteria-grid" id="critGrid"></div>
+    <!-- TABS — split the dense results into focused views -->
+    <nav class="results-tabs" id="resultsTabs" aria-label="Results sections">
+      <button type="button" class="active" data-tab="overview">📊 Overview</button>
+      <button type="button" data-tab="suggestions">✨ Suggestions</button>
+      <button type="button" data-tab="postpack">📋 Post Pack</button>
+      <button type="button" data-tab="resources">📚 Resources</button>
+    </nav>
 
-    <h3 style="margin-top:24px">What's working, what's not</h3>
-    <ul class="checklist" id="checklist"></ul>
+    <!-- OVERVIEW TAB — criteria + checklist (the "score breakdown" view) -->
+    <div class="results-panel" data-panel="overview">
+      <h3>Here's how each part scored</h3>
+      <p class="grid-intro">Sorted by how much each one moves your score. <strong>High-impact</strong> stuff at the top &mdash; fixing those first gives you the biggest jump.</p>
+      <div class="criteria-grid" id="critGrid"></div>
 
+      <h3 style="margin-top:24px">What's working, what's not</h3>
+      <ul class="checklist" id="checklist"></ul>
+    </div>
+
+    <!-- SUGGESTIONS TAB — actionable fixes + title rewrites + hashtag picks -->
+    <div class="results-panel" data-panel="suggestions" data-tab-hidden="true">
     <div class="suggestions">
       <h3>How to make it better</h3>
       <div id="critique"></div>
@@ -1038,7 +1315,11 @@
       <h3 style="margin-top:14px">Hashtags I'd use</h3>
       <div id="hashtagRec"></div>
     </div>
+    </div>
+    <!-- /SUGGESTIONS TAB -->
 
+    <!-- RESOURCES TAB -->
+    <div class="results-panel" data-panel="resources" data-tab-hidden="true">
     <section class="resources">
       <h2>📚 Resources Eggie loves</h2>
       <p class="intro">Stuff to actually level up. These are creators, channels, and tools I&apos;ve personally learned from &mdash; bookmark whichever ones match what you&apos;re trying to fix. <a href="about.html#growth" style="color:var(--deep);font-weight:700;border-bottom:1.5px dashed var(--periwinkle);text-decoration:none">→ Read the full growth playbook here.</a></p>
@@ -1111,12 +1392,18 @@
 
       </div>
     </section>
+    </div>
+    <!-- /RESOURCES TAB -->
 
+    <!-- POST PACK TAB -->
+    <div class="results-panel" data-panel="postpack" data-tab-hidden="true">
     <section class="post-pack">
       <h2>📋 Ready to copy and paste</h2>
       <p class="intro">Made for each app. Just hit copy and paste it in when you're uploading. Use it <strong>before you post</strong> to plan, or <strong>after</strong> to see how your existing post compares.</p>
       <div class="post-grid" id="postGrid"></div>
     </section>
+    </div>
+    <!-- /POST PACK TAB -->
 
     <div class="btn-row again-row">
       <button class="btn" id="againBtn">🐙 Analyze another short</button>
@@ -3496,6 +3783,19 @@ function renderSafetySection(payload, analysis){
 
 function renderResults(r, payload){
   resultsCard.classList.remove('hidden');
+  // Hide the wizard flow when results take over the view — focus shifts to the score.
+  const wizard = document.getElementById('wizardProgress');
+  if(wizard) wizard.style.display = 'none';
+  for(let i = 1; i <= 4; i++){
+    const c = document.getElementById('step' + i);
+    if(c) c.setAttribute('data-wizard-hidden', 'true');
+  }
+  // Make sure the Overview tab is the default whenever results re-render
+  const overviewBtn = document.querySelector('#resultsTabs button[data-tab="overview"]');
+  if(overviewBtn) overviewBtn.click();
+  // Scroll up to the score
+  setTimeout(() => resultsCard.scrollIntoView({behavior:'smooth', block:'start'}), 80);
+
   renderSafetySection(payload, r);
   $('scoreBig').textContent = r.overall.toFixed(1);
   const pct = Math.round((r.overall/10)*100);
@@ -3926,7 +4226,14 @@ function renderPostPack(payload, analysis){
 
 $('againBtn').addEventListener('click', ()=>{
   clearAllInputs();
-  step1.scrollIntoView({behavior:'smooth'});
+  // Restore the wizard view and bring focus back to Step 1
+  const wizard = document.getElementById('wizardProgress');
+  if(wizard) wizard.style.display = '';
+  // Hide the results card again
+  if(resultsCard) resultsCard.classList.add('hidden');
+  // Reset wizard to step 1
+  if(typeof showStep === 'function') showStep(1);
+  else step1.scrollIntoView({behavior:'smooth'});
 });
 $('copyBtn').addEventListener('click', ()=>{
   const text = generatePlainTextReport();
@@ -4039,6 +4346,104 @@ if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', wireWhisperToggle, {once:true});
 } else {
   wireWhisperToggle();
+}
+
+// ============================================================
+//  WIZARD — step navigation, progress bar sync, show/hide
+// ============================================================
+let currentStep = 1;
+const TOTAL_STEPS = 4;
+function showStep(n){
+  n = Math.max(1, Math.min(TOTAL_STEPS, n));
+  currentStep = n;
+  // Hide non-active wizard step cards
+  for(let i = 1; i <= TOTAL_STEPS; i++){
+    const card = document.getElementById('step' + i);
+    if(card){
+      if(i === n) card.removeAttribute('data-wizard-hidden');
+      else card.setAttribute('data-wizard-hidden', 'true');
+    }
+  }
+  // Update progress bar
+  const items = document.querySelectorAll('#wizardProgress li');
+  items.forEach(li => {
+    const step = parseInt(li.dataset.step, 10);
+    li.classList.remove('active', 'done');
+    if(step === n) li.classList.add('active');
+    else if(step < n) li.classList.add('done');
+  });
+  // Scroll smoothly back to the wizard so users see the new step from the top
+  const card = document.getElementById('step' + n);
+  if(card){
+    card.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+function wireWizard(){
+  // Per-step prev/next buttons
+  document.querySelectorAll('[data-go]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dir = btn.dataset.go;
+      if(dir === 'next') showStep(currentStep + 1);
+      else if(dir === 'prev') showStep(currentStep - 1);
+    });
+  });
+  // Clicking on the progress bar items jumps to that step (only if it's a previously-visited step)
+  document.querySelectorAll('#wizardProgress li').forEach(li => {
+    li.addEventListener('click', () => {
+      const target = parseInt(li.dataset.step, 10);
+      if(target && target <= currentStep + 1) showStep(target); // allow jumping forward by 1 too
+    });
+    li.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        li.click();
+      }
+    });
+  });
+  // Initialize at step 1
+  showStep(1);
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', wireWizard, {once:true});
+} else {
+  wireWizard();
+}
+
+// ============================================================
+//  RESULTS TABS — switch between Overview / Suggestions / Resources / Post Pack
+// ============================================================
+function wireResultsTabs(){
+  const tabBar = document.getElementById('resultsTabs');
+  if(!tabBar) return;
+  tabBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-tab]');
+    if(!btn) return;
+    const tab = btn.dataset.tab;
+    // Highlight
+    tabBar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+    // Show / hide panels
+    document.querySelectorAll('.results-panel').forEach(p => {
+      if(p.dataset.panel === tab) p.removeAttribute('data-tab-hidden');
+      else p.setAttribute('data-tab-hidden', 'true');
+    });
+  });
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', wireResultsTabs, {once:true});
+} else {
+  wireResultsTabs();
+}
+
+// Helper for the unified "Analyzing…" banner that replaces stacked progress bars
+function setAnalyzingBanner({show, title, stage, percent, detail}){
+  const banner = document.getElementById('analyzingBanner');
+  if(!banner) return;
+  if(show === false){ banner.classList.remove('active'); return; }
+  if(show === true) banner.classList.add('active');
+  if(title !== undefined) document.getElementById('abTitle').textContent = title;
+  if(stage !== undefined) document.getElementById('abStage').innerHTML = stage;
+  if(percent !== undefined) document.getElementById('abBar').style.width = Math.max(0, Math.min(100, percent)) + '%';
+  if(detail !== undefined) document.getElementById('abDetail').textContent = detail;
 }
 
 function setVidStatus(msg, isErr){
