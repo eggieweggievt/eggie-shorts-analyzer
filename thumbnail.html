@@ -121,16 +121,18 @@
   .step-head h2 .sub{font-family:'Quicksand',sans-serif;font-weight:500;font-size:15px;color:var(--ink-soft)}
   .step-intro{margin:0 0 14px;color:var(--ink-soft);font-size:14.5px;line-height:1.55}
 
-  /* Drop zone */
+  /* Drop zone — labels default to display:inline which makes the dashed border
+     wrap around content instead of forming a full-width box. Force it to block. */
   .drop-zone{
+    display:block;width:100%;box-sizing:border-box;
     margin-top:12px;border:2px dashed rgba(144,165,255,0.55);
     background:rgba(255,255,255,0.6);
-    border-radius:14px;padding:32px;text-align:center;
+    border-radius:14px;padding:28px 24px;text-align:center;
     transition:background .15s ease, border-color .15s ease;cursor:pointer;
   }
   .drop-zone.drag{background:rgba(107,228,234,0.25);border-color:var(--mint)}
   .drop-zone p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.5}
-  .drop-zone .big{font-size:42px;display:block;margin-bottom:6px}
+  .drop-zone .big{font-size:42px;display:block;margin-bottom:6px;line-height:1}
   .drop-zone input[type=file]{display:none}
 
   /* Uploaded thumbnail preview at full size */
