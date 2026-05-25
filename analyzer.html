@@ -445,6 +445,56 @@
     color:var(--ink-soft);
   }
   .short-type-row .pill-group-label:first-child{margin-top:0}
+  /* COLLAPSED MODE: hide everything tagged data-tier="secondary" until the user expands.
+     Keeps the primary Format pills + Other escape hatch visible by default — much less overwhelming. */
+  .short-type-row.collapsed [data-tier="secondary"]{display:none !important}
+  .short-type-toggle{
+    flex:0 0 100%;
+    margin:4px 0 0;
+    background:transparent;
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:10px;
+    padding:8px 14px;
+    font-family:inherit;font-size:13px;font-weight:700;
+    color:var(--deep);
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+    text-align:left;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .short-type-toggle:hover{background:rgba(255,255,255,0.7);border-color:var(--periwinkle)}
+  .short-type-toggle .caret{color:var(--periwinkle);font-size:11px;transition:transform .2s ease}
+  .short-type-toggle[aria-expanded="true"] .caret{transform:rotate(180deg)}
+  .short-type-toggle .hint{font-weight:500;font-size:12px;color:var(--ink-soft);margin-left:6px}
+
+  /* Generic collapsible section used in Step 2 for optional fields (title/description/etc).
+     Friendlier than a giant always-visible form. */
+  .collapse-section{
+    margin:18px 0 0;
+    border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;
+    background:rgba(255,255,255,0.4);
+    overflow:hidden;
+  }
+  .collapse-section > summary{
+    cursor:pointer;
+    list-style:none;
+    padding:12px 16px;
+    font-size:14px;font-weight:700;color:var(--deep);
+    user-select:none;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    transition:background .15s ease;
+  }
+  .collapse-section > summary::-webkit-details-marker{display:none}
+  .collapse-section > summary:hover{background:rgba(255,255,255,0.55)}
+  .collapse-section > summary::after{
+    content:"▾";color:var(--periwinkle);font-size:12px;
+    transition:transform .2s ease;
+  }
+  .collapse-section[open] > summary::after{transform:rotate(180deg)}
+  .collapse-section > summary .hint{font-weight:500;font-size:12.5px;color:var(--ink-soft)}
+  .collapse-section .collapse-body{padding:8px 16px 16px}
+  .collapse-section .collapse-body label:first-child{margin-top:0}
   .type-pill{
     display:inline-flex;align-items:center;gap:6px;
     padding:8px 14px;
@@ -1143,14 +1193,12 @@
     </div>
     <p class="step-intro">A single sentence is enough &mdash; I'll figure out hashtags, suggest titles, and write your post for you. Or fill in the details below for more accuracy.</p>
 
-    <label for="quickContext">What is your short about? <span class="opt">(this is all I need)</span></label>
-    <input id="quickContext" type="text" placeholder="e.g. me getting jumpscared in Phasmophobia / making cherry blossom latte art / Elden Ring death montage" />
-    <span class="field-help">One sentence is plenty. The more specific you are, the better the hashtag picks. Mention the game, the topic, or the moment — not just the vibe.</span>
-    <span class="field-example">"I almost died trying to beat Elden Ring DLC"</span>
+    <label for="quickContext">What is your short about? <span class="opt">(required)</span></label>
+    <input id="quickContext" type="text" placeholder="e.g. I almost died trying to beat Elden Ring DLC" />
+    <span class="field-help">One specific sentence. The more concrete (game, topic, moment), the better the hashtag picks.</span>
 
-    <label style="margin-top:14px">What kind of short is this? <span class="req">(required &mdash; tick at least one; the more accurate, the better your tags)</span></label>
-    <div class="short-type-row" id="shortTypeRow" role="group" aria-label="Short type">
-      <div class="pill-group-label">📋 Format</div>
+    <label style="margin-top:16px">What kind of short is this? <span class="req">(pick at least one)</span></label>
+    <div class="short-type-row collapsed" id="shortTypeRow" role="group" aria-label="Short type">
       <button type="button" class="type-pill" data-type="gaming" data-keywords="gaming clip gameplay stream highlight twitch clip" aria-pressed="false"><span class="type-icon">🎮</span>Gaming clip</button>
       <button type="button" class="type-pill" data-type="storytime" data-keywords="storytime story let me tell you so basically the time i" aria-pressed="false"><span class="type-icon">📖</span>Storytime</button>
       <button type="button" class="type-pill" data-type="reaction" data-keywords="reaction reacting to first time seeing watching this irl react" aria-pressed="false"><span class="type-icon">👀</span>Reaction</button>
@@ -1163,65 +1211,75 @@
       <button type="button" class="type-pill" data-type="bts" data-keywords="behind the scenes bts how i made making of art process" aria-pressed="false"><span class="type-icon">🎬</span>Behind the scenes</button>
       <button type="button" class="type-pill" data-type="compilation" data-keywords="compilation best of highlights montage funniest moments" aria-pressed="false"><span class="type-icon">📼</span>Compilation</button>
       <button type="button" class="type-pill" data-type="debut" data-keywords="debut new vtuber first stream introducing myself model reveal" aria-pressed="false"><span class="type-icon">✨</span>Debut</button>
-
-      <div class="pill-group-label">🎨 Creator content</div>
-      <button type="button" class="type-pill" data-type="irlstorytime" data-keywords="irl storytime real life storytime my real life story this happened to me true story irl experience real life moment in real life" aria-pressed="false"><span class="type-icon">🗣️</span>IRL storytime</button>
-      <button type="button" class="type-pill" data-type="animation" data-keywords="animation animatic animation meme 2d animation digital animation procreate animation oc animation vtuber animation animated meme animated short" aria-pressed="false"><span class="type-icon">🎞️</span>Animation / animatic</button>
-      <button type="button" class="type-pill" data-type="lore" data-keywords="lore vtuber lore lore fragment vtuber story character lore original lore vtuber world building vtuber backstory" aria-pressed="false"><span class="type-icon">📜</span>Lore / VTuber lore</button>
-      <button type="button" class="type-pill" data-type="oc" data-keywords="oc original character oc art oc reveal oc intro character design vtuber oc oc design ocfanart" aria-pressed="false"><span class="type-icon">🪐</span>OC / original character</button>
-      <button type="button" class="type-pill" data-type="fanart" data-keywords="fanart fan art vtuber fanart tribute art fanart friday fanart community" aria-pressed="false"><span class="type-icon">💖</span>Fanart</button>
-      <button type="button" class="type-pill" data-type="emotes" data-keywords="emote art emote maker emote reveal sticker emote twitch emote discord emote custom emote vtuber emote 7tv emote emote commission emote design" aria-pressed="false"><span class="type-icon">💜</span>Emotes / sticker art</button>
-      <button type="button" class="type-pill" data-type="modelshowcase" data-keywords="vtuber model reveal vtuber model showcase live2d model live2d showcase vtuber rig vtuber rig showcase model reveal new model reveal" aria-pressed="false"><span class="type-icon">🐱</span>Model showcase / rig</button>
-      <button type="button" class="type-pill" data-type="cosplay" data-keywords="cosplay cosplaying cosplayer transformation" aria-pressed="false"><span class="type-icon">🎀</span>Cosplay</button>
-      <button type="button" class="type-pill" data-type="music" data-keywords="music song cover singing original song vtuber music vtuber cover" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
-      <button type="button" class="type-pill" data-type="asmr" data-keywords="asmr whisper tingles soft spoken asmr roleplay" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
-      <button type="button" class="type-pill" data-type="mukbang" data-keywords="mukbang eating show eat with me food challenge spicy noodles korean mukbang asian food" aria-pressed="false"><span class="type-icon">🍜</span>Mukbang</button>
-      <button type="button" class="type-pill" data-type="comicdub" data-keywords="comic dub voiceover voice acting fan comic animated comic comicdub dub this comic sonic dub" aria-pressed="false"><span class="type-icon">🎙️</span>Comic dub / VA</button>
-
-      <div class="pill-group-label">😂 Vibe / modifier</div>
-      <button type="button" class="type-pill" data-type="funny" data-keywords="funny comedy meme funnymoment no context out of pocket cackling" aria-pressed="false"><span class="type-icon">😂</span>Funny / no context</button>
-      <button type="button" class="type-pill" data-type="relatable" data-keywords="relatable relatablecontent relatable comedy so true it me literally me we all" aria-pressed="false"><span class="type-icon">🥹</span>Relatable</button>
-      <button type="button" class="type-pill" data-type="wholesome" data-keywords="wholesome seiso wholesome vtuber seiso vtuber cute kawaii wholesome content sfw vtuber family friendly" aria-pressed="false"><span class="type-icon">🌸</span>Wholesome / seiso</button>
-      <button type="button" class="type-pill" data-type="brainrot" data-keywords="brainrot brainrot meme skibidi italian brainrot sigma only in ohio gyatt rizzler" aria-pressed="false"><span class="type-icon">🧠</span>Brainrot humor</button>
-      <button type="button" class="type-pill" data-type="drama" data-keywords="drama hot take unpopular opinion rant tea spilling" aria-pressed="false"><span class="type-icon">🍵</span>Drama / hot take</button>
-      <button type="button" class="type-pill" data-type="rage" data-keywords="rage raging tilted tilting tantrum gamer rage losing my mind" aria-pressed="false"><span class="type-icon">😤</span>Rage / tilted</button>
-      <button type="button" class="type-pill" data-type="fail" data-keywords="fail failed epic fail wipeout disaster that did not go did not work went so wrong" aria-pressed="false"><span class="type-icon">💀</span>Fail / disaster</button>
-      <button type="button" class="type-pill" data-type="cursed" data-keywords="cursed haunted unhinged wtf what the actual broke me destroyed me" aria-pressed="false"><span class="type-icon">😵‍💫</span>Cursed / unhinged</button>
-
-      <div class="pill-group-label">🤝 Community / identity</div>
-      <button type="button" class="type-pill" data-type="friendslop" data-keywords="friendslop coop chaos playing with friends squad night game night" aria-pressed="false"><span class="type-icon">🤹</span>Friendslop / co-op</button>
-      <button type="button" class="type-pill" data-type="lgbt" data-keywords="lgbt lgbtq queer pride queer creator queer vtuber sapphic wlw mlm" aria-pressed="false"><span class="type-icon">🏳️‍🌈</span>LGBTQ+ creator</button>
-      <button type="button" class="type-pill" data-type="trans" data-keywords="trans transgender trans creator trans vtuber transmasc transfemme nonbinary" aria-pressed="false"><span class="type-icon">🏳️‍⚧️</span>Trans creator</button>
-      <button type="button" class="type-pill" data-type="poc" data-keywords="poc creator black creator black vtuber latina vtuber asian vtuber indigenous creator representation matters" aria-pressed="false"><span class="type-icon">✊🏾</span>POC creator</button>
-
       <button type="button" class="type-pill" data-type="custom" data-keywords="" aria-pressed="false"><span class="type-icon">➕</span>Other…</button>
+
+      <button type="button" class="short-type-toggle" id="shortTypeToggleMore" aria-expanded="false" aria-controls="shortTypeRow">
+        <span>Show more content types <span class="hint">— creator content, vibe, identity (24+)</span></span>
+        <span class="caret">▾</span>
+      </button>
+
+      <div class="pill-group-label" data-tier="secondary">🎨 Creator content</div>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="irlstorytime" data-keywords="irl storytime real life storytime my real life story this happened to me true story irl experience real life moment in real life" aria-pressed="false"><span class="type-icon">🗣️</span>IRL storytime</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="animation" data-keywords="animation animatic animation meme 2d animation digital animation procreate animation oc animation vtuber animation animated meme animated short" aria-pressed="false"><span class="type-icon">🎞️</span>Animation / animatic</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="lore" data-keywords="lore vtuber lore lore fragment vtuber story character lore original lore vtuber world building vtuber backstory" aria-pressed="false"><span class="type-icon">📜</span>Lore / VTuber lore</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="oc" data-keywords="oc original character oc art oc reveal oc intro character design vtuber oc oc design ocfanart" aria-pressed="false"><span class="type-icon">🪐</span>OC / original character</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="fanart" data-keywords="fanart fan art vtuber fanart tribute art fanart friday fanart community" aria-pressed="false"><span class="type-icon">💖</span>Fanart</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="emotes" data-keywords="emote art emote maker emote reveal sticker emote twitch emote discord emote custom emote vtuber emote 7tv emote emote commission emote design" aria-pressed="false"><span class="type-icon">💜</span>Emotes / sticker art</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="modelshowcase" data-keywords="vtuber model reveal vtuber model showcase live2d model live2d showcase vtuber rig vtuber rig showcase model reveal new model reveal" aria-pressed="false"><span class="type-icon">🐱</span>Model showcase / rig</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="cosplay" data-keywords="cosplay cosplaying cosplayer transformation" aria-pressed="false"><span class="type-icon">🎀</span>Cosplay</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="music" data-keywords="music song cover singing original song vtuber music vtuber cover" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="asmr" data-keywords="asmr whisper tingles soft spoken asmr roleplay" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="mukbang" data-keywords="mukbang eating show eat with me food challenge spicy noodles korean mukbang asian food" aria-pressed="false"><span class="type-icon">🍜</span>Mukbang</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="comicdub" data-keywords="comic dub voiceover voice acting fan comic animated comic comicdub dub this comic sonic dub" aria-pressed="false"><span class="type-icon">🎙️</span>Comic dub / VA</button>
+
+      <div class="pill-group-label" data-tier="secondary">😂 Vibe / modifier</div>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="funny" data-keywords="funny comedy meme funnymoment no context out of pocket cackling" aria-pressed="false"><span class="type-icon">😂</span>Funny / no context</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="relatable" data-keywords="relatable relatablecontent relatable comedy so true it me literally me we all" aria-pressed="false"><span class="type-icon">🥹</span>Relatable</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="wholesome" data-keywords="wholesome seiso wholesome vtuber seiso vtuber cute kawaii wholesome content sfw vtuber family friendly" aria-pressed="false"><span class="type-icon">🌸</span>Wholesome / seiso</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="brainrot" data-keywords="brainrot brainrot meme skibidi italian brainrot sigma only in ohio gyatt rizzler" aria-pressed="false"><span class="type-icon">🧠</span>Brainrot humor</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="drama" data-keywords="drama hot take unpopular opinion rant tea spilling" aria-pressed="false"><span class="type-icon">🍵</span>Drama / hot take</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="rage" data-keywords="rage raging tilted tilting tantrum gamer rage losing my mind" aria-pressed="false"><span class="type-icon">😤</span>Rage / tilted</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="fail" data-keywords="fail failed epic fail wipeout disaster that did not go did not work went so wrong" aria-pressed="false"><span class="type-icon">💀</span>Fail / disaster</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="cursed" data-keywords="cursed haunted unhinged wtf what the actual broke me destroyed me" aria-pressed="false"><span class="type-icon">😵‍💫</span>Cursed / unhinged</button>
+
+      <div class="pill-group-label" data-tier="secondary">🤝 Community / identity</div>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="friendslop" data-keywords="friendslop coop chaos playing with friends squad night game night" aria-pressed="false"><span class="type-icon">🤹</span>Friendslop / co-op</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="lgbt" data-keywords="lgbt lgbtq queer pride queer creator queer vtuber sapphic wlw mlm" aria-pressed="false"><span class="type-icon">🏳️‍🌈</span>LGBTQ+ creator</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="trans" data-keywords="trans transgender trans creator trans vtuber transmasc transfemme nonbinary" aria-pressed="false"><span class="type-icon">🏳️‍⚧️</span>Trans creator</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="poc" data-keywords="poc creator black creator black vtuber latina vtuber asian vtuber indigenous creator representation matters" aria-pressed="false"><span class="type-icon">✊🏾</span>POC creator</button>
     </div>
     <div class="short-type-custom" id="shortTypeCustomWrap" style="display:none">
       <input id="shortTypeCustom" type="text" placeholder="Type your own — e.g. cosplay reveal, art timelapse, oddly satisfying…" maxlength="80" />
     </div>
 
-    <label for="title" style="margin-top:18px">Title <span class="opt">(optional &mdash; I'll suggest some at the end)</span></label>
-    <span class="field-help">Skip if you don't have one yet — I'll generate 3 options for you. If you do have one, paste it so I can score it.</span>
-    <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
+    <details class="collapse-section">
+      <summary>
+        <span>Add a title, description, or hashtags <span class="hint">— optional, boosts accuracy</span></span>
+      </summary>
+      <div class="collapse-body">
+        <label for="title">Title <span class="opt">(I'll suggest some if blank)</span></label>
+        <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
 
-    <label for="description">Description / caption</label>
-    <textarea id="description" placeholder="One strong hook sentence + a few keywords / CTA"></textarea>
+        <label for="description">Description / caption</label>
+        <textarea id="description" placeholder="One strong hook sentence + a few keywords / CTA"></textarea>
 
-    <label for="template">Your description template <span class="opt">(socials, links, signoff &mdash; optional, but worth filling in once)</span></label>
-    <div class="template-presets">
-      <span class="preset-label">Saved:</span>
-      <select id="templatePreset" aria-label="Saved description templates">
-        <option value="">— Load a saved template —</option>
-      </select>
-      <button type="button" class="preset-btn" id="saveTemplateBtn">💾 Save as…</button>
-      <button type="button" class="preset-btn danger" id="deleteTemplateBtn">🗑 Delete</button>
-    </div>
-    <textarea id="template" rows="4" placeholder="🐙 Twitch: twitch.tv/eggie&#10;🐙 Twitter: @EggieWeggieVT&#10;🐙 Discord: discord.gg/suckegg&#10;&#10;New shorts every week!"></textarea>
-    <p style="margin:4px 0 0;font-size:12px;color:var(--ink-soft)">I'll stick this at the end of your YouTube description automatically. Save multiple templates above (saved in your browser) so you can swap between them.</p>
+        <label for="template">Description template <span class="opt">(socials / links / signoff)</span></label>
+        <div class="template-presets">
+          <span class="preset-label">Saved:</span>
+          <select id="templatePreset" aria-label="Saved description templates">
+            <option value="">— Load a saved template —</option>
+          </select>
+          <button type="button" class="preset-btn" id="saveTemplateBtn">💾 Save</button>
+          <button type="button" class="preset-btn danger" id="deleteTemplateBtn">🗑</button>
+        </div>
+        <textarea id="template" rows="3" placeholder="🐙 Twitch: twitch.tv/eggie&#10;🐙 Twitter: @EggieWeggieVT&#10;🐙 Discord: discord.gg/suckegg"></textarea>
+        <span class="field-help">Auto-appended to your YouTube description. Save multiple templates above (stored in your browser).</span>
 
-    <label for="hashtags">Hashtags <span class="opt">(comma or space separated)</span></label>
-    <input id="hashtags" type="text" placeholder="#VTuber, #VTuberClips, #residentevil" />
-    <span class="field-help">Leave blank to let me pick the optimal 1S/2M/2L mix for you. Or paste hashtags you've been using and I'll score them.</span>
+        <label for="hashtags">Hashtags <span class="opt">(comma or space separated)</span></label>
+        <input id="hashtags" type="text" placeholder="#VTuber, #VTuberClips, #residentevil" />
+        <span class="field-help">Leave blank and I'll pick the optimal 1S/2M/2L mix.</span>
+      </div>
+    </details>
 
     <div class="step-nav">
       <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
@@ -4414,6 +4472,29 @@ if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', wireWizard, {once:true});
 } else {
   wireWizard();
+}
+
+// Wire the "Show more types ▾" toggle — flips .collapsed on the pill row.
+function wireShortTypeToggle(){
+  const toggle = document.getElementById('shortTypeToggleMore');
+  const row = document.getElementById('shortTypeRow');
+  if(!toggle || !row) return;
+  toggle.addEventListener('click', () => {
+    const isCollapsed = row.classList.toggle('collapsed');
+    toggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+    // Update label copy
+    const labelSpan = toggle.querySelector('span');
+    if(labelSpan){
+      labelSpan.innerHTML = isCollapsed
+        ? 'Show more content types <span class="hint">— creator content, vibe, identity (24+)</span>'
+        : 'Show fewer content types';
+    }
+  });
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', wireShortTypeToggle, {once:true});
+} else {
+  wireShortTypeToggle();
 }
 
 // ============================================================
