@@ -2235,7 +2235,9 @@ function _scanTextForTopics(text){
   if(/\b(no context|nocontext|out of context|out ?of ?pocket|random clip|random shorts|wtf moment|what just happened|just watch|i can'?t explain|words can'?t describe)\b/.test(t)) found.content.push('nocontext');
   if(/\b(tutorial|how ?to|guide|tips|teach|step by step|teaching|the right way)\b/.test(t)) found.content.push('tutorial');
   if(/\b(review|honest review|reviewing|unboxing|first impressions|worth it\??)\b/.test(t)) found.content.push('review');
-  if(/\b(story ?time|storytime|tell.*story|let me tell you|so basically|the way (i|he|she|they)|the time i|slept through|overslept|i forgot to|i missed my|i can'?t believe i|i did(?: ?n'?t)? mean to|the day i|that time (i|we|she|he|they)|guess what (i|we|she|he|they))\b/.test(t)) found.content.push('storytime');
+  // Storytime — broad pool of personal-narrative hooks. "I got [X]", injury narratives, location-
+  // based stories ("in the shower"), time-anchored ("yesterday this happened"), first-person reactions.
+  if(/\b(story ?time|storytime|tell.*story|let me tell you|so basically|the way (i|he|she|they)|the time i|slept through|overslept|i forgot to|i missed my|i can'?t believe i|i did(?: ?n'?t)? mean to|the day i|that time (i|we|she|he|they)|guess what (i|we|she|he|they)|i got (a|an|my)|i (fell|tripped|hit|broke|sprained|stubbed|crashed|burned|cut|smacked|slipped|fainted|injured)|in the (shower|bathroom|kitchen|car|gym|store|elevator|hallway|backyard|garage|basement|attic|hospital|er|drive ?thru|parking lot|grocery store)|(concussion|stitches|sprained|fractured|injury|er trip|hospital trip)|yesterday this|the other day|last (week|night|month) i|this happened|happened to me|the funniest thing (happened|was)|true story|i almost (died|cried|fell|fainted|screamed|threw up|passed out)|i (screamed|cried|panicked|froze|fainted) when)\b/.test(t)) found.content.push('storytime');
   if(/\b(vlog|day in (my|the) life|daily vlog|dailylife|behind the scenes of my)\b/.test(t)) found.content.push('vlog');
   if(/\b(skit|sketch comedy|skit comedy)\b/.test(t)) found.content.push('skit');
   if(/\b(behind the scenes|bts|how (i|we) made|making of)\b/.test(t)) found.content.push('bts');
@@ -2288,12 +2290,36 @@ function _scanTextForTopics(text){
 }
 
 // Pick the most-specific primary topic from a scan: game > niche genre > content > generic genre.
+// Within content[] there's a hierarchy. NARRATIVE shapes (the actual *form* of the short — a
+// storytime, vlog, POV scenario, reaction, tutorial, etc.) beat TONAL modifiers (funny, cursed,
+// relatable, nocontext, brainrot) for the primary topic slot. Without this ordering, a clip with
+// both funny + storytime detected would get tagged with #funny as primary instead of #storytime,
+// even though the short is really a storytime that happens to be funny.
+const CONTENT_PRIORITY = [
+  // Narrative content shape (high priority — these define the format of the short)
+  'storytime','vlog','pov','reaction','tutorial','review','debut','qna','asmr',
+  'challenge','compilation','skit','bts','edit','facereveal','drama','rant',
+  'lifehack','fail','rage',
+  // Tonal modifiers (lower priority — describe the vibe but not the shape)
+  'cursed','funny','relatable','brainrot','nocontext','clip'
+];
+
 function _pickPrimary(scan){
   if(!scan) return null;
   const specificGenre = (scan.genres||[]).find(g => g !== 'gaming' && g !== 'streaming');
   if((scan.games||[]).length) return {type:'game', key: scan.games[0]};
   if(specificGenre) return {type:'genre', key: specificGenre};
-  if((scan.content||[]).length) return {type:'content', key: scan.content[0]};
+  if((scan.content||[]).length){
+    // Sort detected content by priority so narrative shapes win the primary slot
+    const sorted = [...scan.content].sort((a, b) => {
+      const ai = CONTENT_PRIORITY.indexOf(a); const bi = CONTENT_PRIORITY.indexOf(b);
+      // Items not in the priority list go last (rank = length)
+      const aRank = ai === -1 ? CONTENT_PRIORITY.length : ai;
+      const bRank = bi === -1 ? CONTENT_PRIORITY.length : bi;
+      return aRank - bRank;
+    });
+    return {type:'content', key: sorted[0]};
+  }
   if((scan.genres||[]).length) return {type:'genre', key: scan.genres[0]};
   return null;
 }
