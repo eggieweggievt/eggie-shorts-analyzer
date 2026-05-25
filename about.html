@@ -66,7 +66,11 @@
   }
   .wrap{max-width:1040px;margin:0 auto;padding:32px 20px 80px;position:relative;z-index:1}
 
-  /* Back link */
+  /* Back link — sits in its own row above the title, left-aligned */
+  .back-row{
+    display:flex;justify-content:flex-start;
+    margin-bottom:6px;
+  }
   .back-link{
     display:inline-flex;align-items:center;gap:6px;
     text-decoration:none;
@@ -78,21 +82,25 @@
   }
   .back-link:hover{background:rgba(255,255,255,0.95)}
 
-  /* Header */
-  header.hero{text-align:center;padding:28px 0 8px}
+  /* Header — title goes on its own block-level row so it stays centered + can wrap */
+  header.hero{text-align:center;padding:18px 0 8px}
   .logo{
     font-family:'Pacifico',cursive;
-    font-size:48px;line-height:1.25;
+    font-size:clamp(34px, 6vw, 52px);
+    line-height:1.2;
     background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     text-shadow:0 4px 16px rgba(99,170,244,0.18);
-    margin:18px auto 6px;
-    padding:6px;
-    display:inline-block;
+    margin:14px auto 8px;
+    padding:8px 4px 12px;
+    display:block;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
   }
   header.hero p.tag{
-    font-weight:600;color:var(--ink-soft);font-size:17px;
-    margin:8px auto 0;max-width:640px;line-height:1.5;
+    font-weight:600;color:var(--ink-soft);font-size:16.5px;
+    margin:8px auto 0;max-width:640px;line-height:1.55;
+    padding:0 12px;
   }
   header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
 
@@ -272,8 +280,10 @@
 <body>
 <div class="wrap">
 
-  <header class="hero">
+  <div class="back-row">
     <a href="index.html" class="back-link">← Back to the analyzer</a>
+  </div>
+  <header class="hero">
     <h1 class="logo">About the Analyzer 🐙</h1>
     <p class="tag">What's inside, <em>how it picks the right tags</em>, every game and niche the system already knows about — and how to ask me to add yours.</p>
   </header>
