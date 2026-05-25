@@ -399,6 +399,27 @@
     display:flex; flex-wrap:wrap; gap:6px 8px;
     margin:8px 0 4px;
     align-items:center;
+    border:2px dashed transparent;
+    border-radius:14px;
+    padding:6px 8px;
+    transition:border-color .2s ease, background .2s ease, transform .15s ease;
+  }
+  /* When validation fails — pulse + dashed border to draw the eye */
+  .short-type-row.needs-selection{
+    border-color:#E879C5;
+    background:rgba(255,178,240,0.18);
+    animation:pill-shake .45s ease;
+  }
+  @keyframes pill-shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-4px)}
+    40%{transform:translateX(4px)}
+    60%{transform:translateX(-3px)}
+    80%{transform:translateX(2px)}
+  }
+  /* "Required" hint on the label */
+  label .req{
+    font-size:12px;font-weight:600;color:#a23556;font-style:italic;
   }
   /* Group label between pill sections — full-width break that lets pills wrap into the next row */
   .short-type-row .pill-group-label{
@@ -854,7 +875,7 @@
     <label for="quickContext">What is your short about? <span class="opt">(this is all I need)</span></label>
     <input id="quickContext" type="text" placeholder="e.g. me getting jumpscared in Phasmophobia / making cherry blossom latte art / Elden Ring death montage" />
 
-    <label style="margin-top:14px">What kind of short is this? <span class="opt">(optional &mdash; tick any that fit; the more accurate, the better your tags)</span></label>
+    <label style="margin-top:14px">What kind of short is this? <span class="req">(required &mdash; tick at least one; the more accurate, the better your tags)</span></label>
     <div class="short-type-row" id="shortTypeRow" role="group" aria-label="Short type">
       <div class="pill-group-label">📋 Format</div>
       <button type="button" class="type-pill" data-type="gaming" data-keywords="gaming clip gameplay stream highlight twitch clip" aria-pressed="false"><span class="type-icon">🎮</span>Gaming clip</button>
@@ -871,6 +892,7 @@
       <button type="button" class="type-pill" data-type="debut" data-keywords="debut new vtuber first stream introducing myself model reveal" aria-pressed="false"><span class="type-icon">✨</span>Debut</button>
 
       <div class="pill-group-label">🎨 Creator content</div>
+      <button type="button" class="type-pill" data-type="irlstorytime" data-keywords="irl storytime real life storytime my real life story this happened to me true story irl experience real life moment in real life" aria-pressed="false"><span class="type-icon">🗣️</span>IRL storytime</button>
       <button type="button" class="type-pill" data-type="animation" data-keywords="animation animatic animation meme 2d animation digital animation procreate animation oc animation vtuber animation animated meme animated short" aria-pressed="false"><span class="type-icon">🎞️</span>Animation / animatic</button>
       <button type="button" class="type-pill" data-type="lore" data-keywords="lore vtuber lore lore fragment vtuber story character lore original lore vtuber world building vtuber backstory" aria-pressed="false"><span class="type-icon">📜</span>Lore / VTuber lore</button>
       <button type="button" class="type-pill" data-type="oc" data-keywords="oc original character oc art oc reveal oc intro character design vtuber oc oc design ocfanart" aria-pressed="false"><span class="type-icon">🪐</span>OC / original character</button>
@@ -881,6 +903,7 @@
       <button type="button" class="type-pill" data-type="music" data-keywords="music song cover singing original song vtuber music vtuber cover" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
       <button type="button" class="type-pill" data-type="asmr" data-keywords="asmr whisper tingles soft spoken asmr roleplay" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
       <button type="button" class="type-pill" data-type="mukbang" data-keywords="mukbang eating show eat with me food challenge spicy noodles korean mukbang asian food" aria-pressed="false"><span class="type-icon">🍜</span>Mukbang</button>
+      <button type="button" class="type-pill" data-type="comicdub" data-keywords="comic dub voiceover voice acting fan comic animated comic comicdub dub this comic sonic dub" aria-pressed="false"><span class="type-icon">🎙️</span>Comic dub / VA</button>
 
       <div class="pill-group-label">😂 Vibe / modifier</div>
       <button type="button" class="type-pill" data-type="funny" data-keywords="funny comedy meme funnymoment no context out of pocket cackling" aria-pressed="false"><span class="type-icon">😂</span>Funny / no context</button>
@@ -2010,6 +2033,25 @@ const TAG_DB = {
     'fallout 76':       {tags:['fallout76','fallout','bethesda','wasteland','falloutclips','vaulttec'], sizes:['medium','large','large','medium','medium','medium']},
     'fallout 4':        {tags:['fallout4','fallout','bethesda','wasteland','nukacola','falloutclips','sanctuaryhills'], sizes:['large','large','large','medium','medium','medium','small']},
     'new vegas':        {tags:['falloutnewvegas','newvegas','fallout','obsidian','wasteland','newvegasmemes'], sizes:['medium','large','large','medium','medium','medium']},
+    // === From @Nyoomiepiyu channel scan (2026-05-25) ===
+    // Strinova — F2P competitive arena shooter
+    'strinova':         {tags:['strinova','strinovagame','strinovaclips','strinovamemes','ironcoregames','arenashooter','freetoplay','strinovacommunity','strinovashorts','strinovatips'], sizes:['large','medium','medium','medium','small','medium','medium','small','small','small']},
+    // Tomodachi Life — Nintendo 3DS life sim
+    'tomodachi life':   {tags:['tomodachilife','tomodachi','3ds','nintendo3ds','nintendolifesim','lifesim','nintendo','cozysim','wackysim'], sizes:['medium','small','medium','medium','small','large','large','small','small']},
+    'tomodachi':        {tags:['tomodachilife','tomodachi','3ds','nintendolifesim','lifesim','nintendo'], sizes:['medium','small','medium','small','large','large']},
+    // Miside / Mita — viral 2024-2025 indie horror with yandere anime girl
+    'miside':           {tags:['miside','mita','misidegame','misidehorror','yanderegame','indiehorror','psychologicalhorror','aestheticdatingsim','misideclips','misideanalysis'], sizes:['large','large','medium','medium','medium','medium','medium','small','small','small']},
+    'mita':             {tags:['miside','mita','misidegame','misidehorror','yanderegame','indiehorror'], sizes:['large','large','medium','medium','medium','medium']},
+    // === From @rotlia (Celestia) channel scan (2026-05-25) ===
+    // Sonic the Hedgehog franchise — comic dub / fandom content. HUGE missing entry.
+    'sonic':            {tags:['sonic','sonicthehedgehog','sonicfandom','sonicfanart','sonicclips','sonicmemes','sonicedits','sega','sonicmovie','sonicx','soniccommunity','sonicboom','metalsonic'], sizes:['large','large','large','large','medium','large','medium','large','large','small','medium','small','small']},
+    'sonic the hedgehog':{tags:['sonicthehedgehog','sonic','sega','sonicfandom','sonicfanart','sonicclips','sonicmemes','sonicmovie'], sizes:['large','large','large','large','large','medium','large','large']},
+    'sonic movie':      {tags:['sonicmovie','sonicthehedgehog','sonic','sega','sonicmovie3','metalsonic'], sizes:['large','large','large','large','medium','small']},
+    'amy rose':         {tags:['amyrose','sonicthehedgehog','sonic','amyrosesonic','sonicfanart','sonicmemes'], sizes:['large','large','large','small','large','large']},
+    'tails':            {tags:['tailsthefox','tails','sonicthehedgehog','sonic','sonicfanart','sonicmemes'], sizes:['medium','large','large','large','large','large']},
+    'rouge':            {tags:['rougethebat','rouge','sonicthehedgehog','sonic','sonicfanart'], sizes:['medium','large','large','large','large']},
+    'knuckles':         {tags:['knuckles','sonicthehedgehog','sonic','sega','sonicfanart','sonicmemes'], sizes:['large','large','large','large','large','large']},
+    'shadow':           {tags:['shadowthehedgehog','shadow','sonicthehedgehog','sonic','sonicfanart','sonicmemes'], sizes:['medium','large','large','large','large','large']},
     // === From @Mifuyu channel scan (2026-05-25) ===
     // Code Vein / Code Vein 2 — anime souls-like, popular with VTubers per Mifuyu's clips
     'code vein':        {tags:['codevein','codevein2','bandainamco','animesouls','soulslike','codeveinclips','codeveinmemes','revenant'], sizes:['medium','medium','large','medium','medium','small','small','small']},
@@ -2150,6 +2192,8 @@ const TAG_DB = {
     fanart:        {tags:['fanart','vtuberfanart','fanartfriday','fanartcommunity','fanartshare','fanartshorts','digitalfanart','artisttwitter','fanartshowcase','fanarttuesday','fanartoftheday','fanartanime','fanartchallenge'], sizes:['large','medium','small','medium','small','small','small','medium','small','small','small','medium','small']},
     // Art tutorial / study — educational art content (sketchbook series, color theory, anatomy)
     arttutorial:   {tags:['arttutorial','arttip','artstudy','arttips','howtoart','artlesson','artteacher','artteacheronline','arteducation','artquickie','arttipsforbeginners','colortheory','animationtutorial','draweveryday','artprocesstutorial'], sizes:['large','small','medium','medium','medium','small','small','small','small','small','small','medium','small','small','small']},
+    // Comic dub / voiceover / voice acting — huge niche (@rotlia is 100% this format)
+    comicdub:      {tags:['comicdub','voiceover','voiceacting','fancomic','animecomicdub','comicvoice','comicdubvoice','voiceactor','comicvoiceactor','voicedcomic','dubbingcommunity','sonicmemes','sonicdub','dubthiscomic','animatedcomic'], sizes:['large','large','large','small','medium','small','small','medium','small','small','small','large','medium','small','small']},
     // Lifehack — refreshed 2026-05-24 from VidIQ "tutorial tip shorts" outliers
     lifehack:      {tags:['lifehack','lifehacks','tipsandtricks','everydaylifehack','smarttip','quickhack','adultinghack','homehack','kitchenhack','niftytrick','simplehack','easyhack'], sizes:['large','large','medium','small','small','small','small','small','small','small','small','medium']},
     // Drama — refreshed 2026-05-24 from VidIQ "drama hot take rant" outliers
@@ -2387,6 +2431,18 @@ function _scanTextForTopics(text){
   if(/\b(uma ?musume( ?pretty ?derby)?|uma ?museme|pretty ?derby|cygames horse|umamusume)\b/.test(t)) pushGame('uma musume');
   // Fallout series — Bethesda post-apocalyptic RPG
   if(/\b(fallout( ?4| ?76| ?new ?vegas| ?3)?|fallout new vegas|wasteland (game|run|build)|nuka ?cola|vault ?tec|sanctuary hills|bethesda fallout)\b/.test(t)) pushGame('fallout');
+  // Strinova — F2P arena shooter
+  if(/\b(strinova( ?game| ?clips| ?tips| ?memes)?|iron core games|ironcoregames)\b/.test(t)) pushGame('strinova');
+  // Tomodachi Life — Nintendo 3DS life sim
+  if(/\b(tomodachi ?life|tomodachi ?game|3ds life sim|nintendo life sim)\b/.test(t)) pushGame('tomodachi life');
+  // Miside / Mita — yandere indie horror dating sim
+  if(/\b(miside|mita( ?game)?|miside ?(horror|analysis|game|clips)|yandere ?game)\b/.test(t)) pushGame('miside');
+  // Sonic the Hedgehog franchise (characters trigger the sonic key)
+  if(/\b(sonic( ?the ?hedgehog| ?movie| ?clips| ?memes| ?fanart| ?fandom| ?boom| ?edit| ?x| ?\d)?|sega ?sonic|amy ?rose|tails ?the ?fox|rouge ?the ?bat|knuckles ?the ?echidna|shadow ?the ?hedgehog|metal ?sonic|sonic ?movie ?\d?|chao ?garden|silver ?the ?hedgehog|cream ?the ?rabbit)\b/.test(t)) pushGame('sonic');
+  // Comic dub / voiceover / voice acting — content type detection
+  if(/\b(comic ?dub|comicdub|voice ?(over|acting|actor)|fan ?comic|dubbing community|animated ?comic|sonicdub|amy ?rose ?dub|dub ?this ?comic)\b/.test(t)) found.content.push('comicdub');
+  // IRL storytime — real-life narrative, distinct from game-storytime
+  if(/\b(irl ?storytime|real ?life ?storytime|true ?story ?time|in real life|irl experience|real ?life ?moment|this actually happened|true story (about|of))\b/.test(t)) found.content.push('storytime');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) pushGame('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
@@ -2466,7 +2522,7 @@ function _scanTextForTopics(text){
 const CONTENT_PRIORITY = [
   // Narrative content shape (high priority — these define the format of the short)
   'storytime','vlog','pov','reaction','tutorial','arttutorial','review','debut',
-  'qna','asmr','lore','animation','modelshowcase','oc','fanart','emotes',
+  'qna','asmr','lore','animation','comicdub','modelshowcase','oc','fanart','emotes',
   'challenge','compilation','skit','bts','edit','facereveal','drama','rant',
   'lifehack','fail','rage',
   // Tonal modifiers (lower priority — describe the vibe but not the shape)
@@ -3034,10 +3090,39 @@ function hasAnyInputData(){
 }
 
 // Main analyze button — runs analysis with whatever data is in the form.
+// At least one short-type pill must be ticked so the analyzer always has a strong topic signal.
+function hasPillSelected(){
+  return document.querySelectorAll('#shortTypeRow .type-pill[aria-pressed="true"]').length > 0;
+}
+function flashPillRow(){
+  const row = $('shortTypeRow');
+  if(!row) return;
+  row.classList.remove('needs-selection');
+  // Force reflow so the animation restarts even if the class was just removed
+  void row.offsetWidth;
+  row.classList.add('needs-selection');
+  row.scrollIntoView({behavior:'smooth', block:'center'});
+  // Auto-clear the flash after a few seconds so it doesn't sit there permanently
+  clearTimeout(flashPillRow._t);
+  flashPillRow._t = setTimeout(()=> row.classList.remove('needs-selection'), 4000);
+}
+// Clicking any pill removes the "needs-selection" flash immediately
+document.querySelectorAll('#shortTypeRow .type-pill').forEach(btn => {
+  btn.addEventListener('click', ()=> {
+    const row = $('shortTypeRow');
+    if(row) row.classList.remove('needs-selection');
+  });
+});
+
 fetchBtn.addEventListener('click', ()=>{
   if(!hasAnyInputData()){
     alert('Upload a video or tell me what your short is about up above first.');
     step1.scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  if(!hasPillSelected()){
+    alert("Pick at least one option in “What kind of short is this?” so I can match the right tags. Tick the one that fits best — you can pick more than one.");
+    flashPillRow();
     return;
   }
   runFromUI();
