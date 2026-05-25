@@ -1942,7 +1942,9 @@ const TAG_DB = {
     food:          {tags:['food','foodie','foodlover','foodporn','yummy'], sizes:['large','large','medium','large','medium']},
     art:           {tags:['art','artist','digitalart','traditionalart','illustration','drawing','sketch','procreate'], sizes:['large','large','large','medium','medium','large','medium','medium']},
     // Music / cover — refreshed 2026-05-24 from VidIQ "music cover shorts" outliers
-    music:         {tags:['music','cover','singing','musician','singer','covermusic','musictok','songoftheday','vocalcover','livecover','originalsong','musicvideo','duet','covershorts','musicshorts','songcover','indiemusic'], sizes:['large','large','large','medium','large','medium','medium','small','small','small','small','large','medium','small','medium','medium','small']},
+    // Music / cover / VTuber music — refreshed 2026-05-25 from VidIQ "vtuber music cover song" outliers
+    // VTuber music sub-cluster adds tags creators use for VTuber-specific song/cover content.
+    music:         {tags:['music','cover','singing','musician','singer','covermusic','musictok','songoftheday','vocalcover','livecover','originalsong','musicvideo','duet','covershorts','musicshorts','songcover','indiemusic','vtubermusic','vtubersinger','vtubercover','vtuberband','vtuberoriginal','animesong','anisong','jpop','jmusic','jrock','kpop','vtubervoice','singervtuber','vtuberspotify'], sizes:['large','large','large','medium','large','medium','medium','small','small','small','small','large','medium','small','medium','medium','small','medium','small','medium','small','small','medium','small','medium','small','large','small','small','small']},
     fitness:       {tags:['fitness','workout','gym','fitnessmotivation','gymtok','homeworkout'], sizes:['large','large','large','medium','medium','small']},
     beauty:        {tags:['beauty','makeup','makeuptutorial','skincare','beautytips','glowup'], sizes:['large','large','medium','large','small','medium']},
     fashion:       {tags:['fashion','style','outfit','ootd','fashiontiktok'], sizes:['large','large','large','medium','medium']},
@@ -1993,13 +1995,17 @@ const TAG_DB = {
     // "Wholesome", "seiso" (Japanese for pure/clean), cute, non-edgy content. Huge in VTuber community.
     wholesome:     {tags:['wholesome','wholesomevtuber','wholesomemoments','wholesomeshorts','wholesomecontent','wholesomememe','wholesomecommunity','wholesomevibes','wholesomevtubermoments','seiso','seisovtuber','seisostream','cleanvtuber','sfwvtuber','familyfriendlyvtuber','cutevtuber','wholesomeenvtuber'], sizes:['large','medium','medium','small','medium','small','medium','small','small','medium','medium','small','small','small','small','medium','small']},
     // Kawaii / cute — VTuber cute-style identity, distinct from wholesome
-    kawaii:        {tags:['kawaii','cute','cutevtuber','kawaiivtuber','cutuber','kawaiicommunity','kawaiiaesthetic','kawaiianime','kawaiimemes','cutemoments','cuteshorts','adorablecontent','cutiestreamer','kawaiiculture'], sizes:['large','large','medium','medium','small','medium','medium','medium','small','medium','small','small','small','small']}
+    kawaii:        {tags:['kawaii','cute','cutevtuber','kawaiivtuber','cutuber','kawaiicommunity','kawaiiaesthetic','kawaiianime','kawaiimemes','cutemoments','cuteshorts','adorablecontent','cutiestreamer','kawaiiculture'], sizes:['large','large','medium','medium','small','medium','medium','medium','small','medium','small','small','small','small']},
+    // Mukbang — eating shows. Verified 2026-05-25 from VidIQ "mukbang shorts" outliers
+    // (Maria Bui, RONG MUKBANG, ASMR Hune-style channels).
+    mukbang:       {tags:['mukbang','eatingshow','eating','foodporn','mukbangshorts','asmrmukbang','spicyfood','spicynoodles','koreanmukbang','asianfood','mukbangasmr','foodchallenge','extrememukbang','viralmukbang','foodlover','foodieefood','mukbangchallenge','eatwithme','satisfyingfood','foodieemoments','mukbangcommunity','tteokbokki','buldak','seafoodboil'], sizes:['large','medium','large','large','medium','medium','large','medium','medium','medium','medium','medium','small','small','large','small','small','medium','medium','small','small','medium','medium','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
     // Reaction — refreshed 2026-05-24 from VidIQ "vtuber reacts" + "vtuber reacts to tiktok"
     // outlier data. VTuber-specific variants get priority when hasVTuber is also detected.
-    reaction:      {tags:['reaction','reactionvideo','reactionclip','reactiontok','reactiontime','reactingto','reactshorts','vtuberreacts','vtuberreaction','vtuberreact','irlreact','tiktokreact','firsttimewatching','watchparty','reactioncontent','livereaction'], sizes:['large','medium','small','small','small','medium','small','medium','medium','medium','medium','medium','medium','small','small','medium']},
+    // Reaction — refreshed 2026-05-25 from VidIQ "vtuber reacts" outlier pull (Filian-cluster, 3D-VTuber crossover)
+    reaction:      {tags:['reaction','reactionvideo','reactionclip','reactiontok','reactiontime','reactingto','reactshorts','vtuberreacts','vtuberreaction','vtuberreact','irlreact','tiktokreact','firsttimewatching','watchparty','reactioncontent','livereaction','envtuberclips','virtualstream','3dstreamer','3dstreaming','vtuberhighlights','filianmoments','vrcreact','reactioncompilation','vtuberreactshorts'], sizes:['large','medium','small','small','small','medium','small','medium','medium','medium','medium','medium','medium','small','small','medium','small','small','small','small','medium','small','small','small','small']},
     // Funny / entertainment — verified high-volume cluster from VidIQ outlier data
     // ("funny shorts" alone: 832k/mo searches; "comedy video": 574k/mo).
     // Refreshed 2026-05-24 — top breakout funny shorts consistently use #funny + #comedy
@@ -2016,7 +2022,10 @@ const TAG_DB = {
     bts:           {tags:['behindthescenes','bts'], sizes:['medium','large']},
     qna:           {tags:['qna','askmeanything','aboutme'], sizes:['medium','small','medium']},
     // ASMR — refreshed 2026-05-24 from VidIQ "asmr whisper" outliers
-    asmr:          {tags:['asmr','asmrsounds','asmrtingles','tingles','asmrcommunity','asmrtist','asmrvibes','satisfying','satisfyingvideos','relaxation','whisperasmr','asmrrelax','softspoken','asmrwhisper','asmrshorts','tinglyvibes','sleepasmr','triggerasmr'], sizes:['large','medium','small','medium','medium','small','medium','large','medium','medium','small','small','small','small','medium','small','small','small']},
+    // ASMR — refreshed 2026-05-25 with verified roleplay sub-cluster (medical / haircut / barista /
+    // doctor / cinematic / cozy / immersive storytelling). Top creators: Matty Tingles, Peppered ASMR,
+    // FredsVoice ASMR, The ASMR Ryan.
+    asmr:          {tags:['asmr','asmrsounds','asmrtingles','tingles','asmrcommunity','asmrtist','asmrvibes','satisfying','satisfyingvideos','relaxation','whisperasmr','asmrrelax','softspoken','asmrwhisper','asmrshorts','tinglyvibes','sleepasmr','triggerasmr','asmrroleplay','immersiveasmr','storytellingasmr','cozyasmr','cinematicasmr','atmosphericasmr','asmrtriggers','asmrtriggerwords','asmrpersonalattention','personalattentionasmr','medicalasmr','asmrdoctor','asmrhaircut','asmrbarista','fantasyasmr','sleeptriggers','asmrsleep'], sizes:['large','medium','small','medium','medium','small','medium','large','medium','medium','small','small','medium','small','medium','small','medium','small','large','medium','medium','medium','small','small','medium','small','medium','small','small','medium','small','small','small','medium','large']},
     // Debut — refreshed 2026-05-24 from VidIQ VTuber-debut outlier data
     debut:         {tags:['vtuberdebut','newvtuber','debut','firststream','debutstream','introducingmyself','modelreveal','vtubernewdebut','indiedebut','debutshort','newfacereveal'], sizes:['medium','small','medium','small','medium','small','medium','small','small','small','small']},
     cursed:        {tags:['cursed','cursedclips','cursedvideos'], sizes:['medium','small','small']},
@@ -2181,6 +2190,8 @@ function _scanTextForTopics(text){
   if(/\b(kawaii|cute ?vtuber|kawaii ?vtuber|cutuber|cutie ?streamer|kawaii ?aesthetic|adorable ?content|kawaii ?culture|cute ?moments)\b/.test(t)) found.genres.push('kawaii');
   // Brainrot — current internet humor cluster (skibidi, italian brainrot, sigma, etc.)
   if(/\b(brainrot|skibidi|skibidi ?toilet|italian ?brainrot|sigma|sigma ?moment|only ?in ?ohio|gyatt|rizzler|fanum ?tax|tung ?tung|tralalero|chimpanzini|brainrotsti|brainrot ?meme|brainrot ?tok)\b/.test(t)) found.content.push('brainrot');
+  // Mukbang — eating show genre (Korean / Asian food challenge style)
+  if(/\b(mukbang|mukbang ?asmr|asmr ?mukbang|eating ?show|eat ?with ?me|food ?challenge|korean ?mukbang|extreme ?mukbang|spicy ?(food|noodle|noodles)|tteokbokki|buldak|seafood ?boil|big ?bites|eating ?challenge)\b/.test(t)) found.genres.push('mukbang');
   // SpongeBob — cartoon nostalgia + VTuber crossover (Mysti's "purple dino vs hardest spongebob level")
   if(/\b(spongebob|sponge ?bob|spongebobsquarepants|patrick ?star|squidward|bikini ?bottom|krabby ?patty|mr ?krabs|nicktoon)\b/.test(t)) found.games.push('spongebob');
   // Persona 5 / Royal — explicit detection beyond generic 'persona'
@@ -2210,7 +2221,7 @@ function _scanTextForTopics(text){
   if(/\b(skit|sketch comedy|skit comedy)\b/.test(t)) found.content.push('skit');
   if(/\b(behind the scenes|bts|how (i|we) made|making of)\b/.test(t)) found.content.push('bts');
   if(/\b(q ?and ?a|qna|ask me anything|answering your questions|aboutme|about me)\b/.test(t)) found.content.push('qna');
-  if(/\b(asmr|whisper|tingles|asmr ?ist)\b/.test(t)) found.content.push('asmr');
+  if(/\b(asmr|whisper(?:ing)? ?asmr|tingles|asmr ?ist|asmr ?roleplay|asmr ?role ?play|medical asmr|doctor asmr|haircut asmr|barista asmr|cocktail asmr|cinematic asmr|immersive asmr|storytelling asmr|cozy asmr|fantasy asmr|asmr sleep|sleep asmr|asmr triggers|asmr personal attention|personal attention asmr)\b/.test(t)) found.content.push('asmr');
   if(/\b(debut|first stream|introducing myself|new vtuber|model reveal)\b/.test(t)) found.content.push('debut');
   if(/\b(cursed|haunted|unhinged|wtf|what the actual)\b/.test(t)) found.content.push('cursed');
   if(/\b(rage|raging|tilted|tilting|tantrum|i (just|literally) lost it|losing my mind)\b/.test(t)) found.content.push('rage');
