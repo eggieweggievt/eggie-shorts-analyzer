@@ -398,7 +398,17 @@
   .short-type-row{
     display:flex; flex-wrap:wrap; gap:6px 8px;
     margin:8px 0 4px;
+    align-items:center;
   }
+  /* Group label between pill sections — full-width break that lets pills wrap into the next row */
+  .short-type-row .pill-group-label{
+    flex:0 0 100%;
+    margin:8px 0 2px;
+    font-size:11.5px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .short-type-row .pill-group-label:first-child{margin-top:0}
   .type-pill{
     display:inline-flex;align-items:center;gap:6px;
     padding:8px 14px;
@@ -844,26 +854,50 @@
     <label for="quickContext">What is your short about? <span class="opt">(this is all I need)</span></label>
     <input id="quickContext" type="text" placeholder="e.g. me getting jumpscared in Phasmophobia / making cherry blossom latte art / Elden Ring death montage" />
 
-    <label style="margin-top:14px">What kind of short is this? <span class="opt">(optional &mdash; tick any that fit; helps me pick stronger tags)</span></label>
+    <label style="margin-top:14px">What kind of short is this? <span class="opt">(optional &mdash; tick any that fit; the more accurate, the better your tags)</span></label>
     <div class="short-type-row" id="shortTypeRow" role="group" aria-label="Short type">
+      <div class="pill-group-label">📋 Format</div>
       <button type="button" class="type-pill" data-type="gaming" data-keywords="gaming clip gameplay stream highlight twitch clip" aria-pressed="false"><span class="type-icon">🎮</span>Gaming clip</button>
       <button type="button" class="type-pill" data-type="storytime" data-keywords="storytime story let me tell you so basically the time i" aria-pressed="false"><span class="type-icon">📖</span>Storytime</button>
-      <button type="button" class="type-pill" data-type="tip" data-keywords="tutorial how to tips and tricks lifehack tip video" aria-pressed="false"><span class="type-icon">💡</span>Tip / tutorial</button>
       <button type="button" class="type-pill" data-type="reaction" data-keywords="reaction reacting to first time seeing watching this irl react" aria-pressed="false"><span class="type-icon">👀</span>Reaction</button>
-      <button type="button" class="type-pill" data-type="funny" data-keywords="funny comedy meme funnymoment no context out of pocket cackling" aria-pressed="false"><span class="type-icon">😂</span>Funny / no context</button>
-      <button type="button" class="type-pill" data-type="vlog" data-keywords="vlog day in my life daily routine adulting" aria-pressed="false"><span class="type-icon">📷</span>Vlog / day in my life</button>
       <button type="button" class="type-pill" data-type="pov" data-keywords="pov point of view imagine if when you" aria-pressed="false"><span class="type-icon">🎬</span>POV</button>
-      <button type="button" class="type-pill" data-type="drama" data-keywords="drama hot take unpopular opinion rant tea spilling" aria-pressed="false"><span class="type-icon">🍵</span>Drama / hot take</button>
+      <button type="button" class="type-pill" data-type="vlog" data-keywords="vlog day in my life daily routine adulting" aria-pressed="false"><span class="type-icon">📷</span>Vlog / day in my life</button>
+      <button type="button" class="type-pill" data-type="tip" data-keywords="tutorial how to tips and tricks lifehack tip video" aria-pressed="false"><span class="type-icon">💡</span>Tip / tutorial</button>
+      <button type="button" class="type-pill" data-type="arttutorial" data-keywords="art tutorial art tip art study color theory how to draw drawing tutorial art lesson art teacher" aria-pressed="false"><span class="type-icon">📚</span>Art tutorial / study</button>
+      <button type="button" class="type-pill" data-type="qna" data-keywords="qna ask me anything aboutme about me answering your questions" aria-pressed="false"><span class="type-icon">❓</span>Q&amp;A / AMA</button>
+      <button type="button" class="type-pill" data-type="challenge" data-keywords="challenge i tried trying to no death run nodeath run nuzlocke 24 hours 7 days" aria-pressed="false"><span class="type-icon">🏆</span>Challenge</button>
+      <button type="button" class="type-pill" data-type="bts" data-keywords="behind the scenes bts how i made making of art process" aria-pressed="false"><span class="type-icon">🎬</span>Behind the scenes</button>
+      <button type="button" class="type-pill" data-type="compilation" data-keywords="compilation best of highlights montage funniest moments" aria-pressed="false"><span class="type-icon">📼</span>Compilation</button>
       <button type="button" class="type-pill" data-type="debut" data-keywords="debut new vtuber first stream introducing myself model reveal" aria-pressed="false"><span class="type-icon">✨</span>Debut</button>
-      <button type="button" class="type-pill" data-type="asmr" data-keywords="asmr whisper tingles soft spoken" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
+
+      <div class="pill-group-label">🎨 Creator content</div>
+      <button type="button" class="type-pill" data-type="animation" data-keywords="animation animatic animation meme 2d animation digital animation procreate animation oc animation vtuber animation animated meme animated short" aria-pressed="false"><span class="type-icon">🎞️</span>Animation / animatic</button>
+      <button type="button" class="type-pill" data-type="lore" data-keywords="lore vtuber lore lore fragment vtuber story character lore original lore vtuber world building vtuber backstory" aria-pressed="false"><span class="type-icon">📜</span>Lore / VTuber lore</button>
+      <button type="button" class="type-pill" data-type="oc" data-keywords="oc original character oc art oc reveal oc intro character design vtuber oc oc design ocfanart" aria-pressed="false"><span class="type-icon">🪐</span>OC / original character</button>
+      <button type="button" class="type-pill" data-type="fanart" data-keywords="fanart fan art vtuber fanart tribute art fanart friday fanart community" aria-pressed="false"><span class="type-icon">💖</span>Fanart</button>
+      <button type="button" class="type-pill" data-type="emotes" data-keywords="emote art emote maker emote reveal sticker emote twitch emote discord emote custom emote vtuber emote 7tv emote emote commission emote design" aria-pressed="false"><span class="type-icon">💜</span>Emotes / sticker art</button>
+      <button type="button" class="type-pill" data-type="modelshowcase" data-keywords="vtuber model reveal vtuber model showcase live2d model live2d showcase vtuber rig vtuber rig showcase model reveal new model reveal" aria-pressed="false"><span class="type-icon">🐱</span>Model showcase / rig</button>
       <button type="button" class="type-pill" data-type="cosplay" data-keywords="cosplay cosplaying cosplayer transformation" aria-pressed="false"><span class="type-icon">🎀</span>Cosplay</button>
-      <button type="button" class="type-pill" data-type="music" data-keywords="music song cover singing original song" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
+      <button type="button" class="type-pill" data-type="music" data-keywords="music song cover singing original song vtuber music vtuber cover" aria-pressed="false"><span class="type-icon">🎵</span>Music / cover</button>
+      <button type="button" class="type-pill" data-type="asmr" data-keywords="asmr whisper tingles soft spoken asmr roleplay" aria-pressed="false"><span class="type-icon">🎧</span>ASMR</button>
+      <button type="button" class="type-pill" data-type="mukbang" data-keywords="mukbang eating show eat with me food challenge spicy noodles korean mukbang asian food" aria-pressed="false"><span class="type-icon">🍜</span>Mukbang</button>
+
+      <div class="pill-group-label">😂 Vibe / modifier</div>
+      <button type="button" class="type-pill" data-type="funny" data-keywords="funny comedy meme funnymoment no context out of pocket cackling" aria-pressed="false"><span class="type-icon">😂</span>Funny / no context</button>
+      <button type="button" class="type-pill" data-type="relatable" data-keywords="relatable relatablecontent relatable comedy so true it me literally me we all" aria-pressed="false"><span class="type-icon">🥹</span>Relatable</button>
+      <button type="button" class="type-pill" data-type="wholesome" data-keywords="wholesome seiso wholesome vtuber seiso vtuber cute kawaii wholesome content sfw vtuber family friendly" aria-pressed="false"><span class="type-icon">🌸</span>Wholesome / seiso</button>
+      <button type="button" class="type-pill" data-type="brainrot" data-keywords="brainrot brainrot meme skibidi italian brainrot sigma only in ohio gyatt rizzler" aria-pressed="false"><span class="type-icon">🧠</span>Brainrot humor</button>
+      <button type="button" class="type-pill" data-type="drama" data-keywords="drama hot take unpopular opinion rant tea spilling" aria-pressed="false"><span class="type-icon">🍵</span>Drama / hot take</button>
+      <button type="button" class="type-pill" data-type="rage" data-keywords="rage raging tilted tilting tantrum gamer rage losing my mind" aria-pressed="false"><span class="type-icon">😤</span>Rage / tilted</button>
+      <button type="button" class="type-pill" data-type="fail" data-keywords="fail failed epic fail wipeout disaster that did not go did not work went so wrong" aria-pressed="false"><span class="type-icon">💀</span>Fail / disaster</button>
+      <button type="button" class="type-pill" data-type="cursed" data-keywords="cursed haunted unhinged wtf what the actual broke me destroyed me" aria-pressed="false"><span class="type-icon">😵‍💫</span>Cursed / unhinged</button>
+
+      <div class="pill-group-label">🤝 Community / identity</div>
       <button type="button" class="type-pill" data-type="friendslop" data-keywords="friendslop coop chaos playing with friends squad night game night" aria-pressed="false"><span class="type-icon">🤹</span>Friendslop / co-op</button>
       <button type="button" class="type-pill" data-type="lgbt" data-keywords="lgbt lgbtq queer pride queer creator queer vtuber sapphic wlw mlm" aria-pressed="false"><span class="type-icon">🏳️‍🌈</span>LGBTQ+ creator</button>
       <button type="button" class="type-pill" data-type="trans" data-keywords="trans transgender trans creator trans vtuber transmasc transfemme nonbinary" aria-pressed="false"><span class="type-icon">🏳️‍⚧️</span>Trans creator</button>
       <button type="button" class="type-pill" data-type="poc" data-keywords="poc creator black creator black vtuber latina vtuber asian vtuber indigenous creator representation matters" aria-pressed="false"><span class="type-icon">✊🏾</span>POC creator</button>
-      <button type="button" class="type-pill" data-type="wholesome" data-keywords="wholesome seiso wholesome vtuber seiso vtuber cute kawaii wholesome content sfw vtuber family friendly" aria-pressed="false"><span class="type-icon">🌸</span>Wholesome / seiso</button>
-      <button type="button" class="type-pill" data-type="brainrot" data-keywords="brainrot brainrot meme skibidi italian brainrot sigma only in ohio gyatt rizzler" aria-pressed="false"><span class="type-icon">🧠</span>Brainrot humor</button>
+
       <button type="button" class="type-pill" data-type="custom" data-keywords="" aria-pressed="false"><span class="type-icon">➕</span>Other…</button>
     </div>
     <div class="short-type-custom" id="shortTypeCustomWrap" style="display:none">
@@ -1967,6 +2001,15 @@ const TAG_DB = {
     'dating sim':       {tags:['datingsim','datingsimulator','otome','otomegame','romancegame','indiedatingsim','datingsimclips','datingsimcommunity'], sizes:['large','small','large','medium','medium','small','small','small']},
     // In My Orbit — kickstarter visual novel Adarable promoted
     'in my orbit':      {tags:['inmyorbit','inmyorbitgame','indievisualnovel','kickstartergame','romancevn'], sizes:['small','small','medium','medium','small']},
+    // === From @RheyaHeart channel scan (2026-05-25) ===
+    // Uma Musume Pretty Derby — Cygames anime horse-girl gacha
+    'uma musume':       {tags:['umamusume','umamusumeprettyderby','prettyderby','cygames','umamusumeclips','umamusumememes','umamusumecommunity','horsegirl','uraprettyderby'], sizes:['large','medium','medium','medium','small','small','small','medium','small']},
+    'uma':              {tags:['umamusume','umamusumeprettyderby','prettyderby','cygames','horsegirl'], sizes:['large','medium','medium','medium','medium']},
+    // Fallout series — Bethesda post-apocalyptic RPG
+    'fallout':          {tags:['fallout','fallout4','fallout76','falloutnewvegas','bethesda','falloutclips','falloutmemes','wasteland','nukacola','vaulttec','falloutcommunity'], sizes:['large','large','large','medium','large','medium','medium','medium','medium','medium','small']},
+    'fallout 76':       {tags:['fallout76','fallout','bethesda','wasteland','falloutclips','vaulttec'], sizes:['medium','large','large','medium','medium','medium']},
+    'fallout 4':        {tags:['fallout4','fallout','bethesda','wasteland','nukacola','falloutclips','sanctuaryhills'], sizes:['large','large','large','medium','medium','medium','small']},
+    'new vegas':        {tags:['falloutnewvegas','newvegas','fallout','obsidian','wasteland','newvegasmemes'], sizes:['medium','large','large','medium','medium','medium']},
     // === From @Mifuyu channel scan (2026-05-25) ===
     // Code Vein / Code Vein 2 — anime souls-like, popular with VTubers per Mifuyu's clips
     'code vein':        {tags:['codevein','codevein2','bandainamco','animesouls','soulslike','codeveinclips','codeveinmemes','revenant'], sizes:['medium','medium','large','medium','medium','small','small','small']},
@@ -2340,6 +2383,10 @@ function _scanTextForTopics(text){
   if(/\b(visual ?novel|\bvn\b|otome ?game|dating ?sim(ulator)?|romance ?vn|kickstarter ?(vn|visual ?novel))\b/.test(t)) pushGame('visual novel');
   if(/\b(dating ?sim|dating ?simulator|otome|otome ?game|romance ?game)\b/.test(t)) pushGame('dating sim');
   if(/\b(in ?my ?orbit|inmyorbit)\b/.test(t)) pushGame('in my orbit');
+  // Uma Musume Pretty Derby — Cygames horse-girl gacha
+  if(/\b(uma ?musume( ?pretty ?derby)?|uma ?museme|pretty ?derby|cygames horse|umamusume)\b/.test(t)) pushGame('uma musume');
+  // Fallout series — Bethesda post-apocalyptic RPG
+  if(/\b(fallout( ?4| ?76| ?new ?vegas| ?3)?|fallout new vegas|wasteland (game|run|build)|nuka ?cola|vault ?tec|sanctuary hills|bethesda fallout)\b/.test(t)) pushGame('fallout');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) pushGame('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
