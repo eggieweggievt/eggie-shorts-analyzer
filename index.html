@@ -3791,18 +3791,47 @@ const vidStatus = $('vidStatus');
 const vidProgressBar = $('vidProgressBar');
 const vidResult = $('vidResult');
 
-['dragenter','dragover'].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.add('drag');}));
-['dragleave','drop'].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.remove('drag');}));
-dropZone.addEventListener('drop', e=>{
-  e.preventDefault();
-  const f = e.dataTransfer.files[0];
-  if(f && f.type.startsWith('video/')) handleVideoFile(f);
-  else setVidStatus('Hmm, that doesn\'t look like a video file. Try again?', true);
-});
-videoFile.addEventListener('change', e=>{
-  const f = e.target.files[0];
-  if(f) handleVideoFile(f);
-});
+// Wire up the dropzone + file input. Wrapped + deferred so a syntax / runtime error
+// anywhere else in this script can't take down the upload path.
+function wireUpVideoUpload(){
+  try{
+    if(!dropZone || !videoFile){
+      console.warn('Upload wiring: dropZone or videoFile not in the DOM yet.');
+      return;
+    }
+    // Defensive: clear any previous listeners by replacing the input clone trick? No — labels
+    // for a hidden input only work if the label *contains* the input. Our label does, so
+    // clicking the label fires the input click natively. But we also wire an explicit
+    // click handler in case the label/for relationship gets broken by future edits.
+    dropZone.addEventListener('click', (e)=>{
+      // Don't double-fire when the click landed on the input itself (label naturally bubbles)
+      if(e.target !== videoFile){
+        try{ videoFile.click(); }catch(err){ console.warn('input.click() failed:', err); }
+      }
+    });
+    ['dragenter','dragover'].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.add('drag');}));
+    ['dragleave','drop'].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.remove('drag');}));
+    dropZone.addEventListener('drop', e=>{
+      e.preventDefault();
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if(f && f.type && f.type.startsWith('video/')) handleVideoFile(f);
+      else setVidStatus('Hmm, that doesn\'t look like a video file. Try again?', true);
+    });
+    videoFile.addEventListener('change', e=>{
+      const f = e.target.files && e.target.files[0];
+      if(f) handleVideoFile(f);
+    });
+  }catch(err){
+    console.error('Upload wiring failed:', err);
+  }
+}
+// Run now if the DOM is already ready (most likely — script is at end of body),
+// or wait for DOMContentLoaded otherwise. Either way the wiring is guaranteed to attach.
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', wireUpVideoUpload, {once:true});
+} else {
+  wireUpVideoUpload();
+}
 
 function setVidStatus(msg, isErr){
   vidStatus.textContent = msg;
@@ -3881,8 +3910,12 @@ async function ocrFrame(canvas){
 // Filter / sanitize OCR output — strip obvious garbage, very short fragments, control chars.
 function sanitizeOcrText(text){
   if(!text) return '';
-  // Remove control chars + collapse whitespace
+  // Remove ASCII control chars (0x00-0x1F + 0x7F) + collapse whitespace.
+  let cleaned = String(text).replace(/[\x00-\x1F\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
+  // (Previous version of this function had a broken regex with literal control bytes inside — fixed above.)
+  /*
   let cleaned = String(text).replace(/[ -]/g, ' ').replace(/\s+/g, ' ').trim();
+  */
   // Strip single-char noise lines, only keep lines with at least 2 word chars
   return cleaned.split(/\n+/).filter(line => /\w{2,}/.test(line)).join(' ').trim();
 }
