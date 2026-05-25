@@ -1766,6 +1766,10 @@ const TAG_DB = {
     'goddess of victory':{tags:['nikke','goddessofvictory','goddessofvictorynikke','nikkeshorts','shiftup','nikkememes','nikkefanart','commander'], sizes:['large','medium','medium','medium','medium','medium','medium','small']},
     'where winds meet': {tags:['wherewindsmeet','wwm','netease','wherewindsmeetshorts','wherewindsmeetclips','wuxia','openworldmmo','ancientchina','wwmshorts','wwmcommunity','wwmfanart'], sizes:['large','medium','medium','small','small','medium','medium','small','small','small','small']},
     'wherewindsmeet':   {tags:['wherewindsmeet','wwm','netease','wuxia','ancientchina','openworldmmo'], sizes:['large','medium','medium','medium','small','medium']},
+    // Neverness to Everness (NTE) — NetEase urban open-world gacha
+    'neverness to everness':{tags:['nevernesstoeverness','nte','netease','ntegame','nteclips','ntememes','ntefanart','ntecommunity','nteshorts','urbangacha','modernrpg','ntebeta','openworldgacha'], sizes:['large','large','medium','medium','medium','medium','medium','small','small','small','small','small','medium']},
+    'neverness':        {tags:['nevernesstoeverness','nte','netease','ntegame','nteclips','ntememes','ntefanart','ntecommunity','urbangacha','modernrpg'], sizes:['large','large','medium','medium','medium','medium','medium','small','small','small']},
+    'nte':              {tags:['nevernesstoeverness','nte','netease','ntegame','nteclips','ntememes','ntefanart','urbangacha'], sizes:['large','large','medium','medium','medium','medium','medium','small']},
     'blue archive':     {tags:['bluearchive','ba','bluearchiveen','bluearchiveshorts','bluearchivememes','bluearchivefanart','bluearchiveclips','sensei','nexongames','bluearchivecommunity'], sizes:['large','large','medium','medium','medium','medium','medium','small','medium','small']},
     'punishing gray raven':{tags:['punishinggrayraven','pgr','kurogames','pgrshorts','pgrclips','pgrmemes','pgrfanart','pgrcommunity'], sizes:['medium','large','medium','small','small','medium','medium','small']},
     'pgr':              {tags:['punishinggrayraven','pgr','kurogames','pgrshorts','pgrmemes','pgrfanart'], sizes:['medium','large','medium','small','medium','medium']},
@@ -1801,7 +1805,92 @@ const TAG_DB = {
     'expedition 33':    {tags:['expedition33','clairobscur','jrpg','indiegame'], sizes:['medium','small','small','medium']},
     'clair obscur':     {tags:['clairobscur','expedition33','jrpg'], sizes:['small','medium','small']},
     'pirate software':  {tags:['piratesoftware','heartbound','gamedev'], sizes:['medium','small','medium']},
-    'pragmata':         {tags:['pragmata','capcom','scifigame'], sizes:['small','large','small']}
+    'pragmata':         {tags:['pragmata','capcom','scifigame'], sizes:['small','large','small']},
+    // === TOP TWITCH GAMES (SullyGnome / TwitchTracker, May 2026) ===
+    // Just Chatting is the #1 Twitch category overall — added as a game-shaped entry so
+    // "yapping" / IRL chat content gets identity tags.
+    'just chatting':    {tags:['justchatting','irlstream','streamerlife','twitchstreamer','twitchclips','yapstream','chatchat','justchattingclips'], sizes:['large','medium','large','large','medium','small','small','small']},
+    'just chat':        {tags:['justchatting','irlstream','streamerlife','twitchclips'], sizes:['large','medium','large','medium']},
+    'yapping':          {tags:['justchatting','yapstream','yapsesh','irlstream','streamerlife'], sizes:['large','small','small','medium','large']},
+    // Diablo IV — top trending category in May 2026 (1761% growth, Vessel of Hatred + S9)
+    'diablo':           {tags:['diablo','diablo4','diabloiv','diablo2','diablo3','blizzard','arpg','diablocommunity','diablomemes','diabloseason'], sizes:['large','large','large','medium','medium','large','medium','small','small','small']},
+    'diablo iv':        {tags:['diablo4','diabloiv','diablo','blizzard','arpg','diablocommunity','diabloseason','vesselofhatred'], sizes:['large','large','large','large','large','medium','small','small']},
+    'diablo 4':         {tags:['diablo4','diabloiv','diablo','blizzard','arpg','diablocommunity'], sizes:['large','large','large','large','large','medium']},
+    // Grand Theft Auto V — separately keyed so detection catches "GTA V"
+    'grand theft auto': {tags:['gta','gtav','gtaonline','gta5','gtarp','rockstargames','gtaclips','gtamemes','gtaroleplay','gta6'], sizes:['large','medium','medium','large','medium','medium','medium','medium','small','medium']},
+    'gta v':            {tags:['gtav','gta','gtaonline','gtarp','gtaclips','gtaroleplay'], sizes:['large','large','medium','medium','medium','small']},
+    'gta rp':           {tags:['gtarp','gtaroleplay','gta','noPixel','rprp','gtaroleplaying','rpgtaclips'], sizes:['medium','small','large','small','small','small','small']},
+    // Forza Horizon 6 — trending May 2026
+    'forza':            {tags:['forza','forzahorizon','forzahorizon6','forzahorizon5','forzaclips','playgroundgames','forzacommunity','forzasimracing','forzamemes'], sizes:['large','large','medium','medium','small','medium','medium','small','small']},
+    'forza horizon':    {tags:['forzahorizon','forzahorizon6','forzahorizon5','forza','playgroundgames','forzaclips'], sizes:['large','medium','medium','large','medium','small']},
+    // STALKER 2
+    'stalker':          {tags:['stalker','stalker2','stalker2heartofchornobyl','gsccompgames','stalkergame','stalkercommunity'], sizes:['medium','medium','small','small','medium','small']},
+    'stalker 2':        {tags:['stalker2','stalker2heartofchornobyl','stalker','gsccompgames'], sizes:['medium','small','medium','small']},
+    // Balatro — massive 2024+ indie hit, huge with cozy streamers + VTubers
+    'balatro':          {tags:['balatro','balatroclips','balatromemes','balatrostreak','balatroroguelike','localthunk','jokerbalatro'], sizes:['large','medium','medium','small','small','small','medium']},
+    // Schedule I — viral 2025 indie
+    'schedule i':       {tags:['scheduleone','schedule1','tylerlee','indiegame','schedulememes'], sizes:['medium','medium','small','medium','small']},
+    'schedule 1':       {tags:['scheduleone','schedule1','tylerlee','indiegame'], sizes:['medium','medium','small','medium']},
+    // Hearthstone — top TCG on Twitch
+    'hearthstone':      {tags:['hearthstone','hearthstonecommunity','hearthstonememes','blizzard','tcg','cardgame','hearthstoneclips'], sizes:['large','medium','small','large','large','large','small']},
+    // Hades 2 — supergiant new release
+    'hades':            {tags:['hades','hades2','hadesii','supergiantgames','rougelike','greekmythology','hadesgame'], sizes:['large','large','medium','medium','medium','medium','small']},
+    'hades 2':          {tags:['hades2','hadesii','hades','supergiantgames','melinoe'], sizes:['large','medium','large','medium','small']},
+    // Slay the Spire — top roguelike deckbuilder
+    'slay the spire':   {tags:['slaythespire','slaythespire2','sts','megacrit','deckbuilder','roguelikedeckbuilder'], sizes:['medium','small','medium','medium','large','small']},
+    // Sims 4 — top cozy / lifestream staple
+    'sims':             {tags:['thesims','sims4','simscommunity','simsbuild','simslegacy','simshouse','simsgameplay','simsstory'], sizes:['large','large','medium','small','small','small','small','small']},
+    'sims 4':           {tags:['sims4','thesims','simscommunity','simsbuild','simshouse'], sizes:['large','large','medium','small','small']},
+    // Final Fantasy XIV — massive MMORPG
+    'ffxiv':            {tags:['ffxiv','finalfantasy14','finalfantasyxiv','ffxivshorts','ffxivmemes','ffxivcommunity','ffxivraid','ffxivclips','squareenix','warriorOFlight'], sizes:['large','large','medium','medium','medium','medium','small','medium','large','small']},
+    'final fantasy xiv':{tags:['ffxiv','finalfantasy14','finalfantasyxiv','ffxivshorts','ffxivmemes','squareenix'], sizes:['large','large','medium','medium','medium','large']},
+    // Path of Exile 2
+    'path of exile':    {tags:['pathofexile','pathofexile2','poe','poe2','grindinggear','arpg','poecommunity','poetrade'], sizes:['large','medium','large','medium','medium','large','small','small']},
+    'poe':              {tags:['pathofexile','pathofexile2','poe','poe2','grindinggear','arpg'], sizes:['large','medium','large','medium','medium','large']},
+    // Once Human, Throne and Liberty, Black Myth Wukong — top survival / mmo / action 2024-2025 releases
+    'once human':       {tags:['oncehuman','starryStudios','oncehumangame','survivalgame','oncehumanclips'], sizes:['medium','small','small','medium','small']},
+    'throne and liberty':{tags:['throneandliberty','tl','ncsoft','amazongames','mmorpg','tlcommunity','throneandlibertyshorts'], sizes:['medium','medium','medium','medium','large','small','small']},
+    'black myth wukong':{tags:['blackmythwukong','blackmyth','wukong','gamescience','journeytothewest','arpg','blackmythwukongshorts'], sizes:['large','medium','large','small','small','large','small']},
+    'wukong':           {tags:['blackmythwukong','wukong','gamescience','arpg'], sizes:['large','large','small','large']},
+    // Palworld
+    'palworld':         {tags:['palworld','pocketpair','palworldcommunity','palworldclips','palworldbuilds','palworldmemes'], sizes:['large','medium','medium','small','small','small']},
+    // Manor Lords, Enshrouded — top sim/strategy/survival
+    'manor lords':      {tags:['manorlords','manorlordsgame','slavicmagic','citybuilder','strategygame','manorlordsshorts'], sizes:['medium','small','small','medium','large','small']},
+    'enshrouded':       {tags:['enshrouded','keenGames','enshroudedgame','survivalgame','enshroudedshorts'], sizes:['medium','small','small','medium','small']},
+    // The Finals
+    'the finals':       {tags:['thefinals','embarkstudios','thefinalsclips','thefinalsmemes','arenaShooter','thefinalsshorts'], sizes:['medium','small','small','small','small','small']},
+    // Marvel Snap
+    'marvel snap':      {tags:['marvelsnap','marvelsnapgame','marvelsnapclips','marvelsnapdecks','digitalcardgame','seconddinner'], sizes:['large','medium','small','small','medium','small']},
+    // Content Warning — co-op horror like Lethal Company
+    'content warning':  {tags:['contentwarning','contentwarninggame','landfall','spookilyhorror','indiehorror','cwgame'], sizes:['medium','small','small','small','medium','small']},
+    // Disney Dreamlight Valley — cozy
+    'dreamlight valley':{tags:['disneydreamlightvalley','dreamlightvalley','ddlv','gameloft','cozygame','disneygame'], sizes:['medium','large','medium','medium','medium','medium']},
+    'disney dreamlight':{tags:['disneydreamlightvalley','dreamlightvalley','ddlv','gameloft','cozygame'], sizes:['medium','large','medium','medium','medium']},
+    // Mario Kart World — newest Mario Kart (Switch 2)
+    'mario kart':       {tags:['mariokart','mariokartworld','mariokart8','nintendo','mariokartonline','nintendoswitch'], sizes:['large','medium','large','large','medium','large']},
+    'mario kart world': {tags:['mariokartworld','mariokart','nintendo','nintendoswitch2','marioparty'], sizes:['medium','large','large','medium','medium']},
+    // Pokemon Legends Z-A — newest mainline Pokemon
+    'pokemon legends':  {tags:['pokemonlegends','pokemonlegendsza','pokemonza','pokemon','gamefreak','nintendo'], sizes:['medium','small','small','large','medium','large']},
+    'pokemon legends z-a':{tags:['pokemonlegendsza','pokemonza','pokemon','gamefreak'], sizes:['small','small','large','medium']},
+    // Cozy / farm-life staples
+    'coral island':     {tags:['coralisland','coralislandgame','cozygame','farmingsim','stairwaygames'], sizes:['medium','small','medium','medium','small']},
+    'fields of mistria':{tags:['fieldsofmistria','mistria','cozygame','farmingsim','indiegame'], sizes:['medium','small','medium','medium','medium']},
+    // Tarkov
+    'tarkov':           {tags:['escapefromtarkov','tarkov','tarkovclips','tarkovwipe','battlestategames','tarkovmemes'], sizes:['large','large','medium','small','small','medium']},
+    'escape from tarkov':{tags:['escapefromtarkov','tarkov','tarkovclips','battlestategames','tarkovwipe'], sizes:['large','large','medium','small','small']},
+    // Co-op staples newish
+    'repo':             {tags:['repogame','repoindiehorror','indiehorror','coophorror','repoclips','repomemes'], sizes:['small','small','medium','medium','small','small']},
+    // Roblox-adjacent
+    'rivals':           {tags:['marvelrivals','rivals','marvel','marvelrivalsclips'], sizes:['large','large','large','medium']},
+    // Old-school + comp shooters
+    'overwatch 2':      {tags:['overwatch','overwatch2','overwatchclips','blizzard','ow2memes','overwatch2shorts'], sizes:['large','medium','medium','large','small','small']},
+    'rocket league':    {tags:['rocketleague','rl','rlclips','psyonix','rocketleaguefreestyle','rlcs'], sizes:['large','medium','medium','medium','small','medium']},
+    // Crab Champions, Plate Up, Golf It — popular indie hits with streamers
+    'crab champions':   {tags:['crabchampions','crab','indiegame','noisestorm','crabchampionsmemes'], sizes:['small','large','medium','small','small']},
+    'plateup':          {tags:['plateup','plateupgame','cookinggame','indiegame','plateupmemes'], sizes:['small','small','medium','medium','small']},
+    'golf it':          {tags:['golfit','golfitmultiplayer','partygame','indiegame'], sizes:['medium','small','large','medium']},
+    // Helldivers 2 (refresh)
+    'helldivers 2':     {tags:['helldivers2','helldivers','arrowheadgames','helldiversclips','helldiversmemes','democracy'], sizes:['large','medium','small','small','medium','small']}
   },
   // Genres / categories
   genres: {
@@ -1974,6 +2063,41 @@ function _scanTextForTopics(text){
   if(/\b(commander|nikke|goddess of victory|shift ?up|rapi|anis|neon|modernia|red hood)\b/.test(t)) found.games.push('nikke');
   if(/\b(sensei|blue archive|nexon game|abydos|trinity general school|gehenna|millennium)\b/.test(t)) found.games.push('blue archive');
   if(/\b(where winds meet|net ?ease|wuxia|ancient china (open world|mmo))\b/.test(t)) found.games.push('where winds meet');
+  // Neverness to Everness — NetEase urban open-world gacha (often abbreviated NTE)
+  if(/\b(neverness to everness|neverness|\bnte\b|urban (gacha|open ?world)|nte (beta|game|clips))\b/.test(t)) found.games.push('neverness to everness');
+  // Just Chatting / IRL / yap-stream — #1 Twitch category. Detection picks up the streamer-vibe
+  // language even when "just chatting" isn't said literally.
+  if(/\b(yap ?stream|yap ?session|yap ?sesh|just (chatting|talking|yapping)|irl stream|irl content|chatting stream|talking to chat|gettin'? ready stream|getting ready stream)\b/.test(t)) found.games.push('just chatting');
+  // Diablo IV — top trending May 2026 (Vessel of Hatred + new season)
+  if(/\b(diablo|diablo ?(iv|4|3|2)|vessel of hatred|nightmare dungeon|pit run|sanctuary build|paragon board)\b/.test(t)) found.games.push('diablo');
+  // GTA RP / GTA V — distinct from generic substring match
+  if(/\b(gta ?(v|5|6)|grand theft auto|gta ?(rp|roleplay|online)|nopixel|gta clips|los santos)\b/.test(t)) found.games.push('grand theft auto');
+  // Balatro — VTuber-favorite indie hit
+  if(/\b(balatro|joker (deck|build)|local thunk|balatro (run|streak|joker))\b/.test(t)) found.games.push('balatro');
+  // Hades / Hades 2
+  if(/\b(hades( ?2| ?ii)?|melinoe|supergiant|escape attempt|underworld run)\b/.test(t)) found.games.push('hades');
+  // Sims 4 — cozy / lifestream staple. Detection covers "playing the sims"
+  if(/\b(the sims|sims ?4|simming|sims build|sims legacy|sims house|build mode|cas mode)\b/.test(t)) found.games.push('sims');
+  // FFXIV
+  if(/\b(ffxiv|ff14|final fantasy ?(14|xiv)|warrior of light|eorzea|gpose|squareenix mmo)\b/.test(t)) found.games.push('ffxiv');
+  // Path of Exile
+  if(/\b(path of exile|poe ?2|poe ?league|grinding gear|maven pinnacle)\b/.test(t)) found.games.push('path of exile');
+  // Marvel Snap
+  if(/\b(marvel snap|snap deck|second dinner|marvel snap deck)\b/.test(t)) found.games.push('marvel snap');
+  // Content Warning / Repo / co-op horror
+  if(/\b(content warning|landfall game|spookily horror|cw monster)\b/.test(t)) found.games.push('content warning');
+  // Schedule I (the viral indie)
+  if(/\b(schedule ?(i|one|1)\b|tyler lee schedule)\b/.test(t)) found.games.push('schedule i');
+  // STALKER 2
+  if(/\b(stalker ?2|stalker heart of chornobyl|stalker zone|gsc stalker)\b/.test(t)) found.games.push('stalker');
+  // Tarkov
+  if(/\b(escape from tarkov|tarkov ?(raid|wipe|clips)?|battlestate games)\b/.test(t)) found.games.push('tarkov');
+  // Pokemon Legends Z-A
+  if(/\b(pokemon legends|legends z-?a|pokemon z-?a|legends arceus)\b/.test(t)) found.games.push('pokemon legends');
+  // Black Myth Wukong
+  if(/\b(black myth wukong|wukong (run|boss|build)|game science wukong|journey to the west)\b/.test(t)) found.games.push('black myth wukong');
+  // Throne and Liberty
+  if(/\b(throne and liberty|\btl\b mmo|t&l mmorpg|ncsoft tl)\b/.test(t)) found.games.push('throne and liberty');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) found.games.push('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
