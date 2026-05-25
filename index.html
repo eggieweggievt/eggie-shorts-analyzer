@@ -2065,8 +2065,27 @@ function _scanTextForTopics(text){
   const found = {games:[], genres:[], content:[], hasVTuber:false};
   if(!t) return found;
 
-  // Games — direct substring match
-  for(const g in TAG_DB.games){ if(t.includes(g)) found.games.push(g); }
+  // GAMING INTENT GATE — only mark a short as gaming-related when the user has explicitly
+  // signalled it. Avoids tagging "she slept through therapy and we played minecraft" as a
+  // Minecraft gaming short when the actual topic is mental-health storytime.
+  // Intent comes from the Gaming Clip pill (injects "gaming clip gameplay stream highlight twitch clip")
+  // OR from gaming-flavoured language the user typed themselves.
+  const hasGamingIntent = /\b(gaming ?clip|gameplay|let'?s play|playthrough|speedrun|game ?moment|gaming (channel|stream|content|short|moments|video|clip)|game (review|clip|footage|moments|montage)|playing (a |the )?(game|video ?game)|gaming ?vtuber|nuzlocke|hardcore (run|mode)|gamedev|gaming ?community|gaming ?content)\b/.test(t);
+
+  // Non-gaming entries that live in TAG_DB.games — these get scanned regardless of intent because
+  // they're IRL / streaming categories rather than actual video games.
+  const NON_GAME_KEYS = new Set(['just chatting','just chat','yapping']);
+
+  // Single helper used by the substring scan AND the explicit per-game regexes below.
+  // Gates everything behind the gaming-intent check, except for the small NON_GAME_KEYS allowlist.
+  const pushGame = (key) => {
+    if(hasGamingIntent || NON_GAME_KEYS.has(key)) found.games.push(key);
+  };
+
+  // Games — direct substring match (gated via pushGame)
+  for(const g in TAG_DB.games){
+    if(t.includes(g)) pushGame(g);
+  }
 
   // VTuber signals (used to decide whether to anchor with #VTuber).
   // Detection cluster sourced from top breakout VidIQ outliers — covers the term itself,
@@ -2119,63 +2138,63 @@ function _scanTextForTopics(text){
   // Gacha — cross-niche identity. Detect by pull / rolling / banner / pity / primogems / wish language.
   if(/\b(gacha|gacha (game|life|tok|pull|addict|memes)|rolling for|i pulled (for)?|five ?star pull|5 ?star pull|on (the )?banner|new banner|spark pity|hit pity|primogems|stellar jade|asterite|wish (pull|on)|standard banner|limited banner|gacha (fail|win)|gachapon)\b/.test(t)) found.genres.push('gacha');
   // Hoyoverse character / player titles — Whisper transcription often catches these in stream clips
-  if(/\b(traveler|aether|lumine|paimon|zhongli|raiden shogun|hu tao|venti|nahida|furina|arlecchino|skirk|primogems|genshin (impact)?)\b/.test(t)) found.games.push('genshin');
-  if(/\b(trailblazer|stelle|caelus|march 7th|dan heng|kafka|acheron|firefly|robin|jingliu|aventurine|sunday|honkai (star rail)?|star rail)\b/.test(t)) found.games.push('honkai');
-  if(/\b(rover|jiyan|jinhsi|encore|yinlin|changli|carlotta|brant|cantarella|kuro ?game|wuthering)\b/.test(t)) found.games.push('wuthering waves');
-  if(/\b(trainee|wise|belle|nicole demara|anby|billy kid|nekomata|ellen joe|zhu yuan|jane doe|caesar king|zenless|zzz|new eridu)\b/.test(t)) found.games.push('zzz');
-  if(/\b(doctor please|amiya|chen|surtr|ch'?en|hoshiguma|skadi|hypergryph|operator from|operator skill|arknights)\b/.test(t)) found.games.push('arknights');
-  if(/\b(vertin|timekeeper|reverse ?1999|bluepoch|arcanist|mystic art|the (storm|fool))\b/.test(t)) found.games.push('reverse 1999');
-  if(/\b(commander|nikke|goddess of victory|shift ?up|rapi|anis|neon|modernia|red hood)\b/.test(t)) found.games.push('nikke');
-  if(/\b(sensei|blue archive|nexon game|abydos|trinity general school|gehenna|millennium)\b/.test(t)) found.games.push('blue archive');
-  if(/\b(where winds meet|net ?ease|wuxia|ancient china (open world|mmo))\b/.test(t)) found.games.push('where winds meet');
+  if(/\b(traveler|aether|lumine|paimon|zhongli|raiden shogun|hu tao|venti|nahida|furina|arlecchino|skirk|primogems|genshin (impact)?)\b/.test(t)) pushGame('genshin');
+  if(/\b(trailblazer|stelle|caelus|march 7th|dan heng|kafka|acheron|firefly|robin|jingliu|aventurine|sunday|honkai (star rail)?|star rail)\b/.test(t)) pushGame('honkai');
+  if(/\b(rover|jiyan|jinhsi|encore|yinlin|changli|carlotta|brant|cantarella|kuro ?game|wuthering)\b/.test(t)) pushGame('wuthering waves');
+  if(/\b(trainee|wise|belle|nicole demara|anby|billy kid|nekomata|ellen joe|zhu yuan|jane doe|caesar king|zenless|zzz|new eridu)\b/.test(t)) pushGame('zzz');
+  if(/\b(doctor please|amiya|chen|surtr|ch'?en|hoshiguma|skadi|hypergryph|operator from|operator skill|arknights)\b/.test(t)) pushGame('arknights');
+  if(/\b(vertin|timekeeper|reverse ?1999|bluepoch|arcanist|mystic art|the (storm|fool))\b/.test(t)) pushGame('reverse 1999');
+  if(/\b(commander|nikke|goddess of victory|shift ?up|rapi|anis|neon|modernia|red hood)\b/.test(t)) pushGame('nikke');
+  if(/\b(sensei|blue archive|nexon game|abydos|trinity general school|gehenna|millennium)\b/.test(t)) pushGame('blue archive');
+  if(/\b(where winds meet|net ?ease|wuxia|ancient china (open world|mmo))\b/.test(t)) pushGame('where winds meet');
   // Neverness to Everness — NetEase urban open-world gacha (often abbreviated NTE)
-  if(/\b(neverness to everness|neverness|\bnte\b|urban (gacha|open ?world)|nte (beta|game|clips))\b/.test(t)) found.games.push('neverness to everness');
+  if(/\b(neverness to everness|neverness|\bnte\b|urban (gacha|open ?world)|nte (beta|game|clips))\b/.test(t)) pushGame('neverness to everness');
   // Just Chatting / IRL / yap-stream — #1 Twitch category. Detection picks up the streamer-vibe
   // language even when "just chatting" isn't said literally.
-  if(/\b(yap ?stream|yap ?session|yap ?sesh|just (chatting|talking|yapping)|irl stream|irl content|chatting stream|talking to chat|gettin'? ready stream|getting ready stream)\b/.test(t)) found.games.push('just chatting');
+  if(/\b(yap ?stream|yap ?session|yap ?sesh|just (chatting|talking|yapping)|irl stream|irl content|chatting stream|talking to chat|gettin'? ready stream|getting ready stream)\b/.test(t)) pushGame('just chatting');
   // Diablo IV — top trending May 2026 (Vessel of Hatred + new season)
-  if(/\b(diablo|diablo ?(iv|4|3|2)|vessel of hatred|nightmare dungeon|pit run|sanctuary build|paragon board)\b/.test(t)) found.games.push('diablo');
+  if(/\b(diablo|diablo ?(iv|4|3|2)|vessel of hatred|nightmare dungeon|pit run|sanctuary build|paragon board)\b/.test(t)) pushGame('diablo');
   // GTA RP / GTA V — distinct from generic substring match
-  if(/\b(gta ?(v|5|6)|grand theft auto|gta ?(rp|roleplay|online)|nopixel|gta clips|los santos)\b/.test(t)) found.games.push('grand theft auto');
+  if(/\b(gta ?(v|5|6)|grand theft auto|gta ?(rp|roleplay|online)|nopixel|gta clips|los santos)\b/.test(t)) pushGame('grand theft auto');
   // Balatro — VTuber-favorite indie hit
-  if(/\b(balatro|joker (deck|build)|local thunk|balatro (run|streak|joker))\b/.test(t)) found.games.push('balatro');
+  if(/\b(balatro|joker (deck|build)|local thunk|balatro (run|streak|joker))\b/.test(t)) pushGame('balatro');
   // Hades / Hades 2
-  if(/\b(hades( ?2| ?ii)?|melinoe|supergiant|escape attempt|underworld run)\b/.test(t)) found.games.push('hades');
+  if(/\b(hades( ?2| ?ii)?|melinoe|supergiant|escape attempt|underworld run)\b/.test(t)) pushGame('hades');
   // Sims 4 — cozy / lifestream staple. Detection covers "playing the sims"
-  if(/\b(the sims|sims ?4|simming|sims build|sims legacy|sims house|build mode|cas mode)\b/.test(t)) found.games.push('sims');
+  if(/\b(the sims|sims ?4|simming|sims build|sims legacy|sims house|build mode|cas mode)\b/.test(t)) pushGame('sims');
   // FFXIV
-  if(/\b(ffxiv|ff14|final fantasy ?(14|xiv)|warrior of light|eorzea|gpose|squareenix mmo)\b/.test(t)) found.games.push('ffxiv');
+  if(/\b(ffxiv|ff14|final fantasy ?(14|xiv)|warrior of light|eorzea|gpose|squareenix mmo)\b/.test(t)) pushGame('ffxiv');
   // Path of Exile
-  if(/\b(path of exile|poe ?2|poe ?league|grinding gear|maven pinnacle)\b/.test(t)) found.games.push('path of exile');
+  if(/\b(path of exile|poe ?2|poe ?league|grinding gear|maven pinnacle)\b/.test(t)) pushGame('path of exile');
   // Marvel Snap
-  if(/\b(marvel snap|snap deck|second dinner|marvel snap deck)\b/.test(t)) found.games.push('marvel snap');
+  if(/\b(marvel snap|snap deck|second dinner|marvel snap deck)\b/.test(t)) pushGame('marvel snap');
   // Content Warning / Repo / co-op horror
-  if(/\b(content warning|landfall game|spookily horror|cw monster)\b/.test(t)) found.games.push('content warning');
+  if(/\b(content warning|landfall game|spookily horror|cw monster)\b/.test(t)) pushGame('content warning');
   // Schedule I (the viral indie)
-  if(/\b(schedule ?(i|one|1)\b|tyler lee schedule)\b/.test(t)) found.games.push('schedule i');
+  if(/\b(schedule ?(i|one|1)\b|tyler lee schedule)\b/.test(t)) pushGame('schedule i');
   // STALKER 2
-  if(/\b(stalker ?2|stalker heart of chornobyl|stalker zone|gsc stalker)\b/.test(t)) found.games.push('stalker');
+  if(/\b(stalker ?2|stalker heart of chornobyl|stalker zone|gsc stalker)\b/.test(t)) pushGame('stalker');
   // Tarkov
-  if(/\b(escape from tarkov|tarkov ?(raid|wipe|clips)?|battlestate games)\b/.test(t)) found.games.push('tarkov');
+  if(/\b(escape from tarkov|tarkov ?(raid|wipe|clips)?|battlestate games)\b/.test(t)) pushGame('tarkov');
   // Pokemon Legends Z-A
-  if(/\b(pokemon legends|legends z-?a|pokemon z-?a|legends arceus)\b/.test(t)) found.games.push('pokemon legends');
+  if(/\b(pokemon legends|legends z-?a|pokemon z-?a|legends arceus)\b/.test(t)) pushGame('pokemon legends');
   // Black Myth Wukong
-  if(/\b(black myth wukong|wukong (run|boss|build)|game science wukong|journey to the west)\b/.test(t)) found.games.push('black myth wukong');
+  if(/\b(black myth wukong|wukong (run|boss|build)|game science wukong|journey to the west)\b/.test(t)) pushGame('black myth wukong');
   // Throne and Liberty
-  if(/\b(throne and liberty|\btl\b mmo|t&l mmorpg|ncsoft tl)\b/.test(t)) found.games.push('throne and liberty');
+  if(/\b(throne and liberty|\btl\b mmo|t&l mmorpg|ncsoft tl)\b/.test(t)) pushGame('throne and liberty');
   // Friendslop / co-op chaos session — when the user describes a multiplayer-with-friends vibe
   // even without naming a specific game
   if(/\b(friendslop|coop (chaos|horror|game|moments|session)|playing with friends|squad night|game night|stream night|friend ?group session|co[\s-]?op (with|in) (the )?(friends|chat|squad))\b/.test(t)) found.genres.push('friendslop');
   // Peak — friendslop mountain-climbing chaos
-  if(/\b(peak game|peak coop|aggro ?crab|peak (chaos|climb|fall|stream))\b/.test(t)) found.games.push('peak');
+  if(/\b(peak game|peak coop|aggro ?crab|peak (chaos|climb|fall|stream))\b/.test(t)) pushGame('peak');
   // Overcooked
-  if(/\b(overcooked|overcooked ?2|overcooked all you can eat|cooking chaos|ghost town games|team17)\b/.test(t)) found.games.push('overcooked');
+  if(/\b(overcooked|overcooked ?2|overcooked all you can eat|cooking chaos|ghost town games|team17)\b/.test(t)) pushGame('overcooked');
   // Yap Yap
-  if(/\b(yap ?yap (game|coop|chaos)?|yap ?yap clips)\b/.test(t)) found.games.push('yap yap');
+  if(/\b(yap ?yap (game|coop|chaos)?|yap ?yap clips)\b/.test(t)) pushGame('yap yap');
   // Got To Go
-  if(/\b(got to go|gotta go (game|chaos)|got to go clips)\b/.test(t)) found.games.push('got to go');
+  if(/\b(got to go|gotta go (game|chaos)|got to go clips)\b/.test(t)) pushGame('got to go');
   // Fall Guys
-  if(/\b(fall guys|fall ?guys (clips|run|wins)|mediatonic)\b/.test(t)) found.games.push('fall guys');
+  if(/\b(fall guys|fall ?guys (clips|run|wins)|mediatonic)\b/.test(t)) pushGame('fall guys');
   // LGBTQ+ identity — explicit self-identification or community language. Erring on the side of
   // self-ID to avoid false positives on incidental mentions.
   if(/\b(lgbt|lgbtq|lgbtqia|lgbtq\+|lgbtq plus|pride month|i'?m (queer|gay|lesbian|bi|bisexual|pan|pansexual|ace|asexual|aroace|aro|nonbinary|non[\s-]?binary|enby|genderfluid|trans)|coming out|queer ?(creator|vtuber|tok|community|content)|sapphic|wlw|mlm|gaytok|lesbiantok|achillean|achilles|bi ?wife ?energy|out and proud|she\/?they|he\/?they|they\/?them|any pronouns)\b/.test(t)) found.genres.push('lgbt');
@@ -2193,17 +2212,17 @@ function _scanTextForTopics(text){
   // Mukbang — eating show genre (Korean / Asian food challenge style)
   if(/\b(mukbang|mukbang ?asmr|asmr ?mukbang|eating ?show|eat ?with ?me|food ?challenge|korean ?mukbang|extreme ?mukbang|spicy ?(food|noodle|noodles)|tteokbokki|buldak|seafood ?boil|big ?bites|eating ?challenge)\b/.test(t)) found.genres.push('mukbang');
   // SpongeBob — cartoon nostalgia + VTuber crossover (Mysti's "purple dino vs hardest spongebob level")
-  if(/\b(spongebob|sponge ?bob|spongebobsquarepants|patrick ?star|squidward|bikini ?bottom|krabby ?patty|mr ?krabs|nicktoon)\b/.test(t)) found.games.push('spongebob');
+  if(/\b(spongebob|sponge ?bob|spongebobsquarepants|patrick ?star|squidward|bikini ?bottom|krabby ?patty|mr ?krabs|nicktoon)\b/.test(t)) pushGame('spongebob');
   // Persona 5 / Royal — explicit detection beyond generic 'persona'
-  if(/\b(persona ?5(?: ?royal)?|p5r?|phantom ?thieves|joker ?persona|akira ?kurusu|ren ?amamiya|atlus)\b/.test(t)) found.games.push('persona 5');
+  if(/\b(persona ?5(?: ?royal)?|p5r?|phantom ?thieves|joker ?persona|akira ?kurusu|ren ?amamiya|atlus)\b/.test(t)) pushGame('persona 5');
   // JJK / Jujutsu Kaisen — anime crossover
-  if(/\b(jujutsu ?kaisen|jjk|domain ?expansion|gojo|itadori|sukuna|cursed ?technique|jjk ?anime|jjk ?clips)\b/.test(t)) found.games.push('jujutsu kaisen');
+  if(/\b(jujutsu ?kaisen|jjk|domain ?expansion|gojo|itadori|sukuna|cursed ?technique|jjk ?anime|jjk ?clips)\b/.test(t)) pushGame('jujutsu kaisen');
   // Jujutsu Shenanigans (Roblox JJK game) — separately keyed
-  if(/\b(jujutsu ?shenanigans|jjs ?roblox|jjs ?clips)\b/.test(t)) found.games.push('jujutsu shenanigans');
+  if(/\b(jujutsu ?shenanigans|jjs ?roblox|jjs ?clips)\b/.test(t)) pushGame('jujutsu shenanigans');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
-  if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) found.games.push('warhammer');
+  if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) pushGame('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
-  if(/\b(ttrpg|tabletop rpg|tabletop roleplaying|dungeons (and|&) dragons|dnd ?5e?|dndmemes|dndtok|dungeon master|dm session|critical role|pathfinder rpg|d20 system|game master|tabletop campaign)\b/.test(t)) found.games.push('dnd');
+  if(/\b(ttrpg|tabletop rpg|tabletop roleplaying|dungeons (and|&) dragons|dnd ?5e?|dndmemes|dndtok|dungeon master|dm session|critical role|pathfinder rpg|d20 system|game master|tabletop campaign)\b/.test(t)) pushGame('dnd');
 
   // Content types (what KIND of video this is — and what's being said in it).
   // Reaction includes IRL-react language AND Florence-style visual signals like split-screen
