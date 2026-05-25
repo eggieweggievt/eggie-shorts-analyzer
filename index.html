@@ -1749,9 +1749,31 @@ const TAG_DB = {
     'sea of thieves':   {tags:['seaofthieves','pirategame'], sizes:['medium','small']},
     'rust':             {tags:['rust','survivalgame'], sizes:['medium','small']},
     // Hoyo
-    'genshin':          {tags:['genshinimpact','genshin','hoyoverse'], sizes:['large','large','medium']},
-    'honkai':           {tags:['honkaistarrail','hsr','hoyoverse'], sizes:['large','medium','medium']},
-    'wuthering waves':  {tags:['wutheringwaves','wuwa'], sizes:['medium','small']},
+    // Hoyoverse + gacha cluster — refreshed 2026-05-24, including detection for
+    // player titles (Traveler / Trailblazer / Trainee / Doctor / Sensei / Commander / Vertin / Rover).
+    'genshin':          {tags:['genshinimpact','genshin','hoyoverse','genshinmemes','genshincommunity','genshinart','genshinclips','genshintok','genshinfanart','genshinshorts','traveler','primogems'], sizes:['large','large','medium','medium','medium','medium','medium','medium','small','small','small','small']},
+    'honkai':           {tags:['honkaistarrail','hsr','hoyoverse','hsrshorts','hsrclips','hsrmemes','hsrfanart','hsrcommunity','hsrtok','trailblazer','honkaiimpact','starrailshorts'], sizes:['large','large','medium','medium','medium','medium','medium','small','small','small','medium','small']},
+    'honkai impact':    {tags:['honkaiimpact','hi3','hoyoverse','honkaiimpact3rd','hi3rd'], sizes:['medium','medium','medium','small','small']},
+    'wuthering waves':  {tags:['wutheringwaves','wuwa','wuwagame','wuwaclips','wuwacommunity','wuwafanart','wuwamemes','kurogames','rover','wuwashorts','solarish','jinhsi'], sizes:['large','medium','medium','medium','medium','small','medium','medium','small','small','small','small']},
+    'wuwa':             {tags:['wutheringwaves','wuwa','wuwagame','wuwaclips','wuwacommunity','wuwafanart','kurogames','rover'], sizes:['large','medium','medium','medium','medium','small','medium','small']},
+    'zenless':          {tags:['zenlesszonezero','zzz','hoyoverse','zzzclips','zzzmemes','zzzcommunity','zzzfanart','newerikatown','zzzshorts','trainee','zzzgame'], sizes:['large','large','medium','medium','medium','medium','small','small','small','small','medium']},
+    'zzz':              {tags:['zenlesszonezero','zzz','hoyoverse','zzzclips','zzzmemes','zzzfanart','newerikatown','trainee'], sizes:['large','large','medium','medium','medium','small','small','small']},
+    'zenless zone zero':{tags:['zenlesszonezero','zzz','hoyoverse','zzzclips','zzzmemes','zzzfanart','newerikatown','trainee'], sizes:['large','large','medium','medium','medium','small','small','small']},
+    'arknights':        {tags:['arknights','hypergryph','arknightsclips','arknightsmemes','arknightsfanart','arknightscommunity','arknightsshorts','arknightstok','yostar','arknightsstrat','arknightsendfield','doctorplease','towerdefense'], sizes:['large','medium','medium','medium','medium','medium','small','small','medium','small','small','small','medium']},
+    'reverse 1999':     {tags:['reverse1999','r1999','reverse1999game','bluepoch','reverse1999clips','reverse1999fanart','reverse1999memes','reverse1999community','reverse1999shorts','timekeeper','vertin','mysticart','anachronism','1999game'], sizes:['large','medium','medium','medium','medium','medium','small','small','small','small','medium','small','small','small']},
+    'reverse1999':      {tags:['reverse1999','r1999','reverse1999game','bluepoch','reverse1999clips','reverse1999fanart','vertin','timekeeper'], sizes:['large','medium','medium','medium','medium','medium','medium','small']},
+    'nikke':            {tags:['nikke','goddessofvictory','goddessofvictorynikke','nikkeshorts','nikkegame','shiftup','nikkememes','nikkefanart','nikkeclips','nikkecommunity','commander','nikketok'], sizes:['large','medium','medium','medium','medium','medium','medium','medium','medium','small','small','small']},
+    'goddess of victory':{tags:['nikke','goddessofvictory','goddessofvictorynikke','nikkeshorts','shiftup','nikkememes','nikkefanart','commander'], sizes:['large','medium','medium','medium','medium','medium','medium','small']},
+    'where winds meet': {tags:['wherewindsmeet','wwm','netease','wherewindsmeetshorts','wherewindsmeetclips','wuxia','openworldmmo','ancientchina','wwmshorts','wwmcommunity','wwmfanart'], sizes:['large','medium','medium','small','small','medium','medium','small','small','small','small']},
+    'wherewindsmeet':   {tags:['wherewindsmeet','wwm','netease','wuxia','ancientchina','openworldmmo'], sizes:['large','medium','medium','medium','small','medium']},
+    'blue archive':     {tags:['bluearchive','ba','bluearchiveen','bluearchiveshorts','bluearchivememes','bluearchivefanart','bluearchiveclips','sensei','nexongames','bluearchivecommunity'], sizes:['large','large','medium','medium','medium','medium','medium','small','medium','small']},
+    'punishing gray raven':{tags:['punishinggrayraven','pgr','kurogames','pgrshorts','pgrclips','pgrmemes','pgrfanart','pgrcommunity'], sizes:['medium','large','medium','small','small','medium','medium','small']},
+    'pgr':              {tags:['punishinggrayraven','pgr','kurogames','pgrshorts','pgrmemes','pgrfanart'], sizes:['medium','large','medium','small','medium','medium']},
+    'snowbreak':        {tags:['snowbreak','snowbreakcontainmentzone','seasunlanding','snowbreakshorts','snowbreakclips'], sizes:['medium','medium','small','small','small']},
+    'azur lane':        {tags:['azurlane','azurlanenavy','azurlaneshipgirl','azurlaneshorts','yostar','shipgirl','azurlanefanart'], sizes:['large','small','small','small','medium','small','medium']},
+    'limbus company':   {tags:['limbuscompany','limbusco','projectmoon','limbus','limbusshorts','limbusfanart','limbuscompanymemes'], sizes:['medium','small','medium','medium','small','small','small']},
+    'tower of fantasy': {tags:['toweroffantasy','tof','toftok','tofgame','tofshorts','hotta'], sizes:['medium','medium','small','small','small','small']},
+    'identity v':       {tags:['identityv','idv','identityvgame','idvshorts','identityvclips','identityvmemes','netease'], sizes:['large','medium','medium','small','small','medium','medium']},
     // Nintendo
     'pokemon':          {tags:['pokemon','nintendo','pokemontcg'], sizes:['large','large','small']},
     'zelda':            {tags:['zelda','totk','nintendo'], sizes:['large','medium','large']},
@@ -1826,7 +1848,10 @@ const TAG_DB = {
     larp:          {tags:['larp','larping','liveactionroleplay','larpcommunity','larpcosplay','larplife','fantasylarp','medievallarp','scifilarp','larpevent','bofferlarp','foamswords','larpphotography','larpcostume','larpcharacter','larpstory','larpfighter','larpculture'], sizes:['large','medium','medium','medium','small','small','medium','medium','small','small','small','small','small','small','small','small','small','small']},
     // Gunpla — model kit / Gundam building community, big hobby cluster
     // Verified 2026-05-24 from VidIQ "gunpla gundam build" outliers
-    gunpla:        {tags:['gunpla','gundam','bandai','plamo','modelkit','gunplacustom','gunplabuilder','gunplakit','gunplahobby','gunplatimelapse','gunplacollectors','everydaygunpla','mecha','mobilesuit','bandaispirits','scalemodel','scalemodelbuilding','mastergrade','realgrade','metalbuild','mecharobot'], sizes:['large','large','large','medium','large','medium','medium','medium','small','small','small','small','medium','small','small','medium','small','medium','small','medium','small']}
+    gunpla:        {tags:['gunpla','gundam','bandai','plamo','modelkit','gunplacustom','gunplabuilder','gunplakit','gunplahobby','gunplatimelapse','gunplacollectors','everydaygunpla','mecha','mobilesuit','bandaispirits','scalemodel','scalemodelbuilding','mastergrade','realgrade','metalbuild','mecharobot'], sizes:['large','large','large','medium','large','medium','medium','medium','small','small','small','small','medium','small','small','medium','small','medium','small','medium','small']},
+    // Gacha — cross-niche identity layer for any gacha-flavored short (pull / rolling / banner / 5-star etc.)
+    // Lets the picker still add identity tags when the specific game isn't named.
+    gacha:         {tags:['gacha','gachagame','gachalife','gachatok','gachapull','gachaaddict','gachacommunity','gachamemes','gachareels','gachavtuber','gachashorts','rollinggacha','fivestarpull','sparkpity','primogems','jadegrind','wishpull','gachafail'], sizes:['large','large','medium','medium','medium','small','medium','medium','small','small','medium','small','small','small','medium','small','small','small']}
   },
   // Content types — what KIND of video it is, not what it's about
   content: {
@@ -1937,6 +1962,18 @@ function _scanTextForTopics(text){
   if(/\b(larp|larping|larper|live ?action ?roleplay|live ?action ?role ?play|boffer|foam sword|foam swords|medieval larp|fantasy larp|sci ?fi larp|larp event|larp character|larp costume|larp community)\b/.test(t)) found.genres.push('larp');
   // Gunpla — Gundam model kits, plamo, scale-model building (huge hobby crossover with anime audience)
   if(/\b(gunpla|gundam|plamo|model kit|mobile suit|bandai (spirits|model)|mecha (model|kit)|scale model|master grade|real grade|metal build|hg gundam|mg gundam|rg gundam|kitbash)\b/.test(t)) found.genres.push('gunpla');
+  // Gacha — cross-niche identity. Detect by pull / rolling / banner / pity / primogems / wish language.
+  if(/\b(gacha|gacha (game|life|tok|pull|addict|memes)|rolling for|i pulled (for)?|five ?star pull|5 ?star pull|on (the )?banner|new banner|spark pity|hit pity|primogems|stellar jade|asterite|wish (pull|on)|standard banner|limited banner|gacha (fail|win)|gachapon)\b/.test(t)) found.genres.push('gacha');
+  // Hoyoverse character / player titles — Whisper transcription often catches these in stream clips
+  if(/\b(traveler|aether|lumine|paimon|zhongli|raiden shogun|hu tao|venti|nahida|furina|arlecchino|skirk|primogems|genshin (impact)?)\b/.test(t)) found.games.push('genshin');
+  if(/\b(trailblazer|stelle|caelus|march 7th|dan heng|kafka|acheron|firefly|robin|jingliu|aventurine|sunday|honkai (star rail)?|star rail)\b/.test(t)) found.games.push('honkai');
+  if(/\b(rover|jiyan|jinhsi|encore|yinlin|changli|carlotta|brant|cantarella|kuro ?game|wuthering)\b/.test(t)) found.games.push('wuthering waves');
+  if(/\b(trainee|wise|belle|nicole demara|anby|billy kid|nekomata|ellen joe|zhu yuan|jane doe|caesar king|zenless|zzz|new eridu)\b/.test(t)) found.games.push('zzz');
+  if(/\b(doctor please|amiya|chen|surtr|ch'?en|hoshiguma|skadi|hypergryph|operator from|operator skill|arknights)\b/.test(t)) found.games.push('arknights');
+  if(/\b(vertin|timekeeper|reverse ?1999|bluepoch|arcanist|mystic art|the (storm|fool))\b/.test(t)) found.games.push('reverse 1999');
+  if(/\b(commander|nikke|goddess of victory|shift ?up|rapi|anis|neon|modernia|red hood)\b/.test(t)) found.games.push('nikke');
+  if(/\b(sensei|blue archive|nexon game|abydos|trinity general school|gehenna|millennium)\b/.test(t)) found.games.push('blue archive');
+  if(/\b(where winds meet|net ?ease|wuxia|ancient china (open world|mmo))\b/.test(t)) found.games.push('where winds meet');
   // Warhammer / 40K / Age of Sigmar — distinct from generic tabletop
   if(/\b(warhammer|warhammer ?40k|40k|warhammer40000|games workshop|space marines|imperial fists|ultramarines|chaos 40k|thousand sons|black templars|custodes|age of sigmar|aos painting|miniature paint(ing)?|tabletop paint)\b/.test(t)) found.games.push('warhammer');
   // DnD / TTRPG / tabletop RPG — direct detection (beyond the existing 'dnd' game key)
