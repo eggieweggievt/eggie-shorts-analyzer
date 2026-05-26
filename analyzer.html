@@ -1164,23 +1164,18 @@
       <input type="file" id="videoFile" accept="video/*" />
     </label>
     <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
-      First time you upload a video, I download two small models (about ~380MB total) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, and <em>hear</em> what's being said. After that they're cached forever and analysis is fast.
+      First time you upload a video, I download a few models (~1GB total — vision + high-accuracy speech) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, and <em>hear</em> what's being said with high accuracy. After that they're cached forever and analysis is fast.
     </p>
 
-    <!-- Higher-accuracy transcription toggle — opt-in because of the big download -->
+    <!-- Advanced options — CLIP + YAMNet stay opt-in (heavy + experimental).
+         Whisper-medium is now the hard default — no toggle. -->
     <details style="margin-top:10px;border-radius:12px;background:rgba(255,255,255,0.5);padding:0 14px;border:1px dashed rgba(144,165,255,0.35)">
       <summary style="cursor:pointer;padding:10px 0;font-weight:700;font-size:13px;color:var(--deep);user-select:none;list-style:none">
         <span style="color:var(--periwinkle)">▸</span>
-        ⚙️ Advanced — transcription accuracy
+        ⚙️ Advanced — extra detection passes
       </summary>
       <div style="padding:0 0 12px;font-size:13px;line-height:1.55;color:var(--ink)">
-        <p style="margin:0 0 8px"><strong>Higher-accuracy transcription.</strong> Default uses <strong>Whisper base.en (~140MB)</strong> — fast and accurate enough for most VTuber content. If your audio is fast, has thick accents, or you want better proper-name accuracy, switch to <strong>Whisper medium.en (~770MB extra)</strong>.</p>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-          <input type="checkbox" id="whisperMediumToggle" style="width:16px;height:16px;cursor:pointer" />
-          <span>Use higher-accuracy transcription <span style="color:var(--ink-soft);font-weight:500">(downloads ~770MB extra the first time — cached after)</span></span>
-        </label>
-
-        <p style="margin:14px 0 8px"><strong>CLIP semantic similarity.</strong> Adds an extra pass where CLIP scores how similar your video is to specific content types ("gaming clip", "storytime", "reaction", "asmr", etc.) — gives more accurate detection on ambiguous content. ~150MB first time, cached.</p>
+        <p style="margin:0 0 8px"><strong>CLIP semantic similarity.</strong> Adds an extra pass where CLIP scores how similar your video is to specific content types ("gaming clip", "storytime", "reaction", "asmr", etc.) — gives more accurate detection on ambiguous content. ~150MB first time, cached.</p>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
           <input type="checkbox" id="clipToggle" style="width:16px;height:16px;cursor:pointer" />
           <span>Run CLIP semantic similarity pass <span style="color:var(--ink-soft);font-weight:500">(downloads ~150MB extra the first time — cached after)</span></span>
@@ -1517,6 +1512,22 @@ let EGGIE_TRENDS = {keywordVolumes:{}, highVolumeTitleKeywords:[], lowCompetitio
       const data = await res.json();
       EGGIE_TRENDS = Object.assign(EGGIE_TRENDS, data);
       console.log('[Eggie] Loaded VidIQ-derived trends — last refreshed', data.lastRefreshed);
+    }
+  }catch(e){ /* offline / file missing — keep defaults */ }
+})();
+
+// ---------- 0b. TITLE TEMPLATES from VidIQ (refreshed weekly) ----------
+// titles.json contains proven title shapes pulled from top breakout VTuber Shorts.
+// The analyzer blends these with the inline TITLE_TEMPLATES so suggestions stay grounded
+// in actual high-performing titles instead of pure heuristic templates.
+let EGGIE_TITLES = {templates:{}, high_performers:[]};
+(async function loadTitles(){
+  try{
+    const res = await fetch('titles.json', {cache:'no-cache'});
+    if(res.ok){
+      const data = await res.json();
+      EGGIE_TITLES = Object.assign(EGGIE_TITLES, data);
+      console.log('[Eggie] Loaded VidIQ-derived titles — last refreshed', data.lastRefreshed, '— pattern categories:', Object.keys(EGGIE_TITLES.templates).length);
     }
   }catch(e){ /* offline / file missing — keep defaults */ }
 })();
@@ -1972,32 +1983,32 @@ function scoreRetention({retention, viewedVsSwiped}){
 function runAnalysis(payload){
   const {platform, title, description, quickContext, shortType, videoContext, hashtags, duration, hookStrength, rewatchable, retention, viewedVsSwiped, template, creatorProfile} = payload;
 
-  // DETECTION SOURCES — tiered.
-  // Tier 1 (highest priority for PRIMARY topic): user-typed text + profile identity hint.
-  // Tier 2 (secondary signal — adds content types / sub-tags without overriding the primary):
-  //   video context (Florence scene description, Whisper transcript, filename, vibe signals).
-  // This way the user's typed topic still wins, but Florence "split-screen showing a video"
-  // can still contribute #reaction and "shocked expression" can still contribute #funny.
+  // DETECTION SOURCES — VidIQ-style 4-tier priority.
+  // Tier 1 (HIGHEST — dominates primary topic): quickContext (the one required sentence).
+  //   This is the user's most specific intent signal — it MUST win over everything else.
+  // Tier 2 (TITLE — VidIQ weighs this heaviest after content): the user's title if provided.
+  // Tier 3 (DESCRIPTION + other user fields + pills): broader user signal.
+  // Tier 4 (VIDEO CONTEXT): Florence scene description, Whisper transcript, filename, vibe.
+  //   This is the FALLBACK — only contributes when user tiers don't have a match.
+  //
+  // detectTopics() picks the primary topic from the FIRST tier that returns any result,
+  // so the order here directly controls which signal dominates. Secondary signals still
+  // contribute to the merged union (so e.g. Florence "split-screen" still adds #reaction
+  // even when quickContext sets the primary game).
   const profileHint = buildProfileHintText(creatorProfile);
-  const realUserText = [quickContext, shortType, title, description, template].filter(Boolean).join(' ').trim();
-  const videoOnlyText = (videoContext || '').trim();
+  const tier1_quick  = (quickContext || '').trim();
+  const tier2_title  = (title || '').trim();
+  const tier3_user   = [shortType, description, template, profileHint].filter(Boolean).join(' ').trim();
+  const tier4_video  = (videoContext || '').trim();
 
-  const tierUser = [realUserText, profileHint].filter(Boolean).join(' ').trim();
-  const tierVideo = [videoOnlyText, profileHint].filter(Boolean).join(' ').trim();
+  // Build the tiered detection array — skip empty tiers
+  const detectionSource = [tier1_quick, tier2_title, tier3_user, tier4_video].filter(Boolean);
 
-  let detectionSource;
-  if(tierUser && tierVideo){
-    detectionSource = [tierUser, tierVideo];          // user wins primary, video adds secondary
-  } else if(tierUser){
-    detectionSource = [tierUser];
-  } else if(tierVideo){
-    detectionSource = [tierVideo];
-  } else {
-    detectionSource = [];
-  }
-  // Flattened version for places that want a single string
+  // Legacy single-string versions for callers that want flat text
+  const realUserText = [tier1_quick, tier2_title, tier3_user].filter(Boolean).join(' ').trim();
+  const videoOnlyText = tier4_video;
   const userTypedText = detectionSource.join(' ').trim();
-  const primarySource = userTypedText; // legacy name retained for downstream use
+  const primarySource = userTypedText;
 
   // Enriched single-string version (still includes everything) — used by scoring functions
   // that just do keyword density / regex matching, not topic categorization.
@@ -2230,25 +2241,48 @@ function suggestTitles(originalTitle, description){
   const t = (originalTitle||'').trim();
   const detected = detectTopics(`${t} ${description||''}`);
 
-  // Pick a subject to plug into templates — use the user's title if it's specific enough,
-  // otherwise use whatever we detected (game / genre / content type), otherwise fallback.
-  // Strip leading 'she/he/they' too so "she slept through therapy" → "slept through therapy".
-  let subject = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i|she|he|they|we|my)\s+/i,'').trim();
-  if(subject.length < 4){
-    const specificGenre = detected.genres.find(g => g !== 'gaming' && g !== 'streaming');
-    if(detected.games.length) subject = detected.games[0];
-    else if(specificGenre){
-      const g = specificGenre;
-      subject = g === 'cooking' ? 'this recipe' : g === 'art' ? 'this drawing' : g === 'music' ? 'this song' : g === 'fitness' ? 'this workout' : g === 'beauty' ? 'this look' : g === 'fashion' ? 'this fit' : g === 'mentalhealth' ? 'this therapy moment' : g === 'adhd' ? 'this ADHD moment' : g === 'dailylife' ? 'my day' : `this ${g}`;
-    } else if(detected.content.length) {
-      // Skip generic 'clip' if there's a more specific content type behind it
-      const specificContent = detected.content.find(c => c !== 'clip') || detected.content[0];
-      subject = specificContent === 'funny' ? 'this clip' : specificContent === 'storytime' ? 'this story' : specificContent === 'pov' ? 'this moment' : specificContent === 'reaction' ? 'this reaction' : specificContent === 'nocontext' ? 'this random clip' : `this ${specificContent}`;
-    } else if(detected.hasVTuber){
-      subject = 'this VTuber moment';
-    } else {
-      subject = 'this';
-    }
+  // SUBJECT-PICKING — priority is DETECTED TOPICS FIRST, user title only if grammatically short.
+  // The old logic plugged any user title into the templates, which produced nonsense like
+  // "VTuber pineapple does not belong on pizza" when the user title was a full sentence
+  // and the template expected a short noun slot. New rules:
+  //   1. Detected game (always short: "elden ring", "minecraft", "valorant")
+  //   2. Detected specific genre (mapped to a short noun phrase)
+  //   3. Detected content type (mapped to a short noun phrase)
+  //   4. VTuber identity → "this VTuber moment"
+  //   5. User's title, BUT ONLY if it's 1–3 words AND ≤30 chars (so it fits noun slots)
+  //   6. Generic "this" fallback
+  function shortGenreLabel(g){
+    return g === 'cooking' ? 'this recipe' : g === 'art' ? 'this drawing'
+      : g === 'music' ? 'this song' : g === 'fitness' ? 'this workout'
+      : g === 'beauty' ? 'this look' : g === 'fashion' ? 'this fit'
+      : g === 'mentalhealth' ? 'this therapy moment' : g === 'adhd' ? 'this ADHD moment'
+      : g === 'dailylife' ? 'my day' : `this ${g}`;
+  }
+  function shortContentLabel(c){
+    return c === 'funny' ? 'this clip' : c === 'storytime' ? 'this story'
+      : c === 'pov' ? 'this moment' : c === 'reaction' ? 'this reaction'
+      : c === 'nocontext' ? 'this random clip' : `this ${c}`;
+  }
+
+  const specificGenre = detected.genres.find(g => g !== 'gaming' && g !== 'streaming');
+  const specificContent = detected.content.find(c => c !== 'clip') || detected.content[0];
+  const cleanedTitle = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i|she|he|they|we|my)\s+/i,'').trim();
+  const titleWordCount = cleanedTitle.split(/\s+/).filter(Boolean).length;
+
+  let subject;
+  if(detected.games.length){
+    subject = detected.games[0];
+  } else if(specificGenre){
+    subject = shortGenreLabel(specificGenre);
+  } else if(specificContent){
+    subject = shortContentLabel(specificContent);
+  } else if(detected.hasVTuber){
+    subject = 'this VTuber moment';
+  } else if(cleanedTitle && titleWordCount <= 3 && cleanedTitle.length <= 30){
+    // Only use the user's title as the noun slot when it's grammatically short.
+    subject = cleanedTitle;
+  } else {
+    subject = 'this';
   }
 
   const lower = subject.toLowerCase();
@@ -3260,10 +3294,35 @@ function suggestHashtagsFor(platform, count, text, existingTags, outMeta){
 
   const fullText = (Array.isArray(text) ? text.join(' ') : (text || '')).toLowerCase();
 
+  // CONTEXT-AWARE TAG RANKING — score each candidate by how strongly its tokens
+  // appear in the user's typed text. Tags that overlap with what the user actually
+  // wrote score higher, so picks land specific instead of broad pool defaults.
+  // E.g. "POV: my Elden Ring rune farm grind" → "rune farming" + "eldenring" rank
+  // higher than the generic "soulslike" or "fromsoftware".
+  function tokenize(s){
+    return String(s||'').toLowerCase()
+      .replace(/[^a-z0-9 ]/g, ' ')
+      .split(/\s+/).filter(t => t.length >= 3);
+  }
+  const userTokens = new Set(tokenize(fullText));
+  function overlapScore(tag){
+    const tokens = tokenize(tag);
+    if(!tokens.length) return 0;
+    let hits = 0;
+    for(const t of tokens){ if(userTokens.has(t)) hits++; }
+    // Normalize: a 2-word tag with both words matched beats a 1-word tag with one match.
+    return hits + (hits / tokens.length);
+  }
+
   function candsFromCategory(category, key){
     const data = (TAG_DB[category]||{})[key];
     if(!data) return [];
-    return data.tags.map((t, i) => ({tag: t, size: data.sizes[i] || 'medium'}));
+    const cands = data.tags.map((t, i) => ({tag: t, size: data.sizes[i] || 'medium'}));
+    // Re-rank by user-text overlap. Stable sort preserves original order for ties,
+    // so when nothing overlaps we get the default curated order back.
+    return cands
+      .map((c, origIdx) => ({...c, _score: overlapScore(c.tag), _origIdx: origIdx}))
+      .sort((a, b) => b._score - a._score || a._origIdx - b._origIdx);
   }
   function pickFromCandidates(cands, slotIdx, critical){
     if(!cands || !cands.length) return false;
@@ -3771,13 +3830,34 @@ document.querySelectorAll('#shortTypeRow .type-pill').forEach(btn => {
 });
 
 fetchBtn.addEventListener('click', ()=>{
-  if(!hasAnyInputData()){
-    alert('Upload a video or tell me what your short is about up above first.');
-    step1.scrollIntoView({behavior:'smooth'});
+  // quickContext is now REQUIRED — it's the most accurate signal we have for tag selection.
+  // Without it, tags fall back to broad pool sampling that produces generic results.
+  const qc = ($('quickContext').value || '').trim();
+  if(!qc){
+    alert(
+      "I need a sentence describing your short — that's how I pick the right hashtags.\n\n" +
+      "Examples:\n" +
+      "  • \"I almost died trying to beat Elden Ring DLC\"\n" +
+      "  • \"POV: you walked in on my cooking disaster\"\n" +
+      "  • \"reacting to my old VTuber model after 2 years\""
+    );
+    // Jump back to step 2 and flash + focus the field so the user sees what's missing.
+    if(typeof showStep === 'function') showStep(2);
+    setTimeout(() => {
+      const f = $('quickContext');
+      if(f){
+        f.focus();
+        f.style.transition = 'box-shadow .2s ease, border-color .2s ease';
+        f.style.boxShadow = '0 0 0 4px rgba(255,138,168,0.35)';
+        f.style.borderColor = '#FF8AA8';
+        setTimeout(() => { f.style.boxShadow = ''; f.style.borderColor = ''; }, 1800);
+      }
+    }, 100);
     return;
   }
   if(!hasPillSelected()){
     alert("Pick at least one option in “What kind of short is this?” so I can match the right tags. Tick the one that fits best — you can pick more than one.");
+    if(typeof showStep === 'function') showStep(2);
     flashPillRow();
     return;
   }
@@ -4448,17 +4528,9 @@ if(document.readyState === 'loading'){
   wireUpVideoUpload();
 }
 
-// Wire the Whisper-medium + CLIP toggles to persist across sessions via localStorage.
-function wireWhisperToggle(){
-  const toggle = document.getElementById('whisperMediumToggle');
-  if(toggle){
-    toggle.checked = getWhisperPreference() === 'medium';
-    toggle.addEventListener('change', () => {
-      setWhisperPreference(toggle.checked ? 'medium' : 'base');
-      whisperLoader = null;
-      whisperModelInUse = null;
-    });
-  }
+// Wire the CLIP + YAMNet toggles to persist across sessions via localStorage.
+// (Whisper-medium is now the hard default — no toggle.)
+function wireAdvancedToggles(){
   const clipBox = document.getElementById('clipToggle');
   if(clipBox){
     clipBox.checked = getClipPreference();
@@ -4475,9 +4547,9 @@ function wireWhisperToggle(){
   }
 }
 if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', wireWhisperToggle, {once:true});
+  document.addEventListener('DOMContentLoaded', wireAdvancedToggles, {once:true});
 } else {
-  wireWhisperToggle();
+  wireAdvancedToggles();
 }
 
 // ============================================================
@@ -5082,23 +5154,12 @@ async function clipClassifyFrame(canvas, candidateLabels){
   }
 }
 
-// Whisper transcription (lazy-loaded via transformers.js) — opt-in only.
-// Default is whisper-base.en (~140MB). Users can opt into whisper-medium.en (~770MB) via the
-// toggle in step 1, which buys substantially better accuracy on slang, fast speech, and
-// proper nouns — at the cost of a big one-time download.
+// Whisper transcription (lazy-loaded via transformers.js).
+// Hardcoded to whisper-medium.en (~770MB) for substantially better accuracy on slang, fast
+// speech, and proper nouns — VTuber content has lots of all three. First-time download is
+// the cost; afterward it's cached in the browser forever.
 let whisperLoader = null;
-let whisperModelInUse = null; // tracks which model is currently loaded so toggling re-loads
-const WHISPER_MODELS = {
-  base:   { id: 'Xenova/whisper-base.en',   sizeMB: 140, label: 'base.en (140MB)'   },
-  medium: { id: 'Xenova/whisper-medium.en', sizeMB: 770, label: 'medium.en (~770MB)' }
-};
-function getWhisperPreference(){
-  // Reads the user's saved preference. localStorage persists across sessions.
-  try{ return localStorage.getItem('eggie:whisperModel') || 'base'; }catch(e){ return 'base'; }
-}
-function setWhisperPreference(v){
-  try{ localStorage.setItem('eggie:whisperModel', v); }catch(e){}
-}
+const WHISPER_MODEL_ID = 'Xenova/whisper-medium.en';
 function showWhisperPanel(show){
   const panel = document.getElementById('whisperProgress');
   if(panel) panel.classList.toggle('active', !!show);
@@ -5112,19 +5173,11 @@ function setWhisperState({title, stage, percent, detail, fileLog}){
 }
 
 async function loadWhisper(progressCb){
-  const desired = getWhisperPreference();
-  // If the loaded model doesn't match the user's current preference, throw away the cache
-  // and rebuild. The browser disk cache still holds the weights so it's instant on swap-back.
-  if(whisperLoader && whisperModelInUse !== desired){
-    whisperLoader = null;
-  }
   if(whisperLoader) return whisperLoader;
-  whisperModelInUse = desired;
-  const cfg = WHISPER_MODELS[desired] || WHISPER_MODELS.base;
   whisperLoader = (async ()=>{
     const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
     mod.env.allowLocalModels = false;
-    return mod.pipeline('automatic-speech-recognition', cfg.id, {
+    return mod.pipeline('automatic-speech-recognition', WHISPER_MODEL_ID, {
       progress_callback: progressCb
     });
   })();
