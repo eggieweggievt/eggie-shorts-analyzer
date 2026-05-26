@@ -3,18 +3,144 @@
   "note": "Watchlist of VTuber / streamer channels Eggie wants to track for tag pool growth. The weekly channel-watchlist scheduled task pulls each channel's latest videos via VidIQ and extracts vocabulary not yet in tags.json. Add channels by appending to the list — handle, channelId, or YouTube URL all work.",
 
   "channels": [
-    { "handle": "@Mifuyu",         "channelId": "UCItXWcbtEEUrFOS_HE1TRSQ", "notes": "Curated 2026-05" },
-    { "handle": "@Draugr_VT",       "channelId": null,                       "notes": "Curated 2026-05" },
-    { "handle": "@NoxKingVT",       "channelId": null,                       "notes": "Curated 2026-05" },
-    { "handle": "@nyoomiepiyu",     "channelId": null,                       "notes": "Curated 2026-05" },
-    { "handle": "@rotlia",          "channelId": null,                       "notes": "Curated 2026-05" },
-    { "handle": "@adarablekitten",  "channelId": null,                       "notes": "Curated 2026-05" },
-    { "handle": "@RheyaHeart",      "channelId": null,                       "notes": "Curated 2026-05" }
+    {
+      "handle": "@Mifuyu",
+      "channelId": "UCItXWcbtEEUrFOS_HE1TRSQ",
+      "subs": null,
+      "niche": "vtuber variety",
+      "notes": "Original curation pull, 2026-05"
+    },
+    {
+      "handle": "@Draugr_VT",
+      "channelId": null,
+      "subs": null,
+      "niche": "vtuber",
+      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+    },
+    {
+      "handle": "@NoxKingVT",
+      "channelId": null,
+      "subs": null,
+      "niche": "vtuber",
+      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+    },
+    {
+      "handle": "@nyoomiepiyu",
+      "channelId": null,
+      "subs": null,
+      "niche": "vtuber",
+      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+    },
+    {
+      "handle": "@rotlia",
+      "channelId": null,
+      "subs": null,
+      "niche": "vtuber",
+      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+    },
+    {
+      "handle": "@adarablekitten",
+      "channelId": null,
+      "subs": null,
+      "niche": "vtuber",
+      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+    },
+    {
+      "handle": "@RheyaHeart",
+      "channelId": null,
+      "subs": null,
+      "niche": "vtuber",
+      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+    },
+    {
+      "handle": "@Sinder",
+      "channelId": "UC4dSp0pH0jfntIfKmlbw_BQ",
+      "subs": 300000,
+      "niche": "vtuber gaming, big creator benchmark",
+      "notes": "300K — wolf girl VTuber, big-creator reference for what works at scale. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@AureliaTempris",
+      "channelId": "UCQ0mXXHhB9rc2vsu1ogDtSA",
+      "subs": 43400,
+      "niche": "warhammer 40k vtuber",
+      "notes": "Warhammer niche covers tabletop / 40k vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@AroWrites",
+      "channelId": "UCLpv-eAQKg5HZTj7Jxy4pyA",
+      "subs": 42000,
+      "niche": "dnd / ttrpg vtuber",
+      "notes": "DnD / TTRPG / fantasy storytelling content. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@Axoltism",
+      "channelId": "UC7XsteBZMlI_jW1dWPffDzg",
+      "subs": 33400,
+      "niche": "vtuber clips / humor",
+      "notes": "Humor / no-context VTuber clips. Strong meme + brainrot vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@Rayshii",
+      "channelId": "UCG8VU6XdBhqHK0hxo0i4gAQ",
+      "subs": 28300,
+      "niche": "english vtuber storytime",
+      "notes": "UK envtuber, storytime + ASMR-adjacent content. Strong tag list on every video. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@Larxa",
+      "channelId": "UCtIz0SUUMM_QHSLtQb2RldQ",
+      "subs": 17100,
+      "niche": "vtuber gaming (subnautica + indie)",
+      "notes": "Indie gaming VTuber — picks up Subnautica / indie game vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@OhItsPiper",
+      "channelId": "UCzP1csWDJVicTsFX-OafGaQ",
+      "subs": 15800,
+      "niche": "vtuber tips / setup tutorials",
+      "notes": "VTuber setup / tips / how-to-be-a-vtuber content. Adds tutorial vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@SnerlineArt",
+      "channelId": "UCre_9JUEZPz620Ej99PdYAw",
+      "subs": 14500,
+      "niche": "vtuber design / art commentary",
+      "notes": "VTuber design discussion + art commentary. Added 2026-05 from VidIQ outliers (had a 600K-view breakout)."
+    },
+    {
+      "handle": "@FayeTale",
+      "channelId": "UCGNR80YipjSyWlzzTtjmu6g",
+      "subs": 10300,
+      "niche": "vtuber storytime / funny moments",
+      "notes": "Storytime + Minecraft + horror content with rich tag vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@YuiTachibanaCh",
+      "channelId": "UCdcZASOcenhZDsD3MCZreMw",
+      "subs": 7610,
+      "niche": "vtuber news / discussion",
+      "notes": "VTuber news + discussion content. Different angle than clips/storytime — picks up industry vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@Ramaea",
+      "channelId": "UCNUqSx1BcmYXsy1t_TWBuZQ",
+      "subs": 6580,
+      "niche": "dragon vtuber clips",
+      "notes": "Dragon VTuber / clip-style content. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@BlubbrMuffins",
+      "channelId": "UCciOjA9dZFQ2GvhH_jdcFdg",
+      "subs": 4430,
+      "niche": "vtuber tech / model tutorials",
+      "notes": "VTuber model tutorials — sign language toggles, hand toggles, motion settings. Adds technical vocabulary. Added 2026-05 from VidIQ outliers."
+    }
   ],
 
   "settings": {
     "videosPerChannel": 10,
     "minOccurrencesToFlag": 2,
-    "credits": "~5 per channel per run (channel_videos call)"
+    "credits": "~5 credits per channel per run (channel_videos call). 18 channels = ~90 credits/week."
   }
 }
