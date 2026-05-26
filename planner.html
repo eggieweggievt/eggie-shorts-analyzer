@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Content Planner 🐙 — Eggie's Creator Hub</title>
+<meta name="description" content="Plan, draft, schedule, and ship VTuber + creator content. Real-time sync via Supabase — assign to editors, see updates live." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/planner.html" />
+<meta property="og:title" content="Content Planner 🐙" />
+<meta property="og:description" content="Plan, draft, schedule, and ship VTuber + creator content with real-time sync." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;
+    line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 88%, rgba(255,255,255,0.55) 0 3px, transparent 4px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  /* Nav row */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  /* Hero header */
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px, 5.5vw, 48px);
+    line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);
+    margin:14px auto 6px;
+    padding:14px 12px 22px;
+    display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:680px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.78);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:24px 26px;margin:18px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:28px;
+    margin:0 0 12px;color:var(--deep);
+  }
+  .card p{margin:0 0 10px;font-size:14.5px;color:var(--ink)}
+  .card strong{color:var(--deep)}
+  label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:var(--ink)}
+  label .opt{color:var(--ink-soft);font-weight:500;font-size:12px;margin-left:6px}
+
+  input[type=text],input[type=email],input[type=url],input[type=number],input[type=datetime-local],textarea,select{
+    width:100%;padding:11px 14px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    border-radius:10px;font-family:inherit;font-size:14.5px;color:var(--ink);
+    transition:border-color .15s ease;
+    box-sizing:border-box;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  textarea{min-height:70px;resize:vertical;line-height:1.5}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:11px 22px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14.5px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn.danger{
+    background:linear-gradient(135deg,#FFB2C8,#FF8AA8);color:#fff;
+  }
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+
+  /* ===== AUTH STATE ===== */
+  .auth-card{max-width:480px;margin:30px auto}
+  .auth-status{
+    margin-top:12px;font-size:13.5px;padding:10px 14px;
+    border-radius:10px;line-height:1.5;
+  }
+  .auth-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+  .auth-status.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+  .auth-status.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+
+  /* ===== APP STATE ===== */
+  .user-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:10px 16px;margin:0 0 16px;
+    background:rgba(255,255,255,0.65);
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:999px;
+    font-size:13.5px;
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .user-bar .who{color:var(--ink-soft)}
+  .user-bar .who strong{color:var(--deep)}
+
+  .toolbar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:14px 16px;margin:0 0 18px;
+    background:rgba(255,255,255,0.78);
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:18px;
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .toolbar .grow{flex:1;min-width:200px}
+  .toolbar input[type=search]{
+    width:100%;padding:9px 14px;font-size:13.5px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.3);background:rgba(255,255,255,0.95);
+  }
+  .toolbar .view-toggle{
+    display:inline-flex;background:rgba(144,165,255,0.12);border-radius:999px;padding:3px;gap:2px;
+  }
+  .toolbar .view-toggle button{
+    background:transparent;border:none;padding:7px 14px;border-radius:999px;
+    font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);
+    cursor:pointer;transition:background .15s, color .15s;
+  }
+  .toolbar .view-toggle button.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
+    color:var(--deep);
+  }
+
+  /* ===== KANBAN BOARD ===== */
+  .kanban-board{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    align-items:start;
+  }
+  @media(max-width:760px){
+    .kanban-board{
+      display:flex;overflow-x:auto;gap:12px;padding-bottom:8px;
+      scroll-snap-type:x mandatory;
+    }
+    .kanban-col{flex:0 0 80%;scroll-snap-align:start}
+  }
+  .kanban-col{
+    background:rgba(255,255,255,0.62);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:16px;
+    padding:12px;
+    display:flex;flex-direction:column;gap:8px;
+    min-height:120px;
+  }
+  .kanban-col-head{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--deep);
+    padding:4px 8px 8px;
+    border-bottom:1.5px dashed rgba(144,165,255,0.3);
+  }
+  .kanban-col-head .count{
+    background:rgba(144,165,255,0.2);color:var(--deep);
+    padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;
+  }
+  .kanban-col[data-status="idea"]      .kanban-col-head{color:#a23556}
+  .kanban-col[data-status="script"]    .kanban-col-head{color:#a35c00}
+  .kanban-col[data-status="recording"] .kanban-col-head{color:#1f6580}
+  .kanban-col[data-status="editing"]   .kanban-col-head{color:#4a3a8a}
+  .kanban-col[data-status="scheduled"] .kanban-col-head{color:#3FB8C0}
+  .kanban-col[data-status="posted"]    .kanban-col-head{color:#1f6b35}
+  .kanban-col[data-status="archived"]  .kanban-col-head{color:#6b5f8a}
+
+  .item-card{
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(255,255,255,0.95);
+    border-left:3px solid var(--periwinkle);
+    border-radius:12px;
+    padding:10px 12px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .15s ease;
+    box-shadow:0 2px 6px rgba(99,170,244,0.08);
+  }
+  .item-card:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(99,170,244,0.18)}
+  .item-card .item-title{
+    font-weight:700;font-size:14px;color:var(--ink);
+    line-height:1.35;margin-bottom:6px;
+    word-break:break-word;
+  }
+  .item-card .item-meta{
+    display:flex;flex-wrap:wrap;gap:5px;font-size:11px;color:var(--ink-soft);
+  }
+  .item-card .platform-chip{
+    background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
+    color:var(--deep);padding:2px 8px;border-radius:999px;font-weight:700;
+  }
+  .item-card .meta-line{display:inline-flex;align-items:center;gap:3px}
+  .item-card .due-soon{color:#a35c00;font-weight:700}
+  .item-card .due-overdue{color:#a23556;font-weight:700}
+
+  /* Status border colors */
+  .kanban-col[data-status="idea"]      .item-card{border-left-color:#FF8AA8}
+  .kanban-col[data-status="script"]    .item-card{border-left-color:#FFB07A}
+  .kanban-col[data-status="recording"] .item-card{border-left-color:#90A5FF}
+  .kanban-col[data-status="editing"]   .item-card{border-left-color:#C9A8FF}
+  .kanban-col[data-status="scheduled"] .item-card{border-left-color:#6BE4EA}
+  .kanban-col[data-status="posted"]    .item-card{border-left-color:#A8E6BE}
+  .kanban-col[data-status="archived"]  .item-card{border-left-color:rgba(144,165,255,0.3);opacity:.7}
+
+  .add-in-col{
+    background:transparent;border:1.5px dashed rgba(144,165,255,0.35);
+    border-radius:10px;padding:8px;text-align:center;
+    font-family:inherit;font-size:12.5px;font-weight:700;
+    color:var(--ink-soft);cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .add-in-col:hover{background:rgba(255,255,255,0.6);border-color:var(--periwinkle);color:var(--deep)}
+
+  .empty-col{
+    text-align:center;font-size:12px;color:var(--ink-soft);
+    padding:14px 8px;font-style:italic;
+  }
+
+  /* ===== LIST VIEW ===== */
+  .list-view{
+    background:rgba(255,255,255,0.78);
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:18px;overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .list-view table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .list-view th{
+    background:rgba(144,165,255,0.12);text-align:left;
+    padding:10px 14px;font-weight:800;color:var(--deep);
+    text-transform:uppercase;font-size:11.5px;letter-spacing:.05em;
+  }
+  .list-view td{
+    padding:10px 14px;border-top:1px solid rgba(144,165,255,0.12);
+    color:var(--ink);
+  }
+  .list-view tr{cursor:pointer;transition:background .12s ease}
+  .list-view tr:hover{background:rgba(255,255,255,0.55)}
+  .list-view .status-tag{
+    display:inline-block;padding:2px 9px;border-radius:999px;
+    font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+  }
+  .list-view .status-tag.idea     {background:rgba(255,138,168,0.25);color:#a23556}
+  .list-view .status-tag.script   {background:rgba(255,176,122,0.3);color:#a35c00}
+  .list-view .status-tag.recording{background:rgba(144,165,255,0.3);color:#4a3a8a}
+  .list-view .status-tag.editing  {background:rgba(201,168,255,0.35);color:#5a3a8a}
+  .list-view .status-tag.scheduled{background:rgba(107,228,234,0.35);color:#0b6a76}
+  .list-view .status-tag.posted   {background:rgba(168,230,190,0.45);color:#1f6b35}
+  .list-view .status-tag.archived {background:rgba(144,165,255,0.15);color:var(--ink-soft)}
+
+  /* ===== MODAL ===== */
+  .modal-backdrop{
+    display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(60,40,90,0.45);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;
+    padding:24px;overflow-y:auto;
+  }
+  .modal-backdrop.open{display:flex}
+  .modal-content{
+    background:rgba(255,255,255,0.96);
+    border-radius:22px;
+    padding:24px 26px;
+    max-width:680px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);
+    margin:auto;
+  }
+  .modal-content h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 14px;color:var(--deep);
+  }
+  .modal-row{display:grid;gap:12px;margin-top:8px}
+  @media(min-width:560px){
+    .modal-row.cols-2{grid-template-columns:1fr 1fr}
+    .modal-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+  }
+  .modal-row > div{display:flex;flex-direction:column}
+  .modal-actions{
+    display:flex;gap:10px;justify-content:flex-end;
+    margin-top:20px;padding-top:16px;
+    border-top:1.5px dashed rgba(144,165,255,0.3);
+    flex-wrap:wrap;
+  }
+  .modal-actions .pull-left{margin-right:auto}
+
+  /* Platform pill multi-select */
+  .platform-picker{
+    display:flex;flex-wrap:wrap;gap:6px;
+    padding:6px 0;
+  }
+  .platform-pick{
+    padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.3);
+    font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);
+    cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+    transition:background .12s, border-color .12s, color .12s;
+  }
+  .platform-pick[aria-pressed="true"]{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.3));
+    color:var(--deep);border-color:var(--periwinkle);
+  }
+
+  /* Connection status indicator */
+  .conn-status{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;color:var(--ink-soft);
+    padding:4px 12px;background:rgba(255,255,255,0.55);
+    border-radius:999px;border:1px solid rgba(144,165,255,0.2);
+  }
+  .conn-dot{
+    width:8px;height:8px;border-radius:50%;background:#6BE4EA;
+    box-shadow:0 0 6px rgba(107,228,234,0.6);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .conn-dot.offline{background:#FFB2C8;animation:none}
+
+  .hidden{display:none !important}
+
+  /* Empty state for the board */
+  .empty-board{
+    text-align:center;padding:40px 20px;color:var(--ink-soft);
+    background:rgba(255,255,255,0.5);
+    border:1.5px dashed rgba(144,165,255,0.3);
+    border-radius:18px;
+  }
+  .empty-board h3{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;
+    color:var(--deep);margin:0 0 8px;
+  }
+  .empty-board p{margin:0 0 12px;font-size:14px}
+
+  footer{
+    text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5;
+  }
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  footer a:hover{color:var(--pink-hot)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="analyzer.html" class="back-link">🛠️ Analyzer</a>
+    <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
+    <a href="growth.html" class="back-link">🌱 Playbook</a>
+    <a href="about.html" class="back-link">📖 About</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Content Planner 🐙</h1>
+    <p class="tag">Plan, draft, schedule, and ship. <em>Real-time sync</em> — your changes appear instantly on every device + every editor you've shared with. ✨</p>
+  </header>
+
+  <!-- AUTH VIEW (shown when not signed in) -->
+  <section class="card auth-card" id="authView">
+    <h2>Sign in to your planner</h2>
+    <p>Enter your email — I'll send you a one-click magic link. No password, no account creation step. <strong>First time?</strong> Same flow — magic link signs you in and creates your account in one go.</p>
+    <label for="emailInput">Email</label>
+    <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="signInBtn">📬 Send magic link</button>
+      <span class="conn-status"><span class="conn-dot" id="connDot"></span><span id="connText">Connecting…</span></span>
+    </div>
+    <div id="authStatus" class="auth-status hidden"></div>
+  </section>
+
+  <!-- APP VIEW (shown when signed in) -->
+  <div id="appView" class="hidden">
+
+    <div class="user-bar">
+      <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
+      <span class="conn-status"><span class="conn-dot" id="connDotApp"></span><span id="connTextApp">Live</span></span>
+      <button class="btn secondary" id="signOutBtn" style="padding:7px 16px;font-size:13px">Sign out</button>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn" id="addItemBtn">+ New item</button>
+      <div class="view-toggle" role="tablist" aria-label="View mode">
+        <button data-view="kanban" class="active" type="button">📋 Kanban</button>
+        <button data-view="list" type="button">📑 List</button>
+      </div>
+      <div class="grow"><input type="search" id="searchInput" placeholder="🔍 Search items by title, platform, assignee…" /></div>
+    </div>
+
+    <!-- Kanban board -->
+    <div id="kanbanView" class="kanban-board"></div>
+
+    <!-- List view -->
+    <div id="listView" class="list-view hidden">
+      <table>
+        <thead><tr>
+          <th>Title</th><th>Status</th><th>Platforms</th><th>Assignee</th><th>Scheduled</th>
+        </tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyBoard" class="empty-board hidden">
+      <h3>Your planner is empty 🌸</h3>
+      <p>Click <strong>+ New item</strong> above to add your first content idea. Items sync in real-time across all your devices.</p>
+    </div>
+
+  </div>
+
+  <!-- ITEM EDIT MODAL -->
+  <div class="modal-backdrop" id="itemModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h2 id="modalTitle">New item</h2>
+
+      <label for="fTitle">Title <span class="opt">(required)</span></label>
+      <input id="fTitle" type="text" placeholder="e.g. POV: I tried Elden Ring DLC blindfolded" maxlength="200" />
+
+      <div class="modal-row cols-2">
+        <div>
+          <label for="fStatus">Status</label>
+          <select id="fStatus">
+            <option value="idea">💡 Idea</option>
+            <option value="script">📝 Script</option>
+            <option value="recording">🎙️ Recording</option>
+            <option value="editing">✂️ Editing</option>
+            <option value="scheduled">📅 Scheduled</option>
+            <option value="posted">✅ Posted</option>
+            <option value="archived">📦 Archived</option>
+          </select>
+        </div>
+        <div>
+          <label for="fAssignee">Assignee <span class="opt">(editor / yourself)</span></label>
+          <input id="fAssignee" type="text" placeholder="e.g. Sam (editor) or Me" maxlength="80" />
+        </div>
+      </div>
+
+      <label>Platforms</label>
+      <div class="platform-picker" id="fPlatforms">
+        <button type="button" class="platform-pick" data-platform="youtube_shorts" aria-pressed="false">📺 YT Shorts</button>
+        <button type="button" class="platform-pick" data-platform="youtube_long"   aria-pressed="false">📺 YT Long-form</button>
+        <button type="button" class="platform-pick" data-platform="tiktok"          aria-pressed="false">🎵 TikTok</button>
+        <button type="button" class="platform-pick" data-platform="instagram"       aria-pressed="false">📷 Instagram</button>
+        <button type="button" class="platform-pick" data-platform="twitter"         aria-pressed="false">🐦 X / Twitter</button>
+        <button type="button" class="platform-pick" data-platform="twitch"          aria-pressed="false">🟣 Twitch</button>
+      </div>
+
+      <div class="modal-row cols-2">
+        <div>
+          <label for="fScheduledAt">Scheduled <span class="opt">(when it goes live)</span></label>
+          <input id="fScheduledAt" type="datetime-local" />
+        </div>
+        <div>
+          <label for="fPostedAt">Posted <span class="opt">(actual post time)</span></label>
+          <input id="fPostedAt" type="datetime-local" />
+        </div>
+      </div>
+
+      <label for="fHook">Hook <span class="opt">(opening line or thumbnail text)</span></label>
+      <textarea id="fHook" rows="2" placeholder="e.g. 'HE DID WHAT WITH THAT SPATULA?!'"></textarea>
+
+      <label for="fScript">Script / outline</label>
+      <textarea id="fScript" rows="5" placeholder="Beats, lines, shot list — whatever helps you record it."></textarea>
+
+      <div class="modal-row cols-2">
+        <div>
+          <label for="fHashtags">Hashtags <span class="opt">(comma / space separated)</span></label>
+          <input id="fHashtags" type="text" placeholder="#vtuber, #vtuberclips, #eldenring" />
+        </div>
+        <div>
+          <label for="fThumbnailUrl">Thumbnail URL <span class="opt">(image link)</span></label>
+          <input id="fThumbnailUrl" type="url" placeholder="https://…" />
+        </div>
+      </div>
+
+      <div class="modal-row cols-2">
+        <div>
+          <label for="fAnalyzerScore">Analyzer score <span class="opt">(/100)</span></label>
+          <input id="fAnalyzerScore" type="number" min="0" max="100" placeholder="e.g. 78" />
+        </div>
+        <div>
+          <label for="fAnalyzerLink">Analyzer link <span class="opt">(your saved run)</span></label>
+          <input id="fAnalyzerLink" type="url" placeholder="analyzer.html or screenshot link" />
+        </div>
+      </div>
+
+      <label for="fNotes">Notes</label>
+      <textarea id="fNotes" rows="3" placeholder="Anything else — references, todos, blockers…"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn danger pull-left hidden" id="deleteItemBtn">🗑 Delete</button>
+        <button class="btn secondary" id="cancelItemBtn">Cancel</button>
+        <button class="btn" id="saveItemBtn">💾 Save</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html">🏠 Hub</a> &middot; <a href="analyzer.html">🛠️ Analyzer</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
+    Made with 💗 by Eggie &middot; Data lives in your private Supabase — nobody else can read it.
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+const STATUSES = [
+  {value:'idea',      label:'💡 Idea',      visible:true},
+  {value:'script',    label:'📝 Script',    visible:true},
+  {value:'recording', label:'🎙️ Recording', visible:true},
+  {value:'editing',   label:'✂️ Editing',   visible:true},
+  {value:'scheduled', label:'📅 Scheduled', visible:true},
+  {value:'posted',    label:'✅ Posted',    visible:true},
+  {value:'archived',  label:'📦 Archived',  visible:false}  // hidden from kanban by default
+];
+
+const PLATFORM_LABELS = {
+  youtube_shorts: 'YT Shorts',
+  youtube_long: 'YT Long',
+  tiktok: 'TikTok',
+  instagram: 'IG',
+  twitter: 'X',
+  twitch: 'Twitch'
+};
+
+// ============================================================
+//  STATE
+// ============================================================
+let sb = null;          // Supabase client
+let currentUser = null;
+let items = [];         // local cache
+let editingItemId = null;
+let realtimeSub = null;
+let currentView = 'kanban';
+let searchQuery = '';
+
+// ============================================================
+//  INIT
+// ============================================================
+function $(id){ return document.getElementById(id); }
+
+async function init(){
+  // Create the Supabase client
+  try{
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    setConn(true, 'Connected');
+  }catch(e){
+    setConn(false, 'Supabase init failed');
+    console.error('Supabase init failed:', e);
+    return;
+  }
+
+  // Wire up UI handlers
+  wireAuth();
+  wireApp();
+
+  // Check for existing session (auto-restored from localStorage by Supabase)
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session?.user){
+    showApp(session.user);
+  } else {
+    showAuth();
+  }
+
+  // Listen for auth state changes (sign in/out from anywhere)
+  sb.auth.onAuthStateChange((event, session) => {
+    if(session?.user) showApp(session.user);
+    else showAuth();
+  });
+}
+
+function setConn(online, label){
+  const dots = [$('connDot'), $('connDotApp')];
+  const texts = [$('connText'), $('connTextApp')];
+  dots.forEach(d => d && d.classList.toggle('offline', !online));
+  texts.forEach(t => t && (t.textContent = label));
+}
+
+// ============================================================
+//  AUTH FLOW (magic link)
+// ============================================================
+function wireAuth(){
+  $('signInBtn').addEventListener('click', signIn);
+  $('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') signIn(); });
+  $('signOutBtn').addEventListener('click', signOut);
+}
+
+async function signIn(){
+  const email = $('emailInput').value.trim().toLowerCase();
+  if(!email || !email.includes('@')){
+    setAuthStatus('Please enter a valid email address.', 'error');
+    return;
+  }
+  $('signInBtn').disabled = true;
+  $('signInBtn').textContent = 'Sending…';
+  try{
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.href }
+    });
+    if(error){
+      setAuthStatus('Hmm, something went wrong: ' + error.message, 'error');
+    } else {
+      setAuthStatus(`✨ Magic link sent to ${email}! Check your inbox (and spam folder) — click the link to sign in.`, 'success');
+    }
+  }catch(e){
+    setAuthStatus('Network error — check your connection and try again.', 'error');
+  }finally{
+    $('signInBtn').disabled = false;
+    $('signInBtn').innerHTML = '📬 Send magic link';
+  }
+}
+
+async function signOut(){
+  if(!confirm('Sign out? Your data stays safe in the cloud — sign back in any time.')) return;
+  if(realtimeSub){ sb.removeChannel(realtimeSub); realtimeSub = null; }
+  await sb.auth.signOut();
+}
+
+function setAuthStatus(msg, type){
+  const el = $('authStatus');
+  el.textContent = msg;
+  el.className = 'auth-status ' + (type || 'info');
+  el.classList.remove('hidden');
+}
+
+function showAuth(){
+  currentUser = null;
+  $('authView').classList.remove('hidden');
+  $('appView').classList.add('hidden');
+}
+
+async function showApp(user){
+  currentUser = user;
+  $('authView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('userEmailDisplay').textContent = user.email;
+  await loadItems();
+  subscribeRealtime();
+}
+
+// ============================================================
+//  DATA — load / save / delete / real-time
+// ============================================================
+async function loadItems(){
+  setConn(true, 'Loading…');
+  const { data, error } = await sb
+    .from('planner_items')
+    .select('*')
+    .order('status', { ascending: true })
+    .order('position', { ascending: true })
+    .order('created_at', { ascending: false });
+  if(error){
+    console.error('Load failed:', error);
+    setConn(false, 'Load error: ' + error.message);
+    return;
+  }
+  items = data || [];
+  setConn(true, 'Live');
+  render();
+}
+
+async function saveItem(item){
+  setConn(true, 'Saving…');
+  // Prepare payload — Supabase wants null instead of empty datetimes
+  const payload = {
+    ...item,
+    owner_id: currentUser.id,
+    scheduled_at: item.scheduled_at || null,
+    posted_at: item.posted_at || null,
+    analyzer_score: item.analyzer_score === '' || item.analyzer_score == null ? null : Number(item.analyzer_score),
+    thumbnail_url: item.thumbnail_url || null,
+    analyzer_link: item.analyzer_link || null,
+    assignee: item.assignee || null
+  };
+  // If no id, let Supabase generate one
+  if(!payload.id) delete payload.id;
+  const { data, error } = await sb
+    .from('planner_items')
+    .upsert(payload)
+    .select()
+    .single();
+  if(error){
+    console.error('Save failed:', error);
+    alert('Save failed: ' + error.message);
+    setConn(false, 'Save error');
+    return null;
+  }
+  setConn(true, 'Live');
+  return data;
+}
+
+async function deleteItem(id){
+  setConn(true, 'Deleting…');
+  const { error } = await sb.from('planner_items').delete().eq('id', id);
+  if(error){
+    console.error('Delete failed:', error);
+    alert('Delete failed: ' + error.message);
+    setConn(false, 'Delete error');
+    return;
+  }
+  setConn(true, 'Live');
+}
+
+function subscribeRealtime(){
+  if(realtimeSub) sb.removeChannel(realtimeSub);
+  realtimeSub = sb
+    .channel('planner_items_realtime')
+    .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'planner_items', filter: `owner_id=eq.${currentUser.id}` },
+        payload => {
+          // Reload on any change. Cheap enough for the data scale we're dealing with.
+          loadItems();
+        })
+    .subscribe(status => {
+      if(status === 'SUBSCRIBED') setConn(true, 'Live');
+      else if(status === 'CHANNEL_ERROR') setConn(false, 'Sync error');
+    });
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function render(){
+  // Apply search filter
+  const q = searchQuery.toLowerCase().trim();
+  const filtered = q ? items.filter(item => {
+    const hay = [item.title, item.assignee, item.hook, item.notes, (item.platforms||[]).join(' '), (item.hashtags||[]).join(' ')]
+      .filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(q);
+  }) : items;
+
+  // Empty state
+  $('emptyBoard').classList.toggle('hidden', items.length > 0);
+  $('kanbanView').classList.toggle('hidden', currentView !== 'kanban' || items.length === 0);
+  $('listView').classList.toggle('hidden', currentView !== 'list' || items.length === 0);
+
+  if(currentView === 'kanban') renderKanban(filtered);
+  else renderList(filtered);
+}
+
+function renderKanban(filtered){
+  const visibleStatuses = STATUSES.filter(s => s.visible || filtered.some(i => i.status === s.value));
+  const board = $('kanbanView');
+  board.innerHTML = visibleStatuses.map(s => {
+    const colItems = filtered.filter(i => i.status === s.value);
+    return `
+      <div class="kanban-col" data-status="${s.value}">
+        <div class="kanban-col-head">
+          <span>${s.label}</span>
+          <span class="count">${colItems.length}</span>
+        </div>
+        ${colItems.length === 0
+          ? '<div class="empty-col">Nothing here yet</div>'
+          : colItems.map(itemCard).join('')}
+        <button class="add-in-col" data-add-status="${s.value}">+ Add ${s.label.split(' ')[1] || s.label}</button>
+      </div>
+    `;
+  }).join('');
+  // Click handlers
+  board.querySelectorAll('.item-card').forEach(el => {
+    el.addEventListener('click', () => openModal(items.find(i => i.id === el.dataset.id)));
+  });
+  board.querySelectorAll('.add-in-col').forEach(el => {
+    el.addEventListener('click', () => openModal(null, el.dataset.addStatus));
+  });
+}
+
+function itemCard(item){
+  const platforms = (item.platforms || []).slice(0, 3).map(p =>
+    `<span class="platform-chip">${escape(PLATFORM_LABELS[p] || p)}</span>`).join('');
+  const extras = (item.platforms || []).length > 3 ? `<span class="meta-line">+${item.platforms.length - 3}</span>` : '';
+  const assignee = item.assignee ? `<span class="meta-line">👤 ${escape(item.assignee)}</span>` : '';
+  const due = item.scheduled_at ? renderDue(item.scheduled_at) : '';
+  return `
+    <div class="item-card" data-id="${item.id}">
+      <div class="item-title">${escape(item.title || '(untitled)')}</div>
+      <div class="item-meta">${platforms}${extras}${assignee}${due}</div>
+    </div>
+  `;
+}
+
+function renderDue(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = (d - now) / (1000 * 60 * 60 * 24); // days
+  const fmt = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  let cls = '';
+  if(diff < 0) cls = 'due-overdue';
+  else if(diff < 2) cls = 'due-soon';
+  return `<span class="meta-line ${cls}">📅 ${fmt}</span>`;
+}
+
+function renderList(filtered){
+  const body = $('listBody');
+  if(filtered.length === 0){
+    body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--ink-soft);padding:24px">No items match your search.</td></tr>';
+    return;
+  }
+  // Sort by status order, then scheduled date
+  const statusOrder = Object.fromEntries(STATUSES.map((s, i) => [s.value, i]));
+  const sorted = [...filtered].sort((a, b) => {
+    const so = (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99);
+    if(so !== 0) return so;
+    return (a.scheduled_at || '').localeCompare(b.scheduled_at || '');
+  });
+  body.innerHTML = sorted.map(item => {
+    const platforms = (item.platforms || []).map(p => PLATFORM_LABELS[p] || p).join(', ');
+    const scheduled = item.scheduled_at ? new Date(item.scheduled_at).toLocaleString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) : '—';
+    return `
+      <tr data-id="${item.id}">
+        <td>${escape(item.title || '(untitled)')}</td>
+        <td><span class="status-tag ${item.status}">${item.status}</span></td>
+        <td>${escape(platforms || '—')}</td>
+        <td>${escape(item.assignee || '—')}</td>
+        <td>${scheduled}</td>
+      </tr>
+    `;
+  }).join('');
+  body.querySelectorAll('tr[data-id]').forEach(tr => {
+    tr.addEventListener('click', () => openModal(items.find(i => i.id === tr.dataset.id)));
+  });
+}
+
+// ============================================================
+//  APP WIRING — view toggle, search, add button
+// ============================================================
+function wireApp(){
+  $('addItemBtn').addEventListener('click', () => openModal());
+  $('searchInput').addEventListener('input', e => { searchQuery = e.target.value; render(); });
+  document.querySelectorAll('.view-toggle button[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentView = btn.dataset.view;
+      document.querySelectorAll('.view-toggle button[data-view]').forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+  });
+
+  // Modal wiring
+  $('saveItemBtn').addEventListener('click', handleSave);
+  $('cancelItemBtn').addEventListener('click', closeModal);
+  $('deleteItemBtn').addEventListener('click', handleDelete);
+  $('itemModal').addEventListener('click', e => { if(e.target === $('itemModal')) closeModal(); });
+
+  // Platform pill multi-select
+  document.querySelectorAll('#fPlatforms .platform-pick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pressed = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+    });
+  });
+
+  // Esc to close modal
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && $('itemModal').classList.contains('open')) closeModal();
+  });
+}
+
+// ============================================================
+//  MODAL — open / save / delete
+// ============================================================
+function openModal(item, defaultStatus){
+  editingItemId = item?.id || null;
+  $('modalTitle').textContent = item ? 'Edit item' : 'New item';
+  $('deleteItemBtn').classList.toggle('hidden', !item);
+  $('fTitle').value = item?.title || '';
+  $('fStatus').value = item?.status || defaultStatus || 'idea';
+  $('fAssignee').value = item?.assignee || '';
+  $('fScheduledAt').value = item?.scheduled_at ? toLocalInput(item.scheduled_at) : '';
+  $('fPostedAt').value = item?.posted_at ? toLocalInput(item.posted_at) : '';
+  $('fHook').value = item?.hook || '';
+  $('fScript').value = item?.script || '';
+  $('fHashtags').value = (item?.hashtags || []).join(', ');
+  $('fThumbnailUrl').value = item?.thumbnail_url || '';
+  $('fAnalyzerScore').value = item?.analyzer_score || '';
+  $('fAnalyzerLink').value = item?.analyzer_link || '';
+  $('fNotes').value = item?.notes || '';
+  // Reset + apply platforms
+  const platforms = item?.platforms || [];
+  document.querySelectorAll('#fPlatforms .platform-pick').forEach(btn => {
+    btn.setAttribute('aria-pressed', platforms.includes(btn.dataset.platform) ? 'true' : 'false');
+  });
+  $('itemModal').classList.add('open');
+  $('fTitle').focus();
+}
+
+function closeModal(){
+  $('itemModal').classList.remove('open');
+  editingItemId = null;
+}
+
+async function handleSave(){
+  const title = $('fTitle').value.trim();
+  if(!title){
+    alert('Title is required.');
+    $('fTitle').focus();
+    return;
+  }
+  const platforms = Array.from(document.querySelectorAll('#fPlatforms .platform-pick[aria-pressed="true"]'))
+    .map(b => b.dataset.platform);
+  const hashtags = $('fHashtags').value
+    .split(/[,\s]+/).map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+  const item = {
+    title,
+    status: $('fStatus').value,
+    platforms,
+    assignee: $('fAssignee').value.trim(),
+    scheduled_at: $('fScheduledAt').value ? new Date($('fScheduledAt').value).toISOString() : '',
+    posted_at: $('fPostedAt').value ? new Date($('fPostedAt').value).toISOString() : '',
+    hook: $('fHook').value.trim(),
+    script: $('fScript').value.trim(),
+    hashtags,
+    thumbnail_url: $('fThumbnailUrl').value.trim(),
+    analyzer_score: $('fAnalyzerScore').value,
+    analyzer_link: $('fAnalyzerLink').value.trim(),
+    notes: $('fNotes').value.trim()
+  };
+  if(editingItemId) item.id = editingItemId;
+  $('saveItemBtn').disabled = true;
+  $('saveItemBtn').textContent = 'Saving…';
+  const saved = await saveItem(item);
+  $('saveItemBtn').disabled = false;
+  $('saveItemBtn').innerHTML = '💾 Save';
+  if(saved){
+    closeModal();
+    // Real-time sub will reload, but for snappiness reload immediately
+    loadItems();
+  }
+}
+
+async function handleDelete(){
+  if(!editingItemId) return;
+  if(!confirm('Delete this item permanently? This cannot be undone.')) return;
+  await deleteItem(editingItemId);
+  closeModal();
+  loadItems();
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function escape(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Convert an ISO string to the format <input type="datetime-local"> expects (no Z, no ms)
+function toLocalInput(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  // Adjust for timezone offset so the displayed value matches local clock
+  const tzOff = d.getTimezoneOffset() * 60000;
+  return new Date(d - tzOff).toISOString().slice(0, 16);
+}
+
+// ============================================================
+//  GO
+// ============================================================
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init, {once:true});
+} else {
+  init();
+}
+</script>
+</body>
+</html>
