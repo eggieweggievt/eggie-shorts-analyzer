@@ -1,0 +1,131 @@
+-- ============================================================
+--  PLANNER V2 — Supabase migration
+--  Run this in Supabase Dashboard → SQL Editor → New query
+--  Adds: editor profiles, file uploads, footage / editor file links,
+--        editor-facing access for assigned items.
+-- ============================================================
+
+-- 1. Add new columns to planner_items
+-- (use IF NOT EXISTS-style guards so re-running is safe)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='footage_url') THEN
+    ALTER TABLE planner_items ADD COLUMN footage_url text;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='editor_files_url') THEN
+    ALTER TABLE planner_items ADD COLUMN editor_files_url text;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='attachments') THEN
+    ALTER TABLE planner_items ADD COLUMN attachments jsonb DEFAULT '[]'::jsonb;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='editor_id') THEN
+    ALTER TABLE planner_items ADD COLUMN editor_id uuid;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='assignee_email') THEN
+    ALTER TABLE planner_items ADD COLUMN assignee_email text;
+  END IF;
+END$$;
+
+-- 2. New table: planner_editors
+CREATE TABLE IF NOT EXISTS planner_editors (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  email text,
+  color text DEFAULT '#90A5FF',
+  asset_folder_url text,
+  reference_links jsonb DEFAULT '[]'::jsonb,
+  notes text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- 3. Enable Row Level Security on editors table
+ALTER TABLE planner_editors ENABLE ROW LEVEL SECURITY;
+
+-- Owners can do anything with their own editor profiles
+DROP POLICY IF EXISTS "owners manage their editors" ON planner_editors;
+CREATE POLICY "owners manage their editors" ON planner_editors
+  FOR ALL
+  USING (auth.uid() = owner_id)
+  WITH CHECK (auth.uid() = owner_id);
+
+-- Editors can read their own profile (so they can see asset folder, references)
+DROP POLICY IF EXISTS "editors read own profile" ON planner_editors;
+CREATE POLICY "editors read own profile" ON planner_editors
+  FOR SELECT
+  USING (email = auth.email());
+
+-- Editors can UPDATE their own profile fields (asset folder, references, notes)
+DROP POLICY IF EXISTS "editors update own profile" ON planner_editors;
+CREATE POLICY "editors update own profile" ON planner_editors
+  FOR UPDATE
+  USING (email = auth.email());
+
+-- 4. Extend planner_items policies for editor-facing access
+-- Editors see items where their email matches assignee_email
+DROP POLICY IF EXISTS "editors see assigned items" ON planner_items;
+CREATE POLICY "editors see assigned items" ON planner_items
+  FOR SELECT
+  USING (
+    auth.uid() = owner_id
+    OR assignee_email = auth.email()
+  );
+
+-- Editors can UPDATE limited fields on items assigned to them
+-- (Supabase row-level UPDATE is whole-row; column-level restriction is enforced client-side)
+DROP POLICY IF EXISTS "editors update assigned items" ON planner_items;
+CREATE POLICY "editors update assigned items" ON planner_items
+  FOR UPDATE
+  USING (assignee_email = auth.email());
+
+-- 5. Storage bucket for file uploads
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('planner-files', 'planner-files', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies — owners can read/write everything in their folder.
+-- Path scheme: {owner_id}/{item_id}/{filename}
+DROP POLICY IF EXISTS "owner storage all" ON storage.objects;
+CREATE POLICY "owner storage all" ON storage.objects
+  FOR ALL
+  USING (
+    bucket_id = 'planner-files'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  )
+  WITH CHECK (
+    bucket_id = 'planner-files'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- Editors can read files for items assigned to them.
+-- The path's second segment is the item_id; we join against planner_items.
+DROP POLICY IF EXISTS "editor storage read" ON storage.objects;
+CREATE POLICY "editor storage read" ON storage.objects
+  FOR SELECT
+  USING (
+    bucket_id = 'planner-files'
+    AND EXISTS (
+      SELECT 1 FROM planner_items
+      WHERE planner_items.id::text = (storage.foldername(name))[2]
+        AND planner_items.assignee_email = auth.email()
+    )
+  );
+
+-- Editors can upload their edits back into the same folder for items assigned to them.
+DROP POLICY IF EXISTS "editor storage upload" ON storage.objects;
+CREATE POLICY "editor storage upload" ON storage.objects
+  FOR INSERT
+  WITH CHECK (
+    bucket_id = 'planner-files'
+    AND EXISTS (
+      SELECT 1 FROM planner_items
+      WHERE planner_items.id::text = (storage.foldername(name))[2]
+        AND planner_items.assignee_email = auth.email()
+    )
+  );
+
+-- ============================================================
+--  Done! Reload planner.html — V2 features will light up automatically.
+--  Check: editor profiles button, footage/editor file links, file uploads,
+--  inline title-scoring, planner-editor.html access for editors.
+-- ============================================================

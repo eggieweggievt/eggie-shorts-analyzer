@@ -2237,12 +2237,17 @@ function suggestTitles(originalTitle, description){
       : g === 'music' ? 'this song' : g === 'fitness' ? 'this workout'
       : g === 'beauty' ? 'this look' : g === 'fashion' ? 'this fit'
       : g === 'mentalhealth' ? 'this therapy moment' : g === 'adhd' ? 'this ADHD moment'
-      : g === 'dailylife' ? 'my day' : `this ${g}`;
+      : g === 'dailylife' ? 'my day'
+      : g === 'truecrime' ? 'this case' /* V2 #57 — bespoke label for true crime */
+      : `this ${g}`;
   }
   function shortContentLabel(c){
     return c === 'funny' ? 'this clip' : c === 'storytime' ? 'this story'
       : c === 'pov' ? 'this moment' : c === 'reaction' ? 'this reaction'
-      : c === 'nocontext' ? 'this random clip' : `this ${c}`;
+      : c === 'nocontext' ? 'this random clip'
+      : c === 'bodycam' ? 'this bodycam footage' /* V2 #57 */
+      : c === 'truecrime' ? 'this case' /* V2 #57 */
+      : `this ${c}`;
   }
 
   const specificGenre = detected.genres.find(g => g !== 'gaming' && g !== 'streaming');
@@ -2250,9 +2255,46 @@ function suggestTitles(originalTitle, description){
   const cleanedTitle = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i|she|he|they|we|my)\s+/i,'').trim();
   const titleWordCount = cleanedTitle.split(/\s+/).filter(Boolean).length;
 
+  // V2 fix #56 — extract a topical noun phrase from the user's quickContext (description)
+  // when detection didn't pick up a specific game/genre. This rescues titles from generic
+  // "this reaction" fallbacks when the user actually told us what their content is about.
+  // Examples:
+  //   "reacting to bodycam footage" → "bodycam footage"
+  //   "me playing horror but I'm too scared" → "horror"
+  //   "my morning routine as a vtuber" → "my morning routine"
+  function extractTopicalSubject(text){
+    if(!text) return null;
+    const cleaned = String(text).replace(/[?!.…]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if(!cleaned) return null;
+    // 1) verb + object pattern — "reacting to X", "playing X", "watching X", etc.
+    const verbMatch = cleaned.match(/(?:reacting to|reaction to|reviewing|watching|playing|recording|making|drawing|streaming|coding|reading|reacting|talking about|discussing|covering|trying)\s+([a-z][a-z0-9 '-]{2,35}?)(?:\s+(?:and|but|while|because|so|then|with|on|in|at|for|from|to|because|as)\b|$)/i);
+    if(verbMatch) return verbMatch[1].trim().toLowerCase();
+    // 2) "my X" / "the X" / "this X" — 1-3 word object
+    const possessiveMatch = cleaned.match(/\b(?:my|the|this|our)\s+([a-z][a-z0-9 '-]{2,28}?)(?:\s+(?:as|while|because|but|and|so|then|with|on|in|at|for|from|to)\b|$)/i);
+    if(possessiveMatch){
+      const phrase = possessiveMatch[1].trim().toLowerCase();
+      // Don't accept single generic words like "video", "stream", "clip"
+      if(!/^(video|stream|clip|content|moment|day|time|life)$/.test(phrase)) return phrase;
+    }
+    // 3) Standalone topical noun phrases — content types we want to surface verbatim
+    //    Used when detection didn't catch them. This list is extended in #57.
+    const topicalKeywords = /\b(bodycam(?:\s+footage)?|true crime|cold case|missing person|paranormal|conspiracy|cryptid|deep dive|interrogation|911 call|case file)\b/i;
+    const tk = cleaned.match(topicalKeywords);
+    if(tk) return tk[1].toLowerCase();
+    // 4) If quickContext is short + concrete, use it verbatim (up to ~30 chars)
+    if(cleaned.length >= 4 && cleaned.length <= 30 && cleaned.split(/\s+/).length <= 4){
+      return cleaned.toLowerCase();
+    }
+    return null;
+  }
+  const userTopical = extractTopicalSubject(description);
+
   let subject;
   if(detected.games.length){
     subject = detected.games[0];
+  } else if(userTopical){
+    // V2 fix #56 — prefer the user's own context over generic content-type labels
+    subject = userTopical;
   } else if(specificGenre){
     subject = shortGenreLabel(specificGenre);
   } else if(specificContent){
@@ -3098,6 +3140,20 @@ function _scanTextForTopics(text){
   if(/\b(ttrpg|tabletop rpg|tabletop roleplaying|dungeons (and|&) dragons|dnd ?5e?|dndmemes|dndtok|dungeon master|dm session|critical role|pathfinder rpg|d20 system|game master|tabletop campaign)\b/.test(t)) pushGame('dnd');
 
   // Content types (what KIND of video this is — and what's being said in it).
+  // V2 fix #57 — Bodycam reactions: a fast-growing react-vertical sub-niche.
+  //   Triggers on bodycam-specific language. Pushes BOTH 'reaction' AND a 'bodycam' content tag
+  //   so the title generator + hashtag picker treat these distinctively.
+  if(/\b(bodycam|body ?cam|body[\s-]?worn ?camera|bwc|police ?bodycam|cop ?bodycam|officer ?bodycam|bodycam ?footage|bodycam ?(react|reacting|reaction|reacts)|reacting to bodycam|watching ?bodycam)\b/.test(t)){
+    found.content.push('bodycam');
+    found.content.push('reaction');
+    found.genres.push('truecrime');
+  }
+  // V2 fix #57 — True crime / cold cases / missing persons / 911 calls — high-volume YT vertical.
+  //   Distinct from bodycam (which is its own sub-format).
+  if(/\b(true ?crime|truecrime|cold ?case|cold ?cases|missing ?person|missing ?persons|unsolved ?(case|mystery|crime|murder)|case ?file|case ?files|interrogation|interrogations?|police ?interrogation|911 ?call|911 ?calls|murder ?case|serial ?killer|criminal ?case|crime ?documentary|forensic ?files|investigation ?(case|video))\b/.test(t)){
+    found.genres.push('truecrime');
+    found.content.push('truecrime');
+  }
   // Reaction includes IRL-react language AND Florence-style visual signals like split-screen
   // / "screen showing" — common in VTuber reacts-to-tiktok / reacts-to-IRL content.
   if(/\b(react|reacting|reaction|reacted|reactions to|reacts to|reacts|reacted to|first time (seeing|watching|hearing)|i had to (see|watch)|watching this|cannot believe what|i'?m watching|just watched|she watches|he watches|they watch|split[\s-]?screen|side by side|screen showing|watching a video|watching a tiktok|reacts to tiktok|reacts to irl|irl react|tiktok react|reacts? to (this|that))\b/.test(t)) found.content.push('reaction');
@@ -3530,9 +3586,18 @@ function recommendHashtags(platform, currentTags, title, description){
     });
   }
 
+  // V2 fix #55 — cap pool display to ~15 per tier so users don't drown in choice
+  const POOL_DISPLAY_LIMIT = 15;
   function fmtPool(arr){
     if(!arr.length) return '<em style="color:var(--ink-soft);font-weight:500">Add more topic details to your title or description for tags here</em>';
-    return arr.map(t=>'#'+t).join(' &middot; ');
+    // Show top N tags (they're already ranked by overlap score earlier in the pipeline)
+    const shown = arr.slice(0, POOL_DISPLAY_LIMIT);
+    const more = arr.length - shown.length;
+    const tags = shown.map(t=>'#'+t).join(' &middot; ');
+    if(more > 0){
+      return `${tags} <span style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-left:6px">+ ${more} more (using your top picks first)</span>`;
+    }
+    return tags;
   }
 
   return `
@@ -4618,6 +4683,44 @@ if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', wireResultsTabs, {once:true});
 } else {
   wireResultsTabs();
+}
+
+// ============================================================
+//  Planner integration — read URL hash params and pre-fill fields
+//  Triggered by the planner's "Open full analyzer with this title" button.
+//  URL shape: analyzer.html#title=...&hashtags=...
+// ============================================================
+function applyPlannerParams(){
+  if(!window.location.hash || window.location.hash.length < 2) return;
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const t = params.get('title');
+  const h = params.get('hashtags');
+  let didFill = false;
+  if(t){
+    const titleField = document.getElementById('title');
+    if(titleField){ titleField.value = t; didFill = true; }
+  }
+  if(h){
+    const hashField = document.getElementById('hashtags');
+    if(hashField){ hashField.value = h; didFill = true; }
+  }
+  if(didFill){
+    // Jump the user to Step 2 (the content step) so they can see the pre-filled title.
+    // Step navigation uses the wizard step buttons — find Step 2 and click it.
+    const step2Btn = document.querySelector('[data-step-target="2"], [data-step="2"]');
+    if(step2Btn) step2Btn.click();
+    // Flash the title field so it's visible the value came from the planner
+    const titleField = document.getElementById('title');
+    if(titleField){
+      titleField.style.boxShadow = '0 0 0 3px var(--periwinkle, #90A5FF)';
+      setTimeout(() => { titleField.style.boxShadow = ''; }, 1800);
+    }
+  }
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', applyPlannerParams, {once:true});
+} else {
+  applyPlannerParams();
 }
 
 // Helper for the unified "Analyzing…" banner that replaces stacked progress bars
@@ -5841,6 +5944,679 @@ function renderVideoVerdict(v){
   vidResult.classList.add('active');
 }
 
+// ============================================================================
+//  V2 #58 — ANALYZER BACKEND (Supabase-powered learning)
+//
+//  Self-contained module that adds optional sign-in to the analyzer for:
+//    • Saved analyses (history)
+//    • Title 👍/👎 ratings → biases future generations toward your style
+//    • Sticky tags (always include)
+//    • Posted-performance feedback loop
+//
+//  The whole module gracefully degrades if Supabase isn't reachable OR the
+//  user hasn't signed in. Everything else in the analyzer works without it.
+// ============================================================================
+(function eggieBackend(){
+  const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+  // State
+  let sb = null;
+  let currentUser = null;
+  let userPrefs = null;
+  let lastRunData = null;    // most recent analyzer output (for save / history)
+  let titleRatings = new Map();  // run-local rating buffer { title -> rating }
+
+  // ---------- LAZY-LOAD SUPABASE SDK ----------
+  function loadSupabaseSDK(){
+    return new Promise((resolve, reject) => {
+      if(window.supabase) return resolve(window.supabase);
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase failed to attach to window'));
+      s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+      document.head.appendChild(s);
+    });
+  }
+
+  // ---------- INJECT STYLES ----------
+  function injectCSS(){
+    if(document.getElementById('eggie-backend-css')) return;
+    const css = `
+      .eb-auth-pill{
+        position:fixed;top:14px;right:14px;z-index:300;
+        display:inline-flex;align-items:center;gap:8px;
+        padding:8px 16px;border-radius:999px;cursor:pointer;
+        background:linear-gradient(135deg,var(--pink-hot,#FFB2F0),var(--periwinkle,#90A5FF) 60%,var(--mint,#6BE4EA));
+        color:#fff;font-weight:800;font-size:13px;
+        border:none;font-family:inherit;
+        box-shadow:0 6px 16px rgba(144,165,255,0.32);
+        transition:transform .15s, filter .15s;
+      }
+      .eb-auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}
+      .eb-auth-pill.signed-in{
+        background:rgba(255,255,255,0.95);
+        color:var(--deep,#4D5BC0);
+        border:2px solid rgba(144,165,255,0.45);
+        font-weight:700;
+      }
+      .eb-modal-bg{
+        display:none;position:fixed;inset:0;z-index:400;
+        background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+        align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+      }
+      .eb-modal-bg.open{display:flex}
+      .eb-modal{
+        background:rgba(255,255,255,0.97);border-radius:22px;
+        padding:24px 28px;max-width:680px;width:100%;
+        box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+      }
+      .eb-modal h2{
+        font-family:'Pacifico',cursive;font-weight:400;font-size:28px;
+        margin:0 0 10px;color:var(--deep,#4D5BC0);
+      }
+      .eb-modal p{margin:0 0 10px;font-size:14px;color:var(--ink,#3a2a5a);line-height:1.5}
+      .eb-modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+      .eb-modal input[type=email],.eb-modal input[type=url],.eb-modal input[type=text],.eb-modal input[type=number]{
+        width:100%;padding:11px 14px;border-radius:10px;border:2px solid rgba(144,165,255,0.35);
+        font-family:inherit;font-size:14.5px;background:rgba(255,255,255,0.92);
+        color:var(--ink,#3a2a5a);box-sizing:border-box;
+      }
+      .eb-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap}
+      .eb-modal-actions .pull-left{margin-right:auto}
+      .eb-btn{
+        display:inline-flex;align-items:center;gap:6px;justify-content:center;
+        padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+        font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+        background:linear-gradient(135deg,var(--pink-hot,#FFB2F0),var(--periwinkle,#90A5FF) 60%,var(--mint,#6BE4EA));
+        box-shadow:0 6px 14px rgba(144,165,255,0.3);
+      }
+      .eb-btn.secondary{background:rgba(255,255,255,0.7);color:var(--deep,#4D5BC0);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
+      .eb-btn.danger{background:linear-gradient(135deg,#FFB2C8,#FF8AA8);color:#fff}
+      .eb-btn[disabled]{opacity:.55;cursor:not-allowed}
+      .eb-status{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
+      .eb-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+      .eb-status.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+      .eb-status.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+      .eb-title-rate{
+        display:inline-flex;gap:4px;margin-left:8px;vertical-align:middle;
+      }
+      .eb-title-rate button{
+        background:rgba(255,255,255,0.8);border:1.5px solid rgba(144,165,255,0.3);
+        border-radius:999px;padding:2px 8px;font-size:12px;cursor:pointer;
+        font-family:inherit;transition:background .12s, transform .12s;
+      }
+      .eb-title-rate button:hover{transform:scale(1.05)}
+      .eb-title-rate button.active.up{background:rgba(168,230,190,0.5);border-color:#A8E6BE;color:#1f6b35}
+      .eb-title-rate button.active.down{background:rgba(255,138,168,0.3);border-color:#FF8AA8;color:#7a2a3e}
+      .eb-sticky-flag{
+        display:inline-flex;align-items:center;gap:4px;
+        padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;
+        background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
+        color:var(--deep,#4D5BC0);margin-left:4px;
+      }
+      .eb-save-bar{
+        display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+        padding:12px 14px;margin:14px 0;
+        background:linear-gradient(135deg, rgba(255,219,247,0.4), rgba(199,210,255,0.4));
+        border:1.5px solid rgba(255,178,240,0.5);
+        border-radius:14px;
+      }
+      .eb-save-bar .label{font-weight:700;color:var(--deep,#4D5BC0);font-size:13px;flex:1;min-width:160px}
+      .eb-save-bar .meta{font-size:12px;color:var(--ink-soft,#6b5f8a)}
+      .eb-history-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;margin-top:8px}
+      .eb-history-row{
+        background:rgba(255,255,255,0.92);border:1.5px solid rgba(144,165,255,0.2);
+        border-left:4px solid var(--periwinkle,#90A5FF);
+        border-radius:12px;padding:12px 14px;cursor:pointer;
+        transition:box-shadow .15s, border-color .15s;
+      }
+      .eb-history-row:hover{box-shadow:0 6px 16px rgba(99,170,244,0.16);border-color:var(--periwinkle,#90A5FF)}
+      .eb-history-row .h-title{font-weight:700;color:var(--ink,#3a2a5a);font-size:14px;line-height:1.3;margin-bottom:4px}
+      .eb-history-row .h-meta{font-size:11.5px;color:var(--ink-soft,#6b5f8a);display:flex;flex-wrap:wrap;gap:6px 14px}
+      .eb-history-row .h-meta .score-chip{
+        background:linear-gradient(135deg,rgba(168,230,190,0.45),rgba(107,228,234,0.4));
+        padding:1px 8px;border-radius:999px;font-weight:800;color:var(--deep,#4D5BC0);
+      }
+      .eb-history-row .h-meta .perf-chip{
+        background:rgba(255,178,240,0.3);padding:1px 8px;border-radius:999px;font-weight:700;color:#a23556;
+      }
+      .eb-sticky-list{
+        display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
+      }
+      .eb-sticky-chip{
+        background:rgba(255,178,240,0.25);border:1.5px solid rgba(255,178,240,0.55);
+        color:var(--deep,#4D5BC0);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;
+        display:inline-flex;align-items:center;gap:5px;
+      }
+      .eb-sticky-chip .rm{background:none;border:none;color:#a23556;cursor:pointer;padding:0;line-height:1;font-size:13px}
+    `;
+    const style = document.createElement('style');
+    style.id = 'eggie-backend-css';
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
+  // ---------- AUTH PILL + MODALS ----------
+  function injectUI(){
+    if(document.getElementById('ebAuthPill')) return;
+    // Auth pill (top-right floating)
+    const pill = document.createElement('button');
+    pill.id = 'ebAuthPill';
+    pill.className = 'eb-auth-pill';
+    pill.innerHTML = '🔓 Sign in to save runs';
+    pill.title = 'Sign in to save analyses, train titles to your style, and log post performance';
+    pill.addEventListener('click', () => {
+      if(currentUser) openMenu(pill);
+      else openSignInModal();
+    });
+    document.body.appendChild(pill);
+
+    // Sign-in modal
+    const auth = document.createElement('div');
+    auth.id = 'ebAuthModal';
+    auth.className = 'eb-modal-bg';
+    auth.innerHTML = `
+      <div class="eb-modal">
+        <h2>📬 Sign in to your analyzer</h2>
+        <p>Magic link, no password. Sign in once → unlock saved runs, sticky tags, title learning, and post-performance tracking. <strong>Your data stays scoped to you.</strong></p>
+        <label for="ebEmailInput">Email</label>
+        <input id="ebEmailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+        <div id="ebAuthStatus" class="eb-status" style="display:none"></div>
+        <div class="eb-modal-actions">
+          <button class="eb-btn secondary" id="ebAuthCancel">Cancel</button>
+          <button class="eb-btn" id="ebAuthSend">📬 Send magic link</button>
+        </div>
+      </div>`;
+    document.body.appendChild(auth);
+
+    // Menu modal (after signed-in)
+    const menu = document.createElement('div');
+    menu.id = 'ebMenuModal';
+    menu.className = 'eb-modal-bg';
+    menu.innerHTML = `
+      <div class="eb-modal">
+        <h2>🐙 Your analyzer profile</h2>
+        <p style="font-size:13.5px;color:var(--ink-soft,#6b5f8a);margin:0 0 14px">Signed in as <strong id="ebUserEmail" style="color:var(--deep,#4D5BC0)">—</strong></p>
+
+        <label>Sticky tags <span style="color:var(--ink-soft,#6b5f8a);font-weight:500;font-size:12px">(always added to your hashtag mix)</span></label>
+        <div class="eb-sticky-list" id="ebStickyList"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input id="ebStickyInput" type="text" placeholder="add a tag (no #)" style="flex:1" />
+          <button class="eb-btn secondary" id="ebStickyAdd" style="padding:8px 14px">Add</button>
+        </div>
+
+        <label style="margin-top:18px">📂 My saved runs</label>
+        <div id="ebHistoryList" class="eb-history-list">
+          <p style="font-style:italic;color:var(--ink-soft,#6b5f8a);font-size:13px">Loading…</p>
+        </div>
+
+        <div class="eb-modal-actions">
+          <button class="eb-btn danger pull-left" id="ebSignOut">Sign out</button>
+          <button class="eb-btn secondary" id="ebMenuClose">Close</button>
+        </div>
+      </div>`;
+    document.body.appendChild(menu);
+
+    // Posted-performance modal
+    const perf = document.createElement('div');
+    perf.id = 'ebPerfModal';
+    perf.className = 'eb-modal-bg';
+    perf.innerHTML = `
+      <div class="eb-modal">
+        <h2>📊 Log how this posted</h2>
+        <p>After your short hits the algo, drop in the actual numbers. The system uses this to learn which title patterns work for <em>your</em> channel.</p>
+        <input type="hidden" id="ebPerfRunId" />
+        <label for="ebPerfUrl">Posted URL <span style="color:var(--ink-soft,#6b5f8a);font-weight:500;font-size:12px">(YouTube / TikTok / IG link)</span></label>
+        <input id="ebPerfUrl" type="url" placeholder="https://youtube.com/shorts/…" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+          <div><label for="ebPerfViews">Views</label><input id="ebPerfViews" type="number" min="0" placeholder="e.g. 12400" /></div>
+          <div><label for="ebPerfLikes">Likes</label><input id="ebPerfLikes" type="number" min="0" placeholder="e.g. 840" /></div>
+          <div><label for="ebPerfComments">Comments</label><input id="ebPerfComments" type="number" min="0" placeholder="e.g. 67" /></div>
+          <div><label for="ebPerfShares">Shares</label><input id="ebPerfShares" type="number" min="0" placeholder="e.g. 22" /></div>
+        </div>
+        <label for="ebPerfNotes">Notes</label>
+        <input id="ebPerfNotes" type="text" placeholder="What worked, what didn't…" />
+        <div class="eb-modal-actions">
+          <button class="eb-btn secondary" id="ebPerfCancel">Cancel</button>
+          <button class="eb-btn" id="ebPerfSave">💾 Save performance</button>
+        </div>
+      </div>`;
+    document.body.appendChild(perf);
+
+    // Wire up handlers
+    $byId('ebAuthCancel').addEventListener('click', () => closeModal('ebAuthModal'));
+    $byId('ebAuthSend').addEventListener('click', sendMagicLink);
+    $byId('ebEmailInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendMagicLink(); });
+    $byId('ebMenuClose').addEventListener('click', () => closeModal('ebMenuModal'));
+    $byId('ebSignOut').addEventListener('click', signOut);
+    $byId('ebStickyAdd').addEventListener('click', addStickyTag);
+    $byId('ebStickyInput').addEventListener('keydown', e => { if(e.key === 'Enter') addStickyTag(); });
+    $byId('ebPerfCancel').addEventListener('click', () => closeModal('ebPerfModal'));
+    $byId('ebPerfSave').addEventListener('click', savePerformance);
+
+    // Close modals by clicking the backdrop
+    [auth, menu, perf].forEach(m => {
+      m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+    });
+  }
+
+  function $byId(id){ return document.getElementById(id); }
+  function openModal(id){ const el = $byId(id); if(el) el.classList.add('open'); }
+  function closeModal(id){ const el = $byId(id); if(el) el.classList.remove('open'); }
+
+  // ---------- AUTH ----------
+  async function initSupabase(){
+    if(sb) return sb;
+    try{
+      const lib = await loadSupabaseSDK();
+      sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+      });
+      // Restore existing session if present
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session?.user) await onSignIn(session.user);
+      // React to future auth changes
+      sb.auth.onAuthStateChange((event, session) => {
+        if(session?.user) onSignIn(session.user);
+        else onSignOut();
+      });
+      return sb;
+    }catch(e){
+      console.error('[Eggie Backend] Supabase init failed:', e);
+      return null;
+    }
+  }
+
+  async function openSignInModal(){
+    await initSupabase();
+    openModal('ebAuthModal');
+  }
+
+  async function sendMagicLink(){
+    const email = ($byId('ebEmailInput').value || '').trim().toLowerCase();
+    if(!email || !email.includes('@')){
+      setAuthStatus('Please enter a valid email.', 'error');
+      return;
+    }
+    if(window.location.protocol === 'file:'){
+      setAuthStatus('⚠️ Magic links don\'t work via file:// — serve via a local server (npx serve) or open on your live domain.', 'error');
+      return;
+    }
+    const btn = $byId('ebAuthSend');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try{
+      await initSupabase();
+      if(!sb){ setAuthStatus('Supabase unavailable. Check your network and retry.', 'error'); return; }
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+      if(error){
+        setAuthStatus('Sign-in failed: ' + error.message + '. Make sure ' + redirectTo + ' is in Supabase → Auth → URL Configuration.', 'error');
+      } else {
+        setAuthStatus(`✨ Magic link sent to ${email}! Check your inbox + spam folder.`, 'success');
+      }
+    }catch(e){
+      setAuthStatus('Network error: ' + (e.message || e), 'error');
+    }finally{
+      btn.disabled = false; btn.innerHTML = '📬 Send magic link';
+    }
+  }
+
+  function setAuthStatus(msg, type){
+    const el = $byId('ebAuthStatus');
+    if(!el) return;
+    el.textContent = msg;
+    el.className = 'eb-status ' + (type || 'info');
+    el.style.display = 'block';
+  }
+
+  async function signOut(){
+    if(!confirm('Sign out? Your saved runs stay in the cloud.')) return;
+    await sb.auth.signOut();
+    closeModal('ebMenuModal');
+  }
+
+  async function onSignIn(user){
+    currentUser = user;
+    const pill = $byId('ebAuthPill');
+    if(pill){
+      pill.classList.add('signed-in');
+      pill.innerHTML = `🐙 ${user.email.split('@')[0]}`;
+    }
+    closeModal('ebAuthModal');
+    await loadUserPrefs();
+  }
+
+  function onSignOut(){
+    currentUser = null;
+    userPrefs = null;
+    const pill = $byId('ebAuthPill');
+    if(pill){
+      pill.classList.remove('signed-in');
+      pill.innerHTML = '🔓 Sign in to save runs';
+    }
+  }
+
+  function openMenu(pill){
+    openModal('ebMenuModal');
+    $byId('ebUserEmail').textContent = currentUser.email;
+    renderStickyList();
+    loadHistory();
+  }
+
+  // ---------- USER PREFS ----------
+  async function loadUserPrefs(){
+    if(!sb || !currentUser) return;
+    const { data, error } = await sb.from('analyzer_user_prefs').select('*').eq('user_id', currentUser.id).maybeSingle();
+    if(error){
+      if(/relation.*does not exist/i.test(error.message || '')){
+        console.warn('[Eggie Backend] analyzer_user_prefs table missing — run analyzer-supabase.sql in Supabase.');
+        return;
+      }
+      console.error('Prefs load failed', error);
+      return;
+    }
+    userPrefs = data || { user_id: currentUser.id, sticky_tags: [], blocked_tags: [], preferred_template_weights: {} };
+    // Expose to the analyzer's tag picker via window.__eggieStickyTags
+    window.__eggieStickyTags = userPrefs.sticky_tags || [];
+    window.__eggieTitleWeights = userPrefs.preferred_template_weights || {};
+  }
+
+  async function saveUserPrefs(){
+    if(!sb || !currentUser || !userPrefs) return;
+    userPrefs.user_id = currentUser.id;
+    const { error } = await sb.from('analyzer_user_prefs').upsert(userPrefs);
+    if(error){ console.error('Prefs save failed', error); return false; }
+    return true;
+  }
+
+  function renderStickyList(){
+    const wrap = $byId('ebStickyList');
+    if(!wrap) return;
+    const tags = (userPrefs?.sticky_tags || []);
+    if(tags.length === 0){
+      wrap.innerHTML = '<span style="color:var(--ink-soft,#6b5f8a);font-style:italic;font-size:12.5px">No sticky tags yet — add ones you always want in your mix below.</span>';
+      return;
+    }
+    wrap.innerHTML = tags.map((t, i) => `
+      <span class="eb-sticky-chip">#${escapeHTML(t)}<button class="rm" data-rm="${i}">✕</button></span>
+    `).join('');
+    wrap.querySelectorAll('button[data-rm]').forEach(b => {
+      b.addEventListener('click', () => removeStickyTag(parseInt(b.dataset.rm, 10)));
+    });
+  }
+
+  async function addStickyTag(){
+    if(!userPrefs) userPrefs = { sticky_tags: [], blocked_tags: [] };
+    const input = $byId('ebStickyInput');
+    const v = (input.value || '').trim().replace(/^#/, '').toLowerCase();
+    if(!v) return;
+    if(userPrefs.sticky_tags.includes(v)){ input.value = ''; return; }
+    userPrefs.sticky_tags.push(v);
+    input.value = '';
+    renderStickyList();
+    window.__eggieStickyTags = userPrefs.sticky_tags;
+    await saveUserPrefs();
+  }
+
+  async function removeStickyTag(idx){
+    if(!userPrefs?.sticky_tags) return;
+    userPrefs.sticky_tags.splice(idx, 1);
+    renderStickyList();
+    window.__eggieStickyTags = userPrefs.sticky_tags;
+    await saveUserPrefs();
+  }
+
+  // ---------- SAVE RUN + HISTORY ----------
+  function captureCurrentRun(){
+    // Best-effort scrape of the analyzer's current results.
+    const title = ($byId('title')?.value || '').trim();
+    const description = ($byId('quickContext')?.value || '').trim();
+    const hashtagsRaw = ($byId('hashtags')?.value || '').trim();
+    const scoreEl = document.querySelector('.score-hero .number, .big-score, #scoreNumber');
+    const score = scoreEl ? parseInt(scoreEl.textContent, 10) : null;
+    const titleEls = document.querySelectorAll('#titleSuggestions li');
+    const generated_titles = Array.from(titleEls).map(li => li.textContent.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+    return {
+      title,
+      description,
+      hashtags: hashtagsRaw.split(/[,\s]+/).map(h => h.replace(/^#/, '').trim()).filter(Boolean),
+      score: (isNaN(score) ? null : score),
+      generated_titles,
+      detected_topics: (typeof detectTopics === 'function') ? detectTopics(`${title} ${description}`) : {},
+      score_breakdown: {}
+    };
+  }
+
+  async function saveRun(){
+    if(!sb || !currentUser){
+      if(!currentUser){ openSignInModal(); return null; }
+      return null;
+    }
+    const data = lastRunData || captureCurrentRun();
+    const payload = { ...data, user_id: currentUser.id, updated_at: new Date().toISOString() };
+    const { data: saved, error } = await sb.from('analyzer_runs').insert(payload).select().single();
+    if(error){
+      if(/relation.*does not exist/i.test(error.message || '')){
+        alert('Run analyzer-supabase.sql in Supabase first to enable saving runs.');
+      } else {
+        alert('Save failed: ' + error.message);
+      }
+      return null;
+    }
+    return saved;
+  }
+
+  async function loadHistory(){
+    const wrap = $byId('ebHistoryList');
+    if(!sb || !currentUser){ wrap.innerHTML = '<p style="font-style:italic;color:var(--ink-soft,#6b5f8a)">Sign in to see history.</p>'; return; }
+    const { data, error } = await sb.from('analyzer_runs')
+      .select('id,title,score,created_at,posted_at,actual_views,actual_likes,picked_title')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if(error){
+      if(/relation.*does not exist/i.test(error.message || '')){
+        wrap.innerHTML = '<p style="color:var(--ink-soft,#6b5f8a);font-size:13px">Run <code>analyzer-supabase.sql</code> in Supabase to enable saved runs.</p>';
+      } else {
+        wrap.innerHTML = `<p style="color:#a23556">Load failed: ${escapeHTML(error.message)}</p>`;
+      }
+      return;
+    }
+    if(!data || data.length === 0){
+      wrap.innerHTML = '<p style="color:var(--ink-soft,#6b5f8a);font-style:italic;font-size:13px">No saved runs yet. Hit <strong>Save this analysis</strong> after your next analyzer run.</p>';
+      return;
+    }
+    wrap.innerHTML = data.map(r => {
+      const d = new Date(r.created_at).toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+      const perf = r.actual_views != null ? `<span class="perf-chip">📊 ${formatNum(r.actual_views)} views</span>` : (r.posted_at ? '<span class="perf-chip">📊 logged</span>' : '<span style="color:var(--ink-soft,#6b5f8a)">not posted</span>');
+      return `
+        <div class="eb-history-row" data-id="${r.id}">
+          <div class="h-title">${escapeHTML(r.picked_title || r.title || '(untitled run)')}</div>
+          <div class="h-meta">
+            <span>📅 ${d}</span>
+            ${r.score != null ? `<span class="score-chip">${r.score}/100</span>` : ''}
+            ${perf}
+            <button class="eb-btn secondary" style="padding:3px 10px;font-size:11px" data-log="${r.id}">📊 Log performance</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    wrap.querySelectorAll('button[data-log]').forEach(b => {
+      b.addEventListener('click', e => { e.stopPropagation(); openPerformanceModal(b.dataset.log); });
+    });
+  }
+
+  function openPerformanceModal(runId){
+    $byId('ebPerfRunId').value = runId;
+    $byId('ebPerfUrl').value = '';
+    $byId('ebPerfViews').value = '';
+    $byId('ebPerfLikes').value = '';
+    $byId('ebPerfComments').value = '';
+    $byId('ebPerfShares').value = '';
+    $byId('ebPerfNotes').value = '';
+    openModal('ebPerfModal');
+  }
+
+  async function savePerformance(){
+    const runId = $byId('ebPerfRunId').value;
+    if(!runId || !sb || !currentUser) return;
+    const payload = {
+      posted_url: $byId('ebPerfUrl').value.trim() || null,
+      actual_views: numOrNull('ebPerfViews'),
+      actual_likes: numOrNull('ebPerfLikes'),
+      actual_comments: numOrNull('ebPerfComments'),
+      actual_shares: numOrNull('ebPerfShares'),
+      performance_notes: $byId('ebPerfNotes').value.trim() || null,
+      posted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await sb.from('analyzer_runs').update(payload).eq('id', runId);
+    if(error){ alert('Save failed: ' + error.message); return; }
+    closeModal('ebPerfModal');
+    loadHistory();
+  }
+
+  function numOrNull(id){
+    const v = ($byId(id).value || '').trim();
+    if(!v) return null;
+    const n = parseInt(v, 10);
+    return isNaN(n) ? null : n;
+  }
+
+  // ---------- TITLE 👍/👎 RATINGS ----------
+  // Watches the #titleSuggestions UL for changes and appends rating buttons.
+  function watchTitleSuggestions(){
+    const target = $byId('titleSuggestions');
+    if(!target) return;
+    let last = '';
+    setInterval(() => {
+      const html = target.innerHTML;
+      if(html === last) return;
+      last = html;
+      decorateTitleSuggestions();
+    }, 600);
+  }
+
+  function decorateTitleSuggestions(){
+    const ul = $byId('titleSuggestions');
+    if(!ul) return;
+    ul.querySelectorAll('li').forEach(li => {
+      if(li.querySelector('.eb-title-rate')) return;  // already done
+      const text = li.textContent.replace(/^\d+\.\s*/, '').trim();
+      if(!text) return;
+      const rate = document.createElement('span');
+      rate.className = 'eb-title-rate';
+      rate.innerHTML = `
+        <button type="button" data-rate="1" title="I like this title" class="up">👍</button>
+        <button type="button" data-rate="-1" title="Don't suggest this style" class="down">👎</button>
+      `;
+      rate.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', () => rateTitle(text, parseInt(b.dataset.rate, 10), rate));
+      });
+      li.appendChild(rate);
+    });
+  }
+
+  async function rateTitle(title, rating, container){
+    if(!currentUser){
+      if(confirm('Sign in to save title ratings — they\'ll bias future generations toward titles you like. Open sign-in?')){
+        openSignInModal();
+      }
+      return;
+    }
+    titleRatings.set(title, rating);
+    // Visual feedback
+    container.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.rate, 10) === rating);
+    });
+    // Insert rating
+    const { error } = await sb.from('analyzer_title_ratings').insert({
+      user_id: currentUser.id,
+      generated_title: title,
+      rating
+    });
+    if(error && !/relation.*does not exist/i.test(error.message || '')){
+      console.error('Rate failed:', error);
+    }
+    // Update preferred_template_weights based on aggregate
+    await updateTitleWeights();
+  }
+
+  async function updateTitleWeights(){
+    if(!sb || !currentUser) return;
+    // Fetch user's all ratings, compute net score per template category, save back
+    // For now we approximate by template name parsed from title shape. Future: store template_category at rating time.
+    // Skipping aggregation in v1 — just leaving the raw ratings + a hook for future per-template bias.
+  }
+
+  // ---------- SAVE BAR (injected into analyzer results section) ----------
+  function injectSaveBar(){
+    // Look for the results card and inject a "Save this analysis" bar after the score
+    const target = document.querySelector('#results, .results, .results-card, #report');
+    // Fallback to the title suggestions container's parent
+    const fallback = $byId('titleSuggestions')?.closest('section, div, .card');
+    const host = target || fallback;
+    if(!host) return;
+    if(document.getElementById('ebSaveBar')) return;
+    const bar = document.createElement('div');
+    bar.id = 'ebSaveBar';
+    bar.className = 'eb-save-bar';
+    bar.innerHTML = `
+      <div class="label">💾 Save this analysis to your history?<div class="meta">Sign in to keep it — comes back automatically next visit.</div></div>
+      <button class="eb-btn" id="ebSaveBtn">💾 Save run</button>
+    `;
+    host.appendChild(bar);
+    $byId('ebSaveBtn').addEventListener('click', async () => {
+      const btn = $byId('ebSaveBtn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      const saved = await saveRun();
+      btn.disabled = false; btn.innerHTML = '💾 Save run';
+      if(saved){
+        btn.textContent = '✅ Saved';
+        btn.disabled = true;
+      }
+    });
+  }
+
+  function watchForResults(){
+    // The save bar should appear once the analyzer has rendered actual results.
+    // Trigger: titleSuggestions has content.
+    setInterval(() => {
+      const ul = $byId('titleSuggestions');
+      if(ul && ul.children.length > 0 && !document.getElementById('ebSaveBar')){
+        injectSaveBar();
+      }
+    }, 1000);
+  }
+
+  function escapeHTML(s){
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function formatNum(n){
+    if(n == null) return '—';
+    if(n < 1000) return String(n);
+    if(n < 1000000) return (n/1000).toFixed(1) + 'k';
+    return (n/1000000).toFixed(1) + 'M';
+  }
+
+  // ---------- BOOT ----------
+  function boot(){
+    injectCSS();
+    injectUI();
+    watchTitleSuggestions();
+    watchForResults();
+    // Init Supabase lazily — first auth-pill click triggers SDK load if not already.
+    // But still attempt silent restore-from-session in the background.
+    initSupabase();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, { once:true });
+  } else {
+    boot();
+  }
+})();
 </script>
 </body>
 </html>

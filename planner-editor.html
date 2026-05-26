@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Editor Dashboard 🐙 — Eggie's Creator Hub</title>
+<meta name="description" content="The editor-facing view of the Content Planner. Sign in with the email your creator added — see assigned projects, footage, references, and upload your edits." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px, 5.5vw, 48px);line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);
+    margin:14px auto 6px;padding:14px 12px 22px;display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:720px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:24px 26px;margin:18px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+  label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:var(--ink)}
+  label .opt{color:var(--ink-soft);font-weight:500;font-size:12px;margin-left:6px}
+
+  input[type=text],input[type=email],input[type=url],textarea,select{
+    width:100%;padding:11px 14px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    border-radius:10px;font-family:inherit;font-size:14.5px;color:var(--ink);
+    transition:border-color .15s ease;box-sizing:border-box;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  textarea{min-height:70px;resize:vertical;line-height:1.5}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:11px 22px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14.5px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+
+  .auth-card{max-width:480px;margin:30px auto}
+  .auth-status{
+    margin-top:12px;font-size:13.5px;padding:10px 14px;
+    border-radius:10px;line-height:1.5;
+  }
+  .auth-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+  .auth-status.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+  .auth-status.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .hidden{display:none !important}
+
+  /* User bar */
+  .user-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:10px 16px;margin:0 0 16px;
+    background:rgba(255,255,255,0.65);
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:999px;font-size:13.5px;
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .user-bar .who{color:var(--ink-soft)}
+  .user-bar .who strong{color:var(--deep)}
+
+  /* App grid: profile on left, task list on right */
+  .app-grid{
+    display:grid;gap:20px;
+    grid-template-columns:340px 1fr;
+    align-items:start;
+  }
+  @media(max-width:900px){.app-grid{grid-template-columns:1fr}}
+
+  .profile-card h3{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:20px;color:var(--deep);margin:0 0 10px;
+  }
+  .profile-card .swatch-display{
+    width:32px;height:32px;border-radius:50%;display:inline-block;
+    vertical-align:middle;margin-right:8px;
+    box-shadow:inset 0 0 0 2px #fff, 0 0 0 1.5px rgba(0,0,0,0.06);
+  }
+
+  /* Project list */
+  .tasks-card h3{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:22px;color:var(--deep);margin:0 0 8px;
+  }
+  .status-summary{
+    display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;
+    font-size:12px;color:var(--ink-soft);
+  }
+  .status-summary .chip{
+    background:rgba(144,165,255,0.15);
+    border:1px solid rgba(144,165,255,0.25);
+    padding:4px 11px;border-radius:999px;font-weight:700;color:var(--deep);
+  }
+  .status-summary .chip strong{margin-right:5px}
+
+  .project-list{display:flex;flex-direction:column;gap:10px}
+  .project-card{
+    background:rgba(255,255,255,0.92);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-left:5px solid var(--periwinkle);
+    border-radius:14px;
+    padding:14px 16px;
+    transition:box-shadow .15s ease;
+  }
+  .project-card:hover{box-shadow:0 6px 16px rgba(99,170,244,0.18)}
+  .project-card[data-status="idea"]      {border-left-color:#FF8AA8}
+  .project-card[data-status="script"]    {border-left-color:#FFB07A}
+  .project-card[data-status="recording"] {border-left-color:#90A5FF}
+  .project-card[data-status="editing"]   {border-left-color:#C9A8FF}
+  .project-card[data-status="scheduled"] {border-left-color:#6BE4EA}
+  .project-card[data-status="posted"]    {border-left-color:#A8E6BE}
+  .project-card[data-status="archived"]  {border-left-color:rgba(144,165,255,0.3);opacity:.6}
+  .project-card .pc-title{
+    font-weight:800;font-size:16px;color:var(--ink);margin:0 0 6px;line-height:1.3;
+  }
+  .project-card .pc-meta{
+    display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--ink-soft);margin-bottom:8px;
+  }
+  .project-card .pc-meta .status-tag{
+    display:inline-block;padding:2px 9px;border-radius:999px;
+    font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+  }
+  .project-card .pc-meta .status-tag.idea     {background:rgba(255,138,168,0.25);color:#a23556}
+  .project-card .pc-meta .status-tag.script   {background:rgba(255,176,122,0.3);color:#a35c00}
+  .project-card .pc-meta .status-tag.recording{background:rgba(144,165,255,0.3);color:#4a3a8a}
+  .project-card .pc-meta .status-tag.editing  {background:rgba(201,168,255,0.35);color:#5a3a8a}
+  .project-card .pc-meta .status-tag.scheduled{background:rgba(107,228,234,0.35);color:#0b6a76}
+  .project-card .pc-meta .status-tag.posted   {background:rgba(168,230,190,0.45);color:#1f6b35}
+  .project-card .pc-meta .due-overdue{color:#a23556;font-weight:700}
+  .project-card .pc-meta .due-soon{color:#a35c00;font-weight:700}
+
+  .project-card .pc-body{
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(144,165,255,0.18);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:13px;color:var(--ink);
+    margin:0 0 10px;line-height:1.55;
+    white-space:pre-wrap;
+  }
+  .project-card .pc-actions{
+    display:flex;flex-wrap:wrap;gap:8px;
+    padding-top:8px;border-top:1.5px dashed rgba(144,165,255,0.2);
+  }
+  .pc-link{
+    display:inline-flex;align-items:center;gap:5px;
+    text-decoration:none;font-size:12.5px;font-weight:700;
+    padding:6px 12px;border-radius:999px;
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));
+    color:var(--deep);
+    transition:filter .12s;
+  }
+  .pc-link:hover{filter:brightness(1.06)}
+  .pc-link.secondary{background:rgba(144,165,255,0.15);color:var(--deep)}
+  .pc-link.upload{
+    background:rgba(168,230,190,0.4);color:#1f6b35;cursor:pointer;border:none;font-family:inherit;
+  }
+  .pc-attach-list{
+    display:flex;flex-direction:column;gap:4px;margin:8px 0;font-size:12px;
+  }
+  .pc-attach-list .row{
+    display:flex;align-items:center;gap:8px;
+    padding:5px 9px;
+    background:rgba(255,255,255,0.6);
+    border:1px solid rgba(144,165,255,0.2);
+    border-radius:8px;
+  }
+  .pc-attach-list .row .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+  .pc-attach-list .row a{font-size:11px;font-weight:700;color:var(--deep);text-decoration:none}
+
+  .pc-status-pick{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:5px 8px;font-size:11.5px;font-weight:700;
+    background:transparent;border:1.5px solid rgba(144,165,255,0.3);
+    border-radius:999px;color:var(--ink-soft);
+    font-family:inherit;cursor:pointer;
+  }
+  .pc-status-pick:hover{background:rgba(255,255,255,0.6);color:var(--deep)}
+
+  .empty-state{
+    text-align:center;padding:40px 20px;color:var(--ink-soft);
+    background:rgba(255,255,255,0.5);
+    border:1.5px dashed rgba(144,165,255,0.3);
+    border-radius:18px;
+  }
+  .empty-state h3{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;
+    color:var(--deep);margin:0 0 8px;
+  }
+
+  /* Connection status */
+  .conn-status{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;color:var(--ink-soft);
+    padding:4px 12px;background:rgba(255,255,255,0.55);
+    border-radius:999px;border:1px solid rgba(144,165,255,0.2);
+  }
+  .conn-dot{
+    width:8px;height:8px;border-radius:50%;background:#6BE4EA;
+    box-shadow:0 0 6px rgba(107,228,234,0.6);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .conn-dot.offline{background:#FFB2C8;animation:none}
+
+  footer{
+    text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5;
+  }
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  footer a:hover{color:var(--pink-hot)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="planner.html" class="back-link">📅 Planner (creator view)</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Editor Dashboard 🎬</h1>
+    <p class="tag">Sign in with the email your creator added you with. You'll see <em>only the projects assigned to you</em> — footage, references, deadlines, everything in one place. ✨</p>
+  </header>
+
+  <!-- AUTH VIEW -->
+  <section class="card auth-card" id="authView">
+    <h2>Sign in to your projects</h2>
+    <p style="font-size:14px;color:var(--ink-soft);margin:0 0 6px">Enter the email your creator used when they added you. Magic link → no password.</p>
+    <label for="emailInput">Email</label>
+    <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="signInBtn">📬 Send magic link</button>
+      <span class="conn-status"><span class="conn-dot" id="connDot"></span><span id="connText">Connecting…</span></span>
+    </div>
+    <div id="authStatus" class="auth-status hidden"></div>
+  </section>
+
+  <!-- APP VIEW -->
+  <div id="appView" class="hidden">
+    <div class="user-bar">
+      <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
+      <span class="conn-status"><span class="conn-dot" id="connDotApp"></span><span id="connTextApp">Live</span></span>
+      <button class="btn secondary" id="signOutBtn" style="padding:7px 16px;font-size:13px">Sign out</button>
+    </div>
+
+    <div class="app-grid">
+
+      <!-- Profile column -->
+      <div class="card profile-card" id="profileCard">
+        <h3>👤 Your profile</h3>
+        <div id="profileSummary" style="font-size:13.5px;color:var(--ink);line-height:1.55">
+          <p>Loading…</p>
+        </div>
+        <div id="profileForm" class="hidden">
+          <label for="pAssetFolder">My asset folder <span class="opt">(brand kits, fonts, overlays)</span></label>
+          <input id="pAssetFolder" type="url" placeholder="https://drive.google.com/…" />
+          <label for="pReferences">Reference videos <span class="opt">(one URL per line — videos you like the editing of)</span></label>
+          <textarea id="pReferences" rows="4" placeholder="https://youtube.com/...&#10;https://youtube.com/..."></textarea>
+          <label for="pNotes">Working notes <span class="opt">(for yourself, e.g. preferred styles)</span></label>
+          <textarea id="pNotes" rows="3" placeholder="My style notes…"></textarea>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="saveProfileBtn">💾 Save profile</button>
+            <button class="btn secondary" id="cancelProfileBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks column -->
+      <div class="card tasks-card">
+        <h3>🎬 Your projects</h3>
+        <div class="status-summary" id="statusSummary"></div>
+        <div class="project-list" id="projectList">
+          <div class="empty-state">
+            <h3>Loading…</h3>
+            <p>Pulling your assigned projects.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html">🏠 Hub</a> &middot; <a href="planner.html">📅 Creator's planner</a><br/>
+    Made with 💗 by Eggie &middot; You only see projects assigned to your email — your data stays scoped to you.
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+const STATUS_LABELS = {
+  idea:'💡 Idea', script:'📝 Script', recording:'🎙️ Recording',
+  editing:'✂️ Editing', scheduled:'📅 Scheduled', posted:'✅ Posted', archived:'📦 Archived'
+};
+
+// What status transitions an editor is allowed to perform.
+// They can ship an item from editing → scheduled (handing it back to the creator).
+const EDITOR_STATUSES = ['recording','editing','scheduled'];
+
+const PLATFORM_LABELS = {
+  youtube_shorts:'YT Shorts', youtube_long:'YT Long', tiktok:'TikTok',
+  instagram:'IG', twitter:'X', twitch:'Twitch'
+};
+
+let sb = null;
+let currentUser = null;
+let myProfile = null;     // planner_editors row for this email
+let projects = [];
+
+function $(id){ return document.getElementById(id); }
+
+async function init(){
+  try{
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    setConn(true, 'Connected');
+  }catch(e){
+    setConn(false, 'Init failed');
+    console.error(e);
+    return;
+  }
+
+  $('signInBtn').addEventListener('click', signIn);
+  $('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') signIn(); });
+  $('signOutBtn').addEventListener('click', signOut);
+  $('saveProfileBtn').addEventListener('click', saveProfile);
+  $('cancelProfileBtn').addEventListener('click', () => { renderProfile(); });
+
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session?.user) showApp(session.user); else showAuth();
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if(session?.user) showApp(session.user); else showAuth();
+  });
+}
+
+function setConn(online, label){
+  const dots = [$('connDot'), $('connDotApp')];
+  const texts = [$('connText'), $('connTextApp')];
+  dots.forEach(d => d && d.classList.toggle('offline', !online));
+  texts.forEach(t => t && (t.textContent = label));
+}
+
+async function signIn(){
+  const email = $('emailInput').value.trim().toLowerCase();
+  if(!email || !email.includes('@')){ setAuthStatus('Please enter a valid email address.', 'error'); return; }
+  if(window.location.protocol === 'file:'){
+    setAuthStatus('⚠️ Magic links don\'t work via file:// — serve the folder with a local server or deploy to your live site first.', 'error');
+    return;
+  }
+  $('signInBtn').disabled = true;
+  $('signInBtn').textContent = 'Sending…';
+  try{
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+    if(error){
+      console.error(error);
+      setAuthStatus('Sign-in failed: ' + (error.message || 'unknown error') + '. Make sure ' + redirectTo + ' is allowlisted in Supabase → Auth → URL Configuration.', 'error');
+    } else {
+      setAuthStatus(`✨ Magic link sent to ${email}. Check your inbox + spam.`, 'success');
+    }
+  }catch(e){
+    setAuthStatus('Network error: ' + (e.message || e), 'error');
+  }finally{
+    $('signInBtn').disabled = false;
+    $('signInBtn').innerHTML = '📬 Send magic link';
+  }
+}
+
+async function signOut(){
+  if(!confirm('Sign out?')) return;
+  await sb.auth.signOut();
+}
+
+function setAuthStatus(msg, type){
+  const el = $('authStatus');
+  el.textContent = msg;
+  el.className = 'auth-status ' + (type || 'info');
+  el.classList.remove('hidden');
+}
+
+function showAuth(){
+  currentUser = null;
+  $('authView').classList.remove('hidden');
+  $('appView').classList.add('hidden');
+}
+
+async function showApp(user){
+  currentUser = user;
+  $('authView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('userEmailDisplay').textContent = user.email;
+  await Promise.all([loadProfile(), loadProjects()]);
+  // Realtime — refetch on any change to items where this editor is assigned
+  sb.channel('editor-items-realtime')
+    .on('postgres_changes',
+        { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${user.email}` },
+        () => loadProjects())
+    .subscribe();
+}
+
+async function loadProfile(){
+  const { data, error } = await sb.from('planner_editors').select('*').eq('email', currentUser.email).maybeSingle();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      $('profileSummary').innerHTML = '<p style="color:var(--ink-soft)">Editor profiles aren\'t enabled yet on this planner. Ask your creator to run the V2 migration.</p>';
+      return;
+    }
+    console.error('Profile load failed', error);
+    return;
+  }
+  myProfile = data || null;
+  renderProfile();
+}
+
+function renderProfile(){
+  $('profileForm').classList.add('hidden');
+  const sum = $('profileSummary');
+  if(!myProfile){
+    sum.innerHTML = `
+      <p style="color:var(--ink-soft);font-size:13.5px;line-height:1.55">
+        No profile yet for <strong>${escape(currentUser.email)}</strong>. Once your creator adds you in their planner, your profile will appear here.
+      </p>`;
+    return;
+  }
+  const refs = (myProfile.reference_links || []).slice(0, 5);
+  sum.innerHTML = `
+    <p style="margin:0 0 10px"><span class="swatch-display" style="background:${escape(myProfile.color || '#90A5FF')}"></span><strong>${escape(myProfile.name)}</strong></p>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px">${escape(myProfile.email || currentUser.email)}</p>
+    ${myProfile.asset_folder_url ? `<p style="margin:0 0 4px"><a href="${escape(myProfile.asset_folder_url)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700;text-decoration:none">📁 Asset folder →</a></p>` : ''}
+    ${refs.length ? `<p style="margin:8px 0 4px;font-weight:700;color:var(--deep);font-size:13px">References:</p>
+      <ul style="margin:0 0 6px;padding-left:18px;font-size:12.5px;line-height:1.5">${refs.map(r => `<li><a href="${escape(r)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700;text-decoration:none">${escape(r.length > 50 ? r.slice(0, 50) + '…' : r)}</a></li>`).join('')}</ul>` : ''}
+    ${myProfile.notes ? `<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-soft);font-style:italic;line-height:1.5;white-space:pre-wrap">${escape(myProfile.notes)}</p>` : ''}
+    <div style="margin-top:14px">
+      <button class="btn secondary" id="editProfileBtn" style="padding:7px 16px;font-size:13px">✏️ Edit profile</button>
+    </div>
+  `;
+  $('editProfileBtn').addEventListener('click', openProfileForm);
+}
+
+function openProfileForm(){
+  $('profileSummary').innerHTML = '';
+  $('profileForm').classList.remove('hidden');
+  $('pAssetFolder').value = myProfile?.asset_folder_url || '';
+  $('pReferences').value = (myProfile?.reference_links || []).join('\n');
+  $('pNotes').value = myProfile?.notes || '';
+}
+
+async function saveProfile(){
+  if(!myProfile){ alert('Your creator needs to add you to their editor list first.'); return; }
+  const refs = $('pReferences').value.split('\n').map(s => s.trim()).filter(Boolean);
+  $('saveProfileBtn').disabled = true;
+  $('saveProfileBtn').textContent = 'Saving…';
+  const { error } = await sb.from('planner_editors')
+    .update({
+      asset_folder_url: $('pAssetFolder').value.trim() || null,
+      reference_links: refs,
+      notes: $('pNotes').value.trim() || null
+    })
+    .eq('id', myProfile.id);
+  $('saveProfileBtn').disabled = false;
+  $('saveProfileBtn').innerHTML = '💾 Save profile';
+  if(error){
+    alert('Save failed: ' + error.message);
+    return;
+  }
+  await loadProfile();
+}
+
+async function loadProjects(){
+  setConn(true, 'Loading…');
+  const { data, error } = await sb.from('planner_items')
+    .select('*')
+    .eq('assignee_email', currentUser.email)
+    .order('scheduled_at', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: false });
+  if(error){
+    console.error('Project load failed', error);
+    setConn(false, 'Load error');
+    return;
+  }
+  projects = data || [];
+  setConn(true, 'Live');
+  // Refresh attachment URLs in parallel
+  await Promise.all(projects.flatMap(p => (Array.isArray(p.attachments) ? p.attachments : []).map(async a => {
+    if(!a.path) return;
+    const { data: signed } = await sb.storage.from('planner-files').createSignedUrl(a.path, 3600);
+    if(signed?.signedUrl) a.url = signed.signedUrl;
+  })));
+  renderProjects();
+}
+
+function renderProjects(){
+  // Status summary
+  const counts = {};
+  projects.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
+  $('statusSummary').innerHTML = Object.entries(STATUS_LABELS)
+    .filter(([k]) => counts[k])
+    .map(([k, lbl]) => `<span class="chip"><strong>${counts[k]}</strong>${lbl}</span>`).join('');
+
+  const wrap = $('projectList');
+  if(projects.length === 0){
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <h3>No projects yet 🌸</h3>
+        <p>Nothing's assigned to you right now. When your creator adds a project with your email, it'll appear here.</p>
+      </div>`;
+    return;
+  }
+  wrap.innerHTML = projects.map(renderProjectCard).join('');
+  // Wire up status pickers
+  wrap.querySelectorAll('.pc-status-pick').forEach(btn => {
+    btn.addEventListener('click', () => updateStatus(btn.dataset.id, btn.dataset.next));
+  });
+  // Wire up uploads
+  wrap.querySelectorAll('input[type=file][data-upload-id]').forEach(input => {
+    input.addEventListener('change', e => uploadEditorFile(input.dataset.uploadId, e.target.files));
+  });
+}
+
+function renderProjectCard(p){
+  const due = p.scheduled_at ? renderDue(p.scheduled_at) : '';
+  const platforms = (p.platforms || []).map(pl => PLATFORM_LABELS[pl] || pl).join(' · ');
+  const attachments = Array.isArray(p.attachments) ? p.attachments : [];
+  const attachHtml = attachments.length ? `
+    <div class="pc-attach-list">
+      ${attachments.map(a => `<div class="row"><span class="name">📄 ${escape(a.name || 'file')}</span>${a.url ? `<a href="${escape(a.url)}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>'}</div>`).join('')}
+    </div>` : '';
+  // Status transition buttons — show legal next statuses for editors
+  const idx = EDITOR_STATUSES.indexOf(p.status);
+  const nextStatuses = [];
+  if(idx === -1){
+    // If item is in idea/script, editor can pull it into recording. If posted/archived, no edits.
+    if(p.status === 'idea' || p.status === 'script') nextStatuses.push('recording');
+  } else {
+    if(idx > 0) nextStatuses.push(EDITOR_STATUSES[idx - 1]);
+    if(idx < EDITOR_STATUSES.length - 1) nextStatuses.push(EDITOR_STATUSES[idx + 1]);
+  }
+  const statusBtns = nextStatuses.map(s => `<button class="pc-status-pick" data-id="${escape(p.id)}" data-next="${escape(s)}">→ ${STATUS_LABELS[s]}</button>`).join('');
+
+  return `
+    <div class="project-card" data-status="${escape(p.status)}">
+      <div class="pc-title">${escape(p.title || '(untitled)')}</div>
+      <div class="pc-meta">
+        <span class="status-tag ${escape(p.status)}">${escape(p.status)}</span>
+        ${platforms ? `<span>${escape(platforms)}</span>` : ''}
+        ${due}
+      </div>
+      ${p.hook ? `<div class="pc-body"><strong>Hook:</strong>\n${escape(p.hook)}</div>` : ''}
+      ${p.script ? `<div class="pc-body"><strong>Script / outline:</strong>\n${escape(p.script)}</div>` : ''}
+      ${p.notes ? `<div class="pc-body"><strong>Notes from creator:</strong>\n${escape(p.notes)}</div>` : ''}
+      ${attachHtml}
+      <div class="pc-actions">
+        ${p.footage_url ? `<a class="pc-link" href="${escape(p.footage_url)}" target="_blank" rel="noreferrer">🎬 Raw footage</a>` : ''}
+        ${p.editor_files_url ? `<a class="pc-link secondary" href="${escape(p.editor_files_url)}" target="_blank" rel="noreferrer">📤 Editor folder</a>` : ''}
+        ${p.thumbnail_url ? `<a class="pc-link secondary" href="${escape(p.thumbnail_url)}" target="_blank" rel="noreferrer">🖼️ Thumbnail ref</a>` : ''}
+        <label class="pc-link upload" for="upload-${escape(p.id)}">⬆️ Upload my edit</label>
+        <input id="upload-${escape(p.id)}" type="file" data-upload-id="${escape(p.id)}" style="display:none" />
+        ${statusBtns}
+      </div>
+    </div>
+  `;
+}
+
+function renderDue(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = (d - now) / (1000 * 60 * 60 * 24);
+  const fmt = d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+  let cls = '';
+  if(diff < 0) cls = 'due-overdue';
+  else if(diff < 3) cls = 'due-soon';
+  return `<span class="${cls}">📅 Due ${fmt}</span>`;
+}
+
+async function updateStatus(itemId, nextStatus){
+  if(!confirm(`Move this project to ${STATUS_LABELS[nextStatus]}?`)) return;
+  const { error } = await sb.from('planner_items').update({ status: nextStatus }).eq('id', itemId);
+  if(error){ alert('Update failed: ' + error.message); return; }
+  await loadProjects();
+}
+
+async function uploadEditorFile(itemId, files){
+  if(!files || files.length === 0) return;
+  const item = projects.find(p => p.id === itemId);
+  if(!item) return;
+  setConn(true, 'Uploading…');
+  for(const file of files){
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    // Note: storage path uses owner_id (not editor's user id) so RLS sees it as part of owner's namespace.
+    // Editor RLS policy allows insert when the path's second segment matches an item assigned to them.
+    const path = `${item.owner_id}/${itemId}/${Date.now()}-EDITOR-${safeName}`;
+    const { error } = await sb.storage.from('planner-files').upload(path, file, { cacheControl:'3600', upsert:false });
+    if(error){
+      alert(`Upload failed for ${file.name}: ${error.message}`);
+      setConn(false, 'Upload error');
+      return;
+    }
+    const { data: signed } = await sb.storage.from('planner-files').createSignedUrl(path, 3600);
+    item.attachments = Array.isArray(item.attachments) ? item.attachments : [];
+    item.attachments.push({
+      name: file.name, path, url: signed?.signedUrl || null,
+      size: file.size, type: file.type, uploaded_at: new Date().toISOString(),
+      uploaded_by_editor: true
+    });
+  }
+  // Save back the updated attachments list
+  const { error: saveError } = await sb.from('planner_items').update({ attachments: item.attachments }).eq('id', itemId);
+  if(saveError){ alert('Saved file but couldn\'t update item: ' + saveError.message); }
+  setConn(true, 'Live');
+  await loadProjects();
+}
+
+function escape(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init, {once:true});
+} else {
+  init();
+}
+</script>
+</body>
+</html>
