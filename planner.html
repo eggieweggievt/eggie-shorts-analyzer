@@ -551,7 +551,7 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ============================================================
 //  CONFIG
@@ -648,20 +648,53 @@ async function signIn(){
     setAuthStatus('Please enter a valid email address.', 'error');
     return;
   }
+
+  // file:// protocol — Supabase auth can't redirect back to a file URL. Tell the user upfront.
+  if(window.location.protocol === 'file:'){
+    setAuthStatus(
+      '⚠️ You\'re opening this page via file:// — Supabase magic links can\'t redirect to file paths. ' +
+      'Serve the folder via a local web server first. Easy options: run "npx serve" or "python -m http.server" ' +
+      'in this folder, then open http://localhost:8000/planner.html. Or deploy to your live site.',
+      'error'
+    );
+    return;
+  }
+
   $('signInBtn').disabled = true;
   $('signInBtn').textContent = 'Sending…';
   try{
-    const { error } = await sb.auth.signInWithOtp({
+    // Build a redirect URL Supabase will accept. The Site URL + Additional Redirect URLs in
+    // Supabase dashboard must allowlist this exact origin (e.g. http://localhost:8000 or
+    // https://shortsanalyzer.eggieweggie.ca).
+    const redirectTo = window.location.origin + window.location.pathname;
+    console.log('[Planner] Sending magic link with redirectTo:', redirectTo);
+    const { data, error } = await sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.href }
+      options: { emailRedirectTo: redirectTo }
     });
     if(error){
-      setAuthStatus('Hmm, something went wrong: ' + error.message, 'error');
+      // Surface the FULL error to console so we can debug what Supabase didn't like
+      console.error('[Planner] signInWithOtp failed:', error);
+      setAuthStatus(
+        'Sign-in failed: ' + (error.message || 'unknown error') +
+        '. Open browser console (F12) to see full details. Common fixes: enable Email auth in Supabase ' +
+        'Dashboard → Authentication → Providers, and add ' + redirectTo + ' to Authentication → URL Configuration → Redirect URLs.',
+        'error'
+      );
     } else {
-      setAuthStatus(`✨ Magic link sent to ${email}! Check your inbox (and spam folder) — click the link to sign in.`, 'success');
+      console.log('[Planner] signInWithOtp succeeded:', data);
+      setAuthStatus(
+        `✨ Magic link sent to ${email}! Check your inbox AND spam folder — click the link to sign in. ` +
+        `If it doesn't arrive in 2 min, check Supabase Dashboard → Authentication → Logs to see why.`,
+        'success'
+      );
     }
   }catch(e){
-    setAuthStatus('Network error — check your connection and try again.', 'error');
+    console.error('[Planner] signInWithOtp threw:', e);
+    setAuthStatus(
+      'Network or SDK error: ' + (e.message || e) + '. Open browser console (F12) for details.',
+      'error'
+    );
   }finally{
     $('signInBtn').disabled = false;
     $('signInBtn').innerHTML = '📬 Send magic link';
