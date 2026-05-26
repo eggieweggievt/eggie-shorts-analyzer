@@ -132,13 +132,14 @@
     background:linear-gradient(90deg, transparent, rgba(144,165,255,0.5), transparent);
   }
 
-  /* TILE GRID */
+  /* TILE GRID — 2x2 layout on desktop, single column on mobile */
   .tiles{
     display:grid;gap:22px;
-    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
-    margin:0 0 32px;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    max-width:920px;
+    margin:0 auto 32px;
   }
-  @media(max-width:760px){.tiles{grid-template-columns:1fr}}
+  @media(max-width:760px){.tiles{grid-template-columns:1fr;max-width:480px}}
 
   .tile{
     position:relative;
@@ -453,11 +454,11 @@
     <h3>More tools + guides coming 🌸</h3>
     <p class="intro">This hub will grow over time. Things I'm planning or actively building:</p>
     <div class="coming-grid">
-      <div class="coming-item"><span class="icon">⏰</span><div><strong>Best-time-to-post recommender</strong><span>Per-platform optimal posting slots (V2 of planner)</span></div></div>
-      <div class="coming-item"><span class="icon">🧵</span><div><strong>Thread + bio writer</strong><span>X bio + pinned post templates</span></div></div>
-      <div class="coming-item"><span class="icon">💌</span><div><strong>Sponsor pitch builder</strong><span>Media kit + cold-email templates</span></div></div>
-      <div class="coming-item"><span class="icon">🎭</span><div><strong>Debut prep checklist</strong><span>Everything to lock in before launch</span></div></div>
-      <div class="coming-item"><span class="icon">🔍</span><div><strong>Niche discovery quiz</strong><span>Help finding a positioning angle</span></div></div>
+      <div class="coming-item"><span class="icon">🥄</span><div><strong>Your sustainable schedule quiz</strong><span>Spoon-theory-based — find a posting cadence that fits your energy, not someone else's grind</span></div></div>
+      <div class="coming-item"><span class="icon">🪞</span><div><strong>Bio + branding workshop</strong><span>Templates + teaching for front-facing presence — how to read like a creator people remember</span></div></div>
+      <div class="coming-item"><span class="icon">💌</span><div><strong>Sponsor pitch builder</strong><span>Media kit + cold-email templates so deals stop ghosting you</span></div></div>
+      <div class="coming-item"><span class="icon">🎭</span><div><strong>Debut prep checklist</strong><span>Every box to tick before launch, each one linked to the playbook section that explains it</span></div></div>
+      <div class="coming-item"><span class="icon">🔍</span><div><strong>Niche discovery quiz</strong><span>A real positioning tool — find the angle nobody else in the VTuber space is occupying</span></div></div>
     </div>
   </section>
 
