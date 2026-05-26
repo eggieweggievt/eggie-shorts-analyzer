@@ -298,6 +298,16 @@
 
   <!-- AUTH VIEW -->
   <section class="card auth-card" id="authView">
+    <!-- V2.1 — Personalized welcome banner (shown when the URL has ?name= param from invite link) -->
+    <div id="personalWelcome" class="hidden" style="margin:-4px -6px 14px;padding:16px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));border:1.5px solid rgba(255,178,240,0.5)">
+      <div style="font-family:'Pacifico',cursive;font-size:22px;color:var(--deep);line-height:1.3">
+        Hi <span id="welcomeName">there</span>! 👋
+      </div>
+      <p style="margin:6px 0 0;font-size:13.5px;color:var(--ink);line-height:1.55">
+        Your creator set up a personal hub for you here. Sign in with the email below (it's pre-filled) — one magic link and you're in.
+      </p>
+    </div>
+
     <h2>Sign in to your projects</h2>
     <p style="font-size:14px;color:var(--ink-soft);margin:0 0 6px">Enter the email your creator used when they added you. Magic link → no password.</p>
     <label for="emailInput">Email</label>
@@ -405,6 +415,10 @@ async function init(){
   $('saveProfileBtn').addEventListener('click', saveProfile);
   $('cancelProfileBtn').addEventListener('click', () => { renderProfile(); });
 
+  // V2.1 — Read invite link params: ?email=...&ed=...&name=...
+  // Pre-fill the email field + show a personalized welcome banner.
+  applyInviteLinkParams();
+
   const { data:{ session } } = await sb.auth.getSession();
   if(session?.user) showApp(session.user); else showAuth();
 
@@ -418,6 +432,31 @@ function setConn(online, label){
   const texts = [$('connText'), $('connTextApp')];
   dots.forEach(d => d && d.classList.toggle('offline', !online));
   texts.forEach(t => t && (t.textContent = label));
+}
+
+// V2.1 — Read invite-link params from URL: ?email=...&ed=...&name=...
+// Pre-fills the email field + shows a personalized welcome banner if the creator
+// sent the editor here via their unique invite link.
+function applyInviteLinkParams(){
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email');
+  const name = params.get('name');
+  if(email){
+    const input = $('emailInput');
+    if(input && !input.value){
+      input.value = email.trim().toLowerCase();
+      input.style.boxShadow = '0 0 0 3px rgba(255,178,240,0.6)';
+      setTimeout(() => { input.style.boxShadow = ''; }, 1800);
+    }
+  }
+  if(name){
+    const welcome = $('personalWelcome');
+    const nameEl = $('welcomeName');
+    if(welcome && nameEl){
+      nameEl.textContent = String(name).slice(0, 60);
+      welcome.classList.remove('hidden');
+    }
+  }
 }
 
 async function signIn(){

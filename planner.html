@@ -549,6 +549,120 @@
     border:1.5px solid transparent;background:transparent;color:var(--deep);
   }
 
+  /* V2.1 — Section chips in the editor modal (who-sees-what indicators) */
+  .ed-section-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin:14px 0 10px;padding:8px 12px;
+    background:rgba(144,165,255,0.08);
+    border-left:3px solid var(--periwinkle);
+    border-radius:0 10px 10px 0;
+  }
+  .ed-section-chip{
+    font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 10px;border-radius:999px;
+  }
+  .ed-section-chip.you-only{
+    background:linear-gradient(135deg,rgba(144,165,255,0.3),rgba(199,210,255,0.4));
+    color:var(--deep);
+  }
+  .ed-section-chip.editor-facing{
+    background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(255,219,247,0.55));
+    color:#a23556;
+  }
+  .ed-section-hint{font-size:12.5px;color:var(--ink-soft);line-height:1.4;flex:1;min-width:160px}
+  .ed-section-hint em{color:var(--deep);font-style:italic;font-weight:600}
+
+  /* V2.1 — Invite link block (shown after saving an editor) */
+  .invite-link-block{
+    margin:14px 0 8px;padding:12px 14px;
+    background:linear-gradient(135deg, rgba(255,219,247,0.45), rgba(199,210,255,0.4));
+    border:1.5px dashed rgba(255,178,240,0.6);
+    border-radius:12px;
+  }
+  .invite-link-block .il-label{
+    font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--deep);margin-bottom:6px;display:flex;align-items:center;gap:6px;
+  }
+  .invite-link-block .il-url{
+    display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  }
+  .invite-link-block .il-url input{
+    flex:1;min-width:200px;
+    padding:8px 12px;border-radius:8px;
+    border:1.5px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.9);
+    font-family:'Quicksand',sans-serif;font-size:12.5px;color:var(--ink);
+    box-sizing:border-box;
+  }
+  .invite-link-block .il-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .invite-link-block .il-actions .btn{padding:7px 14px;font-size:12.5px}
+  .invite-link-block .il-help{
+    font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.5;
+  }
+  .invite-link-block .il-help code{
+    background:rgba(255,255,255,0.6);padding:1px 5px;border-radius:4px;
+    font-size:11.5px;color:var(--deep);
+  }
+
+  /* V2.1 — Preview-as-editor modal layout */
+  .preview-frame{
+    background:linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:14px;padding:14px;margin:14px 0 0;
+    display:grid;gap:14px;grid-template-columns:280px 1fr;
+  }
+  @media(max-width:680px){.preview-frame{grid-template-columns:1fr}}
+  .preview-frame .preview-profile-card,
+  .preview-frame .preview-projects-card{
+    background:rgba(255,255,255,0.85);
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:12px;padding:14px 16px;
+  }
+  .preview-summary{
+    display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px;
+    font-size:11px;color:var(--ink-soft);
+  }
+  .preview-summary .chip{
+    background:rgba(144,165,255,0.15);
+    border:1px solid rgba(144,165,255,0.25);
+    padding:3px 9px;border-radius:999px;font-weight:700;color:var(--deep);font-size:11px;
+  }
+  .preview-summary .chip strong{margin-right:4px}
+  .preview-project-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto}
+  .preview-project-card{
+    background:rgba(255,255,255,0.92);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-left:4px solid var(--periwinkle);
+    border-radius:10px;padding:10px 12px;
+  }
+  .preview-project-card[data-status="idea"]      {border-left-color:#FF8AA8}
+  .preview-project-card[data-status="script"]    {border-left-color:#FFB07A}
+  .preview-project-card[data-status="recording"] {border-left-color:#90A5FF}
+  .preview-project-card[data-status="editing"]   {border-left-color:#C9A8FF}
+  .preview-project-card[data-status="scheduled"] {border-left-color:#6BE4EA}
+  .preview-project-card[data-status="posted"]    {border-left-color:#A8E6BE}
+  .preview-project-card .pp-title{font-weight:700;color:var(--ink);font-size:13.5px;line-height:1.3;margin:0 0 4px}
+  .preview-project-card .pp-meta{font-size:11px;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:5px 12px}
+  .preview-project-card .pp-meta .status-tag{
+    display:inline-block;padding:1px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+    background:rgba(144,165,255,0.2);color:var(--deep);
+  }
+  .preview-project-card .pp-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .preview-project-card .pp-actions a{
+    font-size:10.5px;font-weight:700;text-decoration:none;
+    padding:3px 8px;border-radius:999px;
+    background:rgba(255,178,240,0.25);color:var(--deep);
+  }
+  .preview-empty{
+    text-align:center;padding:24px 12px;font-size:13px;color:var(--ink-soft);font-style:italic;
+  }
+  .preview-swatch-display{
+    width:28px;height:28px;border-radius:50%;display:inline-block;
+    vertical-align:middle;margin-right:8px;
+    box-shadow:inset 0 0 0 2px #fff, 0 0 0 1.5px rgba(0,0,0,0.06);
+  }
+
   /* Empty state for the board */
   .empty-board{
     text-align:center;padding:40px 20px;color:var(--ink-soft);
@@ -780,12 +894,18 @@
       <h2>👥 Editors</h2>
       <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 6px">
         Add the editors you work with. Each one gets a color and an email — when you assign them to an item, they'll see it on
-        <a href="planner-editor.html" target="_blank" style="color:var(--deep);font-weight:700">planner-editor.html</a> after signing in with that email.
+        <a href="planner-editor.html" target="_blank" style="color:var(--deep);font-weight:700">planner-editor.html</a> after signing in with that email. Hit <strong>👁 Preview</strong> on any row to see exactly what they see.
       </p>
 
       <div class="editors-list" id="editorsList"></div>
 
       <div class="section-title" style="margin-top:18px">➕ Add / edit editor</div>
+
+      <!-- IDENTITY (creator-only, editor can't change these) -->
+      <div class="ed-section-head">
+        <span class="ed-section-chip you-only">👤 Editor identity</span>
+        <span class="ed-section-hint">You manage these — editor can't change them</span>
+      </div>
       <div class="modal-row cols-2">
         <div>
           <label for="edName">Name <span class="opt">(required)</span></label>
@@ -796,30 +916,85 @@
           <input id="edEmail" type="email" placeholder="editor@example.com" />
         </div>
       </div>
-
-      <label>Color</label>
+      <label>Color <span class="opt">(used for their pill on item cards)</span></label>
       <div class="color-swatches" id="edColorSwatches">
         <!-- swatches injected from JS -->
       </div>
 
-      <div class="modal-row cols-2" style="margin-top:14px">
+      <!-- EDITOR-FACING PROFILE (shows on planner-editor.html — both of you can edit) -->
+      <div class="ed-section-head" style="margin-top:18px">
+        <span class="ed-section-chip editor-facing">🎬 Editor-facing profile</span>
+        <span class="ed-section-hint">This is what shows on <em>their</em> dashboard. They can edit these too.</span>
+      </div>
+      <div class="modal-row cols-2">
         <div>
           <label for="edAssetFolder">Asset folder URL <span class="opt">(brand kit, fonts, overlays)</span></label>
           <input id="edAssetFolder" type="url" placeholder="https://drive.google.com/…" />
         </div>
         <div>
-          <label for="edReferences">Reference videos <span class="opt">(one URL per line)</span></label>
-          <textarea id="edReferences" rows="2" placeholder="https://youtube.com/...&#10;https://youtube.com/..."></textarea>
+          <label for="edReferences">Reference videos <span class="opt">(one URL per line — editing styles they should match)</span></label>
+          <textarea id="edReferences" rows="3" placeholder="https://youtube.com/...&#10;https://youtube.com/..."></textarea>
+        </div>
+      </div>
+      <label for="edNotes">Shared notes <span class="opt">(both of you see + can edit this)</span></label>
+      <textarea id="edNotes" rows="3" placeholder="Strengths, preferred styles, schedule notes — anything you both should keep in sync."></textarea>
+
+      <!-- V2.1 — Per-editor invite link (shown after the editor is saved) -->
+      <div class="invite-link-block hidden" id="inviteLinkBlock">
+        <div class="il-label">🔗 Their personal hub link</div>
+        <div class="il-url">
+          <input id="inviteLinkUrl" type="text" readonly />
+          <div class="il-actions">
+            <button class="btn" id="copyInviteLinkBtn" type="button">📋 Copy</button>
+            <a class="btn secondary" id="openInviteLinkBtn" href="#" target="_blank" rel="noreferrer">↗ Open</a>
+          </div>
+        </div>
+        <div class="il-help">
+          Send this to <strong id="inviteLinkName">your editor</strong>. It pre-fills their email and shows a personalized welcome. They still sign in with a magic link — but they only have to click once.
         </div>
       </div>
 
-      <label for="edNotes">Notes about this editor</label>
-      <textarea id="edNotes" rows="2" placeholder="Strengths, preferred styles, schedule notes…"></textarea>
-
       <div class="modal-actions">
         <button class="btn danger pull-left hidden" id="deleteEditorBtn">🗑 Remove</button>
+        <button class="btn secondary hidden" id="previewEditorBtn">👁 Preview their view</button>
         <button class="btn secondary" id="cancelEditorBtn">Close</button>
         <button class="btn" id="saveEditorBtn">💾 Save editor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V2: PREVIEW AS EDITOR MODAL ===== -->
+  <div class="modal-backdrop" id="editorPreviewModal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:880px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <h2 style="margin:0 0 4px">👁 Previewing as <span id="previewEditorName" style="color:var(--pink-hot)">—</span></h2>
+          <p style="margin:0;font-size:12.5px;color:var(--ink-soft);line-height:1.5">
+            This is exactly what <span id="previewEditorEmail" style="color:var(--deep);font-weight:700">—</span> sees when they sign in at
+            <a href="planner-editor.html" target="_blank" style="color:var(--deep);font-weight:700">planner-editor.html</a>.
+          </p>
+        </div>
+        <button class="btn secondary" id="previewCloseBtn" style="padding:7px 16px;font-size:13px">Close preview</button>
+      </div>
+
+      <div class="preview-frame">
+        <!-- Profile card mirrors planner-editor.html layout -->
+        <div class="preview-profile-card">
+          <h3 style="font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep);margin:0 0 10px">👤 Your profile</h3>
+          <div id="previewProfileBody" style="font-size:13.5px;color:var(--ink);line-height:1.55"></div>
+        </div>
+        <!-- Project list mirrors planner-editor.html -->
+        <div class="preview-projects-card">
+          <h3 style="font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);margin:0 0 8px">🎬 Your projects</h3>
+          <div id="previewProjectsSummary" class="preview-summary"></div>
+          <div id="previewProjectsList" class="preview-project-list"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn secondary pull-left" id="previewBackToEditor" style="padding:8px 16px;font-size:13px">← Back to edit</button>
+        <a class="btn secondary" href="planner-editor.html" target="_blank" rel="noreferrer" style="padding:8px 16px;font-size:13px;text-decoration:none">🔗 Open real editor page</a>
+        <button class="btn" id="previewDoneBtn">Done</button>
       </div>
     </div>
   </div>
@@ -1217,20 +1392,28 @@ function renderEditorsList(){
     wrap.innerHTML = '<div style="text-align:center;padding:14px 0;color:var(--ink-soft);font-size:13.5px;font-style:italic">No editors yet — add your first below 🌸</div>';
     return;
   }
-  wrap.innerHTML = editors.map(e => `
+  wrap.innerHTML = editors.map(e => {
+    const assignedCount = items.filter(i => i.editor_id === e.id || (e.email && i.assignee_email === e.email)).length;
+    return `
     <div class="editor-row" data-id="${escape(e.id)}" style="--editor-color:${escape(e.color || '#90A5FF')}">
       <div class="ed-color-swatch"></div>
       <div class="ed-info">
         <div class="name">${escape(e.name)}</div>
-        <div class="meta">${escape(e.email || 'no email yet')}${e.asset_folder_url ? ' · 📁 asset folder' : ''}</div>
+        <div class="meta">${escape(e.email || 'no email yet')}${e.asset_folder_url ? ' · 📁 asset folder' : ''}${assignedCount > 0 ? ` · ${assignedCount} item${assignedCount > 1 ? 's' : ''} assigned` : ''}</div>
       </div>
       <div class="ed-actions">
+        <button class="ed-preview" data-id="${escape(e.id)}" title="See exactly what they see">👁 Preview</button>
         <button class="ed-edit" data-id="${escape(e.id)}">Edit</button>
         <button class="ed-rm danger" data-id="${escape(e.id)}">Remove</button>
       </div>
     </div>
-  `).join('');
+  `;}).join('');
   wrap.querySelectorAll('.ed-edit').forEach(b => b.addEventListener('click', () => loadEditorIntoForm(b.dataset.id)));
+  wrap.querySelectorAll('.ed-preview').forEach(b => b.addEventListener('click', () => {
+    // Load into form first so the preview reads the latest values
+    loadEditorIntoForm(b.dataset.id);
+    openEditorPreview();
+  }));
   wrap.querySelectorAll('.ed-rm').forEach(b => b.addEventListener('click', async () => {
     if(!confirm('Remove this editor? Items assigned to them will keep the name on file but lose the colored pill.')) return;
     if(await deleteEditor(b.dataset.id)){
@@ -1251,6 +1434,9 @@ function loadEditorIntoForm(id){
   $('edNotes').value = e.notes || '';
   renderColorSwatches(e.color || '#90A5FF');
   $('deleteEditorBtn').classList.remove('hidden');
+  $('previewEditorBtn').classList.remove('hidden');
+  // V2.1 — show the personalized invite link block
+  showInviteLinkFor(e);
 }
 
 function resetEditorForm(){
@@ -1262,6 +1448,130 @@ function resetEditorForm(){
   $('edNotes').value = '';
   renderColorSwatches(EDITOR_COLORS[Math.floor(Math.random() * EDITOR_COLORS.length)]);
   $('deleteEditorBtn').classList.add('hidden');
+  $('previewEditorBtn').classList.add('hidden');
+  $('inviteLinkBlock').classList.add('hidden');
+}
+
+// V2.1 — Build a per-editor invite URL with email + id pre-filled.
+// The editor-facing page reads these params on load to pre-fill the email + brand the welcome.
+function buildEditorInviteUrl(editor){
+  if(!editor) return '';
+  // Use the current site's origin so it works locally + on production
+  const origin = (window.location.origin && window.location.origin !== 'null')
+    ? window.location.origin
+    : 'https://shortsanalyzer.eggieweggie.ca';
+  const params = new URLSearchParams();
+  if(editor.email) params.set('email', editor.email);
+  if(editor.id) params.set('ed', editor.id);
+  if(editor.name) params.set('name', editor.name);
+  return `${origin}${window.location.pathname.replace(/[^/]+$/, '')}planner-editor.html?${params.toString()}`;
+}
+
+function showInviteLinkFor(editor){
+  if(!editor || !editor.id){
+    $('inviteLinkBlock').classList.add('hidden');
+    return;
+  }
+  const url = buildEditorInviteUrl(editor);
+  $('inviteLinkUrl').value = url;
+  $('openInviteLinkBtn').href = url;
+  $('inviteLinkName').textContent = editor.name || 'your editor';
+  $('inviteLinkBlock').classList.remove('hidden');
+}
+
+async function copyInviteLink(){
+  const input = $('inviteLinkUrl');
+  const btn = $('copyInviteLinkBtn');
+  if(!input.value) return;
+  try{
+    await navigator.clipboard.writeText(input.value);
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy'; }, 1800);
+  }catch(e){
+    // Fallback for browsers without clipboard API (e.g. file://)
+    input.select();
+    try{ document.execCommand('copy'); btn.textContent = '✓ Copied!'; setTimeout(() => { btn.innerHTML = '📋 Copy'; }, 1800); }
+    catch(_){ alert('Copy failed — select the link manually and copy.'); }
+  }
+}
+
+// V2.1 — Preview-as-editor: in-app render of exactly what this editor sees on planner-editor.html
+function openEditorPreview(){
+  // Use the form's current values OR the saved editor record (form wins, in case they're mid-edit)
+  const currentName = $('edName').value.trim() || 'this editor';
+  const currentEmail = $('edEmail').value.trim().toLowerCase();
+  const currentColor = ($('edColorSwatches').querySelector('.color-swatch-pick.selected')?.dataset?.color) || '#90A5FF';
+  const currentAsset = $('edAssetFolder').value.trim();
+  const currentRefs = $('edReferences').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const currentNotes = $('edNotes').value.trim();
+
+  // Items this editor would see — those assigned to their id OR their email
+  const editorItems = items.filter(i =>
+    (editingEditorId && i.editor_id === editingEditorId) ||
+    (currentEmail && i.assignee_email === currentEmail)
+  );
+
+  $('previewEditorName').textContent = currentName;
+  $('previewEditorEmail').textContent = currentEmail || '(no email set)';
+
+  // Profile body — mirrors planner-editor.html's renderProfile()
+  const refsHtml = currentRefs.slice(0, 5).map(r =>
+    `<li><a href="${escape(r)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700;text-decoration:none">${escape(r.length > 50 ? r.slice(0, 50) + '…' : r)}</a></li>`
+  ).join('');
+  $('previewProfileBody').innerHTML = `
+    <p style="margin:0 0 8px"><span class="preview-swatch-display" style="background:${escape(currentColor)}"></span><strong>${escape(currentName)}</strong></p>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 8px">${escape(currentEmail || 'no email')}</p>
+    ${currentAsset ? `<p style="margin:0 0 4px"><a href="${escape(currentAsset)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700;text-decoration:none;font-size:13px">📁 Asset folder →</a></p>` : ''}
+    ${refsHtml ? `<p style="margin:8px 0 4px;font-weight:700;color:var(--deep);font-size:12.5px">References:</p>
+      <ul style="margin:0;padding-left:18px;font-size:11.5px;line-height:1.5">${refsHtml}</ul>` : ''}
+    ${currentNotes ? `<p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft);font-style:italic;line-height:1.5;white-space:pre-wrap">${escape(currentNotes)}</p>` : ''}
+  `;
+
+  // Status summary
+  const counts = {};
+  editorItems.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
+  const STATUS_LABELS = {
+    idea:'💡 Idea', script:'📝 Script', recording:'🎙️ Recording',
+    editing:'✂️ Editing', scheduled:'📅 Scheduled', posted:'✅ Posted', archived:'📦 Archived'
+  };
+  $('previewProjectsSummary').innerHTML = Object.entries(STATUS_LABELS)
+    .filter(([k]) => counts[k])
+    .map(([k, lbl]) => `<span class="chip"><strong>${counts[k]}</strong>${lbl}</span>`).join('');
+
+  // Project list — mirrors planner-editor.html renderProjectCard
+  const wrap = $('previewProjectsList');
+  if(editorItems.length === 0){
+    wrap.innerHTML = `<div class="preview-empty">No items assigned to ${escape(currentName)} yet — assign them on the kanban first, then come back to preview.</div>`;
+  } else {
+    wrap.innerHTML = editorItems.map(p => {
+      const due = p.scheduled_at ? `📅 ${new Date(p.scheduled_at).toLocaleDateString(undefined, {month:'short', day:'numeric'})}` : '';
+      const platforms = (p.platforms || []).map(pl => PLATFORM_LABELS[pl] || pl).join(' · ');
+      const links = [];
+      if(p.footage_url) links.push(`<a href="${escape(p.footage_url)}" target="_blank" rel="noreferrer">🎬 Footage</a>`);
+      if(p.editor_files_url) links.push(`<a href="${escape(p.editor_files_url)}" target="_blank" rel="noreferrer">📤 Editor folder</a>`);
+      if(p.thumbnail_url) links.push(`<a href="${escape(p.thumbnail_url)}" target="_blank" rel="noreferrer">🖼️ Thumbnail</a>`);
+      const attachCount = Array.isArray(p.attachments) ? p.attachments.length : 0;
+      if(attachCount > 0) links.push(`<a href="#" onclick="return false">📎 ${attachCount} file${attachCount > 1 ? 's' : ''}</a>`);
+      return `
+        <div class="preview-project-card" data-status="${escape(p.status)}">
+          <div class="pp-title">${escape(p.title || '(untitled)')}</div>
+          <div class="pp-meta">
+            <span class="status-tag">${escape(p.status)}</span>
+            ${platforms ? `<span>${escape(platforms)}</span>` : ''}
+            ${due ? `<span>${due}</span>` : ''}
+          </div>
+          ${links.length ? `<div class="pp-actions">${links.join('')}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Show the modal
+  $('editorPreviewModal').classList.add('open');
+}
+
+function closeEditorPreview(){
+  $('editorPreviewModal').classList.remove('open');
 }
 
 function renderColorSwatches(selectedColor){
@@ -1290,6 +1600,7 @@ async function handleSaveEditor(){
     reference_links: references,
     notes: $('edNotes').value.trim()
   };
+  const wasNew = !editingEditorId;
   if(editingEditorId) editor.id = editingEditorId;
   $('saveEditorBtn').disabled = true;
   $('saveEditorBtn').textContent = 'Saving…';
@@ -1297,8 +1608,18 @@ async function handleSaveEditor(){
   $('saveEditorBtn').disabled = false;
   $('saveEditorBtn').innerHTML = '💾 Save editor';
   if(saved){
-    resetEditorForm();
+    // V2.1 — after saving, keep the saved editor loaded in the form so the user can see + copy
+    // the auto-generated invite link. Also re-pull from server so we have the canonical row (with id).
     await loadEditors();
+    // Find the saved editor in our refreshed list and reload it into the form
+    const refreshedEditor = editors.find(e => e.id === saved.id) || saved;
+    loadEditorIntoForm(refreshedEditor.id);
+    // Visual confirmation for new editors
+    if(wasNew){
+      const btn = $('saveEditorBtn');
+      btn.innerHTML = '✓ Saved! Invite link ready below';
+      setTimeout(() => { btn.innerHTML = '💾 Save editor'; }, 2400);
+    }
   }
 }
 
@@ -1731,6 +2052,15 @@ function wireApp(){
   $('saveEditorBtn').addEventListener('click', handleSaveEditor);
   $('deleteEditorBtn').addEventListener('click', handleDeleteEditor);
   $('editorsModal').addEventListener('click', e => { if(e.target === $('editorsModal')) closeEditorsModal(); });
+
+  // V2.1: preview-as-editor + invite link wiring
+  $('previewEditorBtn').addEventListener('click', openEditorPreview);
+  $('previewCloseBtn').addEventListener('click', closeEditorPreview);
+  $('previewDoneBtn').addEventListener('click', closeEditorPreview);
+  $('previewBackToEditor').addEventListener('click', closeEditorPreview);
+  $('editorPreviewModal').addEventListener('click', e => { if(e.target === $('editorPreviewModal')) closeEditorPreview(); });
+  $('copyInviteLinkBtn').addEventListener('click', copyInviteLink);
+  $('inviteLinkUrl').addEventListener('click', e => e.target.select());
 
   // Modal wiring
   $('saveItemBtn').addEventListener('click', handleSave);
