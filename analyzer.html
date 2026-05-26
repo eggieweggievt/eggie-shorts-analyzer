@@ -1164,30 +1164,11 @@
       <input type="file" id="videoFile" accept="video/*" />
     </label>
     <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
-      First time you upload a video, I download a few models (~1GB total — vision + high-accuracy speech) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, and <em>hear</em> what's being said with high accuracy. After that they're cached forever and analysis is fast.
+      First time you upload a video, I download the full ML pipeline (~1.2GB total — Florence-2 vision, Whisper-medium speech, CLIP semantic matching, YAMNet audio classifier) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, <em>hear</em> what's being said with high accuracy, and classify the audio scene. After that they're cached forever and analysis is fast.
     </p>
 
-    <!-- Advanced options — CLIP + YAMNet stay opt-in (heavy + experimental).
-         Whisper-medium is now the hard default — no toggle. -->
-    <details style="margin-top:10px;border-radius:12px;background:rgba(255,255,255,0.5);padding:0 14px;border:1px dashed rgba(144,165,255,0.35)">
-      <summary style="cursor:pointer;padding:10px 0;font-weight:700;font-size:13px;color:var(--deep);user-select:none;list-style:none">
-        <span style="color:var(--periwinkle)">▸</span>
-        ⚙️ Advanced — extra detection passes
-      </summary>
-      <div style="padding:0 0 12px;font-size:13px;line-height:1.55;color:var(--ink)">
-        <p style="margin:0 0 8px"><strong>CLIP semantic similarity.</strong> Adds an extra pass where CLIP scores how similar your video is to specific content types ("gaming clip", "storytime", "reaction", "asmr", etc.) — gives more accurate detection on ambiguous content. ~150MB first time, cached.</p>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-          <input type="checkbox" id="clipToggle" style="width:16px;height:16px;cursor:pointer" />
-          <span>Run CLIP semantic similarity pass <span style="color:var(--ink-soft);font-weight:500">(downloads ~150MB extra the first time — cached after)</span></span>
-        </label>
+    <!-- CLIP + YAMNet are now on by default. No toggles — the analyzer always runs the full pipeline. -->
 
-        <p style="margin:14px 0 8px"><strong>YAMNet audio classification.</strong> Google's audio model — 521 classes covering laughter, screaming, ASMR mouth sounds, game audio, singing, music genres, etc. Way richer signal than the basic loud/quiet/speech detector. ~16MB extra. Experimental — falls back silently if it fails.</p>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-          <input type="checkbox" id="yamnetToggle" style="width:16px;height:16px;cursor:pointer" />
-          <span>Run YAMNet audio classification <span style="color:var(--ink-soft);font-weight:500">(downloads ~16MB extra the first time — cached after)</span></span>
-        </label>
-      </div>
-    </details>
     <div class="video-preview-wrap" id="videoPreviewWrap">
       <video id="videoPreview" controls muted playsinline></video>
       <div class="vid-progress"><div id="vidProgressBar"></div></div>
@@ -4528,29 +4509,7 @@ if(document.readyState === 'loading'){
   wireUpVideoUpload();
 }
 
-// Wire the CLIP + YAMNet toggles to persist across sessions via localStorage.
-// (Whisper-medium is now the hard default — no toggle.)
-function wireAdvancedToggles(){
-  const clipBox = document.getElementById('clipToggle');
-  if(clipBox){
-    clipBox.checked = getClipPreference();
-    clipBox.addEventListener('change', () => {
-      setClipPreference(clipBox.checked);
-    });
-  }
-  const yamnetBox = document.getElementById('yamnetToggle');
-  if(yamnetBox){
-    yamnetBox.checked = getYAMNetPreference();
-    yamnetBox.addEventListener('change', () => {
-      setYAMNetPreference(yamnetBox.checked);
-    });
-  }
-}
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', wireAdvancedToggles, {once:true});
-} else {
-  wireAdvancedToggles();
-}
+// CLIP + YAMNet + Whisper-medium are all hardcoded ON now — no toggles to wire.
 
 // ============================================================
 //  WIZARD — step navigation, progress bar sync, show/hide
@@ -5033,12 +4992,10 @@ async function detectFacesWithBoxes(canvas){
 // than the simple RMS+ZCR classifier. ~16MB model + TF.js. Falls back to existing classifier
 // on any failure.
 let yamnetLoader = window.__sharedYAMNetLoader || null;
-function getYAMNetPreference(){
-  try{ return localStorage.getItem('eggie:useYAMNet') === '1'; }catch(e){ return false; }
-}
-function setYAMNetPreference(v){
-  try{ localStorage.setItem('eggie:useYAMNet', v ? '1' : '0'); }catch(e){}
-}
+// YAMNet is now ALWAYS ON (no toggle). Kept as a function so the rest of the analyzer's
+// call sites don't need to change.
+function getYAMNetPreference(){ return true; }
+function setYAMNetPreference(_v){ /* no-op — YAMNet always runs */ }
 // Subset of YAMNet's 521 classes that map to creator-relevant audio. Anything not in this
 // map shows up as `class_N` in the verdict; that's fine, only top hits matter.
 const YAMNET_LABELS = {
@@ -5117,12 +5074,9 @@ async function classifyAudioYAMNet(audioBuffer){
 // scores per label — way more accurate than regex matching for ambiguous content. Adds ~150MB
 // on first use. SHARED across pages.
 let clipLoader = window.__sharedClipLoader || null;
-function getClipPreference(){
-  try{ return localStorage.getItem('eggie:useClip') === '1'; }catch(e){ return false; }
-}
-function setClipPreference(v){
-  try{ localStorage.setItem('eggie:useClip', v ? '1' : '0'); }catch(e){}
-}
+// CLIP is now ALWAYS ON (no toggle). Functions kept as no-ops so existing call sites work.
+function getClipPreference(){ return true; }
+function setClipPreference(_v){ /* no-op — CLIP always runs */ }
 async function loadClip(progressCb){
   if(clipLoader) return clipLoader;
   clipLoader = (async ()=>{

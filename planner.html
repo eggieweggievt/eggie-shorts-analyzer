@@ -224,11 +224,18 @@
     border-left:3px solid var(--periwinkle);
     border-radius:12px;
     padding:10px 12px;
-    cursor:pointer;
-    transition:transform .12s ease, box-shadow .15s ease;
+    cursor:grab;
+    transition:transform .12s ease, box-shadow .15s ease, opacity .15s ease;
     box-shadow:0 2px 6px rgba(99,170,244,0.08);
   }
   .item-card:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(99,170,244,0.18)}
+  .item-card:active{cursor:grabbing}
+  .item-card.dragging{opacity:.4;cursor:grabbing}
+  .kanban-col.drag-over{
+    background:linear-gradient(135deg, rgba(255,178,240,0.18), rgba(144,165,255,0.15));
+    border-color:var(--periwinkle);
+    box-shadow:inset 0 0 0 2px var(--periwinkle);
+  }
   .item-card .item-title{
     font-weight:700;font-size:14px;color:var(--ink);
     line-height:1.35;margin-bottom:6px;
@@ -443,7 +450,7 @@
     <div id="listView" class="list-view hidden">
       <table>
         <thead><tr>
-          <th>Title</th><th>Status</th><th>Platforms</th><th>Assignee</th><th>Scheduled</th>
+          <th>Title</th><th>Status</th><th>Platforms</th><th>Assignee</th><th>Deadline</th>
         </tr></thead>
         <tbody id="listBody"></tbody>
       </table>
@@ -496,7 +503,7 @@
 
       <div class="modal-row cols-2">
         <div>
-          <label for="fScheduledAt">Scheduled <span class="opt">(when it goes live)</span></label>
+          <label for="fScheduledAt">Deadline <span class="opt">(when it needs to be ready / live)</span></label>
           <input id="fScheduledAt" type="datetime-local" />
         </div>
         <div>
@@ -854,6 +861,60 @@ function renderKanban(filtered){
   board.querySelectorAll('.add-in-col').forEach(el => {
     el.addEventListener('click', () => openModal(null, el.dataset.addStatus));
   });
+
+  // ===== DRAG & DROP between status columns =====
+  let draggedId = null;
+  board.querySelectorAll('.item-card').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      draggedId = el.dataset.id;
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', draggedId);
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      draggedId = null;
+      // Clear any lingering drag-over hover
+      board.querySelectorAll('.kanban-col.drag-over').forEach(c => c.classList.remove('drag-over'));
+    });
+  });
+  board.querySelectorAll('.kanban-col').forEach(col => {
+    col.addEventListener('dragover', e => {
+      // Must preventDefault to allow drop
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      col.classList.add('drag-over');
+    });
+    col.addEventListener('dragleave', e => {
+      // Only clear if leaving the column itself (not its children)
+      if(e.target === col) col.classList.remove('drag-over');
+    });
+    col.addEventListener('drop', async e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain') || draggedId;
+      const newStatus = col.dataset.status;
+      const item = items.find(i => i.id === id);
+      if(!item || !newStatus || item.status === newStatus) return;
+      // Optimistic update — change locally + re-render immediately, then save
+      const prevStatus = item.status;
+      item.status = newStatus;
+      render();
+      const saved = await saveItem({
+        id: item.id, title: item.title, status: newStatus,
+        platforms: item.platforms, assignee: item.assignee,
+        scheduled_at: item.scheduled_at, posted_at: item.posted_at,
+        notes: item.notes, hook: item.hook, script: item.script,
+        hashtags: item.hashtags, thumbnail_url: item.thumbnail_url,
+        analyzer_score: item.analyzer_score, analyzer_link: item.analyzer_link
+      });
+      if(!saved){
+        // Rollback on save error
+        item.status = prevStatus;
+        render();
+      }
+    });
+  });
 }
 
 function itemCard(item){
@@ -863,7 +924,7 @@ function itemCard(item){
   const assignee = item.assignee ? `<span class="meta-line">👤 ${escape(item.assignee)}</span>` : '';
   const due = item.scheduled_at ? renderDue(item.scheduled_at) : '';
   return `
-    <div class="item-card" data-id="${item.id}">
+    <div class="item-card" data-id="${item.id}" draggable="true">
       <div class="item-title">${escape(item.title || '(untitled)')}</div>
       <div class="item-meta">${platforms}${extras}${assignee}${due}</div>
     </div>
