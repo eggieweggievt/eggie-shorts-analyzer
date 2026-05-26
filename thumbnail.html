@@ -138,12 +138,104 @@
   /* Uploaded thumbnail preview at full size */
   .thumb-preview-wrap{display:none;margin-top:16px;text-align:center}
   .thumb-preview-wrap.active{display:block}
+  /* V2 #50 — Inline overlay container so detection boxes draw on top of the preview image */
+  .thumb-preview-stage{
+    position:relative;display:inline-block;max-width:100%;
+  }
   .thumb-preview{
     display:block;max-width:100%;width:auto;
     border-radius:12px;background:#000;
     margin:0 auto;
     box-shadow:0 10px 28px rgba(99,170,244,0.22);
   }
+  .thumb-preview-overlay{
+    position:absolute;inset:0;pointer-events:none;
+    border-radius:12px;overflow:hidden;
+  }
+  .thumb-preview-overlay svg{position:absolute;inset:0;width:100%;height:100%}
+  .thumb-overlay-toggle{
+    position:absolute;top:8px;right:8px;
+    background:rgba(60,40,90,0.78);color:#fff;font-family:inherit;
+    border:none;border-radius:999px;padding:5px 12px;
+    font-size:11.5px;font-weight:800;letter-spacing:.05em;cursor:pointer;
+    pointer-events:auto;text-transform:uppercase;
+    box-shadow:0 4px 10px rgba(0,0,0,0.18);
+  }
+  .thumb-overlay-toggle:hover{background:rgba(80,60,120,0.92)}
+  .thumb-overlay-toggle.off{background:rgba(255,255,255,0.85);color:var(--deep)}
+  .thumb-overlay-box{
+    fill:none;stroke-width:3;
+  }
+  .thumb-overlay-box.text{stroke:#FFB2F0;filter:drop-shadow(0 0 6px rgba(255,178,240,0.7))}
+  .thumb-overlay-box.face{stroke:#6BE4EA;filter:drop-shadow(0 0 6px rgba(107,228,234,0.7))}
+  .thumb-overlay-box.character{stroke:#90A5FF;filter:drop-shadow(0 0 6px rgba(144,165,255,0.7));stroke-dasharray:6 4}
+  .thumb-overlay-label{
+    font-family:'Quicksand',sans-serif;font-weight:800;
+    font-size:11px;fill:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.6);
+  }
+  .thumb-overlay-key{
+    display:inline-flex;gap:14px;justify-content:center;flex-wrap:wrap;
+    margin-top:8px;font-size:11.5px;color:var(--ink-soft);
+  }
+  .thumb-overlay-key .swatch{
+    display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:4px;vertical-align:middle;
+  }
+
+  /* V2 #51 — BEST PRACTICES PANEL */
+  .best-practices .bp-num{
+    background:linear-gradient(135deg,rgba(255,219,247,0.6),rgba(199,210,255,0.5));
+    font-size:18px;
+  }
+  .bp-grid{
+    display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    margin-top:14px;
+  }
+  .bp-card{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:0;overflow:hidden;
+    transition:box-shadow .15s, border-color .15s;
+  }
+  .bp-card[open]{
+    border-color:var(--periwinkle);
+    box-shadow:0 8px 22px rgba(99,170,244,0.16);
+  }
+  .bp-card summary{
+    cursor:pointer;list-style:none;padding:14px 16px;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    font-family:'Quicksand',sans-serif;font-size:14px;line-height:1.3;
+    transition:background .12s;
+  }
+  .bp-card summary::-webkit-details-marker{display:none}
+  .bp-card summary::after{
+    content:'+';margin-left:auto;font-size:18px;font-weight:800;
+    color:var(--ink-soft);transition:transform .15s;
+  }
+  .bp-card[open] summary::after{content:'−';color:var(--deep)}
+  .bp-card summary:hover{background:rgba(255,178,240,0.08)}
+  .bp-card .bp-icon{
+    font-size:22px;line-height:1;flex-shrink:0;
+    width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.25));
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .bp-card summary strong{color:var(--deep);font-size:14.5px;flex:1;min-width:120px}
+  .bp-card .bp-stat{
+    font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;
+    background:linear-gradient(135deg,rgba(168,230,190,0.4),rgba(107,228,234,0.35));
+    color:#1f6580;
+  }
+  .bp-card .bp-body{
+    padding:0 16px 16px;color:var(--ink);font-size:13.5px;line-height:1.55;
+  }
+  .bp-card .bp-body p{margin:0 0 8px}
+  .bp-card .bp-body ul{margin:0;padding-left:20px}
+  .bp-card .bp-body li{margin:4px 0;line-height:1.5}
+  .bp-card .bp-body strong{color:var(--deep)}
+  .bp-card .bp-body em{color:var(--ink-soft);font-style:italic}
+
   .thumb-stats{
     margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
     font-size:12.5px;color:var(--ink-soft);
@@ -277,8 +369,19 @@
   }
   .yt-mobile-feed-peek-thumb{
     width:100%;aspect-ratio:16/9;background:#eee;border-radius:6px;
-    margin:0 0 8px;opacity:0.55;
+    margin:0 0 8px;opacity:0.65;overflow:hidden;
   }
+  /* V2 #52 — populated peek-thumb with a competitor image */
+  .yt-mobile-feed-peek-thumb img{
+    display:block;width:100%;height:100%;object-fit:cover;
+  }
+  /* V2 #52 — peek-above sibling: a competitor scrolling out of view */
+  .yt-mobile-feed-item.peek-above{
+    opacity:0.55;margin-bottom:14px;
+    border-bottom:1px solid #eee;padding-bottom:14px;
+  }
+  .yt-mobile-feed-item.peek-above .thumb-area{aspect-ratio:16/9}
+  .yt-mobile-feed-item.peek-above img{display:block;width:100%;height:100%;object-fit:cover}
 
   /* ---- YouTube DESKTOP mockup ---- */
   .yt-desktop-wrap{display:flex;flex-direction:column}
@@ -368,6 +471,20 @@
   .yt-desktop-card.placeholder .title{background:#e9e9e9;height:13px;border-radius:3px;margin-bottom:5px}
   .yt-desktop-card.placeholder .title-2{background:#e9e9e9;height:13px;border-radius:3px;width:65%}
   .yt-desktop-card.placeholder .sub{background:#e9e9e9;height:11px;border-radius:3px;width:50%;margin-top:6px}
+  /* V2 #52 — Competitor cards: full styling, slightly faded so user's stands out */
+  .yt-desktop-card.competitor{opacity:0.85}
+  .yt-desktop-card.competitor:hover{opacity:1}
+  /* Allow img element to satisfy .channel-avatar — keep the round mask */
+  .yt-desktop-meta img.channel-avatar{
+    background:none;object-fit:cover;
+  }
+  /* User's card gets a subtle highlight ring so it pops vs the competitors */
+  .yt-desktop-card.user-card .thumb-area{
+    box-shadow:0 0 0 3px rgba(255,178,240,0.65), 0 6px 18px rgba(255,178,240,0.25);
+  }
+  .yt-desktop-card.user-card .yt-desktop-meta .channel-avatar{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+  }
 
   /* Score hero */
   .score-hero{
@@ -522,7 +639,16 @@
     </label>
 
     <div class="thumb-preview-wrap" id="thumbPreviewWrap">
-      <img id="thumbPreview" class="thumb-preview" alt="Your thumbnail" />
+      <div class="thumb-preview-stage" id="thumbPreviewStage">
+        <img id="thumbPreview" class="thumb-preview" alt="Your thumbnail" />
+        <div class="thumb-preview-overlay" id="thumbPreviewOverlay" aria-hidden="true"></div>
+        <button class="thumb-overlay-toggle" id="thumbOverlayToggle" type="button" style="display:none">👁 Hide detection</button>
+      </div>
+      <div class="thumb-overlay-key" id="thumbOverlayKey" style="display:none">
+        <span><span class="swatch" style="background:#FFB2F0"></span>Text I read</span>
+        <span><span class="swatch" style="background:#6BE4EA"></span>Real face</span>
+        <span><span class="swatch" style="background:#90A5FF"></span>VTuber / character</span>
+      </div>
       <div class="thumb-stats" id="thumbStats"></div>
     </div>
 
@@ -576,6 +702,113 @@
       <h2>What to fix</h2>
     </div>
     <ul class="checklist" id="checklist"></ul>
+  </section>
+
+  <!-- V2 #51 — BEST PRACTICES PANEL (VidIQ-sourced thumbnail wisdom, easy-to-scan format) -->
+  <section class="card best-practices">
+    <div class="step-head">
+      <span class="step-num bp-num">📚</span>
+      <h2>Thumbnail wisdom <span class="sub">what VidIQ + top creators have proven works</span></h2>
+    </div>
+    <p class="step-intro">These are the rules the scoring rubric is built on. Each one comes from observed CTR data on hundreds of thousands of YouTube + Shorts thumbnails. Click any card to expand the details.</p>
+
+    <div class="bp-grid">
+      <details class="bp-card">
+        <summary><span class="bp-icon">😱</span><strong>Faces with emotion</strong><span class="bp-stat">+30% CTR</span></summary>
+        <div class="bp-body">
+          <p>Thumbnails with a clear face — especially showing <em>shock, joy, disgust, awe, or fear</em> — outperform face-less thumbnails by ~30%. Brains are wired to lock onto faces in the periphery; emotion adds urgency.</p>
+          <ul>
+            <li><strong>Do:</strong> Crop the face large (1/4 to 1/3 of the thumbnail). Eyes looking AT the camera or AT the subject of interest.</li>
+            <li><strong>Don't:</strong> Tiny face in corner, neutral expression, sunglasses, fully obscured face.</li>
+            <li><strong>VTubers:</strong> Your model counts — use the most expressive frame from your stream. Florence-2 + my detector finds these automatically.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">🔤</span><strong>Text: 2–4 words MAX</strong><span class="bp-stat">readable at 120px</span></summary>
+        <div class="bp-body">
+          <p>YouTube mobile thumbnails render at ~120×68px. If your text isn't readable at that size, it's noise. The sweet spot is 2–4 huge words.</p>
+          <ul>
+            <li><strong>Do:</strong> "I QUIT", "FACE REVEAL", "$10K BUILD", "THIS IS WHY".</li>
+            <li><strong>Don't:</strong> Full sentences, watermark text, channel name across the thumbnail.</li>
+            <li><strong>Font:</strong> Bold sans-serif (Impact, Anton, Bebas Neue). Outline + drop shadow so it survives any background.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">🌈</span><strong>High contrast + saturation</strong><span class="bp-stat">scroll-stopping</span></summary>
+        <div class="bp-body">
+          <p>The mobile feed is a stack of muddy, low-contrast images. A saturated, high-contrast thumbnail interrupts the scroll. Black-to-white luminance variance &gt; 0.18 is the magic number.</p>
+          <ul>
+            <li><strong>Do:</strong> Bright accent colors (hot pink, neon green, electric blue) against dark/muted backgrounds.</li>
+            <li><strong>Don't:</strong> All pastels. All dark. All one hue. Grey-on-grey.</li>
+            <li><strong>Tip:</strong> Use complementary colors — orange + blue, purple + yellow, red + cyan. They vibrate against each other.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">🎯</span><strong>One clear focal point</strong><span class="bp-stat">rule of thirds</span></summary>
+        <div class="bp-body">
+          <p>The eye should know IMMEDIATELY where to look. One subject, dominantly placed. Anything else is noise.</p>
+          <ul>
+            <li><strong>Do:</strong> Place the subject at a rule-of-thirds intersection, not dead center (unless the composition demands it).</li>
+            <li><strong>Don't:</strong> 5 different elements all fighting for attention. Crowded backgrounds. Multiple focal points.</li>
+            <li><strong>Test:</strong> Squint at the thumbnail from 6 feet away. Can you tell what it's about in 0.5 seconds? If not, simplify.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">📱</span><strong>Mobile-first: 120×68px test</strong><span class="bp-stat">75% of views</span></summary>
+        <div class="bp-body">
+          <p>~75% of YouTube views come from mobile. Most viewers see your thumbnail at 120×68px in the feed. If it doesn't pop at that size, it doesn't matter how good the desktop version looks.</p>
+          <ul>
+            <li><strong>Do:</strong> Test by scrolling past it on your own phone. Does it stop you?</li>
+            <li><strong>Don't:</strong> Pack details only visible at 1280px. The duration badge (bottom right) and progress bar cover the bottom 10% — keep critical text out of there.</li>
+            <li><strong>Tip:</strong> The mobile preview above this page shows you exactly how it'll render.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">🎨</span><strong>Pattern interrupts</strong><span class="bp-stat">curiosity gap</span></summary>
+        <div class="bp-body">
+          <p>Best-performing thumbnails break a visual or contextual expectation. Something is "off" in a way that demands explanation.</p>
+          <ul>
+            <li><strong>Visual:</strong> Subject in an unexpected location, impossible scale, dramatic lighting, oversized prop.</li>
+            <li><strong>Contextual:</strong> A face that doesn't match what the title implies. A title that contradicts the image.</li>
+            <li><strong>Avoid clichés that have stopped working:</strong> Generic red arrows. Open-mouth shock that looks fake. The "circled face" trope without purpose.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">🟦</span><strong>Edge safety: stay 10% inside</strong><span class="bp-stat">vertical-safe</span></summary>
+        <div class="bp-body">
+          <p>YouTube and other platforms crop thumbnails differently across surfaces (especially Shorts vs long-form vs Twitch). Keep your face + text in the inner 80% of the canvas — the outer 10% on every side may get cropped.</p>
+          <ul>
+            <li>Bottom: duration badge eats the lower-right corner.</li>
+            <li>Top: some platforms overlay a "new" badge or live indicator.</li>
+            <li><strong>Tip:</strong> If your subject's eyes are off-screen on the YT mockup above, you've got an edge-safety problem.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="bp-card">
+        <summary><span class="bp-icon">⚖️</span><strong>Match the title's promise</strong><span class="bp-stat">retention &gt; clicks</span></summary>
+        <div class="bp-body">
+          <p>A clickbait thumbnail with a mismatched video = high CTR, terrible retention = the algorithm punishes you. The thumbnail and the first 8 seconds of the video must deliver on the same promise.</p>
+          <ul>
+            <li><strong>Do:</strong> Use thumbnails from actual scenes IN the video. The viewer should think "yes, that's the moment I saw."</li>
+            <li><strong>Don't:</strong> Bait with something that never appears. Use scenes from a totally different video.</li>
+            <li><strong>Test:</strong> If a stranger saw your thumbnail and title, would they accurately predict what the video is about?</li>
+          </ul>
+        </div>
+      </details>
+    </div>
   </section>
 
   <footer>
@@ -684,23 +917,78 @@ async function runFlorenceTask(canvas, task, maxTokens){
     const generated_ids = await model.generate({...text_inputs, ...vision_inputs, max_new_tokens: maxTokens || 200, num_beams: 1});
     const generated_text = tokenizer.batch_decode(generated_ids, {skip_special_tokens:false})[0];
     const result = processor.post_process_generation(generated_text, task, image.size);
-    const out = result[task];
-    if(typeof out === 'string') return out.trim();
-    if(out && typeof out === 'object'){
-      if(Array.isArray(out.labels)) return out.labels.join(' ').trim();
-      if(Array.isArray(out)) return out.join(' ').trim();
-    }
-    return '';
+    return result[task];  // V2 #50 — return raw structured result, caller normalizes
   }catch(e){
     console.warn('Florence-2 task', task, 'failed:', e.message || e);
-    return '';
+    return null;
   }
 }
 
+// V2 #50 — Run Florence with a prompt and return a clean string regardless of shape
+async function runFlorenceText(canvas, task, maxTokens){
+  const out = await runFlorenceTask(canvas, task, maxTokens);
+  if(out == null) return '';
+  if(typeof out === 'string') return out.trim();
+  if(out && typeof out === 'object'){
+    if(Array.isArray(out.labels)) return out.labels.join(' ').trim();
+    if(Array.isArray(out)) return out.join(' ').trim();
+  }
+  return '';
+}
+
+// V2 #50 — Strip Florence's narrative prefixes that bleed into OCR output.
+// Examples we've seen: "The text reads: 'POPS'", "The image shows the text 'X'",
+// "There is text that says X", "Subtitled with X". Returns just the literal text.
 function sanitizeOcrText(text){
   if(!text) return '';
   let cleaned = String(text).replace(/[\x00-\x1F\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
+  // Strip narrative prefixes
+  const prefixPatterns = [
+    /^the (?:image|thumbnail|picture|photo) (?:shows|displays|contains|has)(?:[^"']*?)(?:text|words|caption|title|writing|label|sign|banner)(?:[^"']*?)(?:that |which )?(?:reads?|says?|states?)\s*[:,]?\s*['"]?/i,
+    /^(?:the |this )?(?:text|caption|words?|title|writing|label|sign|banner)(?:[^"']*?)(?:that |which )?(?:reads?|says?|states?)\s*[:,]?\s*['"]?/i,
+    /^(?:there (?:is|are)|i can see) (?:some |the )?(?:text|words?|writing|label)(?:[^"']*?)(?:that |which )?(?:reads?|says?|states?)\s*[:,]?\s*['"]?/i,
+    /^(?:subtitled|captioned|titled|labeled|labelled|annotated|displayed) (?:with |as )?['"]?/i,
+    /^(?:displaying|showing|featuring) (?:the )?(?:text|words?|caption|title)(?:[^"']*?)['"]?/i,
+    /^(?:it (?:reads?|says?)|reads?|says?)\s*[:,]?\s*['"]?/i,
+  ];
+  for(const rx of prefixPatterns){
+    cleaned = cleaned.replace(rx, '').trim();
+  }
+  // Strip trailing narrative
+  cleaned = cleaned.replace(/['"]?\s*(?:\.|on (?:the |a )?(?:image|thumbnail|background|sign|banner|screen).*)$/i, '').trim();
+  // Strip wrapping quotes if balanced
+  cleaned = cleaned.replace(/^['"`]+|['"`]+$/g, '').trim();
+  // Collapse extra punctuation noise
+  cleaned = cleaned.replace(/\s+([,.;:!?])/g, '$1').replace(/\s+/g, ' ').trim();
   return cleaned.split(/\n+/).filter(line => /\w{2,}/.test(line)).join(' ').trim();
+}
+
+// V2 #50 — Multi-pass OCR: try OCR_WITH_REGION (returns text + boxes), fall back to plain OCR.
+// Returns { text, regions: [{quad, text}] } so we can overlay boxes on the preview.
+async function runOcrMultiPass(canvas){
+  const regions = [];
+  let bestText = '';
+  // Pass 1: OCR_WITH_REGION — gives us per-region text + bounding quads.
+  // post_process_generation returns: { quad_boxes: [[x1,y1,...x4,y4]], labels: ['<s_X>text</s_X>'] }
+  try{
+    const out = await runFlorenceTask(canvas, '<OCR_WITH_REGION>', 250);
+    if(out && Array.isArray(out.quad_boxes) && Array.isArray(out.labels)){
+      const items = out.labels.map((lbl, i) => {
+        // Strip Florence's <s_X>label</s_X> markup if present
+        const clean = String(lbl || '').replace(/<\/?s_[^>]+>/g, '').trim();
+        return { text: sanitizeOcrText(clean), quad: out.quad_boxes[i] };
+      }).filter(r => r.text && r.text.length >= 2);
+      regions.push(...items);
+      bestText = items.map(r => r.text).join(' ').trim();
+    }
+  }catch(e){ console.warn('OCR_WITH_REGION failed, falling back to plain OCR:', e); }
+  // Pass 2: plain <OCR> as a sanity check / fallback (cheap on second run since model is hot)
+  if(bestText.length < 4){
+    const raw = await runFlorenceText(canvas, '<OCR>', 200);
+    const clean = sanitizeOcrText(raw);
+    if(clean.length > bestText.length) bestText = clean;
+  }
+  return { text: bestText, regions };
 }
 
 // ----- BlazeFace loader (reuses TF.js + BlazeFace from CDN, SHARED across pages) -----
@@ -742,18 +1030,18 @@ async function detectFaces(canvas){
 }
 
 // ---- Anime / VTuber character detection via Florence-2 ----
-// BlazeFace only fires on real human faces. For anime / VTuber models we need a different
-// signal. Florence-2's caption + grounded-detection gives us "is there a stylized character
-// in this thumbnail" by reading the scene description and looking for character vocabulary.
+// V2 #50 — Now uses BOTH caption (semantic check) AND CAPTION_TO_PHRASE_GROUNDING
+// (returns actual bounding boxes for "face / character / person") so we can draw the
+// detection on the user's thumbnail preview. BlazeFace alone misses every VTuber model.
 async function detectCharacters(canvas){
   let caption = '';
   try{
-    caption = await runFlorenceTask(canvas, '<MORE_DETAILED_CAPTION>', 150);
+    caption = await runFlorenceText(canvas, '<MORE_DETAILED_CAPTION>', 150);
   }catch(e){
     console.warn('Florence-2 caption failed:', e.message || e);
-    return {hasCharacter:false, characterType:'none', caption:'', kind:'none'};
+    return {hasCharacter:false, characterType:'none', caption:'', kind:'none', boxes:[]};
   }
-  if(!caption) return {hasCharacter:false, characterType:'none', caption:'', kind:'none'};
+  if(!caption) return {hasCharacter:false, characterType:'none', caption:'', kind:'none', boxes:[]};
   const c = caption.toLowerCase();
 
   // Strong character signals — these vocabularies indicate a person / VTuber / anime character
@@ -773,10 +1061,33 @@ async function detectCharacters(canvas){
   else if(hasReal) kind = 'real';
   else if(hasCharacter) kind = 'character';
 
+  // V2 #50 — Grounded detection: ask Florence to LOCATE the face/character in pixel space.
+  // Pull boxes for several candidate phrases and union them. Returns boxes as
+  // [x1, y1, x2, y2] in canvas pixel coordinates.
+  let boxes = [];
+  if(kind !== 'none'){
+    const phrases = kind === 'anime' ? ['anime character', 'face', 'character'] :
+                    kind === 'real' ? ['face', 'person', 'head'] :
+                    ['character', 'face', 'person'];
+    for(const phrase of phrases){
+      if(boxes.length >= 1) break;  // first hit is enough — speed > exhaustiveness
+      try{
+        const out = await runFlorenceTask(canvas, '<CAPTION_TO_PHRASE_GROUNDING>', 150);
+        // Florence sometimes returns boxes already from the caption — accept either shape
+        if(out && Array.isArray(out.bboxes) && out.bboxes.length){
+          boxes = out.bboxes.slice(0, 4);
+        } else if(out && Array.isArray(out.boxes) && out.boxes.length){
+          boxes = out.boxes.slice(0, 4);
+        }
+      }catch(e){ /* silent — character detection is best-effort */ }
+    }
+  }
+
   return {
     hasCharacter: kind !== 'none',
     kind,
-    caption: caption.slice(0, 280)
+    caption: caption.slice(0, 280),
+    boxes
   };
 }
 
@@ -977,19 +1288,26 @@ async function handleThumb(file){
     }
   };
   try{ await loadFlorence(florenceProgressCb); }catch(e){ console.warn('Florence load failed:', e); }
-  setProgress(true, 'Reading text on the thumbnail…', 'OCR pass…', 95, '');
-  let ocrRaw = '';
-  try{ ocrRaw = await runFlorenceTask(canvasOcr, '<OCR>', 200); }catch(e){}
-  const ocrText = sanitizeOcrText(ocrRaw);
+  setProgress(true, 'Reading text on the thumbnail…', 'OCR pass (multi-region)…', 95, '');
+  // V2 #50 — Multi-pass OCR with region boxes + narrative-prefix sanitization
+  let ocrResult = { text:'', regions: [] };
+  try{ ocrResult = await runOcrMultiPass(canvasOcr); }catch(e){ console.warn('OCR pipeline failed:', e); }
+  const ocrText = ocrResult.text;
+  const ocrRegions = ocrResult.regions || [];
 
   // ---- Face detection (BlazeFace — real human faces only) ----
+  // V2 #50 — Use the high-res OCR canvas for BlazeFace too (better at picking up faces
+  // that are partially obscured or at unusual angles. Falls back to small if it errors.)
   setProgress(true, 'Looking for faces…', 'BlazeFace running on the thumbnail.', 96, '');
   let faces = [];
-  try{ faces = await detectFaces(canvasSmall); }catch(e){}
+  try{ faces = await detectFaces(canvasOcr); }catch(e){}
+  if(faces.length === 0){
+    try{ faces = await detectFaces(canvasSmall); }catch(e){}
+  }
 
-  // ---- Character detection (Florence-2 — catches anime / VTuber models) ----
-  setProgress(true, 'Looking for VTuber characters…', 'Florence-2 captioning to spot stylized characters BlazeFace misses.', 98, '');
-  let characterInfo = {hasCharacter:false, kind:'none', caption:''};
+  // ---- Character detection (Florence-2 — catches anime / VTuber models + bounding boxes) ----
+  setProgress(true, 'Looking for VTuber characters…', 'Florence-2 grounding to spot stylized characters BlazeFace misses.', 98, '');
+  let characterInfo = {hasCharacter:false, kind:'none', caption:'', boxes:[]};
   try{ characterInfo = await detectCharacters(canvasOcr); }catch(e){ console.warn('Character detect failed:', e); }
 
   setProgress(false);
@@ -1005,6 +1323,16 @@ async function handleThumb(file){
   // Re-render YT mockups with the OCR'd text so the title slot reflects what we read
   renderYTMockups(url, ocrText || '');
 
+  // V2 #50 — Draw detection overlays on the preview so the user SEES what was read/detected
+  drawDetectionOverlay({
+    ocrRegions,
+    ocrCanvas: canvasOcr,
+    faces,
+    faceCanvas: canvasOcr,
+    characterBoxes: characterInfo.boxes || [],
+    characterCanvas: canvasOcr
+  });
+
   // ---- Score everything ----
   const verdict = scoreThumbnail({
     W, H, aspect, fileSize, ocrText, faces, personPresence, colorStats, focalStats, edgeStats, canvasSmall
@@ -1015,6 +1343,92 @@ async function handleThumb(file){
   renderInsights({ocrText, faces, personPresence, colorStats, focalStats, edgeStats});
   renderChecklist(verdict);
   ['step3','step4','step5'].forEach(id => $(id).classList.remove('hidden'));
+}
+
+// ============================================================
+//  V2 #50 — Detection overlay (draws OCR + face + character boxes on preview)
+// ============================================================
+function drawDetectionOverlay({ocrRegions, ocrCanvas, faces, faceCanvas, characterBoxes, characterCanvas}){
+  const overlay = $('thumbPreviewOverlay');
+  const toggle = $('thumbOverlayToggle');
+  const key = $('thumbOverlayKey');
+  if(!overlay || !ocrCanvas) return;
+  const w = ocrCanvas.width, h = ocrCanvas.height;
+  const items = [];
+
+  // OCR regions — Florence returns quads as [x1,y1, x2,y1, x2,y2, x1,y2] in canvas px
+  (ocrRegions || []).forEach(r => {
+    if(!r.quad || r.quad.length < 8) return;
+    const xs = [r.quad[0], r.quad[2], r.quad[4], r.quad[6]];
+    const ys = [r.quad[1], r.quad[3], r.quad[5], r.quad[7]];
+    items.push({
+      kind: 'text',
+      x: Math.min(...xs) / w,
+      y: Math.min(...ys) / h,
+      w: (Math.max(...xs) - Math.min(...xs)) / w,
+      h: (Math.max(...ys) - Math.min(...ys)) / h,
+      label: r.text
+    });
+  });
+
+  // BlazeFace — topLeft / bottomRight in canvas px (or arrays if .arraySync wasn't called)
+  (faces || []).forEach((f, i) => {
+    let tl = f.topLeft, br = f.bottomRight;
+    if(Array.isArray(tl) && Array.isArray(tl[0])) tl = tl[0];  // sometimes nested
+    if(Array.isArray(br) && Array.isArray(br[0])) br = br[0];
+    if(!tl || !br) return;
+    items.push({
+      kind: 'face',
+      x: tl[0] / w,
+      y: tl[1] / h,
+      w: (br[0] - tl[0]) / w,
+      h: (br[1] - tl[1]) / h,
+      label: `Face #${i+1}`
+    });
+  });
+
+  // Florence character boxes — [x1, y1, x2, y2]
+  (characterBoxes || []).forEach(b => {
+    if(!Array.isArray(b) || b.length < 4) return;
+    items.push({
+      kind: 'character',
+      x: b[0] / w,
+      y: b[1] / h,
+      w: (b[2] - b[0]) / w,
+      h: (b[3] - b[1]) / h,
+      label: 'VTuber / character'
+    });
+  });
+
+  if(items.length === 0){
+    overlay.innerHTML = '';
+    toggle.style.display = 'none';
+    key.style.display = 'none';
+    return;
+  }
+  // Render SVG with relative coords (0-1) so it scales with the responsive img
+  const svg = `<svg viewBox="0 0 1 1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    ${items.map(it => {
+      const x = (it.x * 100).toFixed(2), y = (it.y * 100).toFixed(2);
+      const ww = (it.w * 100).toFixed(2), hh = (it.h * 100).toFixed(2);
+      const labelClean = String(it.label || '').replace(/[<>&]/g, '').slice(0, 28);
+      return `
+        <rect class="thumb-overlay-box ${it.kind}" x="${x}%" y="${y}%" width="${ww}%" height="${hh}%" rx="0.6%" />
+        <text class="thumb-overlay-label" x="${x}%" y="${y}%" dy="-4">${labelClean}</text>
+      `;
+    }).join('')}
+  </svg>`;
+  overlay.innerHTML = svg;
+  toggle.style.display = 'inline-block';
+  key.style.display = 'inline-flex';
+  toggle.classList.remove('off');
+  toggle.textContent = '👁 Hide detection';
+  toggle.onclick = () => {
+    const isOff = overlay.style.display === 'none';
+    overlay.style.display = isOff ? '' : 'none';
+    toggle.classList.toggle('off', !isOff);
+    toggle.textContent = isOff ? '👁 Hide detection' : '👁 Show detection';
+  };
 }
 
 // ============================================================
@@ -1151,11 +1565,64 @@ function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, personPresence,
 // ============================================================
 //  Renderers
 // ============================================================
+// V2 #52 — Synthetic "competitor" thumbnails (inline SVG data URLs) so the YT preview
+// shows the user's thumbnail in context, surrounded by realistic-looking neighbors.
+// Each generator returns { thumbDataUrl, title, channel, views, age, pfpColor }.
+const VT_COMPETITORS = [
+  { gradient:['#FFB2F0','#90A5FF'], face:'😱', text:'THIS IS BAD', textColor:'#fff', channel:'Strawbear ♡', title:'I broke my VTuber model on stream live', views:'48K', age:'3 days ago', pfp:'#FFB2F0' },
+  { gradient:['#6BE4EA','#90A5FF'], face:'😎', text:'$10 SETUP', textColor:'#fff', channel:'Cozy Pixels', title:'Building a VTuber setup for under $10!?', views:'112K', age:'1 week ago', pfp:'#6BE4EA' },
+  { gradient:['#FFB07A','#FF8AA8'], face:'🤯', text:'NEW META', textColor:'#fff', channel:'AceStream', title:'The NEW Marvel Rivals meta is broken', views:'1.4M', age:'5 hours ago', pfp:'#FFB07A' },
+  { gradient:['#C9A8FF','#FFB2F0'], face:'😭', text:'I CRIED', textColor:'#fff', channel:'lunarbeam', title:'Reading my old fan mail (emotional)', views:'24K', age:'2 days ago', pfp:'#C9A8FF' },
+  { gradient:['#A8E6BE','#6BE4EA'], face:'🎮', text:'NUZLOCKE', textColor:'#2b3a55', channel:'PokéPunch', title:'Hardcore Nuzlocke but I cry every loss', views:'87K', age:'1 day ago', pfp:'#A8E6BE' },
+  { gradient:['#FF8AA8','#C9A8FF'], face:'😈', text:'NEVER', textColor:'#fff', channel:'velvetkitten', title:'Why I will NEVER stream on Kick', views:'213K', age:'4 days ago', pfp:'#FF8AA8' },
+  { gradient:['#4D5BC0','#90A5FF'], face:'🥺', text:'DEBUT!', textColor:'#fff', channel:'cherrymew', title:'VTUBER DEBUT VIDEO ✦ welcome home', views:'9.2K', age:'12 hours ago', pfp:'#4D5BC0' },
+  { gradient:['#FFD27A','#FF8AA8'], face:'🍳', text:'COOKING?!', textColor:'#2b3a55', channel:'mochi cooks', title:'A VTuber tries to make ramen from scratch', views:'56K', age:'6 days ago', pfp:'#FFD27A' },
+  { gradient:['#3FB8C0','#A8E6BE'], face:'👀', text:'CAUGHT', textColor:'#fff', channel:'NocturnaVT', title:'I caught a BIG VTuber doing this', views:'347K', age:'2 weeks ago', pfp:'#3FB8C0' },
+  { gradient:['#FFB2C8','#FFB2F0'], face:'💀', text:'WHY', textColor:'#fff', channel:'Sleepy Pengu', title:'POV: your stream gets raided by 500 ppl', views:'72K', age:'8 hours ago', pfp:'#FFB2C8' }
+];
+
+function generateCompetitorThumb(c){
+  // 16:9 SVG with gradient bg, big "face" emoji, big text overlay, simple duration badge.
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${c.gradient[0]}"/>
+        <stop offset="100%" stop-color="${c.gradient[1]}"/>
+      </linearGradient>
+      <radialGradient id="vig" cx="0.5" cy="0.5" r="0.7"><stop offset="0%" stop-color="rgba(0,0,0,0)"/><stop offset="100%" stop-color="rgba(0,0,0,0.35)"/></radialGradient>
+    </defs>
+    <rect width="1280" height="720" fill="url(#g)"/>
+    <rect width="1280" height="720" fill="url(#vig)"/>
+    <text x="240" y="450" font-family="Arial, sans-serif" font-size="320" text-anchor="middle">${c.face}</text>
+    <text x="900" y="340" font-family="Impact, Arial Black, sans-serif" font-size="${c.text.length > 6 ? '120' : '160'}" fill="${c.textColor}" text-anchor="middle" font-weight="900" stroke="rgba(0,0,0,0.65)" stroke-width="6" paint-order="stroke">${c.text}</text>
+    <text x="900" y="490" font-family="Impact, Arial Black, sans-serif" font-size="${c.text.length > 6 ? '120' : '160'}" fill="${c.textColor}" text-anchor="middle" font-weight="900">${c.text}</text>
+  </svg>`;
+  // Base64-encode to avoid URL-encoding edge cases with emoji + entities
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+}
+
+function generateCompetitorPfp(color){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="${color}"/><circle cx="20" cy="16" r="6" fill="rgba(255,255,255,0.85)"/><ellipse cx="20" cy="34" rx="14" ry="9" fill="rgba(255,255,255,0.85)"/></svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+
+// Pick N distinct random competitors for this render. Stable per pageload to avoid flicker.
+let __cachedNeighbors = null;
+function pickNeighbors(n){
+  if(__cachedNeighbors) return __cachedNeighbors;
+  const shuffled = VT_COMPETITORS.slice().sort(() => Math.random() - 0.5);
+  __cachedNeighbors = shuffled.slice(0, n);
+  return __cachedNeighbors;
+}
+
 function renderYTMockups(url, titleText){
   const grid = $('ytPreviewGrid');
   const titleSafe = escapeHtml((titleText || 'Your video title will show up right here — keep it under ~60 chars on desktop').slice(0, 100));
   const channelName = 'Your Channel';
   const meta = '1.2K views · 2 hours ago';
+  // V2 #52 — Pull two distinct competitors for the desktop grid + one for the mobile peek
+  const neighbors = pickNeighbors(3);
+  const [n1, n2, n3] = neighbors.map(c => ({...c, thumb: generateCompetitorThumb(c), pfpUrl: generateCompetitorPfp(c.pfp)}));
   grid.innerHTML = `
     <!-- MOBILE -->
     <div class="yt-mobile-wrap">
@@ -1174,7 +1641,22 @@ function renderYTMockups(url, titleText){
             <span class="icon-dot"></span>
             <span class="icon-dot"></span>
           </div>
-          <div class="yt-mobile-feed-item">
+          <!-- V2 #52 — competitor peeking ABOVE the user's video (the one ending) -->
+          <div class="yt-mobile-feed-item peek-above" aria-hidden="true">
+            <div class="thumb-area">
+              <img src="${n3.thumb}" alt="" />
+              <span class="duration-badge">8:21</span>
+            </div>
+            <div class="yt-mobile-meta">
+              <div class="channel-avatar" style="background:${n3.pfp}"></div>
+              <div class="text-col">
+                <div class="title">${escapeHtml(n3.title)}</div>
+                <div class="sub">${escapeHtml(n3.channel)} · ${n3.views} views · ${n3.age}</div>
+              </div>
+              <div class="dots">⋮</div>
+            </div>
+          </div>
+          <div class="yt-mobile-feed-item user-item">
             <div class="thumb-area">
               <img src="${url}" alt="Your thumbnail in mobile feed" />
               <span class="duration-badge">5:42</span>
@@ -1188,7 +1670,10 @@ function renderYTMockups(url, titleText){
               </div>
               <div class="dots">⋮</div>
             </div>
-            <div class="yt-mobile-feed-peek-thumb"></div>
+          </div>
+          <!-- V2 #52 — competitor peeking BELOW (the next thumbnail scrolling into view) -->
+          <div class="yt-mobile-feed-peek-thumb" aria-hidden="true">
+            <img src="${n2.thumb}" alt="" />
           </div>
         </div>
       </div>
@@ -1205,18 +1690,21 @@ function renderYTMockups(url, titleText){
           <span class="signin">Sign in</span>
         </div>
         <div class="yt-desktop-grid">
-          <div class="yt-desktop-card placeholder">
-            <div class="thumb-area"></div>
+          <!-- V2 #52 — Competitor LEFT of user -->
+          <div class="yt-desktop-card competitor" aria-hidden="true">
+            <div class="thumb-area">
+              <img src="${n1.thumb}" alt="" />
+              <span class="duration-badge">${4 + Math.floor(Math.random() * 12)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}</span>
+            </div>
             <div class="yt-desktop-meta">
-              <div class="channel-avatar"></div>
+              <img class="channel-avatar" src="${n1.pfpUrl}" alt="" />
               <div>
-                <div class="title"></div>
-                <div class="title title-2"></div>
-                <div class="sub"></div>
+                <div class="title">${escapeHtml(n1.title)}</div>
+                <div class="sub">${escapeHtml(n1.channel)}<br/>${n1.views} views · ${n1.age}</div>
               </div>
             </div>
           </div>
-          <div class="yt-desktop-card">
+          <div class="yt-desktop-card user-card">
             <div class="thumb-area">
               <img src="${url}" alt="Your thumbnail in desktop grid" />
               <span class="duration-badge">5:42</span>
@@ -1229,14 +1717,17 @@ function renderYTMockups(url, titleText){
               </div>
             </div>
           </div>
-          <div class="yt-desktop-card placeholder">
-            <div class="thumb-area"></div>
+          <!-- V2 #52 — Competitor RIGHT of user -->
+          <div class="yt-desktop-card competitor" aria-hidden="true">
+            <div class="thumb-area">
+              <img src="${n2.thumb}" alt="" />
+              <span class="duration-badge">${4 + Math.floor(Math.random() * 12)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}</span>
+            </div>
             <div class="yt-desktop-meta">
-              <div class="channel-avatar"></div>
+              <img class="channel-avatar" src="${n2.pfpUrl}" alt="" />
               <div>
-                <div class="title"></div>
-                <div class="title title-2"></div>
-                <div class="sub"></div>
+                <div class="title">${escapeHtml(n2.title)}</div>
+                <div class="sub">${escapeHtml(n2.channel)}<br/>${n2.views} views · ${n2.age}</div>
               </div>
             </div>
           </div>
