@@ -2348,6 +2348,20 @@ async function showApp(user){
   }
   // Todo widget — fire-and-forget; widget tolerates missing tables
   todoWidgetInit();
+
+  // V3 — Deep-link: ?managers=1 auto-opens the Managers modal so the homepage
+  // smart card can route creators straight to the roster.
+  const deepParams = new URLSearchParams(window.location.search);
+  if(deepParams.get('managers') === '1' && !impersonating){
+    // Slight delay so the modal renders cleanly after first paint
+    setTimeout(() => {
+      if(typeof openManagersModal === 'function') openManagersModal();
+      // Clean the URL so refreshes don't re-trigger it
+      deepParams.delete('managers');
+      const newUrl = window.location.pathname + (deepParams.toString() ? '?' + deepParams.toString() : '');
+      window.history.replaceState({}, '', newUrl);
+    }, 120);
+  }
 }
 
 // ============================================================

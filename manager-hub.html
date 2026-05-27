@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manager Hub 👑 — Eggie's Creator Hub</title>
+<meta name="description" content="Manager dashboard — see every creator who's delegated co-owner access to you, with status counts and attention items at a glance." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --shadow-lift:0 14px 40px rgba(99,170,244,0.28), 0 4px 12px rgba(255,178,240,0.22);
+    --radius:22px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:28px 16px 60px;position:relative;z-index:1}
+
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.4);
+    padding:7px 14px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:13px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;font-size:54px;line-height:1;margin:0;
+    background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle) 60%, var(--mint));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .tag{margin:6px 0 0;color:var(--ink-soft);font-size:14px;font-weight:600}
+
+  .user-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:10px 16px;margin:16px 0;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:999px;
+    font-size:13.5px;
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .user-bar .who{color:var(--ink-soft)}
+  .user-bar .who strong{color:var(--deep)}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    padding:8px 16px;border-radius:999px;border:none;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:13.5px;color:#fff;
+    background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle));
+    box-shadow:0 4px 12px rgba(144,165,255,0.35);
+    transition:transform .12s ease, box-shadow .12s ease;
+    text-decoration:none;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(144,165,255,0.45)}
+  .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+  .btn.secondary{
+    background:rgba(255,255,255,0.85);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);box-shadow:none;
+  }
+  .btn.secondary:hover{background:rgba(255,255,255,1)}
+
+  /* AUTH VIEW */
+  .auth-card{
+    max-width:480px;margin:24px auto;
+    background:rgba(255,255,255,0.85);
+    border:2px solid rgba(255,178,240,0.45);
+    border-radius:var(--radius);padding:28px;
+    box-shadow:var(--shadow);
+  }
+  .auth-card h1{margin:0 0 8px;font-size:24px;color:var(--deep)}
+  .auth-card p{margin:0 0 14px;font-size:14.5px}
+  .auth-card input[type=email]{
+    width:100%;padding:12px 14px;border-radius:12px;
+    border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.9);
+    font-family:inherit;font-size:15px;color:var(--ink);
+  }
+  .auth-card input[type=email]:focus{outline:none;border-color:var(--pink-hot);box-shadow:0 0 0 4px rgba(255,178,240,0.25)}
+  .auth-card .btn{width:100%;padding:12px;font-size:15px;margin-top:10px}
+  .status{
+    margin-top:12px;padding:11px 14px;border-radius:12px;
+    font-size:13px;font-weight:600;line-height:1.5;
+  }
+  .status.info{background:rgba(199,210,255,0.35);border:1.5px solid rgba(144,165,255,0.45);color:var(--deep)}
+  .status.success{background:rgba(168,230,190,0.4);border:1.5px solid rgba(168,230,190,0.7);color:#1f6b35}
+  .status.error{background:rgba(255,178,200,0.4);border:1.5px solid rgba(255,138,168,0.6);color:#a23556}
+
+  /* DASHBOARD */
+  .summary-bar{
+    display:flex;flex-wrap:wrap;gap:14px;
+    background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(199,210,255,0.5));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;padding:14px 20px;margin:0 0 18px;
+  }
+  .summary-bar .stat{display:flex;flex-direction:column;min-width:90px}
+  .summary-bar .stat .num{font-size:26px;font-weight:800;color:var(--deep);line-height:1.05}
+  .summary-bar .stat .lbl{font-size:11.5px;color:var(--ink-soft);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+
+  .clients-grid{
+    display:grid;gap:18px;
+    grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));
+    margin-top:8px;
+  }
+
+  .client-card{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 20px 16px;
+    display:flex;flex-direction:column;gap:10px;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .client-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+
+  .cc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .cc-head .crown{
+    width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+    background:linear-gradient(135deg, rgba(255,178,240,0.55), rgba(199,210,255,0.55));
+    flex:0 0 auto;
+  }
+  .cc-head .nameblock{flex:1 1 auto;min-width:0}
+  .cc-head .nameblock .creator{
+    font-weight:800;color:var(--deep);font-size:15px;line-height:1.2;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cc-head .nameblock .role{
+    font-size:11.5px;color:var(--ink-soft);font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+  }
+
+  .cc-counts{
+    display:grid;grid-template-columns:repeat(7, minmax(0,1fr));gap:6px;
+    background:rgba(255,255,255,0.55);
+    border-radius:14px;padding:8px 10px;
+  }
+  .cc-counts .col{display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--ink-soft);font-weight:700}
+  .cc-counts .col .n{font-size:16px;font-weight:800;color:var(--deep);line-height:1}
+  .cc-counts .col .lbl{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;margin-top:3px;text-align:center;line-height:1.1}
+  .cc-counts .col.zero{opacity:0.4}
+
+  .cc-meta{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+  .cc-meta strong{color:var(--ink);font-weight:700}
+
+  .cc-attention{
+    background:rgba(255,245,220,0.55);
+    border:1.5px solid rgba(255,210,122,0.5);
+    border-radius:12px;padding:10px 12px;
+    font-size:12.5px;line-height:1.45;
+  }
+  .cc-attention.empty{background:rgba(168,230,190,0.35);border-color:rgba(168,230,190,0.6);color:#1f6b35}
+  .cc-attention strong{color:#7a5818;font-weight:800;display:block;margin-bottom:2px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+  .cc-attention.empty strong{color:#1f6b35}
+  .cc-attention ul{margin:4px 0 0;padding-left:18px}
+  .cc-attention li{margin:1px 0}
+
+  .cc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+  .cc-actions .btn{padding:9px 18px;font-size:13px}
+
+  .empty-state{
+    text-align:center;padding:48px 18px;
+    background:rgba(255,255,255,0.75);
+    border:2px dashed rgba(144,165,255,0.4);
+    border-radius:var(--radius);
+    max-width:560px;margin:24px auto;
+  }
+  .empty-state h2{margin:0 0 8px;color:var(--deep)}
+  .empty-state p{margin:0 0 8px;color:var(--ink-soft);font-size:14px;line-height:1.55}
+
+  .loading-card{
+    text-align:center;padding:36px 18px;
+    color:var(--ink-soft);font-size:14px;
+  }
+  .spin{
+    display:inline-block;width:16px;height:16px;border:2.5px solid rgba(144,165,255,0.3);
+    border-top-color:var(--periwinkle);border-radius:50%;animation:spin 0.8s linear infinite;
+    margin-right:6px;vertical-align:-3px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a class="back-link" href="index.html">← Hub home</a>
+    <a class="back-link" href="planner.html">📅 Own planner</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Manager Hub</h1>
+    <p class="tag">👑 Every creator who's delegated co-owner access to you, in one place.</p>
+  </header>
+
+  <!-- SIGN-IN VIEW -->
+  <div id="authView" class="hidden">
+    <div class="auth-card">
+      <h1>Sign in to see your client hubs</h1>
+      <p>Use the email address a creator used when they invited you. We'll send you a magic link — no password required.</p>
+      <label for="emailInput" style="font-size:12.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em">Email</label>
+      <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+      <button class="btn" id="signInBtn" type="button">📬 Send magic link</button>
+      <div class="status info hidden" id="authStatus"></div>
+      <p style="margin-top:14px;font-size:12.5px;color:var(--ink-soft);line-height:1.5">
+        If you don't see any client hubs after signing in, your creator may not have sent you a manager invite yet — ask them to generate one from <em>their</em> planner's 👑 Managers panel.
+      </p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="dashboardView" class="hidden">
+    <div class="user-bar">
+      <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn secondary" id="refreshBtn" type="button">🔄 Refresh</button>
+        <button class="btn secondary" id="signOutBtn" type="button">Sign out</button>
+      </div>
+    </div>
+
+    <div class="summary-bar" id="summaryBar">
+      <div class="stat"><span class="num" id="sCreators">—</span><span class="lbl">Clients</span></div>
+      <div class="stat"><span class="num" id="sActive">—</span><span class="lbl">Active projects</span></div>
+      <div class="stat"><span class="num" id="sScheduled">—</span><span class="lbl">Next 7 days</span></div>
+      <div class="stat"><span class="num" id="sEditing">—</span><span class="lbl">In editing</span></div>
+      <div class="stat"><span class="num" id="sNotes">—</span><span class="lbl">Recent editor notes</span></div>
+    </div>
+
+    <div id="clientsArea">
+      <div class="loading-card"><span class="spin"></span> Loading your clients…</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ============================================================
+//  CONFIG — must match planner.html
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+});
+
+const $ = (id) => document.getElementById(id);
+let currentUser = null;
+let delegations = [];
+
+// ============================================================
+//  Status column metadata (mirrors planner.html STATUSES)
+// ============================================================
+const STATUS_DEFS = [
+  {value:'idea',      label:'Idea',     emoji:'💡'},
+  {value:'script',    label:'Script',   emoji:'📝'},
+  {value:'recording', label:'Record',   emoji:'🎙️'},
+  {value:'editing',   label:'Edit',     emoji:'✂️'},
+  {value:'scheduled', label:'Sched',    emoji:'📅'},
+  {value:'posted',    label:'Posted',   emoji:'✅'},
+  {value:'archived',  label:'Archive',  emoji:'📦'}
+];
+
+// ============================================================
+//  Boot
+// ============================================================
+(async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session?.user){
+    enterDashboard(session.user);
+  } else {
+    showAuth();
+  }
+  sb.auth.onAuthStateChange((_event, s) => {
+    if(s?.user) enterDashboard(s.user);
+    else showAuth();
+  });
+})();
+
+function showAuth(){
+  currentUser = null;
+  $('authView').classList.remove('hidden');
+  $('dashboardView').classList.add('hidden');
+}
+
+async function enterDashboard(user){
+  currentUser = user;
+  $('authView').classList.add('hidden');
+  $('dashboardView').classList.remove('hidden');
+  $('userEmailDisplay').textContent = user.email;
+  await loadDashboard();
+}
+
+// ============================================================
+//  Sign in / out
+// ============================================================
+$('signInBtn').addEventListener('click', async () => {
+  const email = ($('emailInput').value || '').trim().toLowerCase();
+  if(!email || !email.includes('@')){
+    setStatus('authStatus', 'Please enter a valid email address.', 'error');
+    return;
+  }
+  if(window.location.protocol === 'file:'){
+    setStatus('authStatus', "Magic links can't redirect to file:// URLs — open this page from creatorhub.eggieweggie.ca or a local server.", 'error');
+    return;
+  }
+  const btn = $('signInBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Sending…';
+  const redirectTo = window.location.origin + window.location.pathname;
+  try{
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+    if(error){
+      console.error('[ManagerHub] signInWithOtp failed:', error);
+      setStatus('authStatus', 'Sign-in failed: ' + (error.message || 'unknown error') + '. Open browser console (F12) for details.', 'error');
+    } else {
+      setStatus('authStatus', `✨ Magic link sent to ${email}. Check your inbox (and spam folder) — click the link to come back here.`, 'success');
+    }
+  }catch(e){
+    console.error('[ManagerHub] signInWithOtp threw:', e);
+    setStatus('authStatus', 'Network error: ' + (e.message || e), 'error');
+  }finally{
+    btn.disabled = false; btn.innerHTML = '📬 Send magic link';
+  }
+});
+
+$('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') $('signInBtn').click(); });
+
+$('signOutBtn').addEventListener('click', async () => {
+  if(!confirm('Sign out?')) return;
+  await sb.auth.signOut();
+});
+$('refreshBtn').addEventListener('click', loadDashboard);
+
+function setStatus(boxId, msg, type){
+  const el = $(boxId);
+  el.classList.remove('hidden');
+  el.className = 'status ' + (type || 'info');
+  el.textContent = msg;
+}
+
+// ============================================================
+//  Dashboard data loading
+// ============================================================
+async function loadDashboard(){
+  const area = $('clientsArea');
+  area.innerHTML = '<div class="loading-card"><span class="spin"></span> Loading your clients…</div>';
+  resetSummary();
+
+  // 1. Fetch delegations
+  let delegRows = [];
+  try{
+    const { data, error } = await sb.rpc('planner_list_my_delegations');
+    if(error){
+      if(/function.*does not exist|relation.*does not exist/i.test(error.message || '')){
+        area.innerHTML = renderEmptyState(
+          'Manager features not enabled yet',
+          "Your creator needs to run planner-managers.sql in Supabase first. (If you're Eggie reading this — that's the SQL migration in your hub folder.)"
+        );
+        return;
+      }
+      throw error;
+    }
+    delegRows = data || [];
+  }catch(e){
+    console.error('[ManagerHub] list_my_delegations failed:', e);
+    area.innerHTML = renderEmptyState('Something went wrong', "Couldn't load your delegations: " + (e.message || e));
+    return;
+  }
+
+  delegations = delegRows;
+  if(!delegRows.length){
+    area.innerHTML = renderEmptyState(
+      'No client hubs yet',
+      'You haven\'t been delegated as a manager by any creator. Ask the creator you work with to send you an invite link from their 👑 Managers panel inside planner.html.'
+    );
+    return;
+  }
+
+  // 2. For each delegation, load items + compute summary stats in parallel
+  area.innerHTML = '<div class="clients-grid" id="clientsGrid"></div>';
+  const grid = $('clientsGrid');
+
+  // Render placeholder cards immediately so the page doesn't look stuck
+  delegRows.forEach(d => {
+    const slot = document.createElement('div');
+    slot.className = 'client-card';
+    slot.id = 'card-' + d.manager_id;
+    slot.innerHTML = `
+      <div class="cc-head">
+        <span class="crown">👑</span>
+        <div class="nameblock">
+          <div class="creator">${escapeHtml(d.owner_email || 'creator')}</div>
+          <div class="role">Manager · loading…</div>
+        </div>
+      </div>
+      <div class="loading-card" style="padding:14px"><span class="spin"></span> Loading projects…</div>
+    `;
+    grid.appendChild(slot);
+  });
+
+  // Fetch items per delegation in parallel
+  const results = await Promise.all(delegRows.map(d => loadClientItems(d)));
+
+  // Render the real cards + tally summary
+  const summary = { creators: results.length, active: 0, scheduled: 0, editing: 0, notes: 0 };
+  results.forEach(r => {
+    const card = document.getElementById('card-' + r.delegation.manager_id);
+    if(card) card.replaceWith(buildClientCard(r));
+    summary.active += r.counts.active;
+    summary.scheduled += r.attention.scheduledSoon.length;
+    summary.editing += r.attention.stuckEditing.length;
+    summary.notes += r.attention.recentNotes.length;
+  });
+  updateSummary(summary);
+}
+
+async function loadClientItems(delegation){
+  // RLS: manager can read items where owner_id = delegation.owner_id (via planner_is_manager_of policy).
+  const { data, error } = await sb.from('planner_items')
+    .select('id,title,status,scheduled_at,updated_at,editor_notes,editor_notes_updated_at,is_priority,assignee_email')
+    .eq('owner_id', delegation.owner_id);
+  const items = data || [];
+  if(error) console.error('[ManagerHub] items load failed for ' + delegation.owner_email, error);
+
+  const counts = Object.fromEntries(STATUS_DEFS.map(s => [s.value, 0]));
+  let active = 0, lastUpdated = null;
+  for(const it of items){
+    if(counts[it.status] !== undefined) counts[it.status]++;
+    if(it.status !== 'archived' && it.status !== 'posted') active++;
+    if(it.updated_at && (!lastUpdated || it.updated_at > lastUpdated)) lastUpdated = it.updated_at;
+  }
+
+  // Attention windows
+  const now = new Date();
+  const in7 = new Date(now.getTime() + 7 * 86400000);
+  const fiveDaysAgo = new Date(now.getTime() - 5 * 86400000);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+
+  const scheduledSoon = items.filter(it =>
+    it.scheduled_at && new Date(it.scheduled_at) >= now && new Date(it.scheduled_at) <= in7 &&
+    it.status !== 'posted' && it.status !== 'archived'
+  ).sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+
+  const stuckEditing = items.filter(it =>
+    it.status === 'editing' && it.updated_at && new Date(it.updated_at) < fiveDaysAgo
+  );
+
+  const recentNotes = items.filter(it =>
+    it.editor_notes && it.editor_notes_updated_at &&
+    new Date(it.editor_notes_updated_at) >= sevenDaysAgo
+  ).sort((a,b) => new Date(b.editor_notes_updated_at) - new Date(a.editor_notes_updated_at));
+
+  return {
+    delegation,
+    items,
+    counts,
+    lastUpdated,
+    activeCount: active,
+    attention: { scheduledSoon, stuckEditing, recentNotes },
+    countsByStatus: counts,
+    countsTotal: items.length,
+    countsLabel: { active }
+  };
+}
+
+// ============================================================
+//  Rendering
+// ============================================================
+function buildClientCard(r){
+  const div = document.createElement('div');
+  div.className = 'client-card';
+  div.id = 'card-' + r.delegation.manager_id;
+
+  // Status count row
+  const countsHtml = STATUS_DEFS.map(s => {
+    const n = r.counts[s.value] || 0;
+    return `<div class="col${n === 0 ? ' zero' : ''}" title="${escapeHtml(s.label)}: ${n}">
+      <span class="n">${n}</span>
+      <span class="lbl">${s.emoji}</span>
+    </div>`;
+  }).join('');
+
+  // Last activity
+  const lastActivityText = r.lastUpdated ? fmtRelative(r.lastUpdated) : 'no projects yet';
+
+  // Attention section
+  const att = r.attention;
+  const attItems = [];
+  if(att.scheduledSoon.length){
+    const sample = att.scheduledSoon.slice(0, 2).map(it => `<li>📅 <strong>${escapeHtml(it.title || 'Untitled')}</strong> — ${fmtDateShort(it.scheduled_at)}</li>`).join('');
+    const more = att.scheduledSoon.length > 2 ? `<li>+ ${att.scheduledSoon.length - 2} more in the next 7 days</li>` : '';
+    attItems.push({ label: `${att.scheduledSoon.length} scheduled this week`, html: sample + more });
+  }
+  if(att.stuckEditing.length){
+    const sample = att.stuckEditing.slice(0, 2).map(it => `<li>⏳ <strong>${escapeHtml(it.title || 'Untitled')}</strong> — in editing ${fmtRelative(it.updated_at)}</li>`).join('');
+    const more = att.stuckEditing.length > 2 ? `<li>+ ${att.stuckEditing.length - 2} more stuck > 5d</li>` : '';
+    attItems.push({ label: `${att.stuckEditing.length} stuck in editing > 5d`, html: sample + more });
+  }
+  if(att.recentNotes.length){
+    const sample = att.recentNotes.slice(0, 2).map(it => `<li>💬 <strong>${escapeHtml(it.title || 'Untitled')}</strong> — editor note ${fmtRelative(it.editor_notes_updated_at)}</li>`).join('');
+    const more = att.recentNotes.length > 2 ? `<li>+ ${att.recentNotes.length - 2} more new note(s)</li>` : '';
+    attItems.push({ label: `${att.recentNotes.length} new editor note(s)`, html: sample + more });
+  }
+  const attHtml = attItems.length
+    ? attItems.map(a => `<div style="margin-bottom:6px"><strong>${escapeHtml(a.label)}</strong><ul>${a.html}</ul></div>`).join('')
+    : 'All caught up — no items need attention right now ✨';
+
+  div.innerHTML = `
+    <div class="cc-head">
+      <span class="crown">👑</span>
+      <div class="nameblock">
+        <div class="creator">${escapeHtml(r.delegation.owner_email || 'creator')}</div>
+        <div class="role">Manager · ${escapeHtml(r.delegation.manager_email || '')}</div>
+      </div>
+    </div>
+
+    <div class="cc-counts">${countsHtml}</div>
+
+    <div class="cc-meta">
+      <strong>${r.activeCount}</strong> active project${r.activeCount === 1 ? '' : 's'} · last update ${lastActivityText}
+    </div>
+
+    <div class="cc-attention ${attItems.length ? '' : 'empty'}">
+      ${attItems.length ? '<strong>Needs attention</strong>' : '<strong>✓ All clear</strong>'}
+      ${attItems.length ? attHtml : '<div>No upcoming deadlines, stuck items, or new editor notes.</div>'}
+    </div>
+
+    <div class="cc-actions">
+      <a class="btn" href="planner.html?manage=${encodeURIComponent(r.delegation.manager_id)}">Open hub →</a>
+      <a class="btn secondary" href="planner-editor.html" target="_blank" rel="noreferrer" title="Open the editor-facing view (if you're also assigned to projects)">📑 Editor view</a>
+    </div>
+  `;
+  return div;
+}
+
+function renderEmptyState(title, body){
+  return `<div class="empty-state">
+    <h2>${escapeHtml(title)}</h2>
+    <p>${escapeHtml(body)}</p>
+    <a class="btn secondary" href="planner.html" style="margin-top:10px">📅 Open your own planner instead</a>
+  </div>`;
+}
+
+function resetSummary(){
+  $('sCreators').textContent = '—';
+  $('sActive').textContent = '—';
+  $('sScheduled').textContent = '—';
+  $('sEditing').textContent = '—';
+  $('sNotes').textContent = '—';
+}
+
+function updateSummary(s){
+  $('sCreators').textContent = s.creators;
+  $('sActive').textContent = s.active;
+  $('sScheduled').textContent = s.scheduled;
+  $('sEditing').textContent = s.editing;
+  $('sNotes').textContent = s.notes;
+}
+
+// ============================================================
+//  Utils
+// ============================================================
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+function fmtRelative(ts){
+  if(!ts) return 'never';
+  const d = new Date(ts);
+  const diff = Date.now() - d.getTime();
+  const m = Math.floor(diff / 60000);
+  if(m < 1) return 'just now';
+  if(m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  if(h < 24) return `${h}h ago`;
+  const days = Math.floor(h / 24);
+  if(days < 7) return `${days}d ago`;
+  return d.toLocaleDateString();
+}
+function fmtDateShort(ts){
+  if(!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const diffDays = Math.round((d - now) / 86400000);
+  if(diffDays === 0) return 'today';
+  if(diffDays === 1) return 'tomorrow';
+  if(diffDays > 1 && diffDays < 7) return `in ${diffDays}d`;
+  return d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+}
+</script>
+</body>
+</html>

@@ -640,6 +640,28 @@
       </div>
     </a>
 
+    <!-- V3 — Smart "Managers" tile. JS auto-detects context on load:
+         • Signed in WITH delegations → "My client hubs" → manager-hub.html
+         • Signed in WITHOUT delegations → "Invite a manager" → planner.html?managers=1
+         • Signed out → "Manager features" → planner.html (sign in first, then explore)
+         Starts with the signed-out variant so SSR/no-JS still renders something sensible. -->
+    <a class="tile" id="managersTile" href="planner.html" data-mode="default">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(199,210,255,0.6), rgba(180,240,243,0.5))">
+        <img src="tile-managers.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'👑'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2 id="managersTileTitle">Manager Delegation</h2>
+        <p class="tile-desc" id="managersTileDesc">Hand off full co-owner access to your hub via an email-locked invite link, OR access the client hubs you've been delegated to. Auto-detects which one you need.</p>
+        <ul class="tile-bullets" id="managersTileBullets">
+          <li>Send an invite link, lock it to a specific email</li>
+          <li>Manager roster with last-seen activity + revoke controls</li>
+          <li>Multi-client dashboard if you manage more than one creator</li>
+        </ul>
+        <span class="tile-cta" id="managersTileCta">Sign in to start</span>
+      </div>
+    </a>
+
     <a class="tile" href="habits.html">
       <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(168,230,190,0.45), rgba(199,210,255,0.55))">
         <!--
@@ -960,6 +982,76 @@
     document.getElementById('hwBar').style.width = pct + '%';
   }catch(e){
     console.warn('Habits widget render failed:', e);
+  }
+})();
+</script>
+
+<!-- V3 — Smart "Managers" tile auto-detection. Runs after page load to flip the
+     tile copy based on whether the visitor is signed in and whether they have
+     active manager delegations. Loaded as deferred via the existing CDN
+     supabase library so it doesn't block render. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script defer>
+(async function smartManagersTile(){
+  if(!window.supabase) return;
+  const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:false }
+  });
+
+  const tile = document.getElementById('managersTile');
+  if(!tile) return;
+  const title = document.getElementById('managersTileTitle');
+  const desc = document.getElementById('managersTileDesc');
+  const bullets = document.getElementById('managersTileBullets');
+  const cta = document.getElementById('managersTileCta');
+
+  function setMode(mode){
+    tile.dataset.mode = mode;
+    if(mode === 'manager'){
+      // Signed in AND has delegations
+      tile.setAttribute('href', 'manager-hub.html');
+      title.textContent = 'My Client Hubs';
+      desc.textContent = "You've been delegated as a manager. Jump into the dashboard for every creator who's given you co-owner access — status counts, attention items, and one-click open per hub.";
+      bullets.innerHTML = '' +
+        '<li>One dashboard for every client you co-manage</li>' +
+        '<li>Per-client status counts + attention panel</li>' +
+        '<li>Open any hub with full co-owner access</li>';
+      cta.textContent = 'Open manager hub';
+    } else if(mode === 'creator-invite'){
+      // Signed in but no delegations — show the creator flow (invite a manager)
+      tile.setAttribute('href', 'planner.html?managers=1');
+      title.textContent = 'Invite a Manager';
+      desc.textContent = "Hand off full co-owner access to your hub via an email-locked invite link. Great for taking time off, splitting the load with a friend, or working with a production manager.";
+      bullets.innerHTML = '' +
+        '<li>Email-locked invite links (only the right person can claim)</li>' +
+        '<li>Manager roster with last-seen activity + revoke controls</li>' +
+        '<li>They get full co-owner powers — items, editors, brand kit</li>';
+      cta.textContent = 'Open manager roster';
+    } else {
+      // Signed out or detection failed — default copy already in HTML
+      // Default href is planner.html which prompts sign-in; once signed in they'll see the right thing on next visit.
+    }
+  }
+
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session?.user) return;  // signed out — leave default copy
+
+    // Try the delegations RPC. If the SQL migration hasn't been applied yet,
+    // it returns "function does not exist" — fall back to creator flow.
+    let hasDelegations = false;
+    try{
+      const { data, error } = await sb.rpc('planner_list_my_delegations');
+      if(!error && Array.isArray(data) && data.length > 0){
+        hasDelegations = true;
+      }
+    }catch(_e){ /* swallow — defaults handle it */ }
+
+    setMode(hasDelegations ? 'manager' : 'creator-invite');
+  }catch(e){
+    console.warn('[Hub] Smart managers tile detection failed (using default copy):', e);
   }
 })();
 </script>
