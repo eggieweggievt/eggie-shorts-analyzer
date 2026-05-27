@@ -271,6 +271,47 @@
     border-radius:18px;
     padding:16px 18px;margin:12px 0;
   }
+
+  /* V2.16 — Today view: category pill bar. Each pill opens one section
+     instead of stacking everything at once. Less overwhelming on busy days. */
+  .today-cat-pills{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin:4px 0 16px;padding:6px 0 14px;
+    border-bottom:1.5px dashed rgba(144,165,255,0.25);
+  }
+  .today-cat-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.78);
+    border:1.5px solid rgba(144,165,255,0.3);
+    color:var(--ink-soft);
+    padding:7px 14px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;line-height:1.2;
+    transition:background .12s, border-color .12s, transform .08s, color .12s;
+  }
+  .today-cat-pill:hover{
+    background:rgba(255,255,255,0.95);
+    border-color:rgba(144,165,255,0.55);
+    transform:translateY(-1px);
+  }
+  .today-cat-pill.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.55),rgba(144,165,255,0.45));
+    color:var(--deep);border-color:transparent;
+    box-shadow:0 4px 12px rgba(144,165,255,0.25);
+  }
+  .today-cat-pill .pill-count{
+    font-size:11px;font-weight:800;
+    background:rgba(255,255,255,0.7);
+    color:var(--deep);
+    padding:2px 8px;border-radius:999px;
+    min-width:34px;text-align:center;
+  }
+  .today-cat-pill.full .pill-count{
+    background:linear-gradient(135deg,rgba(168,230,190,0.7),rgba(107,228,234,0.6));
+    color:#1f6580;
+  }
+  .today-cat-pill.active .pill-count{
+    background:rgba(255,255,255,0.9);
+  }
   .category-head{
     display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     margin-bottom:12px;padding-bottom:8px;
@@ -843,7 +884,14 @@ let state = {
     // V2.15 — Stream-day toggle. When false, pre-stream / on-air / post-stream
     // categories collapse out of the dashboard so off-day habits stand alone.
     // Library still shows everything regardless.
-    streamDay: true
+    streamDay: true,
+    // V2.16 — Which category section is currently open in the Today view.
+    // 'all' shows every section stacked (original behavior); a category key
+    // (e.g. 'pre-stream') shows only that one; null means "auto-pick the
+    // first present category" — gives first-time users a focused landing
+    // instead of dumping every section on them at once. Persisted so the
+    // dashboard re-opens to wherever you left off.
+    activeTodayCategory: null
   }
 };
 // V2.15 — Categories that only matter on stream days (toggled by the streamDay flag)
@@ -1085,25 +1133,71 @@ function renderToday(){
     if(!groups[h.category]) groups[h.category] = [];
     groups[h.category].push(h);
   });
-  // Render in canonical category order
-  const html = Object.keys(CATEGORIES)
-    .filter(cat => groups[cat] && groups[cat].length)
-    .map(cat => {
-      const habits = groups[cat];
-      const done = habits.filter(h => isHabitDoneToday(h)).length;
-      const fullClass = done === habits.length ? 'full' : '';
-      return `
-        <div class="category">
-          <div class="category-head">
-            <h3>${CATEGORIES[cat].label}</h3>
-            <span class="cat-progress ${fullClass}">${done} / ${habits.length}</span>
-            <a class="cat-link" href="${CATEGORIES[cat].link}" target="_blank" rel="noreferrer">📖 Why?</a>
-          </div>
-          ${habits.map(habitRow).join('')}
+  // Categories actually present today (canonical order)
+  const presentCats = Object.keys(CATEGORIES).filter(cat => groups[cat] && groups[cat].length);
+
+  // V2.16 — Pill nav. Null = first-time / no prior choice → pick first present
+  // category so the user lands on something focused. If the previously-active
+  // category isn't present today (e.g. user toggled stream-day off), fall back
+  // to the first one that *is* present.
+  let active = state.settings.activeTodayCategory;
+  if(active == null){
+    active = presentCats[0] || 'all';
+  } else if(active !== 'all' && !presentCats.includes(active)){
+    active = presentCats[0] || 'all';
+  }
+
+  // Build the pill bar — "All" first, then one pill per present category
+  const totalDone = filtered.filter(h => isHabitDoneToday(h)).length;
+  const totalAll  = filtered.length;
+  const allFullClass = totalAll > 0 && totalDone === totalAll ? 'full' : '';
+  const pillsHtml = `
+    <div class="today-cat-pills" role="tablist" aria-label="Habit category">
+      <button class="today-cat-pill ${active === 'all' ? 'active' : ''} ${allFullClass}"
+              data-cat-pill="all" role="tab" aria-selected="${active === 'all'}">
+        <span>✨ All</span>
+        <span class="pill-count">${totalDone}/${totalAll}</span>
+      </button>
+      ${presentCats.map(cat => {
+        const habits = groups[cat];
+        const done = habits.filter(h => isHabitDoneToday(h)).length;
+        const fullClass = done === habits.length ? 'full' : '';
+        const isActive = active === cat;
+        return `<button class="today-cat-pill ${isActive ? 'active' : ''} ${fullClass}"
+                        data-cat-pill="${escapeAttr(cat)}" role="tab" aria-selected="${isActive}">
+          <span>${CATEGORIES[cat].label}</span>
+          <span class="pill-count">${done}/${habits.length}</span>
+        </button>`;
+      }).join('')}
+    </div>
+  `;
+
+  // Render the chosen section(s)
+  const catsToRender = active === 'all' ? presentCats : [active];
+  const sectionsHtml = catsToRender.map(cat => {
+    const habits = groups[cat];
+    const done = habits.filter(h => isHabitDoneToday(h)).length;
+    const fullClass = done === habits.length ? 'full' : '';
+    return `
+      <div class="category">
+        <div class="category-head">
+          <h3>${CATEGORIES[cat].label}</h3>
+          <span class="cat-progress ${fullClass}">${done} / ${habits.length}</span>
+          <a class="cat-link" href="${CATEGORIES[cat].link}" target="_blank" rel="noreferrer">📖 Why?</a>
         </div>
-      `;
-    }).join('');
-  wrap.innerHTML = html;
+        ${habits.map(habitRow).join('')}
+      </div>
+    `;
+  }).join('');
+
+  wrap.innerHTML = pillsHtml + sectionsHtml;
+
+  // Wire up pill clicks
+  wrap.querySelectorAll('[data-cat-pill]').forEach(el => el.addEventListener('click', () => {
+    state.settings.activeTodayCategory = el.dataset.catPill;
+    saveLocal();
+    renderToday();
+  }));
   // Wire up handlers
   wrap.querySelectorAll('[data-toggle-daily]').forEach(el => el.addEventListener('click', () => toggleDaily(el.dataset.toggleDaily)));
   wrap.querySelectorAll('[data-count-inc]').forEach(el => el.addEventListener('click', () => bumpCount(el.dataset.countInc, 1)));
