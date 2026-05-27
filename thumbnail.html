@@ -1328,7 +1328,16 @@ async function handleThumb(file){
 
   // V3 — Cache the heavy analysis values so toggling the character checklist can
   // recompute the score live without re-running OCR / color / focal analysis.
-  __currentAnalysis = {W, H, aspect, fileSize, ocrText, colorStats, focalStats, edgeStats};
+  // V2.17 — Also stash the OCR original separately so the user can override the text
+  // via the editable textarea + restore the OCR result later.
+  __currentAnalysis = {
+    W, H, aspect, fileSize,
+    ocrText,                       // current effective text (OCR or user override)
+    ocrTextOriginal: ocrText,      // immutable copy of what OCR detected
+    ocrTextManual: false,          // true once the user has typed a custom value
+    thumbUrl: url,                 // V2.17 — stash for re-rendering the YT mockup on text change
+    colorStats, focalStats, edgeStats
+  };
 
   // Reveal the character checklist FIRST — the score waits on the user's input.
   resetChecklist();
@@ -1366,12 +1375,74 @@ function resetChecklist(){
 // Recompute the score from cached analysis + current checklist and re-render
 function rescore(){
   if(!__currentAnalysis) return;
+  // V2.17 — Preserve focus + cursor on the text input across re-renders so typing isn't disrupted
+  const ta = $('thumbTextInput');
+  const wasFocused = ta && document.activeElement === ta;
+  const selStart = wasFocused ? ta.selectionStart : null;
+  const selEnd   = wasFocused ? ta.selectionEnd   : null;
   const checklist = readChecklist();
   const verdict = scoreThumbnail({...__currentAnalysis, checklist});
   renderScore(verdict);
   renderInsights({...__currentAnalysis, checklist});
   renderChecklist(verdict);
+  // V2.17 — Also refresh the YT mockup so the title slot reflects the user's typed text
+  if(__currentAnalysis.thumbUrl){
+    renderYTMockups(__currentAnalysis.thumbUrl, __currentAnalysis.ocrText || '');
+  }
+  if(wasFocused){
+    const newTa = $('thumbTextInput');
+    if(newTa){
+      newTa.focus();
+      try { newTa.setSelectionRange(selStart, selEnd); } catch(e){ /* ignore — different element */ }
+    }
+  }
 }
+
+// V2.17 — Debounced thumbnail-text input handler. Updates the cached OCR text and
+// triggers a rescore. Bound via event delegation on the insights grid so it survives
+// re-renders without re-binding.
+let __thumbTextDebounce = null;
+function handleThumbTextInput(newText){
+  if(!__currentAnalysis) return;
+  const text = String(newText || '').trim();
+  const origNorm = String(__currentAnalysis.ocrTextOriginal || '').trim();
+  __currentAnalysis.ocrText = text;
+  // "Manual" = user has changed the field at all (typed something different OR cleared OCR's value).
+  // We only treat it as "auto" when the field exactly matches what OCR originally returned.
+  __currentAnalysis.ocrTextManual = text !== origNorm;
+  clearTimeout(__thumbTextDebounce);
+  __thumbTextDebounce = setTimeout(rescore, 350);
+}
+function handleThumbTextReset(){
+  if(!__currentAnalysis) return;
+  __currentAnalysis.ocrText = __currentAnalysis.ocrTextOriginal || '';
+  __currentAnalysis.ocrTextManual = false;
+  rescore();
+}
+// One-time delegation: any input/click inside #insightGrid routes here. Re-renders
+// keep working since we listen on the stable parent, not the per-render textarea.
+(function wireThumbnailTextDelegation(){
+  function bind(){
+    const grid = document.getElementById('insightGrid');
+    if(!grid || grid.dataset.thumbTextWired === '1') return;
+    grid.dataset.thumbTextWired = '1';
+    grid.addEventListener('input', e => {
+      if(e.target && e.target.id === 'thumbTextInput'){
+        handleThumbTextInput(e.target.value);
+      }
+    });
+    grid.addEventListener('click', e => {
+      if(e.target && e.target.id === 'thumbTextReset'){
+        handleThumbTextReset();
+      }
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bind, { once:true });
+  } else {
+    bind();
+  }
+})();
 
 function wireChecklistInputs(){
   ['chkVisible','chkEmotion','chkBigCrop','chkEyes'].forEach(id => {
@@ -1732,10 +1803,10 @@ function renderYTMockups(url, titleText){
               <div class="dots">⋮</div>
             </div>
           </div>
-          <!-- V2.16 — peek-below is only the thumbnail sliver (no title/channel visible),
-                       so synthetic n3 is fine here. -->
+          <!-- V2.16 — peek-below uses n1 (DD3) so the sliver is also a real thumbnail.
+                       Synthetic n3 stays in the pool for variety but isn't rendered now. -->
           <div class="yt-mobile-feed-peek-thumb" aria-hidden="true">
-            <img src="${n3.thumb}" data-fb="${n3.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
+            <img src="${n1.thumb}" data-fb="${n1.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
           </div>
         </div>
       </div>
@@ -1834,8 +1905,30 @@ function renderInsights({ocrText, checklist, colorStats, focalStats, edgeStats})
   const swatchHtml = colorStats.dominant.slice(0, 5).map(([r,g,b]) =>
     `<div class="swatch" title="rgb(${r},${g},${b})" style="background:rgb(${r},${g},${b})"></div>`
   ).join('');
-  const ocrDisplay = ocrText ? `"${escapeHtml(ocrText.slice(0, 180))}${ocrText.length > 180 ? '…' : ''}"` :
-                              '<em>No text detected on the thumbnail.</em>';
+  // V2.17 — Editable text input. OCR fills it on first detect; user can override / type
+  // their own thumbnail text and trigger a rescore. Empty string means "no text".
+  const wasManuallyEdited = !!(__currentAnalysis && __currentAnalysis.ocrTextManual);
+  const placeholderText = ocrText ? '' : 'Type the text on your thumbnail here…';
+  const ocrDisplay = `
+    <textarea id="thumbTextInput" rows="3" maxlength="240"
+      placeholder="${placeholderText}"
+      style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;
+             border:1.5px solid rgba(144,165,255,0.3);background:rgba(255,255,255,0.95);
+             font-family:inherit;font-size:13.5px;color:var(--ink);line-height:1.5;resize:vertical;min-height:54px"
+    >${escapeHtml(ocrText || '')}</textarea>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;flex-wrap:wrap">
+      <span style="font-size:11.5px;color:var(--ink-soft);line-height:1.4">
+        ${ocrText && !wasManuallyEdited
+          ? '<strong style="color:var(--deep)">Auto-detected from your image.</strong> Edit if OCR missed anything.'
+          : (wasManuallyEdited
+            ? '<strong style="color:var(--deep)">Using your typed text.</strong> Clear it to fall back to OCR.'
+            : 'OCR didn\'t pick up any text. Type what\'s on your thumbnail here so I can score it.')}
+      </span>
+      ${wasManuallyEdited && __currentAnalysis && __currentAnalysis.ocrTextOriginal
+        ? '<button type="button" id="thumbTextReset" style="background:rgba(144,165,255,0.18);border:1.5px solid rgba(144,165,255,0.3);border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700;color:var(--deep);cursor:pointer;font-family:inherit">↺ Restore OCR</button>'
+        : ''}
+    </div>
+  `;
 
   // V3 — character card now reflects the user's checklist instead of auto-detect output
   const chk = checklist || {visible:false, emotion:false, bigCrop:false, eyes:false};
