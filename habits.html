@@ -277,6 +277,25 @@
   .habit-row .habit-energy.essential{background:linear-gradient(135deg,rgba(168,230,190,0.45),rgba(107,228,234,0.4));color:#1f6580}
   .habit-row .habit-energy.normal{background:rgba(144,165,255,0.18);color:var(--deep)}
   .habit-row .habit-energy.intensive{background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(255,138,168,0.35));color:#a23556}
+
+  /* V2.11 — Per-habit mode picker (Low/Medium/High pills on every row, click to assign) */
+  .mode-picker{
+    display:inline-flex;background:rgba(144,165,255,0.1);
+    border-radius:999px;padding:2px;gap:1px;flex-shrink:0;
+    border:1px solid rgba(144,165,255,0.18);
+  }
+  .mode-picker button{
+    background:transparent;border:none;cursor:pointer;
+    width:22px;height:22px;border-radius:50%;
+    font-size:13px;line-height:1;padding:0;
+    opacity:.4;transition:opacity .12s, transform .1s, background .12s;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .mode-picker button:hover{opacity:.75;transform:scale(1.08)}
+  .mode-picker button.active{opacity:1}
+  .mode-picker button.active[data-m="low"]{background:linear-gradient(135deg,rgba(144,165,255,0.4),rgba(199,210,255,0.45));box-shadow:0 0 8px rgba(144,165,255,0.5)}
+  .mode-picker button.active[data-m="medium"]{background:linear-gradient(135deg,rgba(255,213,138,0.4),rgba(255,178,240,0.35));box-shadow:0 0 8px rgba(255,213,138,0.5)}
+  .mode-picker button.active[data-m="high"]{background:linear-gradient(135deg,rgba(255,178,240,0.5),rgba(255,138,168,0.45));box-shadow:0 0 8px rgba(255,178,240,0.6)}
   .habit-row .habit-streak{
     font-size:11.5px;color:#a35c00;font-weight:700;display:inline-flex;align-items:center;gap:3px;
     background:rgba(255,213,138,0.25);padding:2px 9px;border-radius:999px;
@@ -458,10 +477,12 @@
       </span>
       <div class="dash-prog"><div class="bar" id="todayBar"></div></div>
     </div>
+    <!-- V2.11 — User-assignable energy modes. Tier-cumulative: Low shows just Low habits,
+         Medium shows Low + Medium, High shows everything. Each habit's mode is user-chosen. -->
     <div class="energy-picker" role="tablist" aria-label="Energy mode">
-      <button data-energy="full" class="active" title="Show every habit">🌞 Full day</button>
-      <button data-energy="stream" title="Stream day — essentials only, plus stream-related">🎙️ Stream day</button>
-      <button data-energy="recovery" title="Recovery day — gentle, low-spoon habits only">🌙 Recovery</button>
+      <button data-energy="low" title="Survival mode — only your Low-tier habits show. The non-negotiables.">🌙 Low energy</button>
+      <button data-energy="medium" class="active" title="Functional — your Low + Medium habits show. The everyday set.">🌤 Medium</button>
+      <button data-energy="high" title="Get-shit-done — everything shows, including your intensive batch days.">🌞 High energy</button>
     </div>
     <div class="view-tabs" role="tablist" aria-label="View">
       <button data-view="today" class="active">✓ Today</button>
@@ -722,8 +743,12 @@ let state = {
   enabled: {},        // { habitId: { custom_overrides... } | true }
   customs: [],        // user-added habits (full habit objects)
   logs: {},           // { 'YYYY-MM-DD': { habitId: value, ... } }
+  // V2.11 — User's chosen mode per habit: { habitId: 'low' | 'medium' | 'high' }
+  // First-time defaults are derived from each habit's built-in `energy` field,
+  // but users can re-assign freely so the modes match THEIR sustainable rhythms.
+  modes: {},
   settings: {
-    energyMode: 'full',  // 'full' | 'stream' | 'recovery'
+    energyMode: 'medium',  // 'low' | 'medium' | 'high'
     currentView: 'today'
   }
 };
@@ -769,6 +794,7 @@ async function loadSupabase(){
   const remoteState = {
     enabled: data.habits?.enabled || {},
     customs: data.habits?.customs || [],
+    modes: data.habits?.modes || state.modes || {},  // V2.11 — sync per-habit mode assignments
     logs: data.logs || {},
     settings: data.settings || state.settings
   };
@@ -784,7 +810,7 @@ async function saveSupabase(){
   saveTimer = setTimeout(async () => {
     const payload = {
       user_id: currentUser.id,
-      habits: { enabled: state.enabled, customs: state.customs },
+      habits: { enabled: state.enabled, customs: state.customs, modes: state.modes },  // V2.11
       logs: state.logs,
       settings: state.settings,
       updated_at: new Date().toISOString()
@@ -839,23 +865,40 @@ function toggleEnabled(id){
 }
 
 // ============================================================
-//  ENERGY FILTERING
+//  V2.11 — MODE FILTERING (user-assignable Low/Medium/High tiers)
 // ============================================================
-function filterByEnergy(habits, mode){
-  if(mode === 'full') return habits;
-  if(mode === 'stream'){
-    // Stream day: essentials + pre-stream / on-air / post-stream
-    return habits.filter(h =>
-      h.energy === 'essential' ||
-      ['pre-stream','on-air','post-stream'].includes(h.category)
-    );
-  }
-  if(mode === 'recovery'){
-    // Recovery day: essentials only (no intensive content/business/batch)
-    return habits.filter(h => h.energy === 'essential');
-  }
-  return habits;
+const MODE_TIER = { low: 0, medium: 1, high: 2 };
+
+// Default mode for a habit if the user hasn't picked one explicitly.
+// Maps the legacy `energy` field so existing libraries get sensible starting tiers.
+function energyToMode(energy){
+  if(energy === 'essential') return 'low';
+  if(energy === 'intensive') return 'high';
+  return 'medium';
 }
+
+// Get the user's chosen mode for this habit (with energy fallback for first-time defaults)
+function getHabitMode(id){
+  if(state.modes[id]) return state.modes[id];
+  const h = getAllHabits().find(x => x.id === id);
+  return h ? energyToMode(h.energy) : 'medium';
+}
+
+function setHabitMode(id, mode){
+  state.modes[id] = mode;
+  persist();
+  render();
+}
+
+// Tier-cumulative: in HIGH mode you see everything, MEDIUM hides only HIGH habits,
+// LOW shows just the Low-tier non-negotiables. Sustainable mental-health approach.
+function filterByMode(habits, currentMode){
+  const max = MODE_TIER[currentMode] != null ? MODE_TIER[currentMode] : 1;
+  return habits.filter(h => MODE_TIER[getHabitMode(h.id)] <= max);
+}
+
+// Legacy alias — anywhere that still calls filterByEnergy gets the new behavior.
+function filterByEnergy(habits, mode){ return filterByMode(habits, mode); }
 
 // ============================================================
 //  LOGGING — value depends on tracking type
@@ -962,6 +1005,12 @@ function renderToday(){
     const [id, dayStr] = el.dataset.weekly.split('|');
     toggleWeeklyDay(id, parseInt(dayStr, 10));
   }));
+  // V2.11 — per-habit mode-picker clicks (move habit between Low/Medium/High tiers)
+  wrap.querySelectorAll('[data-set-mode]').forEach(el => el.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const [id, mode] = el.dataset.setMode.split('|');
+    setHabitMode(id, mode);
+  }));
   wrap.querySelectorAll('[data-edit]').forEach(el => el.addEventListener('click', () => openHabitEdit(el.dataset.edit)));
   updateDashboardCounts(filtered);
 }
@@ -1022,11 +1071,18 @@ function habitRow(h){
       <div class="count-display" style="min-width:38px"><strong>${weekCount}</strong><span class="count-target">/${h.target}</span></div>
     </div>`;
   }
+  // V2.11 — Per-habit mode picker pill (click moon/sun to move this habit between tiers)
+  const myMode = getHabitMode(h.id);
+  const modePicker = `<div class="mode-picker" title="Move this habit between energy tiers">
+    <button data-set-mode="${escapeAttr(h.id)}|low" data-m="low" class="${myMode==='low'?'active':''}" title="Low-tier — shows on all energy days">🌙</button>
+    <button data-set-mode="${escapeAttr(h.id)}|medium" data-m="medium" class="${myMode==='medium'?'active':''}" title="Medium-tier — shows on Medium + High days">🌤</button>
+    <button data-set-mode="${escapeAttr(h.id)}|high" data-m="high" class="${myMode==='high'?'active':''}" title="High-tier — shows on High-energy days only">🌞</button>
+  </div>`;
   return `
     <div class="habit-row ${done ? 'done' : ''}">
       <span class="habit-icon">${escapeHtml(h.icon || '✦')}</span>
       <div class="habit-name">${escapeHtml(h.name)}${desc}</div>
-      <span class="habit-energy ${escapeAttr(h.energy)}" title="Energy cost">${h.energy === 'essential' ? '🟢' : h.energy === 'intensive' ? '🌸' : '🟦'}</span>
+      ${modePicker}
       ${streakHtml}
       ${ctl}
       <button class="habit-edit" data-edit="${escapeAttr(h.id)}" title="Edit / remove">⚙</button>
@@ -1058,22 +1114,37 @@ function renderLibrary(){
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><h3>Nothing here yet</h3><p>Try a different filter, or add a custom habit below.</p></div>';
     return;
   }
-  grid.innerHTML = habits.map(h => `
-    <div class="library-card ${isEnabled(h.id) ? 'enabled' : ''}">
+  grid.innerHTML = habits.map(h => {
+    // V2.11 — Show user's current mode + a quick re-assign picker, only if enabled
+    const enabled = isEnabled(h.id);
+    const myMode = enabled ? getHabitMode(h.id) : energyToMode(h.energy);
+    const modePicker = enabled ? `<div class="mode-picker" style="margin-top:6px" title="Move this habit between energy tiers">
+      <button data-set-mode="${escapeAttr(h.id)}|low" data-m="low" class="${myMode==='low'?'active':''}" title="Low-tier — shows on all energy days">🌙</button>
+      <button data-set-mode="${escapeAttr(h.id)}|medium" data-m="medium" class="${myMode==='medium'?'active':''}" title="Medium-tier — shows on Medium + High days">🌤</button>
+      <button data-set-mode="${escapeAttr(h.id)}|high" data-m="high" class="${myMode==='high'?'active':''}" title="High-tier — shows on High-energy days only">🌞</button>
+    </div>` : '';
+    return `
+    <div class="library-card ${enabled ? 'enabled' : ''}">
       <span class="lc-icon">${escapeHtml(h.icon || '✦')}</span>
       <div class="lc-body">
         <div class="lc-name">${escapeHtml(h.name)}</div>
         ${h.desc ? `<div class="lc-desc">${escapeHtml(h.desc)}</div>` : ''}
         <div class="lc-meta">
           <span class="chip">${escapeHtml(CATEGORIES[h.category]?.label || h.category)}</span>
-          <span class="chip ${escapeAttr(h.energy)}">${h.energy}</span>
           <span class="chip">${h.tracking}${h.target && h.tracking !== 'daily' ? ` ×${h.target}` : ''}${h.unit ? ' '+escapeHtml(h.unit) : ''}</span>
         </div>
+        ${modePicker}
       </div>
-      <button class="lc-toggle ${isEnabled(h.id) ? 'on' : ''}" data-tg="${escapeAttr(h.id)}" title="${isEnabled(h.id) ? 'Disable' : 'Enable'}"></button>
+      <button class="lc-toggle ${enabled ? 'on' : ''}" data-tg="${escapeAttr(h.id)}" title="${enabled ? 'Disable' : 'Enable'}"></button>
     </div>
-  `).join('');
+  `;}).join('');
   grid.querySelectorAll('button[data-tg]').forEach(b => b.addEventListener('click', () => toggleEnabled(b.dataset.tg)));
+  // V2.11 — wire library mode-picker clicks too
+  grid.querySelectorAll('[data-set-mode]').forEach(el => el.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const [id, mode] = el.dataset.setMode.split('|');
+    setHabitMode(id, mode);
+  }));
 }
 
 // ============================================================
@@ -1368,6 +1439,16 @@ function escapeAttr(s){ return escapeHtml(s); }
 // ============================================================
 function boot(){
   loadLocal();
+  // V2.11 — Migrate the old energyMode values to the new Low/Medium/High system.
+  // Old: 'full' (show everything) | 'stream' (essentials + stream) | 'recovery' (essentials only)
+  // New: 'low' | 'medium' | 'high' (cumulative tiers)
+  const m = state.settings.energyMode;
+  if(m === 'full') state.settings.energyMode = 'high';
+  else if(m === 'stream') state.settings.energyMode = 'medium';
+  else if(m === 'recovery') state.settings.energyMode = 'low';
+  else if(!['low','medium','high'].includes(m)) state.settings.energyMode = 'medium';
+  // Make sure state.modes exists (for users from before this update)
+  if(!state.modes || typeof state.modes !== 'object') state.modes = {};
   // First-time defaults — enable a curated starter set so the page is useful out-of-the-box.
   // Pulled across all categories so new users see how the tool works without being overwhelmed.
   if(Object.keys(state.enabled).length === 0 && (state.customs || []).length === 0){
