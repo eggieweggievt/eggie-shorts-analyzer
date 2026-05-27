@@ -880,6 +880,7 @@
     <a href="index.html" class="back-link">🏠 Hub</a>
     <a href="analyzer.html" class="back-link">🛠️ Analyzer</a>
     <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
+    <a href="habits.html" class="back-link">🌸 Habits</a>
     <a href="growth.html" class="back-link">🌱 Playbook</a>
     <a href="about.html" class="back-link">📖 About</a>
   </div>
@@ -1120,23 +1121,16 @@
         <!-- swatches injected from JS -->
       </div>
 
-      <!-- EDITOR-FACING PROFILE (shows on planner-editor.html — both of you can edit) -->
-      <div class="ed-section-head" style="margin-top:18px">
-        <span class="ed-section-chip editor-facing">🎬 Editor-facing profile</span>
-        <span class="ed-section-hint">This is what shows on <em>their</em> dashboard. They can edit these too.</span>
+      <!-- V2.6 — Note about brand kit (replaces the old editor-facing profile fields) -->
+      <div style="margin-top:18px;padding:12px 14px;background:linear-gradient(135deg, rgba(255,219,247,0.35), rgba(199,210,255,0.3));border:1.5px solid rgba(255,178,240,0.4);border-radius:12px;font-size:12.5px;color:var(--ink);line-height:1.55">
+        <strong style="color:var(--deep);font-size:13px">🎨 Where's the brand kit?</strong><br/>
+        Asset folders, reference videos, and creator-wide notes live in the <strong>Brand Kit</strong> button at the top of the toolbar — your editor sees that same kit on every project. This modal just handles editor identity.
       </div>
-      <div class="modal-row cols-2">
-        <div>
-          <label for="edAssetFolder">Asset folder URL <span class="opt">(brand kit, fonts, overlays)</span></label>
-          <input id="edAssetFolder" type="url" placeholder="https://drive.google.com/…" />
-        </div>
-        <div>
-          <label for="edReferences">Reference videos <span class="opt">(one URL per line — editing styles they should match)</span></label>
-          <textarea id="edReferences" rows="3" placeholder="https://youtube.com/...&#10;https://youtube.com/..."></textarea>
-        </div>
-      </div>
-      <label for="edNotes">Shared notes <span class="opt">(both of you see + can edit this)</span></label>
-      <textarea id="edNotes" rows="3" placeholder="Strengths, preferred styles, schedule notes — anything you both should keep in sync."></textarea>
+
+      <!-- Hidden inputs preserved so the JS save path still works (just empty) -->
+      <input id="edAssetFolder" type="hidden" />
+      <textarea id="edReferences" style="display:none"></textarea>
+      <textarea id="edNotes" style="display:none"></textarea>
 
       <!-- V2.1 — Per-editor invite link (shown after the editor is saved) -->
       <div class="invite-link-block hidden" id="inviteLinkBlock">

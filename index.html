@@ -132,14 +132,15 @@
     background:linear-gradient(90deg, transparent, rgba(144,165,255,0.5), transparent);
   }
 
-  /* TILE GRID — 2x2 layout on desktop, single column on mobile */
+  /* TILE GRID — flex so 5 tiles wrap as 3+2 (centered) on desktop, 2+2+1 on medium, 1 each on mobile */
   .tiles{
-    display:grid;gap:22px;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    max-width:920px;
+    display:flex;flex-wrap:wrap;justify-content:center;gap:22px;
+    max-width:1100px;
     margin:0 auto 32px;
   }
-  @media(max-width:760px){.tiles{grid-template-columns:1fr;max-width:480px}}
+  .tile{flex:0 1 320px;max-width:340px;min-width:0}
+  @media(max-width:1024px){.tile{flex:0 1 calc(50% - 22px)}}
+  @media(max-width:580px){.tile{flex:0 1 100%;max-width:480px}}
 
   .tile{
     position:relative;
@@ -224,6 +225,52 @@
     transition:transform .18s ease;
   }
   .tile:hover .tile-cta::after{transform:translateX(2px)}
+
+  /* V2.5 — HABITS WIDGET (only shown if user has data in localStorage) */
+  .habits-widget{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;
+    padding:18px 22px;margin:0 auto 24px;
+    max-width:920px;
+    box-shadow:var(--shadow);
+  }
+  .habits-widget .hw-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  .habits-widget .hw-icon{font-size:22px;line-height:1}
+  .habits-widget .hw-label{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep);flex:1;
+  }
+  .habits-widget .hw-link{
+    font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--deep);text-decoration:none;
+    padding:5px 12px;border-radius:999px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.4);
+  }
+  .habits-widget .hw-link:hover{background:rgba(255,255,255,0.95)}
+  .habits-widget .hw-row{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(3, auto) 1fr;
+    align-items:center;
+  }
+  @media(max-width:680px){.habits-widget .hw-row{grid-template-columns:1fr 1fr 1fr;gap:10px}.habits-widget .hw-bar-wrap{grid-column:1/-1}}
+  .habits-widget .hw-stat{text-align:center}
+  .habits-widget .hw-num{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:32px;color:var(--deep);line-height:1;
+  }
+  .habits-widget .hw-sub{font-size:11px;color:var(--ink-soft);font-weight:700;line-height:1.3;margin-top:2px}
+  .habits-widget .hw-bar-wrap{min-width:0}
+  .habits-widget .hw-bar-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:5px}
+  .habits-widget .hw-bar-label span{color:var(--deep);font-weight:800}
+  .habits-widget .hw-bar{
+    height:10px;background:rgba(255,255,255,0.6);border-radius:999px;overflow:hidden;
+  }
+  .habits-widget .hw-bar-fill{
+    height:100%;border-radius:999px;width:0%;transition:width .4s;
+    background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));
+  }
 
   /* WHAT'S COMING — placeholder for future expansion */
   .coming-soon{
@@ -447,6 +494,47 @@
       </div>
     </a>
 
+    <a class="tile" href="habits.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(168,230,190,0.45), rgba(199,210,255,0.55))">
+        <!--
+          ┌─────────────────────────────────────────────────────────────────┐
+          │  TILE IMAGE SLOT — drop a PNG named  tile-habits.png  in this │
+          │  folder. Suggested: cozy / sustainable / spoon-theory art.    │
+          └─────────────────────────────────────────────────────────────────┘
+        -->
+        <img src="tile-habits.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌸'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Sustainable Habits</h2>
+        <p class="tile-desc">A gentle habit tracker built on spoon theory — pre-loaded with proven VTuber + streamer routines. Missed days pause your streak, not reset it.</p>
+        <ul class="tile-bullets">
+          <li>50+ curated creator habits (pre-stream, on-air, post-stream, health, business)</li>
+          <li>Stream Day / Recovery Day modes filter habits to your energy</li>
+          <li>Local-first, optional sign-in for cross-device sync</li>
+        </ul>
+        <span class="tile-cta">Open the tracker</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- V2.5 — Weekly habits widget (only renders if user has habits data in localStorage) -->
+  <div id="habitsWidget" class="habits-widget hidden">
+    <div class="hw-head">
+      <span class="hw-icon">🌸</span>
+      <span class="hw-label">Your habits this week</span>
+      <a href="habits.html" class="hw-link">Open tracker →</a>
+    </div>
+    <div class="hw-row">
+      <div class="hw-stat"><div class="hw-num" id="hwDone">0</div><div class="hw-sub">done today</div></div>
+      <div class="hw-stat"><div class="hw-num" id="hwWeek">0</div><div class="hw-sub">this week</div></div>
+      <div class="hw-stat"><div class="hw-num" id="hwStreak">0</div><div class="hw-sub">longest streak</div></div>
+      <div class="hw-bar-wrap">
+        <div class="hw-bar-label">Today: <span id="hwToday">0/0</span></div>
+        <div class="hw-bar"><div class="hw-bar-fill" id="hwBar"></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- COMING SOON — placeholder so the user knows this is a living site -->
@@ -497,5 +585,87 @@
   </footer>
 
 </div>
+
+<script>
+// V2.5 — Habits weekly summary widget. Reads localStorage written by habits.html
+// and renders a compact "this week" stat block above the coming-soon section.
+// Only appears if the user has habits data (so first-time visitors don't see empty zeros).
+(function habitsWidget(){
+  const STORAGE_KEY = 'eggie.habits.v1';
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const state = JSON.parse(raw);
+    if(!state || !state.enabled || Object.keys(state.enabled).length === 0) return;
+
+    // Inline copy of HABIT_LIBRARY ids so we can resolve names + tracking types.
+    // Avoid pulling the full library here — we just need enough metadata to count.
+    // Trick: walk through enabled IDs + customs, and use the user's logs to count completions.
+    const enabledIds = Object.keys(state.enabled);
+    const customs = state.customs || [];
+    const logs = state.logs || {};
+
+    // Today + week dates
+    const today = new Date();
+    const todayKey = today.toISOString().slice(0, 10);
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const weekKeys = [];
+    for(let i = 0; i < 7; i++){
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      weekKeys.push(d.toISOString().slice(0, 10));
+    }
+
+    // Count completions today (any habit logged true OR count >= 1)
+    const todayLog = logs[todayKey] || {};
+    const todayDone = enabledIds.filter(id => {
+      const v = todayLog[id];
+      return v === true || (typeof v === 'number' && v > 0);
+    }).length;
+    const todayTotal = enabledIds.length;
+
+    // Count total completions this week
+    let weekTotal = 0;
+    weekKeys.forEach(k => {
+      const log = logs[k] || {};
+      Object.entries(log).forEach(([id, v]) => {
+        if(!enabledIds.includes(id)) return;
+        if(v === true || (typeof v === 'number' && v > 0)) weekTotal++;
+      });
+    });
+
+    // Longest current streak (count consecutive days with ANY habit completed, allow 1 miss)
+    let streak = 0, misses = 0;
+    const d = new Date(today);
+    for(let i = 0; i < 365; i++){
+      const k = d.toISOString().slice(0, 10);
+      const log = logs[k] || {};
+      const hasAny = Object.entries(log).some(([id, v]) => enabledIds.includes(id) && (v === true || (typeof v === 'number' && v > 0)));
+      if(hasAny){
+        streak++;
+        misses = 0;
+      } else {
+        misses++;
+        if(misses >= 2) break;
+      }
+      d.setDate(d.getDate() - 1);
+    }
+
+    // Render
+    const widget = document.getElementById('habitsWidget');
+    widget.classList.remove('hidden');
+    document.getElementById('hwDone').textContent = todayDone;
+    document.getElementById('hwWeek').textContent = weekTotal;
+    document.getElementById('hwStreak').textContent = streak;
+    document.getElementById('hwToday').textContent = todayDone + '/' + todayTotal;
+    const pct = todayTotal > 0 ? (todayDone / todayTotal) * 100 : 0;
+    document.getElementById('hwBar').style.width = pct + '%';
+  }catch(e){
+    console.warn('Habits widget render failed:', e);
+  }
+})();
+</script>
+
 </body>
 </html>

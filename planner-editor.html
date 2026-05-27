@@ -455,16 +455,17 @@
           <p>Loading…</p>
         </div>
         <div id="profileForm" class="hidden">
-          <label for="pAssetFolder">My asset folder <span class="opt">(brand kits, fonts, overlays)</span></label>
-          <input id="pAssetFolder" type="url" placeholder="https://drive.google.com/…" />
-          <label for="pReferences">Reference videos <span class="opt">(one URL per line — videos you like the editing of)</span></label>
-          <textarea id="pReferences" rows="4" placeholder="https://youtube.com/...&#10;https://youtube.com/..."></textarea>
-          <label for="pNotes">Working notes <span class="opt">(for yourself, e.g. preferred styles)</span></label>
-          <textarea id="pNotes" rows="3" placeholder="My style notes…"></textarea>
+          <p style="font-size:13px;color:var(--ink-soft);line-height:1.55;margin:6px 0 12px">
+            Your creator manages your name, email, and color from their side. Brand assets (asset folders, reference videos, brand notes) live in the <strong style="color:var(--deep)">🎨 Branding &amp; assets</strong> card above — those are creator-wide and shared with all editors.
+          </p>
           <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn" id="saveProfileBtn">💾 Save profile</button>
-            <button class="btn secondary" id="cancelProfileBtn">Cancel</button>
+            <button class="btn secondary" id="cancelProfileBtn">Close</button>
           </div>
+          <!-- Hidden inputs preserved so the legacy saveProfile() call doesn't error if triggered. -->
+          <input id="pAssetFolder" type="hidden" />
+          <textarea id="pReferences" style="display:none"></textarea>
+          <textarea id="pNotes" style="display:none"></textarea>
+          <button id="saveProfileBtn" style="display:none"></button>
         </div>
       </div>
 
@@ -817,19 +818,14 @@ function renderProfile(){
       </p>`;
     return;
   }
-  const refs = (myProfile.reference_links || []).slice(0, 5);
+  // V2.6 — Profile card now shows just identity. Brand assets live in the brand kit card.
   sum.innerHTML = `
-    <p style="margin:0 0 10px"><span class="swatch-display" style="background:${escape(myProfile.color || '#90A5FF')}"></span><strong>${escape(myProfile.name)}</strong></p>
-    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px">${escape(myProfile.email || currentUser.email)}</p>
-    ${myProfile.asset_folder_url ? `<p style="margin:0 0 4px"><a href="${escape(myProfile.asset_folder_url)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700;text-decoration:none">📁 Asset folder →</a></p>` : ''}
-    ${refs.length ? `<p style="margin:8px 0 4px;font-weight:700;color:var(--deep);font-size:13px">References:</p>
-      <ul style="margin:0 0 6px;padding-left:18px;font-size:12.5px;line-height:1.5">${refs.map(r => `<li><a href="${escape(r)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700;text-decoration:none">${escape(r.length > 50 ? r.slice(0, 50) + '…' : r)}</a></li>`).join('')}</ul>` : ''}
-    ${myProfile.notes ? `<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-soft);font-style:italic;line-height:1.5;white-space:pre-wrap">${escape(myProfile.notes)}</p>` : ''}
-    <div style="margin-top:14px">
-      <button class="btn secondary" id="editProfileBtn" style="padding:7px 16px;font-size:13px">✏️ Edit profile</button>
-    </div>
+    <p style="margin:0 0 8px"><span class="swatch-display" style="background:${escape(myProfile.color || '#90A5FF')}"></span><strong>${escape(myProfile.name)}</strong></p>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 4px">${escape(myProfile.email || currentUser.email)}</p>
+    <p style="font-size:11.5px;color:var(--ink-soft);line-height:1.5;margin:8px 0 0;font-style:italic">
+      Brand assets (asset folders, reference videos, creator's notes) are in the <strong style="color:var(--deep);font-style:normal">🎨 Branding &amp; assets</strong> section above — same kit shows on every project.
+    </p>
   `;
-  $('editProfileBtn').addEventListener('click', openProfileForm);
 }
 
 function openProfileForm(){
