@@ -156,7 +156,37 @@ DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='onboarded_at') THEN
     ALTER TABLE analyzer_user_prefs ADD COLUMN onboarded_at timestamptz;
   END IF;
+  -- V3.2 — Candidate tags: pool of preferred tags that are ALWAYS candidates but only
+  -- picked if they fit (different from sticky_tags which are force-injected).
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='candidate_tags') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN candidate_tags jsonb DEFAULT '[]'::jsonb;
+  END IF;
 END$$;
+
+-- ============================================================
+--  V3.2 — TAG RATINGS (thumbs-up / thumbs-down on suggested hashtags)
+--  Mirrors analyzer_title_ratings but for hashtags. Lets the analyzer
+--  learn which tags the user accepts vs rejects across many runs.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS analyzer_tag_ratings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+  run_id uuid REFERENCES analyzer_runs(id) ON DELETE SET NULL,
+  tag text NOT NULL,                                  -- normalized lower-case, no '#'
+  rating int NOT NULL CHECK (rating IN (-1, 0, 1)),   -- -1 dislike, 1 like, 0 neutral/skip
+  source text,                                        -- where the suggestion came from: 'detection' | 'niche' | 'sticky' | 'winner' | 'candidate' | 'synonym'
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS tag_ratings_user_idx ON analyzer_tag_ratings(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS tag_ratings_tag_idx ON analyzer_tag_ratings(user_id, tag);
+
+ALTER TABLE analyzer_tag_ratings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "users manage own tag ratings" ON analyzer_tag_ratings;
+CREATE POLICY "users manage own tag ratings" ON analyzer_tag_ratings
+  FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- ============================================================
 --  Done! Reload analyzer.html — you'll see a "Sign in" pill in the header.
