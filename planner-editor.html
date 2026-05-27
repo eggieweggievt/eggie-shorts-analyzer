@@ -310,26 +310,36 @@
     font-family:'Pacifico',cursive;font-weight:400;font-size:16px;
     color:var(--deep);margin:0 0 10px;
   }
+  /* V2.4 — Bigger branding images, natural aspect ratio so brand sheets show in full */
   .brand-kit-card .bk-card-imgs{
-    display:grid;gap:10px;
-    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    display:grid;gap:14px;
+    grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
   }
   .brand-kit-card .bk-card-img-wrap{
-    border-radius:12px;overflow:hidden;
-    background:rgba(255,255,255,0.7);
+    border-radius:14px;overflow:hidden;
+    background:rgba(255,255,255,0.85);
     border:1.5px solid rgba(144,165,255,0.18);
-    aspect-ratio:16/9;
-    display:flex;align-items:center;justify-content:center;
+    transition:box-shadow .15s, border-color .15s;
   }
-  .brand-kit-card .bk-card-img-wrap a{display:block;width:100%;height:100%}
+  .brand-kit-card .bk-card-img-wrap:hover{
+    box-shadow:0 8px 22px rgba(99,170,244,0.18);
+    border-color:var(--periwinkle);
+  }
+  .brand-kit-card .bk-card-img-wrap a{display:block;line-height:0}
   .brand-kit-card .bk-card-img-wrap img{
-    width:100%;height:100%;object-fit:cover;display:block;
-    transition:transform .2s;
+    width:100%;height:auto;display:block;
+    transition:transform .25s;
   }
-  .brand-kit-card .bk-card-img-wrap:hover img{transform:scale(1.03)}
+  .brand-kit-card .bk-card-img-wrap:hover img{transform:scale(1.02)}
+  .brand-kit-card .bk-card-img-label{
+    display:block;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-soft);
+    background:rgba(255,255,255,0.6);line-height:1.3;
+    border-top:1px solid rgba(144,165,255,0.12);
+  }
+  /* V2.4 — Video grid is now ONLY for embeddable videos (YouTube/Vimeo/mp4) */
   .brand-kit-card .bk-card-videos{
     display:grid;gap:12px;
-    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
   }
   .brand-kit-card .bk-card-video{
     background:rgba(0,0,0,0.04);border-radius:12px;overflow:hidden;
@@ -339,19 +349,15 @@
   .brand-kit-card .bk-card-video video{
     width:100%;height:100%;border:none;display:block;
   }
-  .brand-kit-card .bk-card-video.link-fallback{
-    background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.25));
-    display:flex;align-items:center;justify-content:center;padding:14px;
-  }
-  .brand-kit-card .bk-card-video.link-fallback a{
-    color:var(--deep);font-weight:700;text-decoration:none;font-size:13px;text-align:center;
-    word-break:break-word;line-height:1.4;
-  }
   .brand-kit-card .bk-card-video-label{
     position:absolute;bottom:0;left:0;right:0;
     background:linear-gradient(180deg, transparent, rgba(0,0,0,0.7));
     color:#fff;padding:8px 10px 6px;font-size:11.5px;font-weight:700;
     pointer-events:none;
+  }
+  /* V2.4 — Video link list (TikTok / IG / anything that doesn't embed cleanly) — matches asset folder rows */
+  .brand-kit-card .bk-card-video-links{
+    display:flex;flex-direction:column;gap:6px;margin-top:10px;
   }
   .brand-kit-card .bk-card-links{
     display:flex;flex-direction:column;gap:6px;
@@ -677,7 +683,7 @@ function renderBrandKit(){
 
   const sections = [];
 
-  // Branding images
+  // V2.4 — Branding images: bigger, natural aspect ratio, with label below each
   const imgs = brandKit.branding_images || [];
   if(imgs.length){
     sections.push(`
@@ -687,8 +693,9 @@ function renderBrandKit(){
           ${imgs.map(b => `
             <div class="bk-card-img-wrap" title="${escape(b.label || '')}">
               <a href="${escape(b.url)}" target="_blank" rel="noreferrer">
-                <img src="${escape(b.url)}" alt="${escape(b.label || 'Branding image')}" loading="lazy" onerror="this.parentElement.parentElement.innerHTML='<div style=&quot;padding:18px;font-size:12px;color:var(--ink-soft);text-align:center&quot;>image link broken</div>'" />
+                <img src="${escape(b.url)}" alt="${escape(b.label || 'Branding image')}" loading="lazy" onerror="this.parentElement.parentElement.innerHTML='<div style=&quot;padding:24px;font-size:12px;color:var(--ink-soft);text-align:center&quot;>image link broken</div>'" />
               </a>
+              ${b.label ? `<span class="bk-card-img-label">${escape(b.label)}</span>` : ''}
             </div>
           `).join('')}
         </div>
@@ -696,15 +703,20 @@ function renderBrandKit(){
     `);
   }
 
-  // Editing style video references
+  // V2.4 — Video editing styles: split embeddable into a grid + non-embeddable into compact link rows
   const vids = brandKit.editing_style_videos || [];
   if(vids.length){
+    const embedHtml = [], linkHtml = [];
+    vids.forEach(v => {
+      const out = renderVideoEmbed(v);
+      if(out.kind === 'embed') embedHtml.push(out.html);
+      else if(out.kind === 'link') linkHtml.push(out.html);
+    });
     sections.push(`
       <div class="bk-card-section">
         <h4>🎬 Video editing styles I like</h4>
-        <div class="bk-card-videos">
-          ${vids.map(v => renderVideoEmbed(v)).join('')}
-        </div>
+        ${embedHtml.length ? `<div class="bk-card-videos">${embedHtml.join('')}</div>` : ''}
+        ${linkHtml.length ? `<div class="bk-card-video-links">${linkHtml.join('')}</div>` : ''}
       </div>
     `);
   }
@@ -740,11 +752,13 @@ function renderBrandKit(){
   body.innerHTML = sections.join('');
 }
 
-// Build an embedded player for the given video URL.
-// Supports YouTube (yt.com / youtu.be / shorts), Vimeo, direct mp4/webm, otherwise renders a link card.
+// V2.4 — Build a video reference. Returns { kind: 'embed' | 'link', html }
+// so the caller can route embeddable videos into a player grid AND route
+// non-embeddable URLs (TikTok / IG / X / etc.) into a compact link row list
+// that matches the asset folder styling.
 function renderVideoEmbed(v){
   const url = (v.url || '').trim();
-  if(!url) return '';
+  if(!url) return { kind:'none', html:'' };
   const label = v.label || '';
   const labelBar = label ? `<div class="bk-card-video-label">${escape(label)}</div>` : '';
 
@@ -752,30 +766,31 @@ function renderVideoEmbed(v){
   const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/);
   if(yt){
     const id = yt[1];
-    return `<div class="bk-card-video">
+    return { kind:'embed', html: `<div class="bk-card-video">
       <iframe src="https://www.youtube.com/embed/${escape(id)}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
       ${labelBar}
-    </div>`;
+    </div>` };
   }
   // Vimeo
   const vm = url.match(/vimeo\.com\/(\d+)/);
   if(vm){
-    return `<div class="bk-card-video">
+    return { kind:'embed', html: `<div class="bk-card-video">
       <iframe src="https://player.vimeo.com/video/${escape(vm[1])}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
       ${labelBar}
-    </div>`;
+    </div>` };
   }
   // Direct video file
   if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)){
-    return `<div class="bk-card-video">
+    return { kind:'embed', html: `<div class="bk-card-video">
       <video src="${escape(url)}" controls preload="metadata"></video>
       ${labelBar}
-    </div>`;
+    </div>` };
   }
-  // Fallback — link card (TikTok, Reels, etc. don't embed cleanly cross-origin)
-  return `<div class="bk-card-video link-fallback">
-    <a href="${escape(url)}" target="_blank" rel="noreferrer">${label ? `🎬 <strong>${escape(label)}</strong><br/>` : '🎬 '}Open reference →</a>
-  </div>`;
+  // Fallback — compact link card (TikTok / IG / X / generic). Reuses the asset folder row style.
+  return { kind:'link', html: `<a class="bk-card-link" href="${escape(url)}" target="_blank" rel="noreferrer">
+    <span class="bk-card-link-label">🎬 ${escape(label || 'Reference')}</span>
+    <span class="bk-card-link-url">${escape(url)}</span>
+  </a>` };
 }
 
 async function loadProfile(){
