@@ -1638,24 +1638,34 @@ function scoreHook({title, hookStrength}){
   return {key:'hook',name:'Hook strength',score:clamp(s,0,10),weight:2.5,blurb:'How your video starts plus what your title says. The #1 thing the algorithm cares about — biggest single lever on your score.',passes};
 }
 
+// V3.3 — Updated duration scoring for the post-2024 YouTube Shorts cap (3 minutes / 180s).
+// Algorithm still favors 45-55s for retention, but 60-180s no longer auto-flags as "too long" —
+// it's a valid Short now. Hard cutoff is 180s (anything longer isn't a Short on YouTube).
+// TikTok caps at 10 min, IG Reels at 3 min — but retention curves still favor short.
 function scoreDuration({duration, rewatchable, platform}){
   const d = Number(duration)||0;
   let s = 5;
   const passes = [];
   if(!d){
-    return {key:'duration',name:'Length & pacing',score:7,weight:1.2,blurb:'How long the video is. The sweet spot is 45 to 55 seconds.',passes:[{level:'warn',what:'You didn\'t add the length',why:'Drop in the seconds and I can check if you\'re hitting the sweet spot.'}]};
+    return {key:'duration',name:'Length & pacing',score:7,weight:1.2,blurb:'How long the video is. Sweet spot for retention is 45–55s, but Shorts now go up to 3 minutes if your story needs the room.',passes:[{level:'warn',what:'You didn\'t add the length',why:'Drop in the seconds and I can check if you\'re hitting the sweet spot.'}]};
   }
   if(d>=45 && d<=55){s=10; passes.push({level:'pass',what:`${d} seconds — that's the sweet spot`,why:'Best length for keeping people watching all the way through.'});}
   else if((d>=40 && d<45) || (d>55 && d<=60)){s=9; passes.push({level:'pass',what:`${d} seconds — almost ideal`,why:'Right in the zone. A small trim could push it to perfect.'});}
   else if(d>=30 && d<40){s=8; passes.push({level:'pass',what:`${d} seconds — solid`,why:'A little short of ideal, but still works. Stretching toward 45-55 would help retention.'});}
   else if(d>=25 && d<30){s=7; passes.push({level:'warn',what:`${d} seconds — usable`,why:'Under 30 seconds works best when it loops or there\'s a lot packed in.'});}
   else if(d<25){s = rewatchable==='yes' ? 7 : 5; passes.push({level: rewatchable==='yes'?'pass':'warn',what:`${d} seconds — pretty short`,why: rewatchable==='yes' ? 'Loops save it. Next time, even 10 more seconds would unlock more watch time.' : 'Under 25 seconds is tough unless it loops. Aim for 45-55 next time.'});}
-  else if(d>60 && d<=75){s=7; passes.push({level:'warn',what:`${d} seconds — a bit long`,why:'Still in range, but trimming to 55 would help retention.'});}
-  else if(d>75){s=5; passes.push({level:'warn',what:`${d} seconds — too long for shorts`,why:'Tough to keep people watching past about 60 seconds. Trim to under 60 next time.'});}
+  // V3.3 — 60–90s is still a valid Short and a great length when the story needs the breathing room.
+  else if(d>60 && d<=90){s=8; passes.push({level:'pass',what:`${d} seconds — longer Short, still solid`,why:'YouTube now allows Shorts up to 3 minutes, so this fits. Just make sure the pacing earns the runtime — every 10s of slack costs retention.'});}
+  // 90–150s — getting into "longer Short" territory. Retention curves drop here but it's still valid.
+  else if(d>90 && d<=150){s=7; passes.push({level:'warn',what:`${d} seconds — long Short`,why:'Still under the 3-minute cap, but completion rate drops sharply past 90s. Tighten ruthlessly or split it into a Part 1 / Part 2.'});}
+  // 150–180s — upper edge of Shorts. Hard to retain but technically valid.
+  else if(d>150 && d<=180){s=6; passes.push({level:'warn',what:`${d} seconds — at the Shorts cap`,why:'You\'re right at the 3-minute ceiling. Most viewers won\'t watch to the end. Consider whether this should be a long-form video instead.'});}
+  // >180s — no longer qualifies as a Short on YouTube. Will get re-classified as long-form.
+  else if(d>180){s=5; passes.push({level:'warn',what:`${d} seconds — over the Shorts cap`,why:'YouTube\'s Shorts cap is 3 minutes (180s). Past that, this gets treated as long-form and loses the Shorts-feed boost. Trim under 180s or commit to a long-form upload.'});}
 
   if(rewatchable==='yes') passes.push({level:'pass',what:'It loops or has stuff to rewatch',why:'Hidden bonus: the app counts a loop as another full view.'});
 
-  return {key:'duration',name:'Length & pacing',score:s,weight:1.2,blurb:'How long your video is. Best length is 45 to 55 seconds. Never under 25 unless it loops.',passes};
+  return {key:'duration',name:'Length & pacing',score:s,weight:1.2,blurb:'How long your video is. Retention sweet spot is 45–55s. YouTube Shorts go up to 3 min (180s); past that it\'s long-form.',passes};
 }
 
 // Title scoring with heuristic CTR signals. Patterns are drawn from observed VTuber +
