@@ -28,6 +28,10 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='additional_assets') THEN
     ALTER TABLE planner_items ADD COLUMN additional_assets jsonb DEFAULT '[]'::jsonb;
   END IF;
+  -- V2.12 — Per-item star/priority flag (for filtering + sorting starred items first)
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='is_priority') THEN
+    ALTER TABLE planner_items ADD COLUMN is_priority boolean DEFAULT false;
+  END IF;
 END$$;
 
 -- 2. New table: planner_editors

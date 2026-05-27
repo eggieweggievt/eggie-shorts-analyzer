@@ -738,6 +738,38 @@
     width:auto;padding:5px 10px;border-radius:999px;font-size:12.5px;font-weight:700;
     border:1.5px solid transparent;background:transparent;color:var(--deep);
   }
+  /* V2.12 — Form-type / priority filter pills (compact, toggle on/off) */
+  .form-filter{display:inline-flex;gap:5px;flex-wrap:wrap}
+  .form-filter .ff-pill{
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.3);
+    color:var(--ink-soft);padding:5px 11px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-size:12px;font-weight:700;
+    transition:background .12s, border-color .12s, transform .1s;
+  }
+  .form-filter .ff-pill:hover{background:rgba(255,255,255,0.95);transform:translateY(-1px)}
+  .form-filter .ff-pill.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
+    color:var(--deep);border-color:transparent;
+  }
+  .form-filter .ff-pill.priority.active{
+    background:linear-gradient(135deg,rgba(255,213,138,0.5),rgba(255,178,240,0.4));
+    color:#a35c00;
+  }
+  /* V2.12 — ⭐ star on kanban cards */
+  .item-card .item-star{
+    position:absolute;top:6px;right:6px;
+    background:transparent;border:none;cursor:pointer;
+    font-size:14px;line-height:1;padding:2px 4px;border-radius:6px;
+    opacity:0.3;transition:opacity .12s, transform .1s;
+  }
+  .item-card{position:relative}
+  .item-card .item-star:hover{opacity:0.85;transform:scale(1.15)}
+  .item-card .item-star.starred{opacity:1;filter:drop-shadow(0 0 6px rgba(255,213,138,0.7))}
+  .item-card.starred{
+    border-left-width:5px !important;
+    background:linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,213,138,0.12));
+    box-shadow:0 4px 12px rgba(255,213,138,0.25), 0 2px 6px rgba(99,170,244,0.08);
+  }
 
   /* V2.1 — Section chips in the editor modal (who-sees-what indicators) */
   .ed-section-head{
@@ -1151,6 +1183,12 @@
           <option value="">All</option>
         </select>
       </div>
+      <!-- V2.12 — Form-type + priority filter pills (compact, click to toggle) -->
+      <div class="form-filter" role="group" aria-label="Form type filter">
+        <button class="ff-pill" data-form="short" title="Short-form: YT Shorts / TikTok / Instagram">📱 Short</button>
+        <button class="ff-pill" data-form="long" title="Long-form: YT Long / Twitch">📺 Long</button>
+        <button class="ff-pill priority" data-form="priority" title="Starred / important items only">⭐ Important</button>
+      </div>
       <div class="grow"><input type="search" id="searchInput" placeholder="🔍 Search items by title, platform, editor…" /></div>
     </div>
 
@@ -1180,7 +1218,14 @@
     <div class="modal-content">
       <h2 id="modalTitle">New item</h2>
 
-      <label for="fTitle">Title <span class="opt">(required)</span></label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label for="fTitle" style="flex:1;margin:0">Title <span class="opt">(required)</span></label>
+        <!-- V2.12 — Inline star toggle so it's part of the main metadata row -->
+        <label style="display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-soft);font-weight:700;cursor:pointer;margin:0;padding:4px 12px;background:rgba(255,213,138,0.15);border-radius:999px;border:1.5px solid rgba(255,213,138,0.4)" title="Mark as important — floats to top of column + shows on the ⭐ filter">
+          <input id="fIsPriority" type="checkbox" style="margin:0" />
+          <span>⭐ Important</span>
+        </label>
+      </div>
       <input id="fTitle" type="text" placeholder="e.g. POV: I tried Elden Ring DLC blindfolded" maxlength="200" />
 
       <div class="modal-row cols-2">
@@ -1429,6 +1474,7 @@
       <div class="view-toolbar">
         <div class="view-pills" id="viewPills"></div>
         <div class="view-actions">
+          <button class="btn secondary" id="viewStarBtn" title="Star as important / unstar" style="padding:7px 12px;font-size:15px;min-width:40px">☆</button>
           <button class="btn" id="viewEditBtn">✏️ Edit</button>
           <button class="btn secondary" id="viewRecordBtn" title="Open teleprompter for recording">🎬 Record</button>
           <button class="btn secondary" id="viewCloseBtn" title="Close (Esc)">✕</button>
@@ -1586,6 +1632,9 @@ let editingItemAttachments = [];  // V2: working buffer for current item's files
 let editingItemAssets = [];       // V2.2: working buffer for additional asset links {label, url}
 let editingEditorId = null;       // V2: currently editing editor profile
 let editorFilter = '';            // V2: filter board by editor id
+// V2.12 — Form-type + priority filters
+let formFilter = '';              // '' | 'short' | 'long'
+let priorityOnly = false;         // ⭐ show starred items only when true
 // V2.3: brand kit state — editable buffers for the modal
 let brandKit = null;
 let bkBranding = [];   // [{url, label}]
@@ -1789,7 +1838,9 @@ async function saveItem(item){
     editor_files_url: item.editor_files_url || null,
     attachments: item.attachments || [],
     // V2.2: additional asset links (array of {label, url})
-    additional_assets: item.additional_assets || []
+    additional_assets: item.additional_assets || [],
+    // V2.12: ⭐ priority flag
+    is_priority: !!item.is_priority
   };
   // If no id, let Supabase generate one
   if(!payload.id) delete payload.id;
@@ -1802,7 +1853,7 @@ async function saveItem(item){
     // Graceful degradation if user hasn't run V2 migration yet — drop new fields and retry once
     if(/column.*does not exist/i.test(error.message || '')){
       console.warn('[Planner] V2 columns missing — saving without them. Run planner-supabase-v2.sql to enable Editors / Footage / Attachments.');
-      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets'].forEach(k => delete payload[k]);
+      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets','is_priority'].forEach(k => delete payload[k]);
       const retry = await sb.from('planner_items').upsert(payload).select().single();
       if(!retry.error){ setConn(true, 'Live (V2 migration pending)'); return retry.data; }
     }
@@ -2796,6 +2847,19 @@ function openFullAnalyzer(){
 // ============================================================
 //  RENDER
 // ============================================================
+// V2.12 — Derive form-type from platforms array
+const SHORT_PLATFORMS = ['youtube_shorts','tiktok','instagram'];
+const LONG_PLATFORMS = ['youtube_long','twitch'];
+function getFormType(item){
+  const platforms = item.platforms || [];
+  const hasShort = platforms.some(p => SHORT_PLATFORMS.includes(p));
+  const hasLong = platforms.some(p => LONG_PLATFORMS.includes(p));
+  if(hasShort && hasLong) return 'mixed';
+  if(hasShort) return 'short';
+  if(hasLong) return 'long';
+  return 'other';
+}
+
 function render(){
   // V2: apply editor filter first
   let pool = items;
@@ -2803,6 +2867,16 @@ function render(){
     pool = items.filter(i => !i.editor_id);
   } else if(editorFilter){
     pool = items.filter(i => i.editor_id === editorFilter);
+  }
+  // V2.12 — Form-type filter (short / long)
+  if(formFilter === 'short'){
+    pool = pool.filter(i => { const f = getFormType(i); return f === 'short' || f === 'mixed'; });
+  } else if(formFilter === 'long'){
+    pool = pool.filter(i => { const f = getFormType(i); return f === 'long' || f === 'mixed'; });
+  }
+  // V2.12 — ⭐ Priority-only filter
+  if(priorityOnly){
+    pool = pool.filter(i => !!i.is_priority);
   }
   // Apply search filter
   const q = searchQuery.toLowerCase().trim();
@@ -2825,7 +2899,9 @@ function renderKanban(filtered){
   const visibleStatuses = STATUSES.filter(s => s.visible || filtered.some(i => i.status === s.value));
   const board = $('kanbanView');
   board.innerHTML = visibleStatuses.map(s => {
-    const colItems = filtered.filter(i => i.status === s.value);
+    let colItems = filtered.filter(i => i.status === s.value);
+    // V2.12 — Float starred items to the top of each column (stable sort by priority desc)
+    colItems = colItems.slice().sort((a, b) => (b.is_priority ? 1 : 0) - (a.is_priority ? 1 : 0));
     return `
       <div class="kanban-col" data-status="${s.value}">
         <div class="kanban-col-head">
@@ -2841,7 +2917,18 @@ function renderKanban(filtered){
   }).join('');
   // Click handlers — V2.8: cards open the read-only view by default (edit button inside view)
   board.querySelectorAll('.item-card').forEach(el => {
-    el.addEventListener('click', () => openViewModal(items.find(i => i.id === el.dataset.id)));
+    el.addEventListener('click', e => {
+      // V2.12 — Star button inside the card shouldn't trigger view-open
+      if(e.target.closest('.item-star')) return;
+      openViewModal(items.find(i => i.id === el.dataset.id));
+    });
+  });
+  // V2.12 — Star toggle handlers
+  board.querySelectorAll('[data-star]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePriority(el.dataset.star);
+    });
   });
   board.querySelectorAll('.add-in-col').forEach(el => {
     el.addEventListener('click', () => openModal(null, el.dataset.addStatus));
@@ -2933,8 +3020,12 @@ function itemCard(item){
   if(item.analyzer_score != null && item.analyzer_score !== ''){
     extrasRow += `<span class="meta-line" title="Analyzer score">⭐ ${escape(item.analyzer_score)}</span>`;
   }
+  // V2.12 — Inline star button (toggles is_priority without opening the modal)
+  const starred = !!item.is_priority;
+  const starBtn = `<button class="item-star ${starred ? 'starred' : ''}" data-star="${escape(item.id)}" title="${starred ? 'Unstar this item' : 'Star as important'}">${starred ? '⭐' : '☆'}</button>`;
   return `
-    <div class="item-card" data-id="${item.id}" draggable="true">
+    <div class="item-card ${starred ? 'starred' : ''}" data-id="${item.id}" draggable="true">
+      ${starBtn}
       <div class="item-title">${escape(item.title || '(untitled)')}</div>
       <div class="item-meta">${platforms}${extras}${editorEl}${due}${extrasRow}</div>
     </div>
@@ -3001,6 +3092,25 @@ function wireApp(){
 
   // V2: editor filter
   $('editorFilter').addEventListener('change', e => { editorFilter = e.target.value; render(); });
+
+  // V2.12 — form-type + priority filter pills (toggle on/off)
+  document.querySelectorAll('.form-filter .ff-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const v = pill.dataset.form;
+      if(v === 'priority'){
+        priorityOnly = !priorityOnly;
+        pill.classList.toggle('active', priorityOnly);
+      } else {
+        // Toggle the form filter — clicking the active one clears it
+        formFilter = (formFilter === v) ? '' : v;
+        document.querySelectorAll('.form-filter .ff-pill').forEach(p => {
+          if(p.dataset.form === 'priority') return;
+          p.classList.toggle('active', p.dataset.form === formFilter);
+        });
+      }
+      render();
+    });
+  });
 
   // V2: manage editors button
   $('manageEditorsBtn').addEventListener('click', openEditorsModal);
@@ -3077,6 +3187,13 @@ function wireApp(){
   wireTeleprompter();
 
   // V2.8: read-only view modal wiring
+  // V2.12: star toggle from view modal
+  $('viewStarBtn').addEventListener('click', async () => {
+    if(!viewingItemId) return;
+    await togglePriority(viewingItemId);
+    const item = items.find(i => i.id === viewingItemId);
+    if(item) openViewModal(item);  // re-render the modal with new star state
+  });
   $('viewEditBtn').addEventListener('click', editFromView);
   $('viewEditBtn2').addEventListener('click', editFromView);
   $('viewRecordBtn').addEventListener('click', recordFromView);
@@ -3119,6 +3236,8 @@ function openModal(item, defaultStatus){
   $('deleteItemBtn').classList.toggle('hidden', !item);
   $('fTitle').value = item?.title || '';
   $('fStatus').value = item?.status || defaultStatus || 'idea';
+  // V2.12 — Star/priority checkbox
+  $('fIsPriority').checked = !!item?.is_priority;
   // V2: editor select — match by id, fall back to legacy name lookup
   refreshEditorDropdowns();
   let editorId = item?.editor_id || '';
@@ -3176,8 +3295,15 @@ let viewingItemId = null;
 function openViewModal(item){
   if(!item) return;
   viewingItemId = item.id;
+  // V2.12 — Update star button state to reflect this item's priority
+  const starBtn = $('viewStarBtn');
+  if(starBtn){
+    starBtn.textContent = item.is_priority ? '⭐' : '☆';
+    starBtn.title = item.is_priority ? 'Unstar this item' : 'Star as important';
+  }
   // Pills row — status + editor + analyzer score
   const pills = [];
+  if(item.is_priority) pills.push(`<span class="v-pill" style="background:linear-gradient(135deg,rgba(255,213,138,0.55),rgba(255,178,240,0.45));color:#a35c00">⭐ Important</span>`);
   pills.push(`<span class="v-pill status ${escape(item.status)}">${escape(item.status)}</span>`);
   if(item.editor_id){
     const ed = editors.find(e => e.id === item.editor_id);
@@ -3319,6 +3445,31 @@ function closeViewModal(){
   viewingItemId = null;
 }
 
+// V2.12 — Toggle the ⭐ priority flag on an item. Optimistic UI + Supabase save.
+async function togglePriority(itemId){
+  const item = items.find(i => i.id === itemId);
+  if(!item) return;
+  const prev = !!item.is_priority;
+  item.is_priority = !prev;
+  render();
+  const saved = await saveItem({
+    id: item.id, title: item.title, status: item.status,
+    platforms: item.platforms, assignee: item.assignee,
+    scheduled_at: item.scheduled_at, posted_at: item.posted_at,
+    notes: item.notes, hook: item.hook, script: item.script,
+    hashtags: item.hashtags, thumbnail_url: item.thumbnail_url,
+    analyzer_score: item.analyzer_score, analyzer_link: item.analyzer_link,
+    editor_id: item.editor_id, assignee_email: item.assignee_email,
+    footage_url: item.footage_url, editor_files_url: item.editor_files_url,
+    attachments: item.attachments, additional_assets: item.additional_assets,
+    is_priority: item.is_priority
+  });
+  if(!saved){
+    item.is_priority = prev;
+    render();
+  }
+}
+
 async function quickStatusChange(itemId, newStatus){
   const item = items.find(i => i.id === itemId);
   if(!item || item.status === newStatus) return;
@@ -3341,7 +3492,8 @@ async function quickStatusChange(itemId, newStatus){
     analyzer_score: item.analyzer_score, analyzer_link: item.analyzer_link,
     editor_id: item.editor_id, assignee_email: item.assignee_email,
     footage_url: item.footage_url, editor_files_url: item.editor_files_url,
-    attachments: item.attachments, additional_assets: item.additional_assets
+    attachments: item.attachments, additional_assets: item.additional_assets,
+    is_priority: item.is_priority  // V2.12 — preserve star
   });
   if(!saved){
     item.status = prev;  // rollback
@@ -3417,7 +3569,9 @@ async function handleSave(){
     editor_files_url: $('fEditorFilesUrl').value.trim() || null,
     attachments: editingItemAttachments,
     // V2.2: additional asset links (drop empty rows)
-    additional_assets: editingItemAssets.filter(a => (a.label || '').trim() || (a.url || '').trim())
+    additional_assets: editingItemAssets.filter(a => (a.label || '').trim() || (a.url || '').trim()),
+    // V2.12: ⭐ priority flag
+    is_priority: !!$('fIsPriority').checked
   };
   if(editingItemId) item.id = editingItemId;
   $('saveItemBtn').disabled = true;
