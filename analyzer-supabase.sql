@@ -111,6 +111,55 @@ CREATE POLICY "anyone reads trends" ON analyzer_trends
 -- For now the scheduled task pushes via service-role key, which bypasses RLS.
 
 -- ============================================================
+--  V3.1 — CREATOR PROFILE FIELDS
+--  Extends analyzer_user_prefs so the analyzer can bias suggestions
+--  to YOUR niche, voice, and audience instead of generic advice.
+-- ============================================================
+DO $$ BEGIN
+  -- Primary niche (gaming, chatting, art, variety, music, tech, lifestyle, irl, asmr, vrchat, ...)
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='niche_primary') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN niche_primary text;
+  END IF;
+  -- Secondary niches (array — for variety creators that cover 2-3 categories)
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='niche_secondary') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN niche_secondary jsonb DEFAULT '[]'::jsonb;
+  END IF;
+  -- VTuber type — pngtuber | 2d_live2d | 3d | irl | none
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='vtuber_type') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN vtuber_type text;
+  END IF;
+  -- Content forms — array of shorts | long-form | livestream
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='content_forms') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN content_forms jsonb DEFAULT '[]'::jsonb;
+  END IF;
+  -- Voice/tone — array of chaotic | chill | energetic | wholesome | edgy | dry-humor | sweet | sharp
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='voice_tone') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN voice_tone jsonb DEFAULT '[]'::jsonb;
+  END IF;
+  -- Target audience — free text ("who are you making this for?")
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='target_audience') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN target_audience text;
+  END IF;
+  -- Platforms — array of youtube | twitch | tiktok | instagram | x | kick
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='platforms') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN platforms jsonb DEFAULT '[]'::jsonb;
+  END IF;
+  -- Goals — subscribers | watch-time | community | brand-deals | algorithm-pickup
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='goals') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN goals jsonb DEFAULT '[]'::jsonb;
+  END IF;
+  -- Topic synonyms — {"Elden Ring": ["soulslike", "fromsoft"]}
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='topic_synonyms') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN topic_synonyms jsonb DEFAULT '{}'::jsonb;
+  END IF;
+  -- Onboarding completion timestamp — null = needs onboarding modal
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='analyzer_user_prefs' AND column_name='onboarded_at') THEN
+    ALTER TABLE analyzer_user_prefs ADD COLUMN onboarded_at timestamptz;
+  END IF;
+END$$;
+
+-- ============================================================
 --  Done! Reload analyzer.html — you'll see a "Sign in" pill in the header.
---  After signing in: saved runs, thumbs-up titles, sticky tags, posted-perf logging.
+--  After signing in: saved runs, thumbs-up titles, sticky tags, posted-perf logging,
+--  + V3.1 creator profile (niche / voice / audience) that biases every suggestion.
 -- ============================================================
