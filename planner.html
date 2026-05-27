@@ -152,6 +152,49 @@
   .user-bar .who{color:var(--ink-soft)}
   .user-bar .who strong{color:var(--deep)}
 
+  /* V3 — Manager impersonation banner. Shown above the toolbar when working on someone else's hub. */
+  .impersonation-banner{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:10px 16px;margin:0 0 14px;
+    background:linear-gradient(135deg, rgba(255,219,247,0.7), rgba(199,210,255,0.65));
+    border:1.5px solid rgba(255,178,240,0.55);
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(255,138,168,0.15);
+    font-size:13.5px;color:var(--ink);
+  }
+  .impersonation-banner .ib-crown{font-size:22px;flex:0 0 auto}
+  .impersonation-banner .ib-text{flex:1 1 auto;line-height:1.45}
+  .impersonation-banner .ib-text strong{color:var(--deep)}
+
+  /* V3 — Manager roster row (mirrors .editor-row for consistency) */
+  .manager-row{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 14px;margin:0 0 8px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(199,210,255,0.4);
+    border-radius:14px;
+  }
+  .manager-row.pending{background:rgba(255,245,220,0.55);border-color:rgba(255,210,122,0.5)}
+  .manager-row.revoked{background:rgba(244,244,244,0.65);border-color:rgba(180,180,180,0.4);opacity:0.75}
+  .manager-row .mg-info{flex:1 1 auto;min-width:0}
+  .manager-row .mg-info .name{font-weight:700;color:var(--ink);font-size:14px;line-height:1.2}
+  .manager-row .mg-info .meta{font-size:11.5px;color:var(--ink-soft);line-height:1.35;overflow:hidden;text-overflow:ellipsis}
+  .manager-row .mg-status{
+    flex:0 0 auto;padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:700;letter-spacing:0.02em;text-transform:uppercase;
+  }
+  .manager-row .mg-status.active{background:rgba(168,230,190,0.55);color:#1f6b35}
+  .manager-row .mg-status.pending{background:rgba(255,210,122,0.5);color:#7a5818}
+  .manager-row .mg-status.revoked{background:rgba(200,200,200,0.55);color:#666}
+  .manager-row .mg-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .manager-row .mg-actions button{
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--deep);
+    cursor:pointer;font-family:inherit;
+  }
+  .manager-row .mg-actions button:hover{background:rgba(255,255,255,1)}
+  .manager-row .mg-actions button.danger{color:#a23556;border-color:rgba(255,138,168,0.4)}
+
   .toolbar{
     display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     padding:14px 16px;margin:0 0 18px;
@@ -1488,7 +1531,7 @@
 
   <div class="back-row">
     <a href="index.html" class="back-link">🏠 Hub</a>
-    <a href="todo.html" class="back-link">✅ Tasks</a>
+    <a href="todo.html" class="back-link">✓ Tasks</a>
     <a href="analyzer.html" class="back-link">🛠️ Analyzer</a>
     <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
     <a href="habits.html" class="back-link">🌸 Habits</a>
@@ -1520,13 +1563,24 @@
     <div class="user-bar">
       <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
       <span class="conn-status"><span class="conn-dot" id="connDotApp"></span><span id="connTextApp">Live</span></span>
+      <!-- V3 — Hub picker (visible only when current user has 1+ manager delegations) -->
+      <button class="btn secondary hidden" id="hubPickerBtn" style="padding:7px 14px;font-size:12.5px" title="Switch between your own hub and the hubs you co-manage">🔄 Switch hub</button>
       <button class="btn secondary" id="signOutBtn" style="padding:7px 16px;font-size:13px">Sign out</button>
+    </div>
+
+    <!-- V3 — Manager impersonation banner. Shown when working on someone else's hub. -->
+    <div id="impersonationBanner" class="impersonation-banner hidden">
+      <span class="ib-crown">👑</span>
+      <div class="ib-text">
+        <strong>Manager mode</strong> — you're working on <strong id="impersonationLabel">a creator's</strong> hub. All saves go to their data.
+      </div>
+      <button class="btn secondary" id="exitImpersonationBtn" style="padding:7px 14px;font-size:12.5px">Exit manager mode</button>
     </div>
 
     <!-- TODO WIDGET — compact today's tasks panel, syncs with todo.html -->
     <div id="todoWidget" class="todo-widget" data-collapsed="false">
       <div class="tw-head">
-        <h3 class="tw-title">✅ Today's tasks <span class="tw-count" id="twCount">0</span></h3>
+        <h3 class="tw-title">✓ Today's tasks <span class="tw-count" id="twCount">0</span></h3>
         <span class="tw-streak hidden" id="twStreak">🔥 <span id="twStreakNum">0</span> day streak</span>
         <a href="todo.html" class="tw-link">Open full to-do →</a>
         <button class="tw-toggle" id="twToggle" title="Collapse / expand">▾</button>
@@ -1543,6 +1597,7 @@
     <div class="toolbar">
       <button class="btn" id="addItemBtn">+ New item</button>
       <button class="btn secondary" id="manageEditorsBtn" style="padding:8px 16px;font-size:13px">👥 Editors</button>
+      <button class="btn secondary" id="manageManagersBtn" style="padding:8px 16px;font-size:13px" title="Delegate co-owner access to your hub via an invite link">👑 Managers</button>
       <button class="btn secondary" id="brandKitBtn" style="padding:8px 16px;font-size:13px">🎨 Brand kit</button>
       <button class="btn secondary" id="streamScheduleBtn" style="padding:8px 16px;font-size:13px" title="Recurring weekly stream schedule (Sun-Sat)">🎙️ Stream schedule</button>
       <div class="view-toggle" role="tablist" aria-label="View mode">
@@ -1823,6 +1878,54 @@
     </div>
   </div>
 
+  <!-- ===== V3: MANAGERS MODAL ===== -->
+  <div class="modal-backdrop" id="managersModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h2>👑 Managers</h2>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 6px">
+        Delegate <strong style="color:var(--deep)">full co-owner</strong> access to your hub via an email-locked link. Managers can edit projects, manage editors, edit the brand kit, and upload files — same as you. They <em>cannot</em> add or remove other managers.
+      </p>
+
+      <div class="managers-list" id="managersList" style="margin:14px 0 4px"></div>
+
+      <div class="section-title" style="margin-top:18px">➕ Invite a manager</div>
+      <div class="modal-row cols-2">
+        <div>
+          <label for="mgName">Name <span class="opt">(how you'll see them in the list)</span></label>
+          <input id="mgName" type="text" placeholder="e.g. Casey" maxlength="60" />
+        </div>
+        <div>
+          <label for="mgEmail">Email <span class="opt">(the invite is locked to this address)</span></label>
+          <input id="mgEmail" type="email" placeholder="manager@example.com" />
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--ink-soft);margin:6px 2px 0">
+        The email gets locked when you create the invite. The person you send it to must sign in with this exact address. If you make a typo, just delete the row and create a new one.
+      </p>
+
+      <!-- Invite link block — shown after a manager row is saved -->
+      <div class="invite-link-block hidden" id="mgInviteLinkBlock" style="margin-top:14px">
+        <div class="il-label">🔗 Their personal invite link</div>
+        <div class="il-url">
+          <input id="mgInviteLinkUrl" type="text" readonly />
+          <div class="il-actions">
+            <button class="btn" id="mgCopyInviteBtn" type="button">📋 Copy</button>
+            <a class="btn secondary" id="mgOpenInviteBtn" href="#" target="_blank" rel="noreferrer">↗ Open</a>
+          </div>
+        </div>
+        <div class="il-help">
+          Send this to <strong id="mgInviteLinkName">your manager</strong>. They open it, sign in with the locked email, and instantly get co-owner access to your hub.
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn secondary" id="mgRefreshBtn" title="Refresh from server">🔄 Refresh</button>
+        <button class="btn secondary" id="mgCancelBtn">Close</button>
+        <button class="btn" id="mgSaveBtn">🔗 Generate invite link</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== V2: PREVIEW AS EDITOR MODAL ===== -->
   <div class="modal-backdrop" id="editorPreviewModal" role="dialog" aria-modal="true">
     <div class="modal-content" style="max-width:880px">
@@ -2035,6 +2138,16 @@ const PLATFORM_LABELS = {
 // ============================================================
 let sb = null;          // Supabase client
 let currentUser = null;
+// V3 — Manager delegation state
+// currentOwnerId is "whose hub am I working on right now". Equal to currentOwnerId
+// for the creator herself; equal to a delegating creator's auth.users.id when the
+// signed-in user is acting as a manager (impersonation mode).
+let currentOwnerId = null;
+let managerDelegations = [];   // [{manager_id, owner_id, owner_email, manager_name, manager_email, claimed_at, last_seen_at}]
+let impersonating = null;      // null = managing own hub. Otherwise the delegation row we're acting through.
+let managers = [];             // V3: manager roster — populated when currentUser is the owner of the hub
+let managersSub = null;        // realtime subscription handle for planner_managers
+let editingManagerId = null;   // currently edited row in the managers modal
 let items = [];         // local cache
 let editors = [];       // V2: editor profiles
 let titlesDb = null;    // V2: cached titles.json for quick-score
@@ -2213,6 +2326,11 @@ async function showApp(user){
   $('authView').classList.add('hidden');
   $('appView').classList.remove('hidden');
   $('userEmailDisplay').textContent = user.email;
+
+  // V3 — Resolve which hub we're working on (own vs. impersonating a creator).
+  // This must happen BEFORE any data loads, because every load uses currentOwnerId.
+  await resolveOwnerContext();
+
   // V2: load editors + titles.json in parallel with items
   // V2.13 — Also load brand kit (so the calendar can show stream slots immediately)
   await Promise.all([
@@ -2223,8 +2341,142 @@ async function showApp(user){
   ]);
   subscribeRealtime();
   subscribeEditorsRealtime();
+  // V3 — load manager roster + subscribe (only meaningful when NOT impersonating)
+  if(!impersonating){
+    loadManagers();
+    subscribeManagersRealtime();
+  }
   // Todo widget — fire-and-forget; widget tolerates missing tables
   todoWidgetInit();
+}
+
+// ============================================================
+//  V3 — MANAGER DELEGATION (impersonation mode)
+// ============================================================
+// On sign-in we ask "is this user a delegated manager of any creator?" If yes,
+// they get a hub picker. URL `?manage=<delegation_id>` jumps straight to a hub.
+async function resolveOwnerContext(){
+  // Default — managing your own hub
+  currentOwnerId = currentUser.id;
+  impersonating = null;
+  managerDelegations = [];
+
+  // Try to look up delegations. RPC may not exist yet (table not migrated) — fail soft.
+  let delegations = [];
+  try{
+    const { data, error } = await sb.rpc('planner_list_my_delegations');
+    if(error){
+      if(/function.*does not exist|relation.*does not exist/i.test(error.message || '')){
+        console.warn('[Planner] planner_list_my_delegations RPC missing — run planner-managers.sql to enable manager delegation.');
+      } else {
+        console.error('[Planner] list_my_delegations failed:', error);
+      }
+    } else {
+      delegations = data || [];
+    }
+  }catch(e){
+    console.warn('[Planner] delegation lookup threw:', e);
+  }
+  managerDelegations = delegations;
+
+  // Decide which hub to load. Priority:
+  //   1. ?manage=<delegation_id> in URL  (link from claim flow OR Switch hub picker)
+  //   2. localStorage last-chosen delegation
+  //   3. Default to own hub
+  const params = new URLSearchParams(window.location.search);
+  const urlManage = params.get('manage');
+  const stored = localStorage.getItem('planner_managing_delegation');
+  const target = urlManage || stored;
+
+  if(target){
+    const match = delegations.find(d => d.manager_id === target || d.owner_id === target);
+    if(match){
+      impersonating = match;
+      currentOwnerId = match.owner_id;
+      localStorage.setItem('planner_managing_delegation', match.manager_id);
+      // Touch last_seen_at so the creator sees their manager is active
+      sb.from('planner_managers').update({ last_seen_at: new Date().toISOString() })
+        .eq('id', match.manager_id).then(() => {});
+      // Clean ?manage= out of the URL so refreshes don't re-trigger it
+      if(urlManage){
+        params.delete('manage');
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+      }
+    } else if(urlManage){
+      // The URL asked for a delegation we don't have — show an inline warning, fall through to own hub
+      console.warn('[Planner] ?manage=' + urlManage + ' requested but no matching active delegation found.');
+      alert("That manager link isn't active for this account. Make sure you're signed in with the invited email.");
+    }
+  }
+
+  renderImpersonationBanner();
+}
+
+function renderImpersonationBanner(){
+  const banner = $('impersonationBanner');
+  const picker = $('hubPickerBtn');
+  if(!banner) return;
+
+  if(impersonating){
+    banner.classList.remove('hidden');
+    $('impersonationLabel').textContent = impersonating.owner_email || 'a creator';
+    // Hide the managers toolbar button while impersonating (managers don't manage other managers)
+    const mgrBtn = $('manageManagersBtn');
+    if(mgrBtn) mgrBtn.classList.add('hidden');
+  } else {
+    banner.classList.add('hidden');
+    const mgrBtn = $('manageManagersBtn');
+    if(mgrBtn) mgrBtn.classList.remove('hidden');
+  }
+
+  // Show the hub picker if the user has at least one delegation (regardless of mode)
+  if(picker){
+    if(managerDelegations.length > 0){
+      picker.classList.remove('hidden');
+      picker.textContent = impersonating ? '🔄 Switch hub' : '🔄 Switch hub (' + managerDelegations.length + ')';
+    } else {
+      picker.classList.add('hidden');
+    }
+  }
+}
+
+async function exitImpersonation(){
+  if(!impersonating) return;
+  if(!confirm("Stop managing " + (impersonating.owner_email || 'this hub') + " and return to your own?")) return;
+  localStorage.removeItem('planner_managing_delegation');
+  // Reload — simplest way to re-init all state cleanly
+  window.location.href = window.location.pathname;
+}
+
+function openHubPicker(){
+  // Build a menu of: your own hub + every active delegation
+  const options = [
+    { label: '🏠 My own hub (' + (currentUser.email || '') + ')', delegationId: null, ownerId: currentUser.id }
+  ];
+  for(const d of managerDelegations){
+    options.push({
+      label: '👑 ' + (d.owner_email || 'creator') + ' (manager)',
+      delegationId: d.manager_id,
+      ownerId: d.owner_id
+    });
+  }
+  // Use a simple prompt-style picker. (A nicer modal can come later — keeps the diff small.)
+  const lines = options.map((o, i) => `${i + 1}. ${o.label}` + (
+    (impersonating && o.delegationId === impersonating.manager_id) ||
+    (!impersonating && o.delegationId === null) ? '  ← currently here' : ''
+  )).join('\n');
+  const raw = window.prompt("Switch hub:\n\n" + lines + "\n\nEnter a number:", '');
+  if(!raw) return;
+  const idx = parseInt(raw.trim(), 10) - 1;
+  if(isNaN(idx) || idx < 0 || idx >= options.length){ alert('Invalid choice.'); return; }
+  const picked = options[idx];
+  if(picked.delegationId){
+    localStorage.setItem('planner_managing_delegation', picked.delegationId);
+  } else {
+    localStorage.removeItem('planner_managing_delegation');
+  }
+  window.location.href = window.location.pathname;
 }
 
 // ============================================================
@@ -2253,7 +2505,7 @@ async function saveItem(item){
   // Prepare payload — Supabase wants null instead of empty datetimes
   const payload = {
     ...item,
-    owner_id: currentUser.id,
+    owner_id: currentOwnerId,
     scheduled_at: item.scheduled_at || null,
     posted_at: item.posted_at || null,
     analyzer_score: item.analyzer_score === '' || item.analyzer_score == null ? null : Number(item.analyzer_score),
@@ -2312,7 +2564,7 @@ function subscribeRealtime(){
   realtimeSub = sb
     .channel('planner_items_realtime')
     .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'planner_items', filter: `owner_id=eq.${currentUser.id}` },
+        { event: '*', schema: 'public', table: 'planner_items', filter: `owner_id=eq.${currentOwnerId}` },
         payload => {
           // Reload on any change. Cheap enough for the data scale we're dealing with.
           loadItems();
@@ -2351,7 +2603,7 @@ function subscribeEditorsRealtime(){
   editorsSub = sb
     .channel('planner_editors_realtime')
     .on('postgres_changes',
-        { event:'*', schema:'public', table:'planner_editors', filter:`owner_id=eq.${currentUser.id}` },
+        { event:'*', schema:'public', table:'planner_editors', filter:`owner_id=eq.${currentOwnerId}` },
         () => loadEditors())
     .subscribe();
 }
@@ -2359,7 +2611,7 @@ function subscribeEditorsRealtime(){
 async function saveEditor(editor){
   const payload = {
     ...editor,
-    owner_id: currentUser.id,
+    owner_id: currentOwnerId,
     name: (editor.name || '').trim(),
     email: (editor.email || '').trim().toLowerCase() || null,
     color: editor.color || '#90A5FF',
@@ -2705,7 +2957,7 @@ async function uploadAttachments(files){
       continue;
     }
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const path = `${currentUser.id}/${itemId}/${Date.now()}-${safeName}`;
+    const path = `${currentOwnerId}/${itemId}/${Date.now()}-${safeName}`;
     progressEl.innerHTML = `⏳ Uploading <strong>${escape(file.name)}</strong> &middot; ${formatFileSize(file.size)}${file.size > 50 * 1024 * 1024 ? ' &middot; <em>this may take a minute on large files</em>' : ''}…`;
     const { error } = await sb.storage.from('planner-files').upload(path, file, {
       cacheControl:'3600', upsert:false
@@ -2999,11 +3251,255 @@ function addAssetRow(){
 }
 
 // ============================================================
+//  V3 — MANAGERS (delegated co-owners). Only available to the actual creator;
+//  the modal hides itself while in impersonation mode.
+// ============================================================
+async function loadManagers(){
+  if(!sb || !currentUser || impersonating) return;
+  const { data, error } = await sb
+    .from('planner_managers')
+    .select('*')
+    .eq('owner_id', currentUser.id)
+    .order('created_at', { ascending: true });
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('[Planner] planner_managers table missing — run planner-managers.sql to enable manager delegation.');
+      managers = [];
+      return;
+    }
+    console.error('Load managers failed', error);
+    return;
+  }
+  managers = data || [];
+  // If the modal is open, re-render
+  if($('managersModal')?.classList.contains('open')) renderManagersList();
+}
+
+function subscribeManagersRealtime(){
+  if(impersonating) return;
+  if(managersSub) sb.removeChannel(managersSub);
+  managersSub = sb
+    .channel('planner_managers_realtime')
+    .on('postgres_changes',
+        { event:'*', schema:'public', table:'planner_managers', filter:`owner_id=eq.${currentUser.id}` },
+        () => loadManagers())
+    .subscribe();
+}
+
+function makeInviteToken(){
+  // 32 chars of URL-safe randomness. Crypto.getRandomValues + base36 encoding.
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  let s = '';
+  for(const b of bytes){ s += b.toString(36); }
+  return s.slice(0, 32);
+}
+
+function buildManagerInviteUrl(manager){
+  if(!manager?.invite_token) return '';
+  const origin = (window.location.origin && window.location.origin !== 'null')
+    ? window.location.origin
+    : 'https://creatorhub.eggieweggie.ca';
+  const base = window.location.pathname.replace(/[^/]+$/, '');
+  const params = new URLSearchParams({ token: manager.invite_token });
+  return `${origin}${base}manager-claim.html?${params.toString()}`;
+}
+
+async function saveManager({ name, email }){
+  const cleanName = (name || '').trim();
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if(!cleanName){ alert('Give them a name first.'); return null; }
+  if(!cleanEmail || !cleanEmail.includes('@')){ alert("That email doesn't look right."); return null; }
+
+  // If a row already exists for (owner, email), reuse it (the unique index would otherwise error)
+  const existing = managers.find(m => (m.email || '').toLowerCase() === cleanEmail);
+  if(existing){
+    // Update the name + un-revoke (in case it was revoked previously) and reuse the existing token
+    const { data, error } = await sb.from('planner_managers')
+      .update({ name: cleanName, revoked_at: null })
+      .eq('id', existing.id)
+      .select()
+      .single();
+    if(error){ alert('Update failed: ' + error.message); return null; }
+    return data;
+  }
+
+  const payload = {
+    owner_id: currentUser.id,
+    name: cleanName,
+    email: cleanEmail,
+    invite_token: makeInviteToken()
+  };
+  const { data, error } = await sb.from('planner_managers').insert(payload).select().single();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      alert("The planner_managers table doesn't exist yet. Run planner-managers.sql in Supabase first.");
+    } else if(/duplicate key|unique/i.test(error.message || '')){
+      alert("There's already an invite for that email — scroll up to find it.");
+    } else {
+      alert('Save manager failed: ' + error.message);
+    }
+    return null;
+  }
+  return data;
+}
+
+async function revokeManager(id, currentlyRevoked){
+  const verb = currentlyRevoked ? 'restore' : 'revoke';
+  if(!confirm(`${verb[0].toUpperCase() + verb.slice(1)} this manager's access?`)) return false;
+  const { error } = await sb.from('planner_managers')
+    .update({ revoked_at: currentlyRevoked ? null : new Date().toISOString() })
+    .eq('id', id);
+  if(error){ alert('Update failed: ' + error.message); return false; }
+  return true;
+}
+
+async function deleteManager(id){
+  if(!confirm("Delete this manager invite permanently? The link will stop working. (To temporarily pause access without deleting, use Revoke instead.)")) return false;
+  const { error } = await sb.from('planner_managers').delete().eq('id', id);
+  if(error){ alert('Delete failed: ' + error.message); return false; }
+  return true;
+}
+
+function openManagersModal(){
+  if(impersonating){ alert("You're working in manager mode right now — exit first to manage your own hub's manager roster."); return; }
+  resetManagerForm();
+  loadManagers().then(renderManagersList);
+  $('managersModal').classList.add('open');
+}
+
+function closeManagersModal(){ $('managersModal').classList.remove('open'); }
+
+function resetManagerForm(){
+  editingManagerId = null;
+  $('mgName').value = '';
+  $('mgEmail').value = '';
+  $('mgInviteLinkBlock').classList.add('hidden');
+}
+
+function fmtLastSeen(ts){
+  if(!ts) return 'never';
+  const d = new Date(ts);
+  const diffMs = Date.now() - d.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if(hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if(days < 7) return `${days}d ago`;
+  return d.toLocaleDateString();
+}
+
+function renderManagersList(){
+  const wrap = $('managersList');
+  if(!wrap) return;
+  if(!managers.length){
+    wrap.innerHTML = '<div style="text-align:center;padding:14px 0;color:var(--ink-soft);font-size:13.5px;font-style:italic">No managers yet — invite one below ✨</div>';
+    return;
+  }
+  wrap.innerHTML = managers.map(m => {
+    const revoked = !!m.revoked_at;
+    const claimed = !!m.claimed_at;
+    const statusLabel = revoked ? 'revoked' : (claimed ? 'active' : 'pending');
+    const rowClass = revoked ? 'revoked' : (claimed ? '' : 'pending');
+    const meta = revoked
+      ? `revoked ${fmtLastSeen(m.revoked_at)}`
+      : (claimed
+          ? `claimed ${fmtLastSeen(m.claimed_at)} · last seen ${fmtLastSeen(m.last_seen_at)}`
+          : 'invite link not yet claimed');
+    return `
+      <div class="manager-row ${rowClass}" data-id="${escape(m.id)}">
+        <div class="mg-info">
+          <div class="name">${escape(m.name)}</div>
+          <div class="meta">${escape(m.email)} · ${escape(meta)}</div>
+        </div>
+        <span class="mg-status ${statusLabel}">${statusLabel}</span>
+        <div class="mg-actions">
+          <button class="mg-copy" data-id="${escape(m.id)}" title="Copy their invite link">🔗 Copy link</button>
+          <button class="mg-revoke" data-id="${escape(m.id)}" data-revoked="${revoked ? '1' : '0'}">${revoked ? 'Restore' : 'Revoke'}</button>
+          <button class="mg-rm danger" data-id="${escape(m.id)}">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  wrap.querySelectorAll('.mg-copy').forEach(b => b.addEventListener('click', async () => {
+    const m = managers.find(x => x.id === b.dataset.id);
+    if(!m) return;
+    const url = buildManagerInviteUrl(m);
+    try{
+      await navigator.clipboard.writeText(url);
+      const original = b.innerHTML;
+      b.innerHTML = '✓ Copied';
+      setTimeout(() => { b.innerHTML = original; }, 1500);
+    }catch(_){
+      window.prompt('Copy this invite link for ' + m.name + ':', url);
+    }
+  }));
+  wrap.querySelectorAll('.mg-revoke').forEach(b => b.addEventListener('click', async () => {
+    if(await revokeManager(b.dataset.id, b.dataset.revoked === '1')){
+      await loadManagers();
+      renderManagersList();
+    }
+  }));
+  wrap.querySelectorAll('.mg-rm').forEach(b => b.addEventListener('click', async () => {
+    if(await deleteManager(b.dataset.id)){
+      await loadManagers();
+      renderManagersList();
+    }
+  }));
+}
+
+function showManagerInviteLink(manager){
+  if(!manager) return;
+  const url = buildManagerInviteUrl(manager);
+  $('mgInviteLinkUrl').value = url;
+  $('mgOpenInviteBtn').href = url;
+  $('mgInviteLinkName').textContent = manager.name || 'your manager';
+  $('mgInviteLinkBlock').classList.remove('hidden');
+}
+
+async function handleSaveManager(){
+  const name = $('mgName').value;
+  const email = $('mgEmail').value;
+  const btn = $('mgSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const saved = await saveManager({ name, email });
+  btn.disabled = false;
+  btn.innerHTML = '🔗 Generate invite link';
+  if(saved){
+    await loadManagers();
+    renderManagersList();
+    showManagerInviteLink(saved);
+    // Clear the inputs so a second invite is easy to add, but keep the link visible
+    $('mgName').value = '';
+    $('mgEmail').value = '';
+  }
+}
+
+async function handleCopyManagerInvite(){
+  const input = $('mgInviteLinkUrl');
+  if(!input.value) return;
+  const btn = $('mgCopyInviteBtn');
+  try{
+    await navigator.clipboard.writeText(input.value);
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy'; }, 1500);
+  }catch(_){
+    input.select();
+    try{ document.execCommand('copy'); btn.textContent = '✓ Copied!'; setTimeout(() => { btn.innerHTML = '📋 Copy'; }, 1500); }
+    catch(_e){ alert('Copy failed — select the link manually.'); }
+  }
+}
+
+// ============================================================
 //  V2.3 — BRAND KIT (creator-wide assets shown to every editor)
 // ============================================================
 async function loadBrandKit(){
   if(!sb || !currentUser) return;
-  const { data, error } = await sb.from('planner_brand_kit').select('*').eq('owner_id', currentUser.id).maybeSingle();
+  const { data, error } = await sb.from('planner_brand_kit').select('*').eq('owner_id', currentOwnerId).maybeSingle();
   if(error){
     if(/relation.*does not exist/i.test(error.message || '')){
       console.warn('[Planner] planner_brand_kit table missing — run planner-supabase-v2.sql to enable Brand Kit.');
@@ -3110,7 +3606,7 @@ async function uploadBrandingImage(file){
     return;
   }
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `${currentUser.id}/brand-kit/${Date.now()}-${safeName}`;
+  const path = `${currentOwnerId}/brand-kit/${Date.now()}-${safeName}`;
   const { error } = await sb.storage.from('planner-files').upload(path, file, { cacheControl:'3600', upsert:false });
   if(error){
     alert('Upload failed: ' + error.message);
@@ -3126,7 +3622,7 @@ async function uploadBrandingImage(file){
 async function saveBrandKit(){
   if(!sb || !currentUser){ alert('Sign in first.'); return; }
   const payload = {
-    owner_id: currentUser.id,
+    owner_id: currentOwnerId,
     branding_images: bkBranding.filter(b => b.url),
     editing_style_videos: bkVideos.filter(v => v.url),
     asset_links: bkAssets.filter(a => a.url),
@@ -3805,7 +4301,7 @@ async function saveStreamSchedule(){
   if(!sb || !currentUser){ alert('Sign in first.'); return; }
   // Always upsert against the brand_kit row so it gets created if missing
   const payload = {
-    owner_id: currentUser.id,
+    owner_id: currentOwnerId,
     stream_schedule: streamSchedule,
     updated_at: new Date().toISOString()
   };
@@ -3840,6 +4336,14 @@ async function saveStreamSchedule(){
 function wireApp(){
   $('addItemBtn').addEventListener('click', () => openModal());
   $('searchInput').addEventListener('input', e => { searchQuery = e.target.value; render(); });
+
+  // V3 — Manager / impersonation controls
+  const mgrBtn = $('manageManagersBtn');
+  if(mgrBtn) mgrBtn.addEventListener('click', openManagersModal);
+  const exitBtn = $('exitImpersonationBtn');
+  if(exitBtn) exitBtn.addEventListener('click', exitImpersonation);
+  const hubBtn = $('hubPickerBtn');
+  if(hubBtn) hubBtn.addEventListener('click', openHubPicker);
   document.querySelectorAll('.view-toggle button[data-view]').forEach(btn => {
     btn.addEventListener('click', () => {
       currentView = btn.dataset.view;
@@ -3876,6 +4380,14 @@ function wireApp(){
   $('saveEditorBtn').addEventListener('click', handleSaveEditor);
   $('deleteEditorBtn').addEventListener('click', handleDeleteEditor);
   $('editorsModal').addEventListener('click', e => { if(e.target === $('editorsModal')) closeEditorsModal(); });
+
+  // V3 — Managers modal wiring (button itself is already wired earlier in wireApp())
+  const mgCancel = $('mgCancelBtn'); if(mgCancel) mgCancel.addEventListener('click', closeManagersModal);
+  const mgSave = $('mgSaveBtn'); if(mgSave) mgSave.addEventListener('click', handleSaveManager);
+  const mgCopy = $('mgCopyInviteBtn'); if(mgCopy) mgCopy.addEventListener('click', handleCopyManagerInvite);
+  const mgRefresh = $('mgRefreshBtn'); if(mgRefresh) mgRefresh.addEventListener('click', async () => { await loadManagers(); renderManagersList(); });
+  const mgInviteUrl = $('mgInviteLinkUrl'); if(mgInviteUrl) mgInviteUrl.addEventListener('click', e => e.target.select());
+  const mgModal = $('managersModal'); if(mgModal) mgModal.addEventListener('click', e => { if(e.target === mgModal) closeManagersModal(); });
 
   // V2.1: preview-as-editor + invite link wiring
   $('previewEditorBtn').addEventListener('click', openEditorPreview);
@@ -4004,6 +4516,7 @@ function wireApp(){
     else if($('editorPreviewModal').classList.contains('open')) closeEditorPreview();
     else if($('brandKitModal').classList.contains('open')) closeBrandKitModal();
     else if($('streamScheduleModal').classList.contains('open')) closeStreamScheduleModal();
+    else if($('managersModal') && $('managersModal').classList.contains('open')) closeManagersModal();
   });
 }
 
@@ -4481,7 +4994,7 @@ function twSubscribe(){
   if(twRealtimeSub) sb.removeChannel(twRealtimeSub);
   twRealtimeSub = sb.channel('planner_todos_widget')
     .on('postgres_changes',
-      {event:'*', schema:'public', table:'planner_todos', filter:`owner_id=eq.${currentUser.id}`},
+      {event:'*', schema:'public', table:'planner_todos', filter:`owner_id=eq.${currentOwnerId}`},
       () => { twLoadTodos().then(twRender); })
     .subscribe();
 }
@@ -4612,7 +5125,7 @@ async function twToggleDone(t){
     const next = twComputeNext(t);
     if(next){
       const clone = {
-        owner_id: currentUser.id,
+        owner_id: currentOwnerId,
         title: t.title, notes: t.notes,
         bucket:'today', position:0,
         category_id: t.category_id || null,
@@ -4632,7 +5145,7 @@ async function twToggleDone(t){
   }
   // Persist toggle
   const payload = {
-    id: t.id, owner_id: currentUser.id,
+    id: t.id, owner_id: currentOwnerId,
     is_done: t.is_done, completed_at: t.completed_at, bucket: t.bucket
   };
   const {error} = await sb.from('planner_todos').update(payload).eq('id', t.id);
@@ -4665,7 +5178,7 @@ async function twQuickAdd(){
   if(!title) return;
 
   const payload = {
-    owner_id: currentUser.id,
+    owner_id: currentOwnerId,
     title, bucket, position: 0,
     is_priority: priority, tags,
     subtasks: [], recurrence_days: [], focus_minutes: 0

@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>To-Do List ✅ — Eggie's Creator Hub</title>
+<title>To-Do List ✓ — Eggie's Creator Hub</title>
 <meta name="description" content="Customizable to-do list with recurring tasks, subtasks, priorities, tags, planner links, focus timer and streak — synced live via Supabase." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/todo.html" />
-<meta property="og:title" content="To-Do List ✅" />
+<meta property="og:title" content="To-Do List ✓" />
 <meta property="og:description" content="Customizable to-do list with recurring tasks, subtasks, focus timer, streak — synced live." />
 <meta property="og:image" content="preview.png" />
 
@@ -69,8 +69,8 @@
     border-color:transparent;color:var(--deep);
   }
 
-  /* Hero */
-  header.hero{text-align:center;padding:14px 0 8px}
+  /* Hero — extra breathing room below the tagline before the app starts */
+  header.hero{text-align:center;padding:14px 0 32px;margin-bottom:14px}
   .logo{
     font-family:'Pacifico',cursive;
     font-size:clamp(32px, 5.5vw, 48px);
@@ -268,6 +268,42 @@
   .quick-add .qa-prio:hover{opacity:0.9;transform:scale(1.1)}
   .quick-add .qa-prio.on{opacity:1;filter:drop-shadow(0 0 6px rgba(255,213,138,0.7))}
   .quick-add .btn{padding:9px 18px;font-size:13.5px}
+
+  /* Quick-add helper — sits under the input, explains the shortcuts */
+  .qa-helper{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin:6px 4px 18px;
+    padding:8px 12px;
+    background:rgba(255,255,255,0.55);
+    border-radius:10px;
+    font-size:12px;color:var(--ink-soft);line-height:1.5;
+  }
+  .qa-helper .qa-helper-icon{font-size:14px}
+  .qa-helper code{
+    background:rgba(144,165,255,0.18);color:var(--deep);
+    padding:1.5px 7px;border-radius:6px;font-family:'Quicksand',sans-serif;
+    font-weight:800;font-size:11.5px;
+  }
+  .qa-helper .qa-helper-toggle{
+    margin-left:auto;background:rgba(144,165,255,0.16);color:var(--deep);
+    border:none;border-radius:999px;padding:4px 11px;cursor:pointer;
+    font-family:inherit;font-weight:800;font-size:11.5px;
+    transition:background .12s;
+  }
+  .qa-helper .qa-helper-toggle:hover{background:rgba(144,165,255,0.3)}
+  .qa-helper[data-expanded="true"] .qa-helper-toggle{background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3))}
+  .qa-helper .qa-helper-examples{
+    display:none;width:100%;
+    margin-top:6px;padding-top:8px;
+    border-top:1.5px dashed rgba(144,165,255,0.25);
+  }
+  .qa-helper[data-expanded="true"] .qa-helper-examples{display:block}
+  .qa-helper .qa-ex-row{
+    display:flex;flex-wrap:wrap;gap:8px 16px;
+    padding:4px 0;font-size:12px;color:var(--ink);
+  }
+  .qa-helper .qa-ex-row strong{color:var(--deep);font-weight:800;min-width:130px}
+  .qa-helper .qa-ex-row em{color:var(--ink-soft);font-style:italic;font-weight:600}
 
   /* Daily review banner */
   .review-banner{
@@ -801,7 +837,7 @@
   <div class="back-row">
     <a href="index.html" class="back-link">🏠 Hub</a>
     <a href="planner.html" class="back-link">📅 Planner</a>
-    <a href="todo.html" class="back-link current">✅ Tasks</a>
+    <a href="todo.html" class="back-link current">✓ Tasks</a>
     <a href="habits.html" class="back-link">🌸 Habits</a>
     <a href="analyzer.html" class="back-link">🛠️ Analyzer</a>
     <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
@@ -810,7 +846,7 @@
   </div>
 
   <header class="hero">
-    <span class="logo">To-Do List ✅</span>
+    <span class="logo">To-Do List ✓</span>
     <p class="tag">Your <em>customizable</em> task list — synced live with your planner. Recurring tasks, subtasks, priorities, tags, focus timer, streak. Drag, drop, and ship.</p>
   </header>
 
@@ -856,7 +892,9 @@
 
     <!-- Quick add -->
     <div class="quick-add">
-      <input id="qaInput" type="text" placeholder="✍️  Add a task… (Enter to save, use #tag and !today/!week/!later)"  />
+      <input id="qaInput" type="text"
+        placeholder="✍️  Add a task… (Enter to save)"
+        title="Shortcuts you can type inline:&#10;  #tag — adds a tag (e.g. #stream)&#10;  !today / !week / !later — sets when&#10;  trailing ! — marks priority&#10;Example: Record b-roll #content !today !" />
       <select id="qaCategory" title="Category">
         <option value="">No category</option>
       </select>
@@ -867,6 +905,21 @@
       </select>
       <button id="qaPrio" class="qa-prio" title="Toggle priority">⭐</button>
       <button id="qaSave" class="btn">Add</button>
+    </div>
+
+    <!-- Quick-add helper — explains the inline shortcuts -->
+    <div class="qa-helper" id="qaHelper" data-expanded="false">
+      <span class="qa-helper-icon">💡</span>
+      <span><strong style="color:var(--deep)">Quick tip:</strong> type <code>#tag</code> for tags, <code>!today</code> / <code>!week</code> / <code>!later</code> to pick when, end with <code>!</code> for priority.</span>
+      <button class="qa-helper-toggle" id="qaHelperToggle" type="button">Show examples</button>
+      <div class="qa-helper-examples">
+        <div class="qa-ex-row"><strong>Just the basics</strong><em>Record b-roll for tomorrow</em></div>
+        <div class="qa-ex-row"><strong>With tags</strong><em>Edit clip <code>#content</code> <code>#shorts</code></em></div>
+        <div class="qa-ex-row"><strong>Schedule it</strong><em>Reply to sponsor email <code>!today</code></em></div>
+        <div class="qa-ex-row"><strong>Mark important</strong><em>Renew domain <code>!</code></em></div>
+        <div class="qa-ex-row"><strong>All together</strong><em>Outline lore drop <code>#content</code> <code>!week</code> <code>!</code></em></div>
+        <div class="qa-ex-row" style="margin-top:6px"><strong>Mouse-only?</strong><em>Use the dropdowns on the right — they do the same thing.</em></div>
+      </div>
     </div>
 
     <!-- Toolbar -->
@@ -886,6 +939,7 @@
         <button id="viewList" data-view="list" title="List view">📃 List</button>
         <button id="viewToday" data-view="today" title="Today only">📍 Today</button>
       </div>
+      <button id="focusBtn" class="btn" style="padding:8px 16px;font-size:13.5px" title="Start a focus session — pop it out to keep the timer floating above other windows">⏱️ Focus</button>
       <button id="catsBtn" class="btn secondary" style="padding:8px 14px;font-size:13px">🎨 Categories</button>
       <button id="reviewBtn" class="btn secondary" style="padding:8px 14px;font-size:13px">🌙 Review</button>
     </div>
@@ -923,13 +977,14 @@
   </div>
 </div>
 
-<!-- Focus dock (mini) -->
+<!-- Focus dock (mini) — floats bottom-right; Pop out makes it stay above other windows -->
 <div id="focusDock" class="focus-dock">
   <span class="fd-time" id="fdTime">25:00</span>
   <span class="fd-task" id="fdTask">Focusing…</span>
-  <button id="fdPause">⏸︎</button>
-  <button id="fdExpand">⤢</button>
-  <button id="fdStop" class="fd-stop">✕</button>
+  <button id="fdPause" title="Pause / resume (Space)">⏸︎</button>
+  <button id="fdPopout" title="Pop out — floating window that stays above other apps">🪟</button>
+  <button id="fdExpand" title="Expand to fullscreen">⤢</button>
+  <button id="fdStop" class="fd-stop" title="End session">✕</button>
 </div>
 
 <!-- ===== FULL TASK EDITOR MODAL ===== -->
@@ -1087,10 +1142,11 @@
   <div class="fo-controls">
     <button id="foPause" class="primary">Pause</button>
     <button id="foSkip">Skip</button>
+    <button id="foPopout" title="Pop out into a small floating window that stays above other apps">🪟 Pop out</button>
     <button id="foMinimize">Minimize</button>
     <button id="foStop" class="danger">End session</button>
   </div>
-  <div class="fo-hint">Space — pause &middot; Esc — minimize</div>
+  <div class="fo-hint">Space — pause &middot; Esc — minimize &middot; Pop out keeps the timer on top of other windows</div>
 </div>
 
 <div class="end-spacer"></div>
@@ -1155,7 +1211,8 @@ let qaPriority = false;
 let focus = {
   running:false, mode:'focus', secondsLeft:25*60,
   focusLen:25, breakLen:5, longBreakLen:15, cycles:0,
-  todoId:null, interval:null, startedAt:null
+  todoId:null, interval:null, startedAt:null,
+  popout:null   // Pop-out window (Document PiP or fallback popup)
 };
 
 let realtimeSub = null;
@@ -2308,11 +2365,17 @@ function renderWeekChart(){
 
 // ============================================================
 //  FOCUS TIMER (pomodoro)
+//  Three surfaces: fullscreen overlay, mini dock (bottom-right),
+//  and a Document Picture-in-Picture pop-out window that floats
+//  above ALL other apps (Chrome/Edge 116+). Stays in sync because
+//  the PiP window shares this page's JS runtime — updateFocusUI
+//  writes into both the in-page DOM and the PiP DOM each tick.
 // ============================================================
 function startFocus(todoId){
   focus.todoId = todoId || null;
   focus.mode = 'focus';
   focus.secondsLeft = focus.focusLen * 60;
+  focus.cycles = focus.cycles || 0;
   focus.startedAt = Date.now();
   focus.running = true;
   if(focus.interval) clearInterval(focus.interval);
@@ -2321,6 +2384,10 @@ function startFocus(todoId){
   $('focusDock').classList.add('open');
   closeEditor();
   $('focusOverlay').classList.add('open');
+  // Ask for notification perm proactively so phase-change pings work later
+  if('Notification' in window && Notification.permission === 'default'){
+    try{ Notification.requestPermission(); }catch(e){}
+  }
 }
 function tickFocus(){
   if(!focus.running) return;
@@ -2358,6 +2425,8 @@ function stopFocus(){
   focus.interval = null;
   $('focusOverlay').classList.remove('open');
   $('focusDock').classList.remove('open');
+  closePopout();
+  document.title = 'To-Do List ✓ — Eggie\'s Creator Hub';
 }
 function minimizeFocus(){
   $('focusOverlay').classList.remove('open');
@@ -2366,21 +2435,153 @@ function minimizeFocus(){
 function expandFocus(){
   $('focusOverlay').classList.add('open');
 }
+
+// ---- Pop-out (floats above other windows) -------------------
+// Uses Document Picture-in-Picture (Chrome/Edge 116+, Opera).
+// Falls back to a plain window.open popup elsewhere (which won't
+// be always-on-top, but at least keeps it visible on a 2nd monitor).
+async function popoutFocus(){
+  if(!focus.running && !focus.interval){
+    // Nothing to pop out — start a generic session first
+    startFocus(null);
+  }
+  // If a popout is already open, just focus it
+  if(focus.popout && !focus.popout.closed){
+    try{ focus.popout.focus(); }catch(e){}
+    return;
+  }
+  if('documentPictureInPicture' in window){
+    try{
+      const pipWin = await window.documentPictureInPicture.requestWindow({
+        width: 320, height: 220
+      });
+      buildPopoutDocument(pipWin.document);
+      focus.popout = pipWin;
+      pipWin.addEventListener('pagehide', () => { focus.popout = null; });
+      minimizeFocus();
+      updateFocusUI();
+      return;
+    }catch(e){
+      console.warn('PiP request failed, falling back to popup window:', e);
+    }
+  }
+  // Fallback: a tiny popup window
+  const w = window.open('', 'focusTimer', 'width=320,height=220,popup=yes,top=20,left=20,resizable=yes');
+  if(!w){
+    alert('Couldn\'t open the floating timer — your browser blocked the popup. Allow popups for this site, or use Chrome / Edge for the always-on-top floating window.');
+    return;
+  }
+  buildPopoutDocument(w.document);
+  focus.popout = w;
+  w.addEventListener('beforeunload', () => { focus.popout = null; });
+  minimizeFocus();
+  updateFocusUI();
+}
+function closePopout(){
+  if(focus.popout && !focus.popout.closed){
+    try{ focus.popout.close(); }catch(e){}
+  }
+  focus.popout = null;
+}
+function buildPopoutDocument(doc){
+  doc.open();
+  doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>Focus timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      *{box-sizing:border-box}
+      html,body{margin:0;padding:0;height:100%;
+        font-family:'Quicksand',system-ui,sans-serif;color:#fff;
+        background:radial-gradient(600px 400px at 50% 20%, rgba(255,178,240,0.22), transparent 70%), #0a0612;}
+      .wrap{
+        height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:6px;padding:12px;text-align:center;
+      }
+      .task{
+        font-size:13px;color:rgba(255,178,240,0.95);font-weight:700;
+        max-width:96%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+      }
+      .time{
+        font-family:'Pacifico',cursive;font-weight:400;font-size:64px;line-height:1;
+        background:linear-gradient(135deg,#FFB2F0,#90A5FF 55%,#6BE4EA);
+        -webkit-background-clip:text;background-clip:text;color:transparent;
+        text-shadow:0 0 40px rgba(255,178,240,0.25);
+      }
+      .mode{
+        font-size:10.5px;color:rgba(255,255,255,0.6);
+        text-transform:uppercase;letter-spacing:.08em;font-weight:800;
+      }
+      .row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+      button{
+        background:rgba(255,255,255,0.1);color:#fff;
+        border:1.5px solid rgba(255,255,255,0.18);border-radius:999px;
+        padding:6px 14px;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;
+        transition:background .12s;
+      }
+      button:hover{background:rgba(255,255,255,0.22)}
+      button.primary{
+        background:linear-gradient(135deg,#FFB2F0,#90A5FF 60%,#6BE4EA);
+        border-color:transparent;
+      }
+      button.stop{background:rgba(255,138,168,0.22);border-color:rgba(255,138,168,0.45)}
+      button.stop:hover{background:rgba(255,138,168,0.4)}
+      .hint{font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;letter-spacing:.04em}
+    </style></head><body>
+    <div class="wrap">
+      <div class="task" id="pTask">Focus</div>
+      <div class="time" id="pTime">25:00</div>
+      <div class="mode" id="pMode">Focus session</div>
+      <div class="row">
+        <button class="primary" id="pPause">Pause</button>
+        <button id="pSkip">Skip</button>
+        <button class="stop" id="pStop">End</button>
+      </div>
+      <div class="hint">Floating window — always on top</div>
+    </div></body></html>`);
+  doc.close();
+  // Wire control buttons (this code runs in the parent's JS context;
+  // the buttons live in the popout's document but call our handlers)
+  doc.getElementById('pPause').addEventListener('click', pauseFocus);
+  doc.getElementById('pSkip').addEventListener('click', skipFocus);
+  doc.getElementById('pStop').addEventListener('click', stopFocus);
+}
+
 function updateFocusUI(){
   const m = Math.max(0, Math.floor(focus.secondsLeft / 60));
   const s = Math.max(0, focus.secondsLeft % 60);
   const txt = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const task = focus.todoId ? (todos.find(t => t.id === focus.todoId)?.title || 'Focus') : 'Focus session';
+  const modeLabel = focus.mode === 'focus' ? 'Focus session' :
+                    focus.mode === 'longbreak' ? 'Long break ☕' : 'Short break 🌸';
+  // In-page surfaces
   $('foTime').textContent = txt;
   $('fdTime').textContent = txt;
-  const task = focus.todoId ? (todos.find(t => t.id === focus.todoId)?.title || 'Focus') : 'Focus session';
   $('foTask').textContent = task;
   $('fdTask').textContent = task;
-  $('foMode').textContent = focus.mode === 'focus' ? 'Focus session' :
-                            focus.mode === 'longbreak' ? 'Long break ☕' : 'Short break 🌸';
+  $('foMode').textContent = modeLabel;
   $('foPause').textContent = focus.running ? 'Pause' : 'Resume';
   $('fdPause').textContent = focus.running ? '⏸︎' : '▶︎';
-  document.title = (focus.running ? '⏱️ ' : '⏸ ') + txt + ' — To-Do';
   $('focusDock').classList.toggle('break', focus.mode !== 'focus');
+  document.title = (focus.running ? '⏱️ ' : '⏸ ') + txt + ' — To-Do';
+  // Pop-out window surfaces (PiP or fallback popup)
+  if(focus.popout && !focus.popout.closed){
+    try{
+      const d = focus.popout.document;
+      const pTime = d.getElementById('pTime');
+      const pTask = d.getElementById('pTask');
+      const pMode = d.getElementById('pMode');
+      const pPause = d.getElementById('pPause');
+      if(pTime) pTime.textContent = txt;
+      if(pTask) pTask.textContent = task;
+      if(pMode) pMode.textContent = modeLabel;
+      if(pPause) pPause.textContent = focus.running ? 'Pause' : 'Resume';
+      try{ focus.popout.document.title = txt + ' — ' + modeLabel; }catch(e){}
+    }catch(e){
+      // Popout might have closed mid-update; clear ref so we don't keep trying
+      focus.popout = null;
+    }
+  }
 }
 function tryNotify(msg){
   if(!('Notification' in window)) return;
@@ -2499,6 +2700,23 @@ function wireApp(){
     });
   });
 
+  // Quick-add helper expand/collapse — remembers state in localStorage so it
+  // stays out of the way once you've learned the shortcuts.
+  try{
+    const helper = $('qaHelper');
+    if(localStorage.getItem('qaHelperExpanded') === '1'){
+      helper.dataset.expanded = 'true';
+      $('qaHelperToggle').textContent = 'Hide examples';
+    }
+  }catch(e){}
+  $('qaHelperToggle').addEventListener('click', () => {
+    const h = $('qaHelper');
+    const next = h.dataset.expanded !== 'true';
+    h.dataset.expanded = next ? 'true' : 'false';
+    $('qaHelperToggle').textContent = next ? 'Hide examples' : 'Show examples';
+    try{ localStorage.setItem('qaHelperExpanded', next ? '1' : '0'); }catch(e){}
+  });
+
   // Categories
   $('catsBtn').addEventListener('click', openCats);
   $('catsCloseBtn').addEventListener('click', closeCats);
@@ -2560,14 +2778,24 @@ function wireApp(){
     if(e.target === $('reviewModal')) closeReview();
   });
 
-  // Focus
+  // Focus — toolbar button starts (or expands) a session
+  $('focusBtn').addEventListener('click', () => {
+    if(focus.interval){
+      // Session already running — expand the overlay so they can see it
+      expandFocus();
+    } else {
+      startFocus(null);
+    }
+  });
   $('foPause').addEventListener('click', pauseFocus);
   $('foSkip').addEventListener('click', skipFocus);
-  $('foStop').addEventListener('click', () => { stopFocus(); document.title = 'To-Do List ✅ — Eggie\'s Creator Hub'; });
+  $('foStop').addEventListener('click', stopFocus);
   $('foMinimize').addEventListener('click', minimizeFocus);
+  $('foPopout').addEventListener('click', popoutFocus);
   $('fdPause').addEventListener('click', pauseFocus);
   $('fdExpand').addEventListener('click', expandFocus);
-  $('fdStop').addEventListener('click', () => { stopFocus(); document.title = 'To-Do List ✅ — Eggie\'s Creator Hub'; });
+  $('fdPopout').addEventListener('click', popoutFocus);
+  $('fdStop').addEventListener('click', stopFocus);
 
   // Keyboard shortcuts (only when no modal/input has focus)
   document.addEventListener('keydown', e => {

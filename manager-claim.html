@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manager Invite — Eggie's Creator Hub</title>
+<meta name="description" content="Claim a manager delegation for a creator's hub — sign in with the email you were invited as and get full co-owner access." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:48px 16px;position:relative;z-index:1}
+
+  header.hero{text-align:center;margin-bottom:24px}
+  .logo{
+    font-family:'Pacifico',cursive;font-size:46px;line-height:1;
+    background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle) 60%, var(--mint));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:0;
+  }
+  .tag{margin:8px 0 0;color:var(--ink-soft);font-size:14px;font-weight:600}
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    border:2px solid rgba(255,178,240,0.45);
+    border-radius:var(--radius);
+    padding:28px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(8px);
+  }
+
+  h1{margin:0 0 10px;font-size:22px;color:var(--deep);font-weight:800}
+  p{margin:0 0 12px;font-size:14.5px;line-height:1.6}
+  .pill{
+    display:inline-block;padding:4px 12px;border-radius:999px;
+    background:linear-gradient(135deg, rgba(255,178,240,0.35), rgba(144,165,255,0.35));
+    border:1.5px solid rgba(255,178,240,0.5);
+    font-weight:700;color:var(--deep);font-size:13px;
+  }
+  .creator-name{color:var(--pink-hot);font-weight:800}
+  .email-locked{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(199,210,255,0.3);
+    border:1.5px dashed rgba(144,165,255,0.45);
+    border-radius:14px;padding:12px 14px;margin:14px 0;
+    font-weight:700;color:var(--deep);font-size:14.5px;word-break:break-all;
+  }
+  .email-locked .lock{font-size:18px}
+
+  .form-row{margin:18px 0 6px}
+  label{display:block;font-weight:700;font-size:13px;color:var(--ink-soft);margin-bottom:6px}
+  input[type=email]{
+    width:100%;padding:12px 14px;border-radius:12px;
+    border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.9);
+    font-family:inherit;font-size:15px;color:var(--ink);
+  }
+  input[type=email]:disabled{opacity:0.7;cursor:not-allowed}
+  input[type=email]:focus{outline:none;border-color:var(--pink-hot);box-shadow:0 0 0 4px rgba(255,178,240,0.25)}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 22px;border-radius:999px;border:none;cursor:pointer;
+    font-family:inherit;font-weight:800;font-size:15px;color:#fff;
+    background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle));
+    box-shadow:0 6px 18px rgba(144,165,255,0.4);
+    transition:transform .12s ease, box-shadow .12s ease;
+    width:100%;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(144,165,255,0.5)}
+  .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+  .btn.secondary{
+    background:rgba(255,255,255,0.85);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);
+    box-shadow:none;
+  }
+  .btn.secondary:hover{background:rgba(255,255,255,1)}
+
+  .status{
+    margin-top:14px;padding:12px 14px;border-radius:14px;
+    font-size:13.5px;font-weight:600;line-height:1.5;
+  }
+  .status.info{background:rgba(199,210,255,0.35);border:1.5px solid rgba(144,165,255,0.45);color:var(--deep)}
+  .status.success{background:rgba(168,230,190,0.4);border:1.5px solid rgba(168,230,190,0.7);color:#1f6b35}
+  .status.error{background:rgba(255,178,200,0.4);border:1.5px solid rgba(255,138,168,0.6);color:#a23556}
+  .hidden{display:none !important}
+
+  .small{font-size:12.5px;color:var(--ink-soft)}
+  .perks{margin:14px 0 0;padding:14px 16px;background:rgba(255,219,247,0.35);border:1.5px solid rgba(255,178,240,0.4);border-radius:14px}
+  .perks ul{margin:6px 0 0;padding-left:20px;font-size:13.5px;line-height:1.7}
+  .perks li{margin:2px 0}
+  .footer{margin-top:18px;text-align:center;font-size:12px;color:var(--ink-soft)}
+  .footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  .footer a:hover{text-decoration:underline}
+
+  .spin{
+    display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <h1 class="logo">Eggie's Hub</h1>
+    <p class="tag">👑 Manager invite</p>
+  </header>
+
+  <div class="card">
+
+    <!-- LOADING STATE -->
+    <div id="loadingView">
+      <h1>Loading invite…</h1>
+      <p class="small">Looking up your delegation 🌸</p>
+    </div>
+
+    <!-- INVITE PREVIEW + SIGN-IN -->
+    <div id="inviteView" class="hidden">
+      <h1>You've been invited to co-manage <span class="creator-name" id="creatorName">a creator's hub</span> 🌸</h1>
+      <p>This invite gives you <span class="pill">full co-owner</span> access — see and edit every project, manage editors, edit the brand kit, schedule streams, and upload files. You'll work inside the creator's hub as if it were yours.</p>
+
+      <div class="perks">
+        <strong style="color:var(--deep);font-size:13.5px">As a manager you can:</strong>
+        <ul>
+          <li>Add, edit, and delete projects on the kanban board</li>
+          <li>Assign editors and manage the editor roster</li>
+          <li>Edit branding, references, and the stream schedule</li>
+          <li>Upload footage and attachments to any project</li>
+        </ul>
+      </div>
+
+      <div class="email-locked">
+        <span class="lock">🔒</span>
+        <div>
+          <div class="small" style="margin-bottom:2px">This invite is locked to:</div>
+          <span id="lockedEmail">—</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="emailInput">Sign in with that email to claim</label>
+        <input id="emailInput" type="email" readonly />
+      </div>
+
+      <button class="btn" id="signInBtn">📬 Send magic link</button>
+
+      <div class="status info hidden" id="statusBox"></div>
+
+      <p class="small" style="margin-top:18px">After you click the magic link in your inbox, you'll come back to this page and finish claiming. The creator can revoke this access at any time from their hub.</p>
+    </div>
+
+    <!-- SIGNED-IN, READY TO CLAIM -->
+    <div id="claimView" class="hidden">
+      <h1>✨ Signed in — ready to claim</h1>
+      <p>You're signed in as <strong id="signedInAs">—</strong>. Click below to accept your manager role for <span class="creator-name" id="claimCreatorName">this hub</span>.</p>
+      <button class="btn" id="claimBtn">👑 Claim manager access</button>
+      <div class="status info hidden" id="claimStatus"></div>
+      <button class="btn secondary" id="signOutBtn" style="margin-top:10px">Use a different account</button>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="successView" class="hidden">
+      <h1>🎉 You're in!</h1>
+      <p>You now have full co-owner access to <span class="creator-name" id="successCreatorName">this hub</span>. Opening the hub now…</p>
+      <div class="status success">Redirecting to the planner — if it doesn't open automatically, <a id="manualOpen" href="planner.html" style="color:#1f6b35;font-weight:800">click here</a>.</div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="errorView" class="hidden">
+      <h1>Hmm, something's off</h1>
+      <p id="errorMessage" class="small">—</p>
+      <button class="btn secondary" id="errorBackBtn">Try a different account</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="planner.html">← Back to the planner</a> · <a href="index.html">Hub home</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ============================================================
+//  CONFIG — must match planner.html / planner-editor.html
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+});
+
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(window.location.search);
+const token = (params.get('token') || '').trim();
+
+let invite = null;   // peek result
+let session = null;  // current Supabase session
+
+// ============================================================
+//  Show / hide view helpers
+// ============================================================
+const VIEWS = ['loadingView','inviteView','claimView','successView','errorView'];
+function showView(name){
+  VIEWS.forEach(v => $(v).classList.toggle('hidden', v !== name));
+}
+
+function setStatus(boxId, message, type){
+  const el = $(boxId);
+  if(!message){ el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.className = 'status ' + (type || 'info');
+  el.textContent = message;
+}
+
+function showError(message){
+  $('errorMessage').textContent = message;
+  showView('errorView');
+}
+
+// ============================================================
+//  Boot
+// ============================================================
+(async function boot(){
+  if(!token){
+    showError("This page needs a ?token=… in the URL. Ask the creator who sent you the link to re-send their invite.");
+    return;
+  }
+
+  // 1. Peek at the invite (anonymous-safe RPC)
+  try{
+    const { data, error } = await sb.rpc('planner_manager_peek_invite', { p_token: token });
+    if(error){ throw error; }
+    if(!data || !data.length){
+      showError("That invite link isn't recognized. The creator may have deleted it — ask them to send you a fresh one.");
+      return;
+    }
+    invite = data[0];
+  }catch(e){
+    console.error('[Claim] peek failed:', e);
+    showError("Couldn't look up that invite. If you haven't yet, ask Eggie to run planner-managers.sql in Supabase. (" + (e.message || e) + ")");
+    return;
+  }
+
+  if(invite.revoked){
+    showError("This invite has been revoked. If you think that's a mistake, message the creator and they can generate a new one.");
+    return;
+  }
+
+  $('creatorName').textContent = invite.creator_email || 'the creator';
+  $('claimCreatorName').textContent = invite.creator_email || 'the creator';
+  $('successCreatorName').textContent = invite.creator_email || 'the creator';
+  $('lockedEmail').textContent = invite.email;
+  $('emailInput').value = invite.email;
+
+  // 2. Check for existing session
+  const { data:{ session:s } } = await sb.auth.getSession();
+  session = s;
+  if(session?.user){
+    const userEmail = (session.user.email || '').toLowerCase();
+    if(userEmail !== (invite.email || '').toLowerCase()){
+      // Wrong account — show the invite view + a hint
+      $('signedInAs').textContent = session.user.email;
+      showView('inviteView');
+      setStatus('statusBox',
+        `You're currently signed in as ${session.user.email}, but this invite is locked to ${invite.email}. ` +
+        `Sign out below, or click "Send magic link" to receive a link for the correct email.`,
+        'info');
+      return;
+    }
+    // Right account — go straight to claim
+    $('signedInAs').textContent = session.user.email;
+    showView('claimView');
+    // Auto-claim if invite is fresh (not yet claimed) — feels magical
+    if(!invite.claimed){
+      doClaim();
+    }
+    return;
+  }
+
+  // Not signed in — show the magic-link form
+  showView('inviteView');
+})();
+
+// ============================================================
+//  Magic-link sign-in (email is locked to the invite)
+// ============================================================
+$('signInBtn').addEventListener('click', async () => {
+  const email = (invite.email || '').toLowerCase();
+  if(!email){ return; }
+
+  if(window.location.protocol === 'file:'){
+    setStatus('statusBox',
+      "Can't send a magic link from a file:// URL. Open this page from creatorhub.eggieweggie.ca or a local server.",
+      'error');
+    return;
+  }
+
+  const btn = $('signInBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Sending…';
+
+  // Redirect back to THIS page with the token preserved, so we can finish the claim
+  const redirectTo = window.location.origin + window.location.pathname + '?token=' + encodeURIComponent(token);
+
+  try{
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo }
+    });
+    if(error){
+      console.error('[Claim] signInWithOtp failed:', error);
+      setStatus('statusBox',
+        "Sign-in failed: " + (error.message || 'unknown error') +
+        ". Open browser console (F12) for details.",
+        'error');
+    } else {
+      setStatus('statusBox',
+        `✨ Magic link sent to ${email}. Check your inbox (and spam folder) — click the link to come back here and finish claiming.`,
+        'success');
+    }
+  }catch(e){
+    console.error('[Claim] signInWithOtp threw:', e);
+    setStatus('statusBox', "Network error sending magic link: " + (e.message || e), 'error');
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = '📬 Send magic link';
+  }
+});
+
+// ============================================================
+//  Claim the invite
+// ============================================================
+async function doClaim(){
+  const btn = $('claimBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Claiming…';
+  setStatus('claimStatus', 'Confirming with the database…', 'info');
+
+  try{
+    const { data, error } = await sb.rpc('planner_manager_claim_invite', { p_token: token });
+    if(error){ throw error; }
+    // Success! Show success view + redirect after a short beat
+    showView('successView');
+    const target = 'planner.html?manage=' + encodeURIComponent(invite.manager_id);
+    $('manualOpen').setAttribute('href', target);
+    setTimeout(() => { window.location.href = target; }, 1400);
+  }catch(e){
+    console.error('[Claim] claim_invite failed:', e);
+    btn.disabled = false;
+    btn.innerHTML = '👑 Claim manager access';
+    let msg = e.message || String(e);
+    if(/locked to a different email/i.test(msg)){
+      msg = `This invite is locked to ${invite.email}, but you're signed in as ${session?.user?.email}. Sign out and use the correct email.`;
+    } else if(/revoked/i.test(msg)){
+      msg = "This invite has been revoked — ask the creator for a new one.";
+    } else if(/not found/i.test(msg)){
+      msg = "Invite token not recognized. The creator may have deleted it.";
+    }
+    setStatus('claimStatus', msg, 'error');
+  }
+}
+$('claimBtn').addEventListener('click', doClaim);
+
+// ============================================================
+//  Sign-out / start over
+// ============================================================
+async function startOver(){
+  await sb.auth.signOut();
+  // Reload — boot() will see no session and show the invite view
+  window.location.href = window.location.pathname + '?token=' + encodeURIComponent(token);
+}
+$('signOutBtn').addEventListener('click', startOver);
+$('errorBackBtn').addEventListener('click', startOver);
+
+// ============================================================
+//  Listen for auth state changes (in case the magic-link click
+//  lands here with the session still being detected from URL)
+// ============================================================
+sb.auth.onAuthStateChange(async (_event, newSession) => {
+  if(newSession?.user && !session){
+    session = newSession;
+    const userEmail = (session.user.email || '').toLowerCase();
+    if(userEmail === (invite?.email || '').toLowerCase()){
+      $('signedInAs').textContent = session.user.email;
+      showView('claimView');
+      doClaim();
+    } else {
+      $('signedInAs').textContent = session.user.email;
+      showView('inviteView');
+      setStatus('statusBox',
+        `Signed in as ${session.user.email} — but this invite is for ${invite?.email}. Sign out below to use the correct account.`,
+        'info');
+    }
+  }
+});
+</script>
+</body>
+</html>
