@@ -486,6 +486,56 @@
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
   }
 
+  /* VTuber-friendly manual character checklist (replaces auto face/character detection) */
+  .vt-checklist{
+    display:grid;gap:10px;margin-top:14px;
+    grid-template-columns:1fr 1fr;
+  }
+  @media(max-width:640px){.vt-checklist{grid-template-columns:1fr}}
+  .vt-check{
+    display:flex;gap:12px;align-items:flex-start;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.3);
+    border-radius:14px;padding:14px 16px;
+    cursor:pointer;user-select:none;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  .vt-check:hover{background:rgba(255,255,255,0.9);border-color:rgba(144,165,255,0.55)}
+  .vt-check input{
+    appearance:none;-webkit-appearance:none;
+    flex-shrink:0;width:22px;height:22px;
+    border:2px solid rgba(144,165,255,0.6);
+    border-radius:6px;background:#fff;cursor:pointer;
+    margin:0;position:relative;
+    transition:background .15s, border-color .15s;
+  }
+  .vt-check input:checked{
+    background:linear-gradient(135deg,var(--mint),var(--periwinkle));
+    border-color:transparent;
+  }
+  .vt-check input:checked::after{
+    content:"";position:absolute;left:6px;top:2px;
+    width:5px;height:11px;border:solid #fff;
+    border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+  }
+  .vt-check.checked{
+    border-color:var(--periwinkle);
+    background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,219,247,0.35));
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .vt-check .vt-label{flex:1;min-width:0}
+  .vt-check .vt-label strong{
+    display:block;font-size:14.5px;color:var(--deep);
+    font-weight:800;margin-bottom:3px;line-height:1.3;
+  }
+  .vt-check .vt-label span{
+    font-size:12.5px;color:var(--ink-soft);line-height:1.45;
+  }
+  .vt-check-note{
+    margin-top:8px;font-size:12.5px;color:var(--ink-soft);
+    line-height:1.5;font-style:italic;
+  }
+
   /* Score hero */
   .score-hero{
     display:flex;align-items:center;gap:28px;flex-wrap:wrap;
@@ -650,8 +700,6 @@
       </div>
       <div class="thumb-overlay-key" id="thumbOverlayKey" style="display:none">
         <span><span class="swatch" style="background:#FFB2F0"></span>Text I read</span>
-        <span><span class="swatch" style="background:#6BE4EA"></span>Real face</span>
-        <span><span class="swatch" style="background:#90A5FF"></span>VTuber / character</span>
       </div>
       <div class="thumb-stats" id="thumbStats"></div>
     </div>
@@ -664,20 +712,62 @@
     </div>
   </section>
 
-  <!-- STEP 2: YOUTUBE PREVIEW (mobile + desktop) -->
-  <section class="card step-card hidden" id="step2">
+  <!-- STEP 2: VTUBER-FRIENDLY MANUAL CHARACTER CHECK -->
+  <!-- Replaces the old BlazeFace + Florence-2 character auto-detection, which was unreliable
+       for VTubers / 2D models. You know your art best, so you tell me what's in the frame. -->
+  <section class="card step-card hidden" id="stepCharacter">
     <div class="step-head">
       <span class="step-num">2</span>
+      <h2>Tell me about your character <span class="sub">VTuber-friendly — auto-detection misses 2D models</span></h2>
+    </div>
+    <p class="step-intro">Face detection is unreliable on VTuber models, anime art, and stylized characters — so instead of guessing, I'm asking. Tick whatever is true about your thumbnail. The score updates live as you check things off.</p>
+    <div class="vt-checklist" id="vtChecklist">
+      <label class="vt-check" data-key="visible">
+        <input type="checkbox" id="chkVisible" />
+        <span class="vt-label">
+          <strong>🧍 Face / character is visible</strong>
+          <span>There's a recognizable character, face, or model in the thumbnail — real, 2D, or otherwise.</span>
+        </span>
+      </label>
+      <label class="vt-check" data-key="emotion">
+        <input type="checkbox" id="chkEmotion" />
+        <span class="vt-label">
+          <strong>😱 Expression shows clear emotion</strong>
+          <span>Shock, joy, awe, fear, disgust — readable from across the room. Neutral faces don't move the needle.</span>
+        </span>
+      </label>
+      <label class="vt-check" data-key="bigCrop">
+        <input type="checkbox" id="chkBigCrop" />
+        <span class="vt-label">
+          <strong>🔍 Face takes up 1/4 to 1/3 of the frame</strong>
+          <span>Big enough to read at YouTube mobile size (120px wide). Tiny faces tucked in a corner lose at small sizes.</span>
+        </span>
+      </label>
+      <label class="vt-check" data-key="eyes">
+        <input type="checkbox" id="chkEyes" />
+        <span class="vt-label">
+          <strong>👀 Eyes looking at camera or focal subject</strong>
+          <span>Direct eye contact pulls clicks. Eyes locked on something specific in the frame works almost as well.</span>
+        </span>
+      </label>
+    </div>
+    <p class="vt-check-note">Leave them all unchecked if your thumbnail is faceless on purpose (cinematic landscape, product shot, etc.). The score will adjust.</p>
+  </section>
+
+  <!-- STEP 3: YOUTUBE PREVIEW (mobile + desktop) -->
+  <section class="card step-card hidden" id="step2">
+    <div class="step-head">
+      <span class="step-num">3</span>
       <h2>What it looks like on YouTube <span class="sub">mobile + desktop, side by side</span></h2>
     </div>
     <p class="step-intro">Most people will see your thumbnail in the <strong>YouTube mobile feed</strong> (the small thumbnail on a phone) or the <strong>YouTube homepage grid</strong> on desktop. If your text disappears at this size, you lose the click. Look for: tiny text, vanishing faces, key details hidden by the duration badge.</p>
     <div class="yt-preview-grid" id="ytPreviewGrid"></div>
   </section>
 
-  <!-- STEP 3: SCORE -->
+  <!-- STEP 4: SCORE -->
   <section class="card step-card hidden" id="step3">
     <div class="step-head">
-      <span class="step-num">3</span>
+      <span class="step-num">4</span>
       <h2>The score</h2>
     </div>
     <div class="score-hero">
@@ -690,19 +780,19 @@
     <div class="criteria-grid" id="criteriaGrid"></div>
   </section>
 
-  <!-- STEP 4: WHAT I SEE -->
+  <!-- STEP 5: WHAT I SEE -->
   <section class="card step-card hidden" id="step4">
     <div class="step-head">
-      <span class="step-num">4</span>
+      <span class="step-num">5</span>
       <h2>What I see in your thumbnail</h2>
     </div>
     <div class="insight-grid" id="insightGrid"></div>
   </section>
 
-  <!-- STEP 5: CHECKLIST -->
+  <!-- STEP 6: CHECKLIST -->
   <section class="card step-card hidden" id="step5">
     <div class="step-head">
-      <span class="step-num">5</span>
+      <span class="step-num">6</span>
       <h2>What to fix</h2>
     </div>
     <ul class="checklist" id="checklist"></ul>
@@ -724,7 +814,7 @@
           <ul>
             <li><strong>Do:</strong> Crop the face large (1/4 to 1/3 of the thumbnail). Eyes looking AT the camera or AT the subject of interest.</li>
             <li><strong>Don't:</strong> Tiny face in corner, neutral expression, sunglasses, fully obscured face.</li>
-            <li><strong>VTubers:</strong> Your model counts — use the most expressive frame from your stream. Florence-2 + my detector finds these automatically.</li>
+            <li><strong>VTubers:</strong> Your model counts — use the most expressive frame from your stream. Auto face detection misses 2D / illustrated models, so the character checklist in Step 2 lets you mark what's actually in your frame.</li>
           </ul>
         </div>
       </details>
@@ -825,8 +915,9 @@
 <script>
 // ============================================================
 //  THUMBNAIL CHECKER — client-side image analysis
-//  Reuses Florence-2 (OCR) and BlazeFace (face detection)
-//  models that get cached after first download.
+//  Uses Florence-2 (OCR + text regions) cached after first download.
+//  Face / character presence is driven by the Step 2 checklist
+//  (auto face detection was unreliable for VTuber models — see notes below).
 // ============================================================
 
 const $ = id => document.getElementById(id);
@@ -1010,105 +1101,15 @@ async function runOcrMultiPass(canvas){
   return { text: bestText, regions };
 }
 
-// ----- BlazeFace loader (reuses TF.js + BlazeFace from CDN, SHARED across pages) -----
-let blazeLoader = window.__sharedBlazeLoader || null;
-async function loadBlazeface(){
-  if(blazeLoader) return blazeLoader;
-  blazeLoader = (async () => {
-    if(!window.tf){
-      await new Promise((res, rej) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js';
-        s.onload = res; s.onerror = rej;
-        document.head.appendChild(s);
-      });
-    }
-    if(!window.blazeface){
-      await new Promise((res, rej) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.1.0/dist/blazeface.min.js';
-        s.onload = res; s.onerror = rej;
-        document.head.appendChild(s);
-      });
-    }
-    return await window.blazeface.load();
-  })();
-  window.__sharedBlazeLoader = blazeLoader;
-  return blazeLoader;
-}
-
-async function detectFaces(canvas){
-  try{
-    const model = await loadBlazeface();
-    const preds = await model.estimateFaces(canvas, false);
-    return preds; // array with { topLeft, bottomRight, probability, landmarks }
-  }catch(e){
-    console.warn('BlazeFace failed:', e.message || e);
-    return [];
-  }
-}
-
-// ---- Anime / VTuber character detection via Florence-2 ----
-// V2 #50 — Now uses BOTH caption (semantic check) AND CAPTION_TO_PHRASE_GROUNDING
-// (returns actual bounding boxes for "face / character / person") so we can draw the
-// detection on the user's thumbnail preview. BlazeFace alone misses every VTuber model.
-async function detectCharacters(canvas){
-  let caption = '';
-  try{
-    caption = await runFlorenceText(canvas, '<MORE_DETAILED_CAPTION>', 150);
-  }catch(e){
-    console.warn('Florence-2 caption failed:', e.message || e);
-    return {hasCharacter:false, characterType:'none', caption:'', kind:'none', boxes:[]};
-  }
-  if(!caption) return {hasCharacter:false, characterType:'none', caption:'', kind:'none', boxes:[]};
-  const c = caption.toLowerCase();
-
-  // Strong character signals — these vocabularies indicate a person / VTuber / anime character
-  // is the focal subject of the image even if BlazeFace missed them.
-  const animeWords = ['anime','vtuber','vtube','illustrated','illustration','cartoon','chibi','manga',
-                       'drawn','drawing','stylized','cel-shaded','animation','animated','art style',
-                       'cartoon character','anime character','anime girl','anime boy'];
-  const realPersonWords = ['woman','man','girl','boy','person','people','face','portrait','selfie',
-                            'streamer','streaming','live','headshot'];
-  const characterWords = ['character','avatar','mascot','model','figure','hero','vtuber model'];
-  const hasAnime = animeWords.some(w => c.includes(w));
-  const hasReal = realPersonWords.some(w => c.includes(w));
-  const hasCharacter = characterWords.some(w => c.includes(w));
-
-  let kind = 'none';
-  if(hasAnime) kind = 'anime';
-  else if(hasReal) kind = 'real';
-  else if(hasCharacter) kind = 'character';
-
-  // V2 #50 — Grounded detection: ask Florence to LOCATE the face/character in pixel space.
-  // Pull boxes for several candidate phrases and union them. Returns boxes as
-  // [x1, y1, x2, y2] in canvas pixel coordinates.
-  let boxes = [];
-  if(kind !== 'none'){
-    const phrases = kind === 'anime' ? ['anime character', 'face', 'character'] :
-                    kind === 'real' ? ['face', 'person', 'head'] :
-                    ['character', 'face', 'person'];
-    for(const phrase of phrases){
-      if(boxes.length >= 1) break;  // first hit is enough — speed > exhaustiveness
-      try{
-        const out = await runFlorenceTask(canvas, '<CAPTION_TO_PHRASE_GROUNDING>', 150);
-        // Florence sometimes returns boxes already from the caption — accept either shape
-        if(out && Array.isArray(out.bboxes) && out.bboxes.length){
-          boxes = out.bboxes.slice(0, 4);
-        } else if(out && Array.isArray(out.boxes) && out.boxes.length){
-          boxes = out.boxes.slice(0, 4);
-        }
-      }catch(e){ /* silent — character detection is best-effort */ }
-    }
-  }
-
-  return {
-    hasCharacter: kind !== 'none',
-    kind,
-    caption: caption.slice(0, 280),
-    boxes
-  };
-}
+// ----- Face / character detection REMOVED (V3 — May 2026) -----
+// Previously: BlazeFace (real human faces) + Florence-2 character grounding (anime / VTuber).
+// Both were unreliable for VTuber models — BlazeFace literally can't see 2D art, and
+// Florence-2's captions were inconsistent enough that the score swung wildly between runs.
+// Replaced with a 4-item user checklist in Step 2 (#stepCharacter). The creator already
+// knows what's in their own art, so we trust them instead of guessing.
+//
+// Bonus: skipping these calls makes analysis noticeably faster (no BlazeFace model load,
+// no second Florence-2 pass for character grounding).
 
 // ============================================================
 //  Color + contrast analysis
@@ -1314,60 +1315,81 @@ async function handleThumb(file){
   const ocrText = ocrResult.text;
   const ocrRegions = ocrResult.regions || [];
 
-  // ---- Face detection (BlazeFace — real human faces only) ----
-  // V2 #50 — Use the high-res OCR canvas for BlazeFace too (better at picking up faces
-  // that are partially obscured or at unusual angles. Falls back to small if it errors.)
-  setProgress(true, 'Looking for faces…', 'BlazeFace running on the thumbnail.', 96, '');
-  let faces = [];
-  try{ faces = await detectFaces(canvasOcr); }catch(e){}
-  if(faces.length === 0){
-    try{ faces = await detectFaces(canvasSmall); }catch(e){}
-  }
-
-  // ---- Character detection (Florence-2 — catches anime / VTuber models + bounding boxes) ----
-  setProgress(true, 'Looking for VTuber characters…', 'Florence-2 grounding to spot stylized characters BlazeFace misses.', 98, '');
-  let characterInfo = {hasCharacter:false, kind:'none', caption:'', boxes:[]};
-  try{ characterInfo = await detectCharacters(canvasOcr); }catch(e){ console.warn('Character detect failed:', e); }
-
   setProgress(false);
-
-  // Combined "character presence" signal — counts real faces + anime / VTuber characters.
-  const personPresence = {
-    realFaceCount: faces.length,
-    animeOrCharacter: characterInfo.hasCharacter,
-    kind: characterInfo.kind,
-    sceneCaption: characterInfo.caption
-  };
 
   // Re-render YT mockups with the OCR'd text so the title slot reflects what we read
   renderYTMockups(url, ocrText || '');
 
-  // V2 #50 — Draw detection overlays on the preview so the user SEES what was read/detected
+  // V3 — Detection overlay now only shows OCR text boxes (face/character detection removed)
   drawDetectionOverlay({
     ocrRegions,
-    ocrCanvas: canvasOcr,
-    faces,
-    faceCanvas: canvasOcr,
-    characterBoxes: characterInfo.boxes || [],
-    characterCanvas: canvasOcr
+    ocrCanvas: canvasOcr
   });
 
-  // ---- Score everything ----
-  const verdict = scoreThumbnail({
-    W, H, aspect, fileSize, ocrText, faces, personPresence, colorStats, focalStats, edgeStats, canvasSmall
-  });
+  // V3 — Cache the heavy analysis values so toggling the character checklist can
+  // recompute the score live without re-running OCR / color / focal analysis.
+  __currentAnalysis = {W, H, aspect, fileSize, ocrText, colorStats, focalStats, edgeStats};
 
-  // Render results
-  renderScore(verdict);
-  renderInsights({ocrText, faces, personPresence, colorStats, focalStats, edgeStats});
-  renderChecklist(verdict);
-  ['step3','step4','step5'].forEach(id => $(id).classList.remove('hidden'));
+  // Reveal the character checklist FIRST — the score waits on the user's input.
+  resetChecklist();
+  $('stepCharacter').classList.remove('hidden');
+
+  // Initial score uses the default checklist state (nothing checked yet)
+  rescore();
+  ['step2','step3','step4','step5'].forEach(id => $(id).classList.remove('hidden'));
 }
 
 // ============================================================
-//  V2 #50 — Detection overlay (draws OCR + face + character boxes on preview)
+//  V3 — Character checklist state + live re-scoring
 // ============================================================
-function drawDetectionOverlay({ocrRegions, ocrCanvas, faces, faceCanvas, characterBoxes, characterCanvas}){
+// The checklist replaces the old BlazeFace + Florence character detection.
+// __currentAnalysis holds the heavy / image-derived data; the checklist values
+// are read fresh from the DOM on every rescore so toggling boxes is instant.
+let __currentAnalysis = null;
+
+function readChecklist(){
+  return {
+    visible: !!($('chkVisible') && $('chkVisible').checked),
+    emotion: !!($('chkEmotion') && $('chkEmotion').checked),
+    bigCrop: !!($('chkBigCrop') && $('chkBigCrop').checked),
+    eyes:    !!($('chkEyes')    && $('chkEyes').checked)
+  };
+}
+
+function resetChecklist(){
+  ['chkVisible','chkEmotion','chkBigCrop','chkEyes'].forEach(id => {
+    const cb = $(id);
+    if(cb){ cb.checked = false; cb.parentElement.classList.remove('checked'); }
+  });
+}
+
+// Recompute the score from cached analysis + current checklist and re-render
+function rescore(){
+  if(!__currentAnalysis) return;
+  const checklist = readChecklist();
+  const verdict = scoreThumbnail({...__currentAnalysis, checklist});
+  renderScore(verdict);
+  renderInsights({...__currentAnalysis, checklist});
+  renderChecklist(verdict);
+}
+
+function wireChecklistInputs(){
+  ['chkVisible','chkEmotion','chkBigCrop','chkEyes'].forEach(id => {
+    const cb = $(id);
+    if(!cb) return;
+    cb.addEventListener('change', () => {
+      cb.parentElement.classList.toggle('checked', cb.checked);
+      rescore();
+    });
+  });
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireChecklistInputs, {once:true});
+else wireChecklistInputs();
+
+// ============================================================
+//  V3 — Detection overlay (OCR text boxes only; face/character moved to checklist)
+// ============================================================
+function drawDetectionOverlay({ocrRegions, ocrCanvas}){
   const overlay = $('thumbPreviewOverlay');
   const toggle = $('thumbOverlayToggle');
   const key = $('thumbOverlayKey');
@@ -1387,35 +1409,6 @@ function drawDetectionOverlay({ocrRegions, ocrCanvas, faces, faceCanvas, charact
       w: (Math.max(...xs) - Math.min(...xs)) / w,
       h: (Math.max(...ys) - Math.min(...ys)) / h,
       label: r.text
-    });
-  });
-
-  // BlazeFace — topLeft / bottomRight in canvas px (or arrays if .arraySync wasn't called)
-  (faces || []).forEach((f, i) => {
-    let tl = f.topLeft, br = f.bottomRight;
-    if(Array.isArray(tl) && Array.isArray(tl[0])) tl = tl[0];  // sometimes nested
-    if(Array.isArray(br) && Array.isArray(br[0])) br = br[0];
-    if(!tl || !br) return;
-    items.push({
-      kind: 'face',
-      x: tl[0] / w,
-      y: tl[1] / h,
-      w: (br[0] - tl[0]) / w,
-      h: (br[1] - tl[1]) / h,
-      label: `Face #${i+1}`
-    });
-  });
-
-  // Florence character boxes — [x1, y1, x2, y2]
-  (characterBoxes || []).forEach(b => {
-    if(!Array.isArray(b) || b.length < 4) return;
-    items.push({
-      kind: 'character',
-      x: b[0] / w,
-      y: b[1] / h,
-      w: (b[2] - b[0]) / w,
-      h: (b[3] - b[1]) / h,
-      label: 'VTuber / character'
     });
   });
 
@@ -1453,7 +1446,7 @@ function drawDetectionOverlay({ocrRegions, ocrCanvas, faces, faceCanvas, charact
 // ============================================================
 //  Scoring
 // ============================================================
-function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, personPresence, colorStats, focalStats, edgeStats}){
+function scoreThumbnail({W, H, aspect, fileSize, ocrText, checklist, colorStats, focalStats, edgeStats}){
   const crits = [];
 
   // 1. DIMENSIONS / ASPECT — 1.0 weight
@@ -1514,39 +1507,39 @@ function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, personPresence,
                    'Muted / desaturated palette. Aesthetic, but disappears in the feed.';
   crits.push({key:'sat', name:'Color saturation', score:Math.max(3, Math.min(10, sat)), weight:1.0, impact:'mid', blurb:satBlurb});
 
-  // 6. CHARACTER / FACE PRESENCE — 1.5 weight
-  // Combine BlazeFace (real human faces) with Florence-2 caption-derived character detection
-  // (catches anime / VTuber models that BlazeFace can't see).
-  let face = 5;
-  let faceBlurb = '';
-  const pp = personPresence || {realFaceCount:0, animeOrCharacter:false, kind:'none'};
-  const realCount = pp.realFaceCount;
-  const hasChar = pp.animeOrCharacter;
-  const kind = pp.kind;
-
-  if(realCount === 0 && !hasChar){
+  // 6. CHARACTER / FACE PRESENCE — 1.5 weight (V3: driven by user checklist, not auto-detect)
+  // Auto face/character detection was unreliable for VTuber models — see the comment block
+  // above where it was removed. The creator ticks 4 boxes; we score the result.
+  //   visible  — there's a face/character in the frame at all (the gate)
+  //   emotion  — clear emotional read (shock/joy/awe/etc.)
+  //   bigCrop  — face covers 1/4 to 1/3 of the frame
+  //   eyes     — eyes locked on camera or focal subject
+  const chk = checklist || {visible:false, emotion:false, bigCrop:false, eyes:false};
+  let face;
+  let faceBlurb;
+  if(!chk.visible){
+    // Faceless thumbnail. Could be intentional (cinematic landscape, product shot) so don't
+    // punish as harshly as the old auto-detect "no face found" — just under-credit it.
     face = 4;
-    faceBlurb = 'No face or character detected. Thumbnails with a clear character / face consistently outperform faceless ones — try adding your model.';
-  } else if(realCount === 1 && !hasChar){
-    face = 9;
-    faceBlurb = '1 real face detected (BlazeFace) — strong personal hook.';
-  } else if(realCount >= 2 && !hasChar){
-    face = realCount === 2 ? 8 : 6;
-    faceBlurb = `${realCount} real faces detected — ${realCount === 2 ? 'good duo energy' : 'busy but personal'}.`;
-  } else if(hasChar && realCount === 0){
-    // Anime / VTuber character detected via Florence-2, BlazeFace missed it (expected for illustrated models)
-    if(kind === 'anime') face = 9;
-    else if(kind === 'character') face = 8;
-    else face = 7;
-    faceBlurb = kind === 'anime'
-      ? 'VTuber / anime character spotted in the scene (Florence-2). Strong personal hook for VTuber content — BlazeFace misses illustrated models, that\'s why this signal is here.'
-      : kind === 'real'
-        ? 'Person mentioned in scene description but no clear face — try a closer / clearer shot of the subject.'
-        : 'Character / mascot detected. Solid personal hook for the thumbnail.';
+    faceBlurb = 'No face / character marked as visible. Thumbnails with a clear character / face consistently outperform faceless ones — if you have a VTuber model, frame it expressively and tick the boxes above.';
   } else {
-    // Both signals firing
-    face = 10;
-    faceBlurb = `Real face${realCount > 1 ? 's' : ''} + ${kind === 'anime' ? 'anime / VTuber' : 'character'} both detected — IRL + model combo always pops.`;
+    // Bonus signals: each one is a known CTR lever.
+    const bonusCount = (chk.emotion?1:0) + (chk.bigCrop?1:0) + (chk.eyes?1:0);
+    // Visible alone = 6. Each extra signal worth ~1.33 → 6, 7, 9, 10.
+    face = Math.min(10, 6 + Math.round(bonusCount * 1.33));
+    const missing = [];
+    if(!chk.emotion) missing.push('clear emotion');
+    if(!chk.bigCrop) missing.push('a larger crop (1/4–1/3 of the frame)');
+    if(!chk.eyes)    missing.push('eyes on camera or focal subject');
+    if(bonusCount === 3){
+      faceBlurb = 'Character visible with strong emotion, good crop size, and engaging eye direction — the full CTR package.';
+    } else if(bonusCount === 2){
+      faceBlurb = `Character visible with two of the three high-CTR signals. Worth adding: ${missing.join(', ')}.`;
+    } else if(bonusCount === 1){
+      faceBlurb = `Character visible but only one strong signal. Try to add: ${missing.join(', ')}.`;
+    } else {
+      faceBlurb = 'Character visible but no emotion / crop / eye signals — those are what actually pull clicks. Try a more expressive frame.';
+    }
   }
   crits.push({key:'face', name:'Character / face presence', score:face, weight:1.5, impact:'mid', blurb:faceBlurb});
 
@@ -1831,7 +1824,7 @@ function renderScore(v){
   }).join('');
 }
 
-function renderInsights({ocrText, faces, personPresence, colorStats, focalStats, edgeStats}){
+function renderInsights({ocrText, checklist, colorStats, focalStats, edgeStats}){
   const grid = $('insightGrid');
   const swatchHtml = colorStats.dominant.slice(0, 5).map(([r,g,b]) =>
     `<div class="swatch" title="rgb(${r},${g},${b})" style="background:rgb(${r},${g},${b})"></div>`
@@ -1839,24 +1832,26 @@ function renderInsights({ocrText, faces, personPresence, colorStats, focalStats,
   const ocrDisplay = ocrText ? `"${escapeHtml(ocrText.slice(0, 180))}${ocrText.length > 180 ? '…' : ''}"` :
                               '<em>No text detected on the thumbnail.</em>';
 
-  // Combined character / face card — explain the two detection systems
-  const pp = personPresence || {realFaceCount:0, animeOrCharacter:false, kind:'none', sceneCaption:''};
-  const real = pp.realFaceCount;
-  let charLine;
-  if(real === 0 && !pp.animeOrCharacter){
-    charLine = '<em>No character or face detected.</em>';
+  // V3 — character card now reflects the user's checklist instead of auto-detect output
+  const chk = checklist || {visible:false, emotion:false, bigCrop:false, eyes:false};
+  const labels = [
+    {key:'visible', txt:'Face / character visible'},
+    {key:'emotion', txt:'Clear emotion'},
+    {key:'bigCrop', txt:'Face fills 1/4–1/3 of frame'},
+    {key:'eyes',    txt:'Eyes on camera / subject'}
+  ];
+  let charBody;
+  if(!chk.visible && !chk.emotion && !chk.bigCrop && !chk.eyes){
+    charBody = '<em>Nothing ticked yet — fill out the checklist in Step 2 above so I can score this properly.</em>';
   } else {
-    const bits = [];
-    if(real > 0) bits.push(`<strong>${real}</strong> real ${real===1?'face':'faces'} (BlazeFace)`);
-    if(pp.animeOrCharacter){
-      const kindLabel = pp.kind === 'anime' ? 'anime / VTuber model' :
-                        pp.kind === 'real' ? 'person described' :
-                        'character / mascot';
-      bits.push(`<strong>${kindLabel}</strong> (Florence-2 caption)`);
-    }
-    charLine = bits.join(' + ');
+    charBody = labels.map(l => {
+      const on = chk[l.key];
+      return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px;color:${on?'var(--deep)':'var(--ink-soft)'}">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${on?'linear-gradient(135deg,var(--mint),var(--periwinkle))':'rgba(144,165,255,0.18)'};color:#fff;font-size:11px;font-weight:800">${on?'✓':'·'}</span>
+        <span>${l.txt}</span>
+      </div>`;
+    }).join('');
   }
-  const sceneLine = pp.sceneCaption ? `<p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);line-height:1.45">Scene: <em>${escapeHtml(pp.sceneCaption.slice(0, 200))}${pp.sceneCaption.length > 200 ? '…' : ''}</em></p>` : '';
 
   grid.innerHTML = `
     <div class="insight-card">
@@ -1864,11 +1859,8 @@ function renderInsights({ocrText, faces, personPresence, colorStats, focalStats,
       <div class="insight-body">${ocrDisplay}</div>
     </div>
     <div class="insight-card">
-      <h4>😀 Character / face detection</h4>
-      <div class="insight-body">
-        ${charLine}
-        ${sceneLine}
-      </div>
+      <h4>😀 Character checklist</h4>
+      <div class="insight-body">${charBody}</div>
     </div>
     <div class="insight-card">
       <h4>🎨 Dominant colors</h4>

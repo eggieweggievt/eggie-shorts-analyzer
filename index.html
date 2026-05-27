@@ -525,6 +525,24 @@
     </div>
   </div>
 
+  <!-- V2.5 — Weekly habits widget (only renders if user has habits data in localStorage) -->
+  <div id="habitsWidget" class="habits-widget hidden">
+    <div class="hw-head">
+      <span class="hw-icon">🌸</span>
+      <span class="hw-label">Your habits this week</span>
+      <a href="habits.html" class="hw-link">Open tracker →</a>
+    </div>
+    <div class="hw-row">
+      <div class="hw-stat"><div class="hw-num" id="hwDone">0</div><div class="hw-sub">done today</div></div>
+      <div class="hw-stat"><div class="hw-num" id="hwWeek">0</div><div class="hw-sub">this week</div></div>
+      <div class="hw-stat"><div class="hw-num" id="hwStreak">0</div><div class="hw-sub">longest streak</div></div>
+      <div class="hw-bar-wrap">
+        <div class="hw-bar-label">Today: <span id="hwToday">0/0</span></div>
+        <div class="hw-bar"><div class="hw-bar-fill" id="hwBar"></div></div>
+      </div>
+    </div>
+  </div>
+
   <div class="pick-prompt">Pick where to start</div>
 
   <!-- MAIN TILES -->
@@ -645,24 +663,6 @@
       </div>
     </a>
 
-  </div>
-
-  <!-- V2.5 — Weekly habits widget (only renders if user has habits data in localStorage) -->
-  <div id="habitsWidget" class="habits-widget hidden">
-    <div class="hw-head">
-      <span class="hw-icon">🌸</span>
-      <span class="hw-label">Your habits this week</span>
-      <a href="habits.html" class="hw-link">Open tracker →</a>
-    </div>
-    <div class="hw-row">
-      <div class="hw-stat"><div class="hw-num" id="hwDone">0</div><div class="hw-sub">done today</div></div>
-      <div class="hw-stat"><div class="hw-num" id="hwWeek">0</div><div class="hw-sub">this week</div></div>
-      <div class="hw-stat"><div class="hw-num" id="hwStreak">0</div><div class="hw-sub">longest streak</div></div>
-      <div class="hw-bar-wrap">
-        <div class="hw-bar-label">Today: <span id="hwToday">0/0</span></div>
-        <div class="hw-bar"><div class="hw-bar-fill" id="hwBar"></div></div>
-      </div>
-    </div>
   </div>
 
   <!-- COMING SOON — placeholder so the user knows this is a living site -->
