@@ -167,6 +167,55 @@
   .status-summary .chip strong{margin-right:5px}
 
   .project-list{display:flex;flex-direction:column;gap:10px}
+  /* V2.7 — Bucket section headers (Ready / In progress / Done) */
+  .project-bucket{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+  .project-bucket:last-child{margin-bottom:0}
+  .bucket-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin:4px 0 6px;padding:8px 14px;
+    background:rgba(255,255,255,0.65);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(99,170,244,0.1);
+  }
+  .bucket-head .bucket-icon{font-size:22px;line-height:1;flex-shrink:0}
+  .bucket-head h4{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:18px;color:var(--deep);margin:0;flex:1;line-height:1.2;
+  }
+  .bucket-head .bucket-count{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
+    color:var(--deep);font-weight:800;font-size:12px;
+    padding:3px 11px;border-radius:999px;
+  }
+  .bucket-head .bucket-hint{
+    font-size:12px;color:var(--ink-soft);line-height:1.45;flex-basis:100%;font-style:italic;
+  }
+  /* Bucket-specific accents */
+  .project-bucket.ready .bucket-head{
+    background:linear-gradient(135deg,rgba(168,230,190,0.35),rgba(107,228,234,0.3));
+    border-color:rgba(168,230,190,0.5);
+  }
+  .project-bucket.ready .bucket-head h4{color:#1f6580}
+  .project-bucket.ready .bucket-head .bucket-count{
+    background:linear-gradient(135deg,#A8E6BE,#6BE4EA);color:#1f6580;
+  }
+  .project-bucket.pending .bucket-head{
+    background:linear-gradient(135deg,rgba(255,213,138,0.3),rgba(255,178,240,0.2));
+    border-color:rgba(255,213,138,0.45);
+  }
+  .project-bucket.pending .bucket-head h4{color:#a35c00}
+  .project-bucket.pending .bucket-head .bucket-count{
+    background:linear-gradient(135deg,#FFD58A,#FFB07A);color:#a35c00;
+  }
+  .project-bucket.done .bucket-head{
+    background:rgba(255,255,255,0.45);
+    border-color:rgba(144,165,255,0.25);
+    opacity:.85;
+  }
+  .project-bucket.done .bucket-head h4{color:var(--ink-soft)}
+  .project-bucket.done .project-card{opacity:.7}
+  .project-bucket.done .project-card:hover{opacity:1}
   .project-card{
     background:rgba(255,255,255,0.92);
     border:1.5px solid rgba(255,255,255,0.95);
@@ -897,7 +946,76 @@ function renderProjects(){
       </div>`;
     return;
   }
-  wrap.innerHTML = projects.map(renderProjectCard).join('');
+
+  // V2.7 — Bucket projects by readiness so editors immediately see what to work on.
+  //   READY    = editing, OR recording + has footage/attachments (creator handed it over)
+  //   PENDING  = idea / script / recording-without-footage (creator hasn't finished prep yet)
+  //   DONE     = scheduled / posted / archived (shipped or in queue)
+  function hasFootage(p){
+    return !!(p.footage_url || (Array.isArray(p.attachments) && p.attachments.length > 0));
+  }
+  const ready = [];
+  const pending = [];
+  const done = [];
+  projects.forEach(p => {
+    if(['scheduled','posted','archived'].includes(p.status)){
+      done.push(p);
+    } else if(p.status === 'editing' || (p.status === 'recording' && hasFootage(p))){
+      ready.push(p);
+    } else {
+      pending.push(p);
+    }
+  });
+
+  const sections = [];
+
+  // READY bucket — what the editor should be actively working on
+  if(ready.length){
+    sections.push(`
+      <div class="project-bucket ready">
+        <div class="bucket-head">
+          <span class="bucket-icon">🎬</span>
+          <h4>Ready to edit</h4>
+          <span class="bucket-count">${ready.length}</span>
+          <div class="bucket-hint">Footage is in your hands — these are the priority queue.</div>
+        </div>
+        ${ready.map(renderProjectCard).join('')}
+      </div>
+    `);
+  }
+
+  // PENDING bucket — coming-up content, footage not handed over yet
+  if(pending.length){
+    sections.push(`
+      <div class="project-bucket pending">
+        <div class="bucket-head">
+          <span class="bucket-icon">⏳</span>
+          <h4>Coming up (not yet ready)</h4>
+          <span class="bucket-count">${pending.length}</span>
+          <div class="bucket-hint">Creator's still recording or prepping — sit tight until footage links / files appear here.</div>
+        </div>
+        ${pending.map(renderProjectCard).join('')}
+      </div>
+    `);
+  }
+
+  // DONE bucket — already shipped, keep visible for reference but de-emphasized
+  if(done.length){
+    sections.push(`
+      <div class="project-bucket done">
+        <div class="bucket-head">
+          <span class="bucket-icon">✅</span>
+          <h4>Already shipped</h4>
+          <span class="bucket-count">${done.length}</span>
+          <div class="bucket-hint">Scheduled, posted, or archived. Reference material — no action needed.</div>
+        </div>
+        ${done.map(renderProjectCard).join('')}
+      </div>
+    `);
+  }
+
+  wrap.innerHTML = sections.join('');
+
   // Wire up status pickers
   wrap.querySelectorAll('.pc-status-pick').forEach(btn => {
     btn.addEventListener('click', () => updateStatus(btn.dataset.id, btn.dataset.next));

@@ -853,6 +853,98 @@
     box-shadow:inset 0 0 0 2px #fff, 0 0 0 1.5px rgba(0,0,0,0.06);
   }
 
+  /* ===== V2.7 — TELEPROMPTER / RECORDING MODE ===== */
+  .tp-overlay{
+    display:none;position:fixed;inset:0;z-index:1000;
+    background:#0a0612;  /* deep ink — minimal stream-camera reflection */
+    color:#fff;
+    font-family:'Quicksand',sans-serif;
+    flex-direction:column;
+  }
+  .tp-overlay.open{display:flex}
+  .tp-stage{
+    flex:1;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+  }
+  /* Reading-line indicator — faint horizontal hint at vertical center */
+  .tp-readline{
+    position:absolute;left:6%;right:6%;top:50%;height:2px;
+    background:linear-gradient(90deg, transparent, rgba(255,178,240,0.5) 20%, rgba(107,228,234,0.5) 50%, rgba(255,178,240,0.5) 80%, transparent);
+    pointer-events:none;
+    box-shadow:0 0 12px rgba(255,178,240,0.4);
+  }
+  .tp-script-wrap{
+    max-width:1100px;width:90%;
+    will-change:transform;
+    transition:transform .08s linear;
+    /* Vertical centering padding — half the viewport so the script can scroll from below center to above center */
+    padding:50vh 0;
+  }
+  .tp-script-wrap.mirrored{transform-origin:center;}
+  .tp-title{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:0.55em;color:rgba(255,178,240,0.7);
+    margin-bottom:0.6em;line-height:1.2;text-align:center;
+  }
+  .tp-hook{
+    font-weight:800;color:#fff;
+    margin-bottom:0.8em;line-height:1.35;text-align:center;
+    text-shadow:0 0 24px rgba(255,178,240,0.3);
+  }
+  .tp-hook:empty{display:none}
+  .tp-script{
+    font-weight:600;color:#fff;
+    line-height:1.6;text-align:center;
+    white-space:pre-wrap;word-wrap:break-word;
+    text-shadow:0 0 12px rgba(0,0,0,0.4);
+  }
+  /* Bottom control bar */
+  .tp-controls{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;
+    padding:14px 20px;
+    background:rgba(0,0,0,0.6);
+    border-top:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+  }
+  .tp-btn{
+    background:rgba(255,255,255,0.1);color:#fff;border:1.5px solid rgba(255,255,255,0.18);
+    border-radius:999px;padding:8px 16px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:13px;
+    transition:background .12s, border-color .12s, transform .1s;
+  }
+  .tp-btn:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,178,240,0.5)}
+  .tp-btn:active{transform:scale(0.97)}
+  .tp-btn.tp-play{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    border-color:transparent;font-size:18px;line-height:1;min-width:44px;
+    padding:8px 14px;
+  }
+  .tp-btn.tp-play:hover{filter:brightness(1.1)}
+  .tp-btn.tp-toggle.on{background:linear-gradient(135deg,rgba(255,178,240,0.55),rgba(144,165,255,0.45));border-color:transparent}
+  .tp-btn.tp-exit{background:rgba(255,138,168,0.2);border-color:rgba(255,138,168,0.45)}
+  .tp-btn.tp-exit:hover{background:rgba(255,138,168,0.35)}
+  .tp-slider{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.08);padding:5px 14px;border-radius:999px;
+    font-size:12px;
+  }
+  .tp-slider input[type=range]{
+    width:120px;accent-color:var(--pink-hot);cursor:pointer;
+  }
+  .tp-slider-label{color:rgba(255,255,255,0.7);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  .tp-slider-value{color:#fff;font-weight:700;min-width:42px;text-align:right}
+  /* Keyboard hint footer */
+  .tp-hint{
+    text-align:center;padding:6px 12px 10px;
+    font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:.02em;
+    background:rgba(0,0,0,0.6);
+  }
+  .tp-hint kbd{
+    background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);
+    border-radius:4px;padding:1px 6px;font-size:10.5px;font-family:inherit;font-weight:700;
+    color:#fff;margin:0 2px;
+  }
+
   /* Empty state for the board */
   .empty-board{
     text-align:center;padding:40px 20px;color:var(--ink-soft);
@@ -1006,7 +1098,10 @@
       <label for="fHook">Hook <span class="opt">(opening line or thumbnail text)</span></label>
       <textarea id="fHook" rows="2" placeholder="e.g. 'HE DID WHAT WITH THAT SPATULA?!'"></textarea>
 
-      <label for="fScript">Script / outline</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:12px 0 4px">
+        <label for="fScript" style="margin:0">Script / outline</label>
+        <button type="button" class="btn secondary" id="recordingModeBtn" style="padding:6px 14px;font-size:12.5px" title="Open the script in fullscreen teleprompter for recording">🎬 Recording mode</button>
+      </div>
       <textarea id="fScript" rows="5" placeholder="Beats, lines, shot list — whatever helps you record it."></textarea>
 
       <div class="modal-row cols-2">
@@ -1253,6 +1348,39 @@
     Made with 💗 by Eggie &middot; Data lives in your private Supabase — nobody else can read it.
   </footer>
 
+</div>
+
+<!-- ===== V2.7: TELEPROMPTER / RECORDING MODE ===== -->
+<div id="teleprompterOverlay" class="tp-overlay" role="dialog" aria-modal="true" aria-label="Recording mode teleprompter">
+  <div class="tp-stage">
+    <!-- Reading-line indicator — sits at vertical center so users always know what to read -->
+    <div class="tp-readline"></div>
+    <!-- The scrolling script — transforms translateY based on tpPosition -->
+    <div class="tp-script-wrap">
+      <div class="tp-title" id="tpTitle"></div>
+      <div class="tp-hook" id="tpHook"></div>
+      <div class="tp-script" id="tpScript"></div>
+    </div>
+  </div>
+  <div class="tp-controls">
+    <button class="tp-btn tp-play" id="tpPlayPause" title="Play / pause (Space)">▶</button>
+    <button class="tp-btn" id="tpRestart" title="Restart (R)">⟲</button>
+    <div class="tp-slider">
+      <span class="tp-slider-label">Speed</span>
+      <input type="range" id="tpSpeed" min="0.3" max="6" step="0.1" value="1.5" />
+      <span class="tp-slider-value" id="tpSpeedValue">1.5×</span>
+    </div>
+    <div class="tp-slider">
+      <span class="tp-slider-label">Size</span>
+      <input type="range" id="tpFontSize" min="20" max="80" step="2" value="40" />
+      <span class="tp-slider-value" id="tpFontValue">40px</span>
+    </div>
+    <button class="tp-btn tp-toggle" id="tpMirror" title="Mirror horizontally — for actual teleprompter glass setups">🪞 Mirror</button>
+    <button class="tp-btn tp-exit" id="tpExit" title="Exit (Esc)">✕ Exit</button>
+  </div>
+  <div class="tp-hint">
+    <kbd>Space</kbd> play/pause &middot; <kbd>↑</kbd>/<kbd>↓</kbd> nudge &middot; <kbd>+</kbd>/<kbd>−</kbd> font size &middot; <kbd>R</kbd> restart &middot; <kbd>Esc</kbd> exit
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -2004,6 +2132,175 @@ function formatFileSize(b){
   return (b/(1024*1024)).toFixed(1) + ' MB';
 }
 
+// ============================================================
+//  V2.7 — TELEPROMPTER / RECORDING MODE
+//  Fullscreen overlay that displays hook + script with auto-scroll,
+//  speed + font-size sliders, mirror toggle, keyboard shortcuts.
+//  Reads CURRENT modal field values (not saved DB values) so edits-in-progress
+//  are usable for an instant preview before saving.
+// ============================================================
+const TP = {
+  playing: false,
+  raf: null,
+  position: 0,       // pixels translateY offset
+  speed: 1.5,        // px per frame
+  fontSize: 40,
+  mirrored: false,
+  maxScroll: 0
+};
+
+function openTeleprompter(){
+  const title = ($('fTitle').value || '').trim() || 'Untitled';
+  const hook = ($('fHook').value || '').trim();
+  const script = ($('fScript').value || '').trim();
+  if(!hook && !script){
+    alert('Add a hook or a script first — there\'s nothing to read.');
+    return;
+  }
+  $('tpTitle').textContent = title;
+  $('tpHook').textContent = hook;
+  $('tpScript').textContent = script;
+  // Reset state
+  TP.position = 0;
+  TP.playing = false;
+  // Apply current slider values
+  TP.fontSize = parseInt($('tpFontSize').value, 10) || 40;
+  TP.speed = parseFloat($('tpSpeed').value) || 1.5;
+  TP.mirrored = $('tpMirror').classList.contains('on');
+  $('tpSpeedValue').textContent = TP.speed.toFixed(1) + '×';
+  $('tpFontValue').textContent = TP.fontSize + 'px';
+
+  // Hide the item modal underneath so it's not visually competing
+  $('itemModal').classList.remove('open');
+  const overlay = $('teleprompterOverlay');
+  overlay.classList.add('open');
+  // Recalculate max scroll once layout settles
+  requestAnimationFrame(() => {
+    applyTpTransform();
+    measureTpMaxScroll();
+  });
+}
+
+function measureTpMaxScroll(){
+  const wrap = $('teleprompterOverlay').querySelector('.tp-script-wrap');
+  // Max scroll = total wrap height - viewport height (with the 50vh padding, we're scrolling text from below-center to above-center)
+  TP.maxScroll = Math.max(0, wrap.scrollHeight - window.innerHeight);
+}
+
+function applyTpTransform(){
+  const wrap = $('teleprompterOverlay').querySelector('.tp-script-wrap');
+  wrap.style.transform = `translateY(${-TP.position}px)${TP.mirrored ? ' scaleX(-1)' : ''}`;
+  $('tpHook').style.fontSize = (TP.fontSize * 1.18) + 'px';
+  $('tpScript').style.fontSize = TP.fontSize + 'px';
+  $('tpTitle').style.fontSize = (TP.fontSize * 0.55) + 'px';
+}
+
+function tpStep(){
+  if(!TP.playing) return;
+  TP.position += TP.speed;
+  if(TP.position >= TP.maxScroll){
+    TP.position = TP.maxScroll;
+    tpPause();
+  }
+  applyTpTransform();
+  TP.raf = requestAnimationFrame(tpStep);
+}
+
+function tpPlay(){
+  if(TP.playing) return;
+  measureTpMaxScroll();
+  if(TP.position >= TP.maxScroll) TP.position = 0;  // restart from top if at end
+  TP.playing = true;
+  $('tpPlayPause').textContent = '⏸';
+  TP.raf = requestAnimationFrame(tpStep);
+}
+
+function tpPause(){
+  TP.playing = false;
+  $('tpPlayPause').textContent = '▶';
+  if(TP.raf) cancelAnimationFrame(TP.raf);
+}
+
+function tpToggle(){ TP.playing ? tpPause() : tpPlay(); }
+
+function tpRestart(){
+  TP.position = 0;
+  applyTpTransform();
+  if(!TP.playing) tpPlay();
+}
+
+function tpNudge(dy){
+  measureTpMaxScroll();
+  TP.position = Math.max(0, Math.min(TP.maxScroll, TP.position + dy));
+  applyTpTransform();
+}
+
+function tpSetSpeed(v){
+  TP.speed = parseFloat(v) || 1.5;
+  $('tpSpeedValue').textContent = TP.speed.toFixed(1) + '×';
+}
+
+function tpSetFontSize(v){
+  TP.fontSize = parseInt(v, 10) || 40;
+  $('tpFontValue').textContent = TP.fontSize + 'px';
+  applyTpTransform();
+  measureTpMaxScroll();
+}
+
+function tpToggleMirror(){
+  TP.mirrored = !TP.mirrored;
+  $('tpMirror').classList.toggle('on', TP.mirrored);
+  applyTpTransform();
+}
+
+function closeTeleprompter(){
+  tpPause();
+  $('teleprompterOverlay').classList.remove('open');
+  // Reopen the item modal so the user can keep editing if they want
+  $('itemModal').classList.add('open');
+}
+
+function wireTeleprompter(){
+  $('recordingModeBtn').addEventListener('click', openTeleprompter);
+  $('tpPlayPause').addEventListener('click', tpToggle);
+  $('tpRestart').addEventListener('click', tpRestart);
+  $('tpExit').addEventListener('click', closeTeleprompter);
+  $('tpMirror').addEventListener('click', tpToggleMirror);
+  $('tpSpeed').addEventListener('input', e => tpSetSpeed(e.target.value));
+  $('tpFontSize').addEventListener('input', e => tpSetFontSize(e.target.value));
+  // Mouse wheel — manual scrub when paused
+  $('teleprompterOverlay').addEventListener('wheel', e => {
+    if(!$('teleprompterOverlay').classList.contains('open')) return;
+    e.preventDefault();
+    tpNudge(e.deltaY > 0 ? 60 : -60);
+  }, { passive:false });
+  // Keyboard shortcuts — only when overlay is open
+  document.addEventListener('keydown', e => {
+    if(!$('teleprompterOverlay').classList.contains('open')) return;
+    if(e.key === 'Escape'){ e.preventDefault(); closeTeleprompter(); }
+    else if(e.key === ' '){ e.preventDefault(); tpToggle(); }
+    else if(e.key === 'ArrowDown'){ e.preventDefault(); tpNudge(40); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); tpNudge(-40); }
+    else if(e.key === 'PageDown'){ e.preventDefault(); tpNudge(window.innerHeight * 0.5); }
+    else if(e.key === 'PageUp'){ e.preventDefault(); tpNudge(-window.innerHeight * 0.5); }
+    else if(e.key === '+' || e.key === '='){ e.preventDefault();
+      const slider = $('tpFontSize');
+      slider.value = Math.min(80, parseInt(slider.value,10) + 4);
+      tpSetFontSize(slider.value);
+    }
+    else if(e.key === '-' || e.key === '_'){ e.preventDefault();
+      const slider = $('tpFontSize');
+      slider.value = Math.max(20, parseInt(slider.value,10) - 4);
+      tpSetFontSize(slider.value);
+    }
+    else if(e.key === 'r' || e.key === 'R'){ e.preventDefault(); tpRestart(); }
+  });
+  // Window resize — recompute max scroll
+  window.addEventListener('resize', () => {
+    if($('teleprompterOverlay').classList.contains('open')) measureTpMaxScroll();
+  });
+}
+
 // V2.2 — Additional asset link list (dynamic add/remove of {label, url} rows)
 function renderAdditionalAssets(){
   const wrap = $('fAdditionalAssets');
@@ -2601,6 +2898,9 @@ function wireApp(){
 
   // V2.2: additional assets — add row button
   $('addAssetBtn').addEventListener('click', addAssetRow);
+
+  // V2.7: teleprompter / recording mode
+  wireTeleprompter();
 
   // V2.3: brand kit
   $('brandKitBtn').addEventListener('click', openBrandKitModal);
