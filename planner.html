@@ -886,7 +886,11 @@
   }
 
   /* ===== V2.8 — READ-ONLY VIEW MODAL ===== */
-  .view-content{padding:20px 24px 20px}
+  /* V2.16 — Hard overflow guards so long URLs / unbroken strings in hook/script/links
+              can't push the modal wider than the backdrop. Anything inside view-content
+              must shrink to fit, not blow out the container. */
+  .view-content{padding:20px 24px 20px;min-width:0;overflow:hidden}
+  .view-content *{min-width:0}
   .view-toolbar{
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
     margin-bottom:14px;padding-bottom:14px;
@@ -974,6 +978,7 @@
     padding:14px 18px;
     font-size:16px;font-weight:700;color:var(--ink);line-height:1.5;
     white-space:pre-wrap;
+    overflow-wrap:anywhere;word-break:break-word;
   }
   .view-script{
     background:rgba(255,255,255,0.6);
@@ -982,6 +987,7 @@
     padding:14px 18px;
     font-size:14px;color:var(--ink);line-height:1.65;
     white-space:pre-wrap;
+    overflow-wrap:anywhere;word-break:break-word;
     max-height:300px;overflow-y:auto;
   }
   .view-notes{
@@ -991,16 +997,19 @@
     padding:10px 14px;
     font-size:13.5px;color:var(--ink);line-height:1.55;
     white-space:pre-wrap;font-style:italic;
+    overflow-wrap:anywhere;word-break:break-word;
   }
   .view-hashtags{
-    display:flex;flex-wrap:wrap;gap:5px;
+    display:flex;flex-wrap:wrap;gap:5px;max-width:100%;
   }
   .view-hashtags .v-tag{
     background:rgba(144,165,255,0.18);color:var(--deep);
     padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;
+    /* V2.16 — long hashtags can wrap inside the pill rather than blow out the row */
+    max-width:100%;overflow-wrap:anywhere;word-break:break-word;
   }
   /* Asset / link list (footage, editor folder, additional assets) */
-  .view-links{display:flex;flex-direction:column;gap:6px}
+  .view-links{display:flex;flex-direction:column;gap:6px;max-width:100%}
   .view-link{
     display:flex;align-items:center;gap:10px;
     padding:9px 13px;
@@ -1008,10 +1017,17 @@
     border:1.5px solid rgba(144,165,255,0.2);
     border-radius:10px;text-decoration:none;
     transition:background .12s, border-color .12s;
+    /* V2.16 — prevent long URLs from blowing out the modal */
+    max-width:100%;min-width:0;overflow:hidden;
   }
   .view-link:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
   .view-link .v-link-label{font-weight:700;color:var(--deep);font-size:13.5px;flex-shrink:0}
-  .view-link .v-link-url{color:var(--ink-soft);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* V2.16 — the URL must be allowed to shrink (flex:1 + min-width:0) so ellipsis can engage */
+  .view-link .v-link-url{
+    color:var(--ink-soft);font-size:12px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    flex:1 1 0;min-width:0;
+  }
   .view-thumb{
     max-width:280px;border-radius:12px;border:1.5px solid rgba(144,165,255,0.25);
     box-shadow:0 6px 16px rgba(99,170,244,0.15);
