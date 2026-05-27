@@ -120,6 +120,7 @@
   .dash{
     display:grid;gap:12px;
     grid-template-columns:1fr auto auto;
+    grid-auto-flow:dense;  /* V2.15 — let view-tabs slot back into row 1 when stream-day-row spans full width */
     align-items:center;flex-wrap:wrap;
     background:rgba(255,255,255,0.6);
     border-radius:18px;padding:14px 18px;margin-bottom:14px;
@@ -160,10 +161,13 @@
     color:var(--deep);
   }
 
-  /* V2.15 — Stream day toggle row */
+  /* V2.15 — Stream day toggle row — spans full grid width so it doesn't break the dash layout */
   .stream-day-row{
+    grid-column:1 / -1;
     display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-    margin:10px 0 4px;
+    padding-top:8px;
+    border-top:1px dashed rgba(144,165,255,0.25);
+    margin-top:4px;
   }
   .stream-day-toggle{
     display:inline-flex;align-items:center;gap:8px;
@@ -204,12 +208,15 @@
   /* View tabs */
   .view-tabs{
     display:inline-flex;background:rgba(144,165,255,0.12);
-    border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap;
+    border-radius:999px;padding:3px;gap:2px;
+    white-space:nowrap;flex-wrap:nowrap;
+    width:auto;justify-self:end;
   }
   .view-tabs button{
     background:transparent;border:none;padding:7px 14px;border-radius:999px;
     font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);
     cursor:pointer;transition:background .15s, color .15s;
+    white-space:nowrap;
   }
   .view-tabs button.active{
     background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
