@@ -1150,6 +1150,8 @@
       <div class="modal-actions">
         <button class="btn danger pull-left hidden" id="deleteEditorBtn">🗑 Remove</button>
         <button class="btn secondary hidden" id="previewEditorBtn">👁 Preview their view</button>
+        <button class="btn secondary" id="addAnotherBtn" title="Clear the form and start a new editor">+ Add another</button>
+        <button class="btn secondary" id="refreshEditorsBtn" title="Refresh from server">🔄 Refresh</button>
         <button class="btn secondary" id="cancelEditorBtn">Close</button>
         <button class="btn" id="saveEditorBtn">💾 Save editor</button>
       </div>
@@ -2526,6 +2528,26 @@ function wireApp(){
   $('editorPreviewModal').addEventListener('click', e => { if(e.target === $('editorPreviewModal')) closeEditorPreview(); });
   $('copyInviteLinkBtn').addEventListener('click', copyInviteLink);
   $('inviteLinkUrl').addEventListener('click', e => e.target.select());
+
+  // V2.6: add another editor + refresh
+  $('addAnotherBtn').addEventListener('click', () => {
+    resetEditorForm();
+    // Scroll the editors modal back to the top + focus the name field
+    const modal = $('editorsModal');
+    const content = modal.querySelector('.modal-content');
+    if(content) content.scrollTop = 0;
+    setTimeout(() => $('edName').focus(), 50);
+  });
+  $('refreshEditorsBtn').addEventListener('click', async () => {
+    const btn = $('refreshEditorsBtn');
+    btn.disabled = true; btn.textContent = '🔄 Refreshing…';
+    await loadEditors();
+    // Also re-pull items so the per-editor counts in the list are current
+    await loadItems();
+    renderEditorsList();
+    btn.disabled = false; btn.innerHTML = '✓ Refreshed';
+    setTimeout(() => { btn.innerHTML = '🔄 Refresh'; }, 1500);
+  });
 
   // Modal wiring
   $('saveItemBtn').addEventListener('click', handleSave);
