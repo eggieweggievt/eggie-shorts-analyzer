@@ -3263,9 +3263,9 @@ function openViewModal(item){
     body.push(`<div class="view-section">
       <h4>📎 Uploaded files</h4>
       <div class="view-links">
-        ${item.attachments.map(a => `<a class="view-link" href="${a.url ? escape(a.url) : '#'}" target="_blank" rel="noreferrer" ${!a.url ? 'onclick="alert(\\'File link expired — open the edit form to refresh.\\');return false;"' : ''}>
+        ${item.attachments.map(a => `<a class="view-link" href="${a.url ? escape(a.url) : '#'}" target="_blank" rel="noreferrer"${!a.url ? ' data-expired="1"' : ''}>
           <span class="v-link-label">📄 ${escape(a.name || 'file')}</span>
-          <span class="v-link-url">${a.size ? formatFileSize(a.size) : ''}</span>
+          <span class="v-link-url">${a.size ? formatFileSize(a.size) : (!a.url ? 'link expired — open the edit form to refresh' : '')}</span>
         </a>`).join('')}
       </div>
     </div>`);
@@ -3302,6 +3302,14 @@ function openViewModal(item){
     </div>`);
   }
   $('viewBody').innerHTML = body.join('');
+
+  // V2.8 fix — wire up expired-attachment links so they show a helpful alert instead of jumping to "#"
+  $('viewBody').querySelectorAll('a[data-expired="1"]').forEach(el => {
+    el.addEventListener('click', ev => {
+      ev.preventDefault();
+      alert('That file link has expired. Open the item in Edit mode to refresh the download URL.');
+    });
+  });
 
   $('viewModal').classList.add('open');
 }
