@@ -632,7 +632,11 @@
     </div>
     <p class="step-intro">Ideal: <strong>1280×720</strong> (16:9). I&apos;ll grade it for click-through readability and show you what it actually looks like at every size people will see it.</p>
 
-    <label class="drop-zone" id="dropZone" for="thumbFile">
+    <!-- V2.10 FIX — Removed the explicit `for` attribute. The input is nested inside the label,
+         so clicking the label already triggers it via implicit association. Having BOTH the `for`
+         AND a nested input made Chrome/Edge fire the file picker twice in one user gesture, which
+         it silently squashes (picker either flashes or never opens). -->
+    <label class="drop-zone" id="dropZone">
       <span class="big">🖼️</span>
       <p><strong>Click here, or drag in a thumbnail</strong><br/>1280×720 ideal &middot; stays on your computer</p>
       <input type="file" id="thumbFile" accept="image/*" />
@@ -837,15 +841,16 @@ const ppStage = $('ppStage');
 const ppBar = $('ppBar');
 const ppDetail = $('ppDetail');
 
-// Wire up drop / click / change handlers (defensive, in DOMContentLoaded too)
+// Wire up drop / change handlers
+// V2.10 FIX — Removed the manual dropZone.click() trigger. dropZone is a <label for="thumbFile">
+// so the BROWSER natively opens the file picker on click. Calling thumbFile.click() on top of
+// that was firing it twice in a single user gesture, which modern Chrome/Edge silently squashes
+// (the picker either flashes or never opens). Native label behavior is sufficient.
+// Also: reset thumbFile.value after handling, so re-uploading the same image works.
 function wireUpload(){
   try{
     if(!dropZone || !thumbFile) return;
-    dropZone.addEventListener('click', e => {
-      if(e.target !== thumbFile){
-        try{ thumbFile.click(); }catch(_){}
-      }
-    });
+    // NOTE: NO programmatic click() here — let the <label for="thumbFile"> do its job natively.
     ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => {
       e.preventDefault(); dropZone.classList.add('drag');
     }));
@@ -855,12 +860,26 @@ function wireUpload(){
     dropZone.addEventListener('drop', e => {
       e.preventDefault();
       const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if(f && f.type && f.type.startsWith('image/')) handleThumb(f);
-      else showError('Hmm, that didn\'t look like an image file. Try a PNG, JPG, or WebP.');
+      if(f && f.type && f.type.startsWith('image/')){
+        handleThumb(f);
+      } else if(f){
+        showError('That doesn\'t look like an image. Try a PNG, JPG, or WebP — the file said: ' + (f.type || '(no type)'));
+      } else {
+        showError('Nothing got dropped. Try clicking the box and picking a file instead.');
+      }
     });
     thumbFile.addEventListener('change', e => {
       const f = e.target.files && e.target.files[0];
-      if(f) handleThumb(f);
+      if(f){
+        if(f.type && !f.type.startsWith('image/')){
+          showError('That file isn\'t an image (' + (f.type || 'unknown type') + '). Try a PNG, JPG, or WebP.');
+          thumbFile.value = '';  // reset so the user can pick a different file
+          return;
+        }
+        handleThumb(f);
+        // Reset the input value AFTER handling so picking the same file twice re-triggers analysis
+        setTimeout(() => { thumbFile.value = ''; }, 0);
+      }
     });
   }catch(err){ console.error('Upload wiring failed:', err); }
 }

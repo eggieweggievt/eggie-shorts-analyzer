@@ -368,6 +368,101 @@
   .social-pill.kofi{background:#FF5E5B;color:#fff;border-color:#FF5E5B;box-shadow:0 6px 14px rgba(255,94,91,0.32)}
   .social-pill.kofi:hover{filter:brightness(1.06);transform:translateY(-2px)}
 
+  /* V2.9 — Site-wide auth pill + welcome card */
+  .site-auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;
+    border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .15s, filter .15s;
+  }
+  .site-auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .site-auth-pill.signed-in{
+    background:rgba(255,255,255,0.95);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);font-weight:700;
+  }
+  .welcome-card{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;
+    padding:18px 22px;margin:0 auto 22px;
+    max-width:920px;
+    box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  .welcome-card .wc-icon{font-size:36px;line-height:1;flex-shrink:0}
+  .welcome-card .wc-text{flex:1;min-width:200px}
+  .welcome-card .wc-greeting{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);line-height:1.2;margin:0 0 4px;
+  }
+  .welcome-card .wc-sub{font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0}
+  .welcome-card .wc-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .welcome-card .wc-actions .wc-btn{
+    font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--deep);text-decoration:none;
+    padding:6px 13px;border-radius:999px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.4);
+    cursor:pointer;font-family:inherit;
+  }
+  .welcome-card .wc-actions .wc-btn:hover{background:rgba(255,255,255,0.95)}
+
+  /* Site-wide auth modal */
+  .site-modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .site-modal-bg.open{display:flex}
+  .site-modal{
+    background:rgba(255,255,255,0.97);border-radius:22px;
+    padding:24px 26px;max-width:480px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+    font-family:'Quicksand',sans-serif;
+  }
+  .site-modal h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+  .site-modal p{margin:0 0 10px;font-size:14px;color:var(--ink);line-height:1.55}
+  .site-modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:var(--ink)}
+  .site-modal input[type=email]{
+    width:100%;padding:11px 14px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14.5px;color:var(--ink);
+    box-sizing:border-box;
+  }
+  .site-modal input:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  .site-modal-actions{
+    display:flex;gap:10px;justify-content:flex-end;
+    margin-top:18px;padding-top:14px;
+    border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap;
+  }
+  .site-modal-actions button{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+  }
+  .site-modal-actions button.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .site-modal-status{
+    margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;
+  }
+  .site-modal-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+  .site-modal-status.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .site-modal-status.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+  .site-modal-status.hidden{display:none}
+  /* Generic .hidden — used by welcome card + habits widget */
+  .welcome-card.hidden,.habits-widget.hidden{display:none !important}
+
   /* FOOTER */
   footer{
     text-align:center;padding:24px 0 8px;color:var(--ink-soft);font-size:13px;line-height:1.55;
@@ -377,6 +472,25 @@
 </style>
 </head>
 <body>
+
+<!-- V2.9 — Site-wide auth pill (signs you in once, all tools auto-pick up the session) -->
+<button id="siteAuthPill" class="site-auth-pill" title="Sign in once — all tools across the hub share your session">🔓 Sign in</button>
+
+<!-- Site-wide sign-in modal -->
+<div class="site-modal-bg" id="siteAuthModal" role="dialog" aria-modal="true">
+  <div class="site-modal">
+    <h2>📬 Sign in to your hub</h2>
+    <p>Magic link, no password. Sign in once here — every tool on the hub (analyzer, planner, habits, etc.) shares your session automatically. <strong>No more re-signing in.</strong></p>
+    <label for="siteEmailInput">Email</label>
+    <input id="siteEmailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+    <div id="siteAuthStatus" class="site-modal-status hidden"></div>
+    <div class="site-modal-actions">
+      <button class="secondary" id="siteAuthCancel">Cancel</button>
+      <button id="siteAuthSend">📬 Send magic link</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header class="hero">
@@ -396,6 +510,18 @@
     <p class="tag">Free tools and guides for <em>VTubers, streamers, and short-form creators</em>. Pick research or tools below.</p>
     <p class="sub-tag">Everything here runs in your browser, costs nothing, and gets updated as I learn new things. ✨</p>
   </header>
+
+  <!-- V2.9 — Personalized welcome card (only shows once signed in) -->
+  <div id="welcomeCard" class="welcome-card hidden">
+    <div class="wc-icon">🐙</div>
+    <div class="wc-text">
+      <div class="wc-greeting">Welcome back, <span id="welcomeName">friend</span>!</div>
+      <p class="wc-sub">You're signed in across the whole hub — your analyses, planner, habits, and brand kit are all syncing.</p>
+    </div>
+    <div class="wc-actions">
+      <button class="wc-btn" id="welcomeSignOut">Sign out</button>
+    </div>
+  </div>
 
   <div class="pick-prompt">Pick where to start</div>
 
@@ -585,6 +711,151 @@
   </footer>
 
 </div>
+
+<script>
+// ============================================================
+//  V2.9 — SITE-WIDE AUTH (single sign-on across the hub)
+//
+//  All tools (analyzer, planner, habits, planner-editor) use the same
+//  Supabase project, so signing in here persists the session in localStorage —
+//  every other tool auto-picks it up via sb.auth.getSession() on load.
+// ============================================================
+(function siteAuth(){
+  const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+  let sb = null;
+  let currentUser = null;
+
+  function $(id){ return document.getElementById(id); }
+
+  function loadSdk(){
+    return new Promise((resolve, reject) => {
+      if(window.supabase) return resolve(window.supabase);
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+      s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function init(){
+    try{
+      const lib = await loadSdk();
+      sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+      });
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session?.user) onSignIn(session.user);
+      sb.auth.onAuthStateChange((event, s) => {
+        if(s?.user) onSignIn(s.user);
+        else onSignOut();
+      });
+    }catch(e){ console.warn('[Hub auth] Supabase init failed:', e); }
+  }
+
+  function onSignIn(user){
+    currentUser = user;
+    const pill = $('siteAuthPill');
+    if(pill){
+      pill.classList.add('signed-in');
+      pill.innerHTML = `🐙 ${user.email.split('@')[0]}`;
+      pill.title = 'Signed in everywhere on the hub — click to sign out';
+    }
+    const welcome = $('welcomeCard');
+    if(welcome){
+      welcome.classList.remove('hidden');
+      $('welcomeName').textContent = user.email.split('@')[0];
+    }
+    $('siteAuthModal').classList.remove('open');
+  }
+
+  function onSignOut(){
+    currentUser = null;
+    const pill = $('siteAuthPill');
+    if(pill){
+      pill.classList.remove('signed-in');
+      pill.innerHTML = '🔓 Sign in';
+      pill.title = 'Sign in once — all tools across the hub share your session';
+    }
+    const welcome = $('welcomeCard');
+    if(welcome) welcome.classList.add('hidden');
+  }
+
+  function setStatus(msg, type){
+    const el = $('siteAuthStatus');
+    if(!el) return;
+    el.textContent = msg;
+    el.className = 'site-modal-status ' + (type || 'info');
+    el.classList.remove('hidden');
+  }
+
+  async function sendMagicLink(){
+    const email = ($('siteEmailInput').value || '').trim().toLowerCase();
+    if(!email || !email.includes('@')){
+      setStatus('Please enter a valid email.', 'error');
+      return;
+    }
+    if(window.location.protocol === 'file:'){
+      setStatus('⚠️ Magic links require http(s). Serve via a local server (e.g. npx serve) or open on your live domain.', 'error');
+      return;
+    }
+    if(!sb){ await init(); }
+    if(!sb){ setStatus('Supabase unavailable. Check network and retry.', 'error'); return; }
+    const btn = $('siteAuthSend');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try{
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+      if(error){
+        setStatus('Sign-in failed: ' + error.message + '. Make sure ' + redirectTo + ' is allowlisted in Supabase → Auth → URL Configuration.', 'error');
+      } else {
+        setStatus(`✨ Magic link sent to ${email}! Check inbox + spam. Click the link from any device.`, 'success');
+      }
+    }catch(e){
+      setStatus('Network error: ' + (e.message || e), 'error');
+    }finally{
+      btn.disabled = false; btn.innerHTML = '📬 Send magic link';
+    }
+  }
+
+  function openModal(){
+    $('siteAuthStatus').classList.add('hidden');
+    $('siteAuthModal').classList.add('open');
+    setTimeout(() => $('siteEmailInput').focus(), 50);
+  }
+
+  function wire(){
+    $('siteAuthPill').addEventListener('click', () => {
+      if(currentUser){
+        if(confirm('Sign out everywhere? You\'ll need to sign in again on any tool that uses sync.')){
+          sb && sb.auth.signOut();
+        }
+      } else {
+        openModal();
+      }
+    });
+    $('siteAuthCancel').addEventListener('click', () => $('siteAuthModal').classList.remove('open'));
+    $('siteAuthSend').addEventListener('click', sendMagicLink);
+    $('siteEmailInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendMagicLink(); });
+    $('siteAuthModal').addEventListener('click', e => { if(e.target === $('siteAuthModal')) $('siteAuthModal').classList.remove('open'); });
+    $('welcomeSignOut').addEventListener('click', () => {
+      if(confirm('Sign out everywhere?')) sb && sb.auth.signOut();
+    });
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape' && $('siteAuthModal').classList.contains('open')){
+        $('siteAuthModal').classList.remove('open');
+      }
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', () => { wire(); init(); }, { once:true });
+  } else {
+    wire(); init();
+  }
+})();
+</script>
 
 <script>
 // V2.5 — Habits weekly summary widget. Reads localStorage written by habits.html
