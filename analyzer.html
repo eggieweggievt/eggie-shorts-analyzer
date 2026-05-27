@@ -1494,11 +1494,6 @@
   </section>
 
   <footer>
-    <a href="index.html" style="display:inline-block;margin:0 6px 10px 0;background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);padding:8px 18px;border-radius:999px;color:var(--deep);font-weight:700;text-decoration:none">🏠 Hub</a>
-    <a href="planner.html" style="display:inline-block;margin:0 6px 10px 0;background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);padding:8px 18px;border-radius:999px;color:var(--deep);font-weight:700;text-decoration:none">📅 Planner</a>
-    <a href="thumbnail.html" style="display:inline-block;margin:0 6px 10px 0;background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);padding:8px 18px;border-radius:999px;color:var(--deep);font-weight:700;text-decoration:none">🖼️ Thumbnail</a>
-    <a href="growth.html" style="display:inline-block;margin:0 6px 10px 0;background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);padding:8px 18px;border-radius:999px;color:var(--deep);font-weight:700;text-decoration:none">🌱 Growth playbook</a>
-    <a href="about.html" style="display:inline-block;margin:0 6px 10px 0;background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);padding:8px 18px;border-radius:999px;color:var(--deep);font-weight:700;text-decoration:none">📖 About · niche list</a><br/>
     Made with 💗 by Eggie &middot; Brand by <a href="https://twitter.com/nyxgothica" target="_blank" rel="noreferrer">@nyxgothica</a><br/>
     Come hang out &mdash; <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> 🐙
   </footer>
@@ -4100,15 +4095,26 @@ function flashProfileSaved(){
   clearTimeout(flashProfileSaved._t);
   flashProfileSaved._t = setTimeout(()=> pill.classList.remove('show'), 1400);
 }
-// Builds a short "identity hint" string we fold into the user's typed text.
-// Single checkbox = VTuber. When that's on, the hint includes streaming + clip
-// keywords too, because that's the typical VTuber content shape (clip-from-stream).
-// If you're a VTuber who only posts scripted shorts, the picker still skips
-// #clips when nothing in your title / video reads as clip content — so it stays
-// honest, just biased toward including identity tags when they fit.
+// Builds a short "identity hint" string we fold into the user's typed text so the
+// regex detector picks up VTuber signals even when the title/desc doesn't say "vtuber".
+//
+// Two sources contribute, with the V3.1 Supabase profile taking precedence:
+//   1) V3.1 — window.__eggieProfile.vtuber_type set to pngtuber/2d_live2d/3d
+//   2) Legacy — the offline localStorage checkbox (#profileVtuber)
+//
+// The V3.1 path also force-injects VTuber tags directly into the suggestHashtagsFor
+// pool (no text-detection round-trip), so the two systems are belt + suspenders.
+// Legacy is kept so anonymous / signed-out users still get the identity hint.
 function buildProfileHintText(profile){
-  if(!profile || !profile.vtuber) return '';
-  return 'vtuber envtuber live2d streamer twitch streaming live clip clips stream highlights';
+  const VTUBER_HINT = 'vtuber envtuber live2d streamer twitch streaming live clip clips stream highlights';
+  // V3.1 — prefer the Supabase profile when signed in
+  const supaProfile = (typeof window !== 'undefined' && window.__eggieProfile) || null;
+  if(supaProfile && ['pngtuber','2d_live2d','3d'].includes(supaProfile.vtuber_type)){
+    return VTUBER_HINT;
+  }
+  // Legacy fallback — the offline checkbox
+  if(profile && profile.vtuber) return VTUBER_HINT;
+  return '';
 }
 // If the checkbox is on by default, expand the details so it's visible
 function maybeOpenProfileOnLoad(p){
@@ -5462,15 +5468,12 @@ async function detectFacesWithBoxes(canvas){
   }catch(e){ return {count:0, boxes:[], imgW:canvas.width, imgH:canvas.height}; }
 }
 
-// YAMNet AUDIO CLASSIFICATION (lazy, opt-in, shared). Google's audio classifier — 521 classes
-// covering speech, laughter, screaming, music, ASMR sounds, game audio, etc. Way more signal
-// than the simple RMS+ZCR classifier. ~16MB model + TF.js. Falls back to existing classifier
-// on any failure.
+// YAMNet AUDIO CLASSIFICATION (lazy, shared, always-on). Google's audio classifier —
+// 521 classes covering speech, laughter, screaming, music, ASMR sounds, game audio, etc.
+// Way more signal than the simple RMS+ZCR classifier. ~16MB model + TF.js. Falls back
+// to the existing classifier on any failure.
 let yamnetLoader = window.__sharedYAMNetLoader || null;
-// YAMNet is now ALWAYS ON (no toggle). Kept as a function so the rest of the analyzer's
-// call sites don't need to change.
-function getYAMNetPreference(){ return true; }
-function setYAMNetPreference(_v){ /* no-op — YAMNet always runs */ }
+// V3.3 — Stub preference functions removed; YAMNet runs unconditionally since task #41.
 // Subset of YAMNet's 521 classes that map to creator-relevant audio. Anything not in this
 // map shows up as `class_N` in the verdict; that's fine, only top hits matter.
 const YAMNET_LABELS = {
@@ -5544,14 +5547,12 @@ async function classifyAudioYAMNet(audioBuffer){
   }
 }
 
-// CLIP semantic image classification (lazy-loaded, opt-in). Lets us ask CLIP "how similar is
-// this frame to 'gaming clip' vs 'storytime' vs 'reaction' vs 'asmr'?" and get confidence
+// CLIP semantic image classification (lazy-loaded, always-on). Lets us ask CLIP "how similar
+// is this frame to 'gaming clip' vs 'storytime' vs 'reaction' vs 'asmr'?" and get confidence
 // scores per label — way more accurate than regex matching for ambiguous content. Adds ~150MB
 // on first use. SHARED across pages.
 let clipLoader = window.__sharedClipLoader || null;
-// CLIP is now ALWAYS ON (no toggle). Functions kept as no-ops so existing call sites work.
-function getClipPreference(){ return true; }
-function setClipPreference(_v){ /* no-op — CLIP always runs */ }
+// V3.3 — Stub preference functions removed; CLIP runs unconditionally since task #41.
 async function loadClip(progressCb){
   if(clipLoader) return clipLoader;
   clipLoader = (async ()=>{
@@ -5962,17 +5963,15 @@ async function handleVideoFile(file){
         const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
         const ch = audioBuffer.getChannelData(0);
         audioKind = classifyAudio(ch, audioBuffer.sampleRate);
-        // YAMNet pass (opt-in) — adds rich audio category classification on top of basic kind detection.
-        if(getYAMNetPreference()){
-          try{
-            setVidStatus('Running YAMNet audio classification…');
-            const yamnetResults = await classifyAudioYAMNet(audioBuffer);
-            if(yamnetResults && yamnetResults.length){
-              audioKind.yamnet = yamnetResults;
-              console.log('[Eggie] YAMNet top:', yamnetResults.slice(0, 3).map(r => `${r.label} (${(r.score*100).toFixed(0)}%)`).join(', '));
-            }
-          }catch(e){ console.warn('YAMNet pass skipped:', e.message); }
-        }
+        // YAMNet pass — adds rich audio category classification on top of basic kind detection.
+        try{
+          setVidStatus('Running YAMNet audio classification…');
+          const yamnetResults = await classifyAudioYAMNet(audioBuffer);
+          if(yamnetResults && yamnetResults.length){
+            audioKind.yamnet = yamnetResults;
+            console.log('[Eggie] YAMNet top:', yamnetResults.slice(0, 3).map(r => `${r.label} (${(r.score*100).toFixed(0)}%)`).join(', '));
+          }
+        }catch(e){ console.warn('YAMNet pass skipped:', e.message); }
         audioCtx.close();
       }
     }catch(e){ /* swallow */ }
@@ -6104,29 +6103,27 @@ async function handleVideoFile(file){
     // BlazeFace only catches real human faces; this picks up the illustrated model in the corner.
     const charInfo = detectCharactersFromCaption(visualDescription);
 
-    // CLIP SEMANTIC SIMILARITY — optional opt-in pass. Scores how similar the middle frame
-    // is to specific content type labels. Used as a secondary signal that complements
-    // Florence-2 captioning + our regex topic detection.
+    // CLIP SEMANTIC SIMILARITY — scores how similar the middle frame is to specific
+    // content type labels. Used as a secondary signal that complements Florence-2
+    // captioning + our regex topic detection.
     let clipResults = [];
-    if(getClipPreference()){
-      try{
-        setWhisperState({title:'Running CLIP semantic similarity…', stage:'Comparing your video against content-type labels.', percent:96});
-        // Get the middle frame at high res for CLIP
-        await seekTo(totalDur * 0.5);
-        const midFrame = grabCanvas();
-        const candidateLabels = [
-          'gaming clip', 'storytime', 'reaction video', 'asmr', 'tutorial',
-          'vtuber stream highlight', 'animated character', 'meme edit',
-          'music cover or song', 'unboxing or product review', 'face camera vlog',
-          'cooking or food', 'art process or drawing', 'cute character moment',
-          'horror or jump scare', 'sad emotional moment', 'funny fail or accident'
-        ];
-        clipResults = await clipClassifyFrame(midFrame, candidateLabels);
-        if(clipResults.length){
-          console.log('[Eggie] CLIP top matches:', clipResults.slice(0, 5).map(r => `${r.label} (${(r.score*100).toFixed(0)}%)`).join(', '));
-        }
-      }catch(e){ console.warn('CLIP pass skipped:', e.message); }
-    }
+    try{
+      setWhisperState({title:'Running CLIP semantic similarity…', stage:'Comparing your video against content-type labels.', percent:96});
+      // Get the middle frame at high res for CLIP
+      await seekTo(totalDur * 0.5);
+      const midFrame = grabCanvas();
+      const candidateLabels = [
+        'gaming clip', 'storytime', 'reaction video', 'asmr', 'tutorial',
+        'vtuber stream highlight', 'animated character', 'meme edit',
+        'music cover or song', 'unboxing or product review', 'face camera vlog',
+        'cooking or food', 'art process or drawing', 'cute character moment',
+        'horror or jump scare', 'sad emotional moment', 'funny fail or accident'
+      ];
+      clipResults = await clipClassifyFrame(midFrame, candidateLabels);
+      if(clipResults.length){
+        console.log('[Eggie] CLIP top matches:', clipResults.slice(0, 5).map(r => `${r.label} (${(r.score*100).toFixed(0)}%)`).join(', '));
+      }
+    }catch(e){ console.warn('CLIP pass skipped:', e.message); }
 
     // BURNED-CAPTION DETECTION — same OCR text in 2+ frames → likely hard-burned subtitles
     // (massive retention boost on Shorts / TikTok / Reels).
@@ -6283,7 +6280,7 @@ function renderVideoVerdict(v){
       const top = s.clipResults.slice(0, 3).map(r => `${escapeHtml(r.label)} (${(r.score*100).toFixed(0)}%)`).join(', ');
       clipText = `<strong>🧠 CLIP semantic match:</strong> ${top}`;
     }
-    // YAMNet top audio classes (opt-in pass).
+    // YAMNet top audio classes.
     let yamnetText = '';
     if(s.audioKind?.yamnet && s.audioKind.yamnet.length){
       const top = s.audioKind.yamnet.slice(0, 4).map(r => `${escapeHtml(r.label)} (${(r.score*100).toFixed(0)}%)`).join(', ');

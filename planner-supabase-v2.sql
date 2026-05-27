@@ -1,9 +1,41 @@
 -- ============================================================
 --  PLANNER V2 — Supabase migration
 --  Run this in Supabase Dashboard → SQL Editor → New query
---  Adds: editor profiles, file uploads, footage / editor file links,
+--  Creates the V1 planner_items table on first run + adds V2/V2.x columns,
+--        editor profiles, file uploads, footage / editor file links,
 --        editor-facing access for assigned items.
 -- ============================================================
+
+-- 0. V1 base table — created here for fresh installs. Existing installs that already
+--    have planner_items just skip this thanks to IF NOT EXISTS.
+CREATE TABLE IF NOT EXISTS planner_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'idea',                  -- idea | script | recording | editing | scheduled | posted | archived
+  position int DEFAULT 0,                                -- ordering within status column
+  title text,
+  platforms jsonb DEFAULT '[]'::jsonb,                   -- ['youtube_shorts','tiktok',...]
+  hashtags jsonb DEFAULT '[]'::jsonb,                    -- ['vtuber','clips',...]
+  hook text,                                             -- opening line / thumb text
+  script text,                                           -- script or outline
+  notes text,
+  scheduled_at timestamptz,                              -- when it needs to be ready / live
+  posted_at timestamptz,                                 -- when it actually went up
+  thumbnail_url text,
+  analyzer_score int,
+  analyzer_link text,
+  assignee text,                                         -- legacy free-text assignee (V2 replaces with editor_id + assignee_email)
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS planner_items_owner_idx ON planner_items(owner_id, status, position);
+
+ALTER TABLE planner_items ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "owners manage own items" ON planner_items;
+CREATE POLICY "owners manage own items" ON planner_items
+  FOR ALL
+  USING (auth.uid() = owner_id)
+  WITH CHECK (auth.uid() = owner_id);
 
 -- 1. Add new columns to planner_items
 -- (use IF NOT EXISTS-style guards so re-running is safe)
