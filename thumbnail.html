@@ -1585,27 +1585,30 @@ function scoreThumbnail({W, H, aspect, fileSize, ocrText, checklist, colorStats,
 // These are actual rendered VTuber thumbnails so the preview shows what a real feed
 // looks like instead of abstract gradients. If the image file is missing, the page
 // falls back to the SVG generator using the `gradient` / `face` / `text` fields.
+// V2.16 — Order matters! pickNeighbors() maps these into n1 (desktop LEFT) and
+// n2 (mobile peek-above + desktop RIGHT). The mobile peek-above is the biggest /
+// most-visible neighbor slot, so the more eye-catching sample goes second.
 const VT_USER_SAMPLES = [
   {
-    // DD1.png — mint-hair VTuber laughing + champagne / party reaction shot
-    imagePath: 'DD1.png',
-    channel: 'fizzymewmew',
-    title: "I CAN'T stop laughing at this stream moment 😭",
-    views: '128K',
-    age: '2 days ago',
-    pfp: '#FFB2F0',
-    // Fallback only renders if the image fails to load
-    gradient:['#FFD27A','#FFB2F0'], face:'🤣', text:'STREAM FAIL', textColor:'#fff'
-  },
-  {
-    // DD3.png — blue twin-tail VTuber + skier meme + "DAILY DOSE!" text
+    // DD3.png → n1 → desktop LEFT — blue twin-tail VTuber + skier meme + "DAILY DOSE!" text
     imagePath: 'DD3.png',
     channel: 'sukekomori',
     title: 'I watched DAILY DOSE OF INTERNET for the first time?!',
     views: '92K',
     age: '1 day ago',
     pfp: '#90A5FF',
+    // Fallback only renders if the image fails to load
     gradient:['#6BE4EA','#FFB2F0'], face:'😱', text:'DAILY DOSE!', textColor:'#fff'
+  },
+  {
+    // DD1.png → n2 → mobile peek-above (BIG) + desktop RIGHT — laughing VTuber + champagne reaction
+    imagePath: 'DD1.png',
+    channel: 'fizzymewmew',
+    title: "I CAN'T stop laughing at this stream moment 😭",
+    views: '128K',
+    age: '2 days ago',
+    pfp: '#FFB2F0',
+    gradient:['#FFD27A','#FFB2F0'], face:'🤣', text:'STREAM FAIL', textColor:'#fff'
   }
 ];
 const VT_COMPETITORS = [
@@ -1698,17 +1701,18 @@ function renderYTMockups(url, titleText){
             <span class="icon-dot"></span>
             <span class="icon-dot"></span>
           </div>
-          <!-- V2 #52 — competitor peeking ABOVE the user's video (the one ending) -->
+          <!-- V2.16 — peek-above (big visible mobile slot) uses n2 (a real user sample),
+                       leaving the synthetic n3 for the peek-below sliver only. -->
           <div class="yt-mobile-feed-item peek-above" aria-hidden="true">
             <div class="thumb-area">
-              <img src="${n3.thumb}" data-fb="${n3.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
+              <img src="${n2.thumb}" data-fb="${n2.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
               <span class="duration-badge">8:21</span>
             </div>
             <div class="yt-mobile-meta">
-              <div class="channel-avatar" style="background:${n3.pfp}"></div>
+              <div class="channel-avatar" style="background:${n2.pfp}"></div>
               <div class="text-col">
-                <div class="title">${escapeHtml(n3.title)}</div>
-                <div class="sub">${escapeHtml(n3.channel)} · ${n3.views} views · ${n3.age}</div>
+                <div class="title">${escapeHtml(n2.title)}</div>
+                <div class="sub">${escapeHtml(n2.channel)} · ${n2.views} views · ${n2.age}</div>
               </div>
               <div class="dots">⋮</div>
             </div>
@@ -1728,9 +1732,10 @@ function renderYTMockups(url, titleText){
               <div class="dots">⋮</div>
             </div>
           </div>
-          <!-- V2 #52 — competitor peeking BELOW (the next thumbnail scrolling into view) -->
+          <!-- V2.16 — peek-below is only the thumbnail sliver (no title/channel visible),
+                       so synthetic n3 is fine here. -->
           <div class="yt-mobile-feed-peek-thumb" aria-hidden="true">
-            <img src="${n2.thumb}" data-fb="${n2.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
+            <img src="${n3.thumb}" data-fb="${n3.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
           </div>
         </div>
       </div>
