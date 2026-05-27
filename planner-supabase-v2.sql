@@ -24,6 +24,10 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='assignee_email') THEN
     ALTER TABLE planner_items ADD COLUMN assignee_email text;
   END IF;
+  -- V2.2 — Additional asset folders (array of {label, url} pairs for BGM, fonts, refs, etc.)
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='additional_assets') THEN
+    ALTER TABLE planner_items ADD COLUMN additional_assets jsonb DEFAULT '[]'::jsonb;
+  END IF;
 END$$;
 
 -- 2. New table: planner_editors
@@ -79,9 +83,12 @@ CREATE POLICY "editors update assigned items" ON planner_items
   USING (assignee_email = auth.email());
 
 -- 5. Storage bucket for file uploads
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('planner-files', 'planner-files', false)
-ON CONFLICT (id) DO NOTHING;
+-- V2.2 — file_size_limit raised to 500MB so editors can upload final edits + raw clips.
+--        NOTE: free-tier Supabase caps storage uploads at 50MB. Pro tier ($25/mo) lifts to 5GB.
+--        If you're on free, set the limit to 52428800 (50MB) and use the Drive links instead.
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('planner-files', 'planner-files', false, 524288000)
+ON CONFLICT (id) DO UPDATE SET file_size_limit = EXCLUDED.file_size_limit;
 
 -- Storage policies — owners can read/write everything in their folder.
 -- Path scheme: {owner_id}/{item_id}/{filename}

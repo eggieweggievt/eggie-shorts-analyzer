@@ -462,6 +462,35 @@
     width:0%;transition:width .2s;
   }
 
+  /* V2.2 — Additional assets — dynamic labeled-link list */
+  .assets-list{
+    display:flex;flex-direction:column;gap:8px;margin-top:6px;
+  }
+  .asset-row{
+    display:grid;grid-template-columns:minmax(120px,180px) 1fr auto;gap:8px;align-items:center;
+    padding:8px 10px;
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(144,165,255,0.25);
+    border-radius:10px;
+  }
+  @media(max-width:540px){.asset-row{grid-template-columns:1fr;gap:6px}}
+  .asset-row input[type=text],
+  .asset-row input[type=url]{
+    padding:7px 11px;border-radius:8px;font-size:13px;
+    border:1.5px solid rgba(144,165,255,0.25);
+    background:rgba(255,255,255,0.95);
+    width:100%;font-family:inherit;color:var(--ink);
+    box-sizing:border-box;
+  }
+  .asset-row .ar-rm{
+    background:none;border:none;color:#a23556;font-size:15px;cursor:pointer;
+    padding:4px 8px;border-radius:6px;line-height:1;
+  }
+  .asset-row .ar-rm:hover{background:rgba(255,138,168,0.2)}
+  .asset-empty{
+    font-size:12.5px;color:var(--ink-soft);font-style:italic;padding:6px 2px;
+  }
+
   /* ===== V2: QUICK ANALYZER WIDGET ===== */
   .quick-score{
     background:linear-gradient(135deg, rgba(255,219,247,0.4), rgba(199,210,255,0.35));
@@ -846,8 +875,16 @@
       <div class="attach-upload">
         <label class="upload-trigger" for="fAttachInput">📎 Upload file</label>
         <input id="fAttachInput" type="file" multiple />
-        <div class="hint" id="fAttachHint">Up to ~50&nbsp;MB per file. Editors you assign can view + download these.</div>
+        <div class="hint" id="fAttachHint">Up to <strong>500&nbsp;MB</strong> per file. Editors you assign can view + download these. <em>(Supabase free tier caps at 50&nbsp;MB — upgrade to Pro for the full 500.)</em></div>
       </div>
+
+      <!-- V2.2 — Additional assets: dynamic list of labeled link rows (BGM, fonts, references…) -->
+      <div class="section-title">📦 Additional assets <span class="badge">links</span></div>
+      <p style="margin:0 0 8px;font-size:12.5px;color:var(--ink-soft);line-height:1.5">
+        Any other Drive / Dropbox / Figma / Notion links your editor needs — sound effects, BGM, brand kits, reference clips, scripts, sponsor lower-thirds. Each row is one labeled link.
+      </p>
+      <div class="assets-list" id="fAdditionalAssets"></div>
+      <button type="button" class="btn secondary" id="addAssetBtn" style="padding:7px 14px;font-size:12.5px;margin-top:8px">+ Add asset link</button>
 
       <!-- ===== V2: QUICK ANALYZER ===== -->
       <div class="section-title">⚡ Quick title score <span class="badge">inline</span></div>
@@ -1043,6 +1080,7 @@ let editors = [];       // V2: editor profiles
 let titlesDb = null;    // V2: cached titles.json for quick-score
 let editingItemId = null;
 let editingItemAttachments = [];  // V2: working buffer for current item's files
+let editingItemAssets = [];       // V2.2: working buffer for additional asset links {label, url}
 let editingEditorId = null;       // V2: currently editing editor profile
 let editorFilter = '';            // V2: filter board by editor id
 let realtimeSub = null;
@@ -1241,7 +1279,9 @@ async function saveItem(item){
     assignee_email: item.assignee_email || null,
     footage_url: item.footage_url || null,
     editor_files_url: item.editor_files_url || null,
-    attachments: item.attachments || []
+    attachments: item.attachments || [],
+    // V2.2: additional asset links (array of {label, url})
+    additional_assets: item.additional_assets || []
   };
   // If no id, let Supabase generate one
   if(!payload.id) delete payload.id;
@@ -1254,7 +1294,7 @@ async function saveItem(item){
     // Graceful degradation if user hasn't run V2 migration yet — drop new fields and retry once
     if(/column.*does not exist/i.test(error.message || '')){
       console.warn('[Planner] V2 columns missing — saving without them. Run planner-supabase-v2.sql to enable Editors / Footage / Attachments.');
-      ['editor_id','assignee_email','footage_url','editor_files_url','attachments'].forEach(k => delete payload[k]);
+      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets'].forEach(k => delete payload[k]);
       const retry = await sb.from('planner_items').upsert(payload).select().single();
       if(!retry.error){ setConn(true, 'Live (V2 migration pending)'); return retry.data; }
     }
@@ -1552,6 +1592,11 @@ function openEditorPreview(){
       if(p.thumbnail_url) links.push(`<a href="${escape(p.thumbnail_url)}" target="_blank" rel="noreferrer">🖼️ Thumbnail</a>`);
       const attachCount = Array.isArray(p.attachments) ? p.attachments.length : 0;
       if(attachCount > 0) links.push(`<a href="#" onclick="return false">📎 ${attachCount} file${attachCount > 1 ? 's' : ''}</a>`);
+      // V2.2 — additional asset links
+      (p.additional_assets || []).forEach(a => {
+        if(!a.url) return;
+        links.push(`<a href="${escape(a.url)}" target="_blank" rel="noreferrer">📦 ${escape(a.label || 'Asset')}</a>`);
+      });
       return `
         <div class="preview-project-card" data-status="${escape(p.status)}">
           <div class="pp-title">${escape(p.title || '(untitled)')}</div>
@@ -1635,25 +1680,37 @@ async function handleDeleteEditor(){
 // ============================================================
 //  V2: ATTACHMENTS (Supabase Storage)
 // ============================================================
+// V2.2 — Upload limit bumped to 500MB. We also show clearer progress UI for big files
+// (Supabase JS doesn't expose per-chunk progress on the standard upload, so we use a
+// pulsing "uploading" indicator with file size + warn early on >500MB files.)
+const MAX_UPLOAD_BYTES = 500 * 1024 * 1024;  // 500MB
+
 async function uploadAttachments(files){
   if(!files || files.length === 0) return;
   const itemId = editingItemId || ('draft-' + Date.now()); // for new items, use a draft id
   const progressEl = $('fAttachHint');
-  const originalHint = progressEl.textContent;
+  const originalHint = progressEl.innerHTML;
   for(const file of files){
+    // V2.2 — Reject anything over the 500MB cap with a clear message instead of an opaque server error
+    if(file.size > MAX_UPLOAD_BYTES){
+      alert(`"${file.name}" is ${formatFileSize(file.size)} — over the 500 MB cap. Drop it in a Drive folder and paste the link into "Additional assets" instead.`);
+      continue;
+    }
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const path = `${currentUser.id}/${itemId}/${Date.now()}-${safeName}`;
-    progressEl.innerHTML = `Uploading <strong>${escape(file.name)}</strong>…`;
+    progressEl.innerHTML = `⏳ Uploading <strong>${escape(file.name)}</strong> &middot; ${formatFileSize(file.size)}${file.size > 50 * 1024 * 1024 ? ' &middot; <em>this may take a minute on large files</em>' : ''}…`;
     const { error } = await sb.storage.from('planner-files').upload(path, file, {
       cacheControl:'3600', upsert:false
     });
     if(error){
       if(/bucket not found/i.test(error.message || '') || /does not exist/i.test(error.message || '')){
         alert('Storage bucket "planner-files" not found. Run planner-supabase-v2.sql in Supabase first.');
+      } else if(/exceeded.*maximum.*size/i.test(error.message || '') || /payload too large/i.test(error.message || '') || /413/i.test(error.message || '')){
+        alert(`Supabase rejected "${file.name}" as too large. If your Supabase project is on the free tier, the storage cap is 50 MB per file. Use the Additional assets link section for larger files.`);
       } else {
         alert(`Upload failed for ${file.name}: ${error.message}`);
       }
-      progressEl.textContent = originalHint;
+      progressEl.innerHTML = originalHint;
       return;
     }
     // Generate a signed URL good for 1 hour — re-signed on each open
@@ -1668,7 +1725,7 @@ async function uploadAttachments(files){
     });
     renderAttachList();
   }
-  progressEl.textContent = originalHint;
+  progressEl.innerHTML = originalHint;
   $('fAttachInput').value = '';
 }
 
@@ -1710,6 +1767,48 @@ function formatFileSize(b){
   if(b < 1024) return b + ' B';
   if(b < 1024*1024) return (b/1024).toFixed(0) + ' KB';
   return (b/(1024*1024)).toFixed(1) + ' MB';
+}
+
+// V2.2 — Additional asset link list (dynamic add/remove of {label, url} rows)
+function renderAdditionalAssets(){
+  const wrap = $('fAdditionalAssets');
+  if(!wrap) return;
+  if(editingItemAssets.length === 0){
+    wrap.innerHTML = '<div class="asset-empty">No additional assets yet — click "+ Add asset link" to add things like BGM, sound effects, brand kits, references.</div>';
+    return;
+  }
+  wrap.innerHTML = editingItemAssets.map((a, i) => `
+    <div class="asset-row" data-idx="${i}">
+      <input type="text" class="ar-label" placeholder="Label (e.g. BGM)" value="${escape(a.label || '')}" maxlength="40" />
+      <input type="url" class="ar-url" placeholder="https://drive.google.com/…" value="${escape(a.url || '')}" />
+      <button type="button" class="ar-rm" title="Remove" data-rm="${i}">✕</button>
+    </div>
+  `).join('');
+  // Wire up inline edit + remove
+  wrap.querySelectorAll('.asset-row').forEach(row => {
+    const idx = parseInt(row.dataset.idx, 10);
+    row.querySelector('.ar-label').addEventListener('input', e => {
+      editingItemAssets[idx].label = e.target.value;
+    });
+    row.querySelector('.ar-url').addEventListener('input', e => {
+      editingItemAssets[idx].url = e.target.value;
+    });
+    row.querySelector('.ar-rm').addEventListener('click', () => {
+      editingItemAssets.splice(idx, 1);
+      renderAdditionalAssets();
+    });
+  });
+}
+
+function addAssetRow(){
+  editingItemAssets.push({ label: '', url: '' });
+  renderAdditionalAssets();
+  // Focus the new label field
+  setTimeout(() => {
+    const rows = $('fAdditionalAssets').querySelectorAll('.asset-row');
+    const last = rows[rows.length - 1];
+    if(last) last.querySelector('.ar-label').focus();
+  }, 10);
 }
 
 // Refresh signed URLs for attachments when opening an item
@@ -1975,6 +2074,10 @@ function itemCard(item){
   if(Array.isArray(item.attachments) && item.attachments.length > 0){
     extrasRow += `<span class="meta-line" title="${item.attachments.length} file(s) uploaded">📎 ${item.attachments.length}</span>`;
   }
+  // V2.2: additional asset links indicator
+  if(Array.isArray(item.additional_assets) && item.additional_assets.length > 0){
+    extrasRow += `<span class="meta-line" title="${item.additional_assets.length} additional asset link(s)">📦 ${item.additional_assets.length}</span>`;
+  }
   if(item.analyzer_score != null && item.analyzer_score !== ''){
     extrasRow += `<span class="meta-line" title="Analyzer score">⭐ ${escape(item.analyzer_score)}</span>`;
   }
@@ -2094,6 +2197,9 @@ function wireApp(){
     if(files.length) await uploadAttachments(files);
   });
 
+  // V2.2: additional assets — add row button
+  $('addAssetBtn').addEventListener('click', addAssetRow);
+
   // Esc to close modals
   document.addEventListener('keydown', e => {
     if(e.key !== 'Escape') return;
@@ -2139,6 +2245,9 @@ function openModal(item, defaultStatus){
   editingItemAttachments = Array.isArray(item?.attachments) ? JSON.parse(JSON.stringify(item.attachments)) : [];
   renderAttachList();
   if(editingItemAttachments.some(a => a.path)) refreshAttachmentUrls();
+  // V2.2: additional asset links — clone so edits don't leak to the cached items array
+  editingItemAssets = Array.isArray(item?.additional_assets) ? JSON.parse(JSON.stringify(item.additional_assets)) : [];
+  renderAdditionalAssets();
   // V2: render quick score for the loaded title
   renderQuickScore();
 
@@ -2189,7 +2298,9 @@ async function handleSave(){
     // V2: footage + attachments
     footage_url: $('fFootageUrl').value.trim() || null,
     editor_files_url: $('fEditorFilesUrl').value.trim() || null,
-    attachments: editingItemAttachments
+    attachments: editingItemAttachments,
+    // V2.2: additional asset links (drop empty rows)
+    additional_assets: editingItemAssets.filter(a => (a.label || '').trim() || (a.url || '').trim())
   };
   if(editingItemId) item.id = editingItemId;
   $('saveItemBtn').disabled = true;
