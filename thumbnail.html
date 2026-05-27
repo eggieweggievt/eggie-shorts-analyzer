@@ -1587,6 +1587,34 @@ function scoreThumbnail({W, H, aspect, fileSize, ocrText, faces, personPresence,
 // V2 #52 — Synthetic "competitor" thumbnails (inline SVG data URLs) so the YT preview
 // shows the user's thumbnail in context, surrounded by realistic-looking neighbors.
 // Each generator returns { thumbDataUrl, title, channel, views, age, pfpColor }.
+//
+// V2.14 — "Real" sample thumbnails Eggie dropped right into the workspace folder.
+// These are actual rendered VTuber thumbnails so the preview shows what a real feed
+// looks like instead of abstract gradients. If the image file is missing, the page
+// falls back to the SVG generator using the `gradient` / `face` / `text` fields.
+const VT_USER_SAMPLES = [
+  {
+    // DD3.png — Dark Souls III thumbnail (mint-hair VTuber + dark knight in flames + "DARK SOULS III" text)
+    imagePath: 'DD3.png',
+    channel: 'mintmoth',
+    title: 'I tried DARK SOULS III for the first time and immediately regretted it',
+    views: '184K',
+    age: '3 days ago',
+    pfp: '#6BE4EA',
+    // Fallback only renders if the image fails to load
+    gradient:['#2b3a55','#FFB07A'], face:'😼', text:'DARK SOULS', textColor:'#fff'
+  },
+  {
+    // DD1.png — Daily Dose thumbnail (blue twin-tail VTuber + ski meme + "DAILY DOSE!" text)
+    imagePath: 'DD1.png',
+    channel: 'sukekomori',
+    title: 'I watched DAILY DOSE OF INTERNET for the first time?!',
+    views: '92K',
+    age: '1 day ago',
+    pfp: '#90A5FF',
+    gradient:['#6BE4EA','#FFB2F0'], face:'😱', text:'DAILY DOSE!', textColor:'#fff'
+  }
+];
 const VT_COMPETITORS = [
   { gradient:['#FFB2F0','#90A5FF'], face:'😱', text:'THIS IS BAD', textColor:'#fff', channel:'Strawbear ♡', title:'I broke my VTuber model on stream live', views:'48K', age:'3 days ago', pfp:'#FFB2F0' },
   { gradient:['#6BE4EA','#90A5FF'], face:'😎', text:'$10 SETUP', textColor:'#fff', channel:'Cozy Pixels', title:'Building a VTuber setup for under $10!?', views:'112K', age:'1 week ago', pfp:'#6BE4EA' },
@@ -1601,6 +1629,9 @@ const VT_COMPETITORS = [
 ];
 
 function generateCompetitorThumb(c){
+  // V2.14 — Prefer a user-provided real image if one was set. The <img> onerror in the
+  // template will fall back to the SVG below via swapToFallback().
+  if(c.imagePath) return c.imagePath;
   // 16:9 SVG with gradient bg, big "face" emoji, big text overlay, simple duration badge.
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
     <defs>
@@ -1620,17 +1651,27 @@ function generateCompetitorThumb(c){
   return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
 }
 
+// V2.14 — If a real image fails to load (file missing), swap in the SVG fallback.
+function swapToFallback(imgEl, c){
+  const fallbackC = { ...c, imagePath: null };
+  imgEl.src = generateCompetitorThumb(fallbackC);
+}
+
 function generateCompetitorPfp(color){
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="${color}"/><circle cx="20" cy="16" r="6" fill="rgba(255,255,255,0.85)"/><ellipse cx="20" cy="34" rx="14" ry="9" fill="rgba(255,255,255,0.85)"/></svg>`;
   return 'data:image/svg+xml;base64,' + btoa(svg);
 }
 
 // Pick N distinct random competitors for this render. Stable per pageload to avoid flicker.
+// V2.14 — User-provided real thumbnails get top priority; remaining slots fill from the synthetic pool.
 let __cachedNeighbors = null;
 function pickNeighbors(n){
   if(__cachedNeighbors) return __cachedNeighbors;
-  const shuffled = VT_COMPETITORS.slice().sort(() => Math.random() - 0.5);
-  __cachedNeighbors = shuffled.slice(0, n);
+  const realSamples = VT_USER_SAMPLES.slice();
+  const shuffledSynthetic = VT_COMPETITORS.slice().sort(() => Math.random() - 0.5);
+  // Combine: real samples first, then synthetic to fill any remaining slots
+  const combined = realSamples.concat(shuffledSynthetic).slice(0, n);
+  __cachedNeighbors = combined;
   return __cachedNeighbors;
 }
 
@@ -1640,8 +1681,15 @@ function renderYTMockups(url, titleText){
   const channelName = 'Your Channel';
   const meta = '1.2K views · 2 hours ago';
   // V2 #52 — Pull two distinct competitors for the desktop grid + one for the mobile peek
+  // V2.14 — Each neighbor also gets a pre-built SVG fallback URL so its <img> tag can recover
+  //         if the real image file is missing from ./samples/
   const neighbors = pickNeighbors(3);
-  const [n1, n2, n3] = neighbors.map(c => ({...c, thumb: generateCompetitorThumb(c), pfpUrl: generateCompetitorPfp(c.pfp)}));
+  const [n1, n2, n3] = neighbors.map(c => ({
+    ...c,
+    thumb: generateCompetitorThumb(c),
+    thumbFallback: generateCompetitorThumb({ ...c, imagePath: null }),
+    pfpUrl: generateCompetitorPfp(c.pfp)
+  }));
   grid.innerHTML = `
     <!-- MOBILE -->
     <div class="yt-mobile-wrap">
@@ -1663,7 +1711,7 @@ function renderYTMockups(url, titleText){
           <!-- V2 #52 — competitor peeking ABOVE the user's video (the one ending) -->
           <div class="yt-mobile-feed-item peek-above" aria-hidden="true">
             <div class="thumb-area">
-              <img src="${n3.thumb}" alt="" />
+              <img src="${n3.thumb}" data-fb="${n3.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
               <span class="duration-badge">8:21</span>
             </div>
             <div class="yt-mobile-meta">
@@ -1692,7 +1740,7 @@ function renderYTMockups(url, titleText){
           </div>
           <!-- V2 #52 — competitor peeking BELOW (the next thumbnail scrolling into view) -->
           <div class="yt-mobile-feed-peek-thumb" aria-hidden="true">
-            <img src="${n2.thumb}" alt="" />
+            <img src="${n2.thumb}" data-fb="${n2.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
           </div>
         </div>
       </div>
@@ -1712,7 +1760,7 @@ function renderYTMockups(url, titleText){
           <!-- V2 #52 — Competitor LEFT of user -->
           <div class="yt-desktop-card competitor" aria-hidden="true">
             <div class="thumb-area">
-              <img src="${n1.thumb}" alt="" />
+              <img src="${n1.thumb}" data-fb="${n1.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
               <span class="duration-badge">${4 + Math.floor(Math.random() * 12)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}</span>
             </div>
             <div class="yt-desktop-meta">
@@ -1739,7 +1787,7 @@ function renderYTMockups(url, titleText){
           <!-- V2 #52 — Competitor RIGHT of user -->
           <div class="yt-desktop-card competitor" aria-hidden="true">
             <div class="thumb-area">
-              <img src="${n2.thumb}" alt="" />
+              <img src="${n2.thumb}" data-fb="${n2.thumbFallback}" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=''}" alt="" />
               <span class="duration-badge">${4 + Math.floor(Math.random() * 12)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}</span>
             </div>
             <div class="yt-desktop-meta">
