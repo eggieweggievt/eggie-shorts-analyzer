@@ -128,11 +128,11 @@ CREATE POLICY "editors update assigned items" ON planner_items
   USING (assignee_email = auth.email());
 
 -- 5. Storage bucket for file uploads
--- V2.2 — file_size_limit raised to 500MB so editors can upload final edits + raw clips.
---        NOTE: free-tier Supabase caps storage uploads at 50MB. Pro tier ($25/mo) lifts to 5GB.
---        If you're on free, set the limit to 52428800 (50MB) and use the Drive links instead.
+-- V2.18 — file_size_limit set to 5 GB per file so editors can upload raw 4K stream
+--         clips and final edits without hitting the cap. This is Supabase's Pro-tier
+--         hard cap. (5 * 1024^3 = 5,368,709,120 bytes.)
 INSERT INTO storage.buckets (id, name, public, file_size_limit)
-VALUES ('planner-files', 'planner-files', false, 524288000)
+VALUES ('planner-files', 'planner-files', false, 5368709120)
 ON CONFLICT (id) DO UPDATE SET file_size_limit = EXCLUDED.file_size_limit;
 
 -- Storage policies — owners can read/write everything in their folder.

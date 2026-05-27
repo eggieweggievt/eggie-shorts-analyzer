@@ -1531,7 +1531,7 @@ async function uploadEditorFile(itemId, files){
     const { error } = await sb.storage.from('planner-files').upload(path, file, { cacheControl:'3600', upsert:false });
     if(error){
       if(/exceeded.*maximum.*size/i.test(error.message || '') || /payload too large/i.test(error.message || '') || /413/i.test(error.message || '')){
-        alert(`Supabase rejected "${file.name}" as too large. If the project is on Supabase's free tier the cap is 50 MB — ask the creator to add it as an asset link instead.`);
+        alert(`Supabase rejected "${file.name}" as too large. The bucket cap is 5 GB per file — anything bigger needs a Drive / Dropbox URL added by the creator as an asset link instead.`);
       } else {
         alert(`Upload failed for ${file.name}: ${error.message}`);
       }
