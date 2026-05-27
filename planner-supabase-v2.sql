@@ -150,6 +150,14 @@ CREATE TABLE IF NOT EXISTS planner_brand_kit (
   updated_at timestamptz DEFAULT now()
 );
 
+-- V2.13 — Recurring weekly stream schedule lives on the brand kit row (creator-wide)
+-- Format: [{day: 0-6 (Sun-Sat), start: 'HH:MM', end: 'HH:MM', title: 'Apex', color: '#FFB2F0'}]
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_brand_kit' AND column_name='stream_schedule') THEN
+    ALTER TABLE planner_brand_kit ADD COLUMN stream_schedule jsonb DEFAULT '[]'::jsonb;
+  END IF;
+END$$;
+
 ALTER TABLE planner_brand_kit ENABLE ROW LEVEL SECURITY;
 
 -- Owners (creators) manage their own brand kit

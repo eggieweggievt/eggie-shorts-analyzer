@@ -160,6 +160,47 @@
     color:var(--deep);
   }
 
+  /* V2.15 — Stream day toggle row */
+  .stream-day-row{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin:10px 0 4px;
+  }
+  .stream-day-toggle{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 14px;border-radius:999px;
+    background:rgba(255,255,255,0.85);
+    border:2px solid rgba(144,165,255,0.35);
+    font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s, border-color .15s, color .15s;
+  }
+  .stream-day-toggle .sd-icon{font-size:15px;line-height:1}
+  .stream-day-toggle .sd-label{font-weight:800}
+  .stream-day-toggle .sd-switch{
+    position:relative;width:34px;height:18px;
+    background:rgba(144,165,255,0.22);
+    border-radius:999px;
+    transition:background .15s;
+  }
+  .stream-day-toggle .sd-knob{
+    position:absolute;top:2px;left:2px;
+    width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.18);
+    transition:transform .15s, background .15s;
+  }
+  .stream-day-toggle.on{
+    border-color:rgba(168,230,190,0.65);
+    background:linear-gradient(135deg,rgba(168,230,190,0.18),rgba(255,255,255,0.95));
+    color:var(--deep);
+  }
+  .stream-day-toggle.on .sd-switch{background:linear-gradient(135deg,#A8E6BE,#6BE4EA)}
+  .stream-day-toggle.on .sd-knob{transform:translateX(16px)}
+  .stream-day-toggle:hover{filter:brightness(1.05)}
+  .sd-help{
+    font-size:12px;color:var(--ink-soft);font-weight:600;line-height:1.4;
+    flex:1;min-width:200px;
+  }
+
   /* View tabs */
   .view-tabs{
     display:inline-flex;background:rgba(144,165,255,0.12);
@@ -389,6 +430,34 @@
   }
   .library-card .lc-toggle.on{background:linear-gradient(135deg,#A8E6BE,#6BE4EA)}
   .library-card .lc-toggle.on::after{transform:translateX(18px);background:#fff}
+  /* V2.14 — Edit gear + actions cluster on library cards */
+  .library-card .lc-actions{
+    display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;
+  }
+  .library-card .lc-edit{
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(144,165,255,0.18);
+    border:none;cursor:pointer;
+    font-size:14px;color:var(--deep);
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s, transform .12s;
+  }
+  .library-card .lc-edit:hover{background:rgba(255,178,240,0.3);transform:rotate(15deg)}
+  /* V2.14 — "Hidden" library state styling */
+  .library-card.hidden-built-in{
+    opacity:.55;
+    border-style:dashed;
+    background:rgba(255,255,255,0.5);
+  }
+  .library-card.hidden-built-in .lc-name::after{
+    content:" 🚫";font-size:11px;color:var(--ink-soft);
+  }
+  .lc-unhide-btn{
+    flex-shrink:0;padding:5px 10px;font-size:11.5px;border-radius:999px;
+    background:linear-gradient(135deg,rgba(168,230,190,0.5),rgba(107,228,234,0.45));
+    color:#1f6580;border:none;cursor:pointer;font-weight:700;
+  }
+  .lc-unhide-btn:hover{filter:brightness(1.05)}
 
   /* Stats view */
   .stat-grid{
@@ -484,6 +553,15 @@
       <button data-energy="medium" class="active" title="Functional — your Low + Medium habits show. The everyday set.">🌤 Medium</button>
       <button data-energy="high" title="Get-shit-done — everything shows, including your intensive batch days.">🌞 High energy</button>
     </div>
+    <!-- V2.15 — Stream day toggle. Off-days drop the pre-stream / on-air / post-stream sections. -->
+    <div class="stream-day-row">
+      <button class="stream-day-toggle on" id="streamDayToggle" type="button" aria-pressed="true" title="Off-days hide the pre-stream / on-air / post-stream sections so the dashboard stays focused.">
+        <span class="sd-icon">🎙️</span>
+        <span class="sd-label">Stream day</span>
+        <span class="sd-switch"><span class="sd-knob"></span></span>
+      </button>
+      <span class="sd-help" id="streamDayHelp">On — pre-stream + on-air + post-stream habits are visible.</span>
+    </div>
     <div class="view-tabs" role="tablist" aria-label="View">
       <button data-view="today" class="active">✓ Today</button>
       <button data-view="library">📚 Library</button>
@@ -518,6 +596,7 @@
       <button class="filter-pill" data-filter="health">💖 Health</button>
       <button class="filter-pill" data-filter="business">💼 Business</button>
       <button class="filter-pill" data-filter="batch">🎨 Batch days</button>
+      <button class="filter-pill" data-filter="hidden" title="Habits you've hidden from the library">🚫 Hidden</button>
     </div>
     <div class="library-grid" id="libraryGrid"></div>
     <div style="margin-top:16px;text-align:center">
@@ -747,11 +826,21 @@ let state = {
   // First-time defaults are derived from each habit's built-in `energy` field,
   // but users can re-assign freely so the modes match THEIR sustainable rhythms.
   modes: {},
+  // V2.14 — Built-in library habits the user has hidden ("deleted"). Custom habits
+  // are removed outright from state.customs; built-in ones can't be removed but they
+  // can be hidden so they don't clutter the library. { habitId: true }
+  hiddenLibrary: {},
   settings: {
     energyMode: 'medium',  // 'low' | 'medium' | 'high'
-    currentView: 'today'
+    currentView: 'today',
+    // V2.15 — Stream-day toggle. When false, pre-stream / on-air / post-stream
+    // categories collapse out of the dashboard so off-day habits stand alone.
+    // Library still shows everything regardless.
+    streamDay: true
   }
 };
+// V2.15 — Categories that only matter on stream days (toggled by the streamDay flag)
+const STREAM_DAY_CATEGORIES = ['pre-stream', 'on-air', 'post-stream'];
 let sb = null;
 let currentUser = null;
 let libraryFilter = 'all';
@@ -795,6 +884,7 @@ async function loadSupabase(){
     enabled: data.habits?.enabled || {},
     customs: data.habits?.customs || [],
     modes: data.habits?.modes || state.modes || {},  // V2.11 — sync per-habit mode assignments
+    hiddenLibrary: data.habits?.hiddenLibrary || state.hiddenLibrary || {},  // V2.14 — sync hidden-library map
     logs: data.logs || {},
     settings: data.settings || state.settings
   };
@@ -810,7 +900,7 @@ async function saveSupabase(){
   saveTimer = setTimeout(async () => {
     const payload = {
       user_id: currentUser.id,
-      habits: { enabled: state.enabled, customs: state.customs, modes: state.modes },  // V2.11
+      habits: { enabled: state.enabled, customs: state.customs, modes: state.modes, hiddenLibrary: state.hiddenLibrary },  // V2.14
       logs: state.logs,
       settings: state.settings,
       updated_at: new Date().toISOString()
@@ -844,9 +934,15 @@ function weekStartKey(){
 //  HABIT MERGING — library + customs + per-habit overrides
 // ============================================================
 function getAllHabits(){
-  // Built-in library + user customs
-  return HABIT_LIBRARY.concat(state.customs || []);
+  // Built-in library + user customs, minus any built-ins the user has hidden.
+  // V2.14 — hiddenLibrary lets users "delete" built-in habits without losing logs.
+  const hidden = state.hiddenLibrary || {};
+  const lib = HABIT_LIBRARY.filter(h => !hidden[h.id]);
+  return lib.concat(state.customs || []);
 }
+// V2.14 — When the library hides a built-in, the dashboard should also drop it.
+// Returns true if the habit is the user-hidden kind (built-in marked hidden).
+function isHidden(id){ return !!(state.hiddenLibrary || {})[id]; }
 function getEnabledHabits(){
   const all = getAllHabits();
   return all.filter(h => state.enabled[h.id]).map(h => {
@@ -971,7 +1067,11 @@ function renderToday(){
   }
   empty.classList.add('hidden');
   // Energy filter
-  const filtered = filterByEnergy(enabled, state.settings.energyMode);
+  let filtered = filterByEnergy(enabled, state.settings.energyMode);
+  // V2.15 — Stream-day filter: drop pre/on/post-stream categories on off days
+  if(state.settings.streamDay === false){
+    filtered = filtered.filter(h => !STREAM_DAY_CATEGORIES.includes(h.category));
+  }
   // Group by category
   const groups = {};
   filtered.forEach(h => {
@@ -1107,6 +1207,31 @@ function updateDashboardCounts(filtered){
 // ============================================================
 function renderLibrary(){
   const grid = document.getElementById('libraryGrid');
+  // V2.14 — "Hidden" filter shows the built-ins the user has hidden, with un-hide buttons.
+  if(libraryFilter === 'hidden'){
+    const hiddenMap = state.hiddenLibrary || {};
+    const hiddenHabits = HABIT_LIBRARY.filter(h => hiddenMap[h.id]);
+    if(hiddenHabits.length === 0){
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><h3>Nothing hidden 🌸</h3><p>Any built-in habits you hide will live here — click ⚙ on a card and choose "Hide from library" to send a habit here.</p></div>';
+      return;
+    }
+    grid.innerHTML = hiddenHabits.map(h => `
+      <div class="library-card hidden-built-in">
+        <span class="lc-icon">${escapeHtml(h.icon || '✦')}</span>
+        <div class="lc-body">
+          <div class="lc-name">${escapeHtml(h.name)}</div>
+          ${h.desc ? `<div class="lc-desc">${escapeHtml(h.desc)}</div>` : ''}
+          <div class="lc-meta">
+            <span class="chip">${escapeHtml(CATEGORIES[h.category]?.label || h.category)}</span>
+            <span class="chip">${h.tracking}${h.target && h.tracking !== 'daily' ? ` ×${h.target}` : ''}${h.unit ? ' '+escapeHtml(h.unit) : ''}</span>
+          </div>
+        </div>
+        <button class="lc-unhide-btn" data-unhide="${escapeAttr(h.id)}" title="Un-hide this habit so it appears in the library again">↩ Un-hide</button>
+      </div>
+    `).join('');
+    grid.querySelectorAll('button[data-unhide]').forEach(b => b.addEventListener('click', () => unhideHabit(b.dataset.unhide)));
+    return;
+  }
   let habits = getAllHabits();
   if(libraryFilter === 'enabled') habits = habits.filter(h => isEnabled(h.id));
   else if(libraryFilter !== 'all') habits = habits.filter(h => h.category === libraryFilter);
@@ -1123,6 +1248,9 @@ function renderLibrary(){
       <button data-set-mode="${escapeAttr(h.id)}|medium" data-m="medium" class="${myMode==='medium'?'active':''}" title="Medium-tier — shows on Medium + High days">🌤</button>
       <button data-set-mode="${escapeAttr(h.id)}|high" data-m="high" class="${myMode==='high'?'active':''}" title="High-tier — shows on High-energy days only">🌞</button>
     </div>` : '';
+    // V2.14 — Show a small "custom" badge on user-created habits so they're easy to spot
+    const isCustom = (state.customs || []).some(c => c.id === h.id);
+    const customBadge = isCustom ? `<span class="chip" style="background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.35));color:var(--deep);font-weight:800">✦ custom</span>` : '';
     return `
     <div class="library-card ${enabled ? 'enabled' : ''}">
       <span class="lc-icon">${escapeHtml(h.icon || '✦')}</span>
@@ -1132,13 +1260,19 @@ function renderLibrary(){
         <div class="lc-meta">
           <span class="chip">${escapeHtml(CATEGORIES[h.category]?.label || h.category)}</span>
           <span class="chip">${h.tracking}${h.target && h.tracking !== 'daily' ? ` ×${h.target}` : ''}${h.unit ? ' '+escapeHtml(h.unit) : ''}</span>
+          ${customBadge}
         </div>
         ${modePicker}
       </div>
-      <button class="lc-toggle ${enabled ? 'on' : ''}" data-tg="${escapeAttr(h.id)}" title="${enabled ? 'Disable' : 'Enable'}"></button>
+      <div class="lc-actions">
+        <button class="lc-edit" data-edit="${escapeAttr(h.id)}" title="Edit / customize / delete">⚙</button>
+        <button class="lc-toggle ${enabled ? 'on' : ''}" data-tg="${escapeAttr(h.id)}" title="${enabled ? 'Disable' : 'Enable'}"></button>
+      </div>
     </div>
   `;}).join('');
   grid.querySelectorAll('button[data-tg]').forEach(b => b.addEventListener('click', () => toggleEnabled(b.dataset.tg)));
+  // V2.14 — Edit gear on library cards opens the same modal as the dashboard gear
+  grid.querySelectorAll('button[data-edit]').forEach(b => b.addEventListener('click', () => openHabitEdit(b.dataset.edit)));
   // V2.11 — wire library mode-picker clicks too
   grid.querySelectorAll('[data-set-mode]').forEach(el => el.addEventListener('click', ev => {
     ev.stopPropagation();
@@ -1219,7 +1353,12 @@ function openHabitEdit(id){
   document.getElementById('hTarget').value = merged.target || 1;
   document.getElementById('hUnit').value = merged.unit || '';
   document.getElementById('hDesc').value = merged.desc || '';
-  document.getElementById('hDeleteBtn').classList.toggle('hidden', !isCustom);
+  // V2.14 — Delete is available for ANY habit now. Custom: removed outright.
+  // Built-in: hidden from the library + dashboard (logs preserved).
+  const delBtn = document.getElementById('hDeleteBtn');
+  delBtn.classList.remove('hidden');
+  delBtn.textContent = isCustom ? 'Delete' : 'Hide from library';
+  delBtn.title = isCustom ? 'Permanently delete this custom habit (logs preserved)' : 'Hide this built-in habit from the library + dashboard. You can unhide it from the library filter.';
   document.getElementById('habitModal').classList.add('open');
 }
 
@@ -1279,11 +1418,30 @@ function saveHabitEdit(){
 
 function deleteCustomHabit(){
   if(!editingHabitId) return;
-  if(!confirm('Remove this custom habit? Your logs for it will stay but it won\'t show up anymore.')) return;
-  state.customs = (state.customs || []).filter(c => c.id !== editingHabitId);
-  delete state.enabled[editingHabitId];
+  const isCustom = (state.customs || []).some(c => c.id === editingHabitId);
+  // V2.14 — Custom: hard-delete. Built-in: soft-hide (add to hiddenLibrary).
+  if(isCustom){
+    if(!confirm('Permanently delete this custom habit? Your logs for it will stay but it won\'t show up anymore.')) return;
+    state.customs = (state.customs || []).filter(c => c.id !== editingHabitId);
+    delete state.enabled[editingHabitId];
+    delete (state.modes || {})[editingHabitId];
+  } else {
+    if(!confirm('Hide this built-in habit from your library + dashboard? You can un-hide it any time from the library "Hidden" filter.')) return;
+    state.hiddenLibrary = state.hiddenLibrary || {};
+    state.hiddenLibrary[editingHabitId] = true;
+    // Also disable so it disappears from the dashboard immediately
+    delete state.enabled[editingHabitId];
+  }
   persist();
   closeHabitModal();
+  render();
+}
+
+// V2.14 — Un-hide a previously hidden built-in habit (called from the "Hidden" library filter row)
+function unhideHabit(id){
+  if(!state.hiddenLibrary) return;
+  delete state.hiddenLibrary[id];
+  persist();
   render();
 }
 
@@ -1379,6 +1537,28 @@ function setEnergyMode(m){
   render();
 }
 
+// V2.15 — Stream day toggle (hides pre-stream / on-air / post-stream sections from the dashboard)
+function toggleStreamDay(){
+  state.settings.streamDay = !state.settings.streamDay;
+  applyStreamDayUI();
+  persist();
+  render();
+}
+function applyStreamDayUI(){
+  const on = state.settings.streamDay !== false;  // default true if unset
+  const btn = document.getElementById('streamDayToggle');
+  const help = document.getElementById('streamDayHelp');
+  if(btn){
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', String(on));
+  }
+  if(help){
+    help.textContent = on
+      ? 'On — pre-stream + on-air + post-stream habits are visible.'
+      : 'Off — those sections are hidden. Toggle back on for stream days.';
+  }
+}
+
 function render(){
   const v = state.settings.currentView || 'today';
   if(v === 'today') renderToday();
@@ -1392,6 +1572,9 @@ function render(){
 function wire(){
   document.querySelectorAll('.view-tabs [data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
   document.querySelectorAll('.energy-picker [data-energy]').forEach(b => b.addEventListener('click', () => setEnergyMode(b.dataset.energy)));
+  // V2.15 — Stream day toggle
+  const sdBtn = document.getElementById('streamDayToggle');
+  if(sdBtn) sdBtn.addEventListener('click', toggleStreamDay);
   document.querySelectorAll('.library-toolbar [data-filter]').forEach(b => b.addEventListener('click', () => {
     libraryFilter = b.dataset.filter;
     document.querySelectorAll('.library-toolbar [data-filter]').forEach(x => x.classList.toggle('active', x.dataset.filter === libraryFilter));
@@ -1463,10 +1646,13 @@ function boot(){
     defaults.forEach(id => { state.enabled[id] = true; });
     saveLocal();
   }
+  // V2.15 — Default streamDay to true for users who don't have it set yet
+  if(typeof state.settings.streamDay !== 'boolean') state.settings.streamDay = true;
   wire();
   // Set energy + view from saved settings
   document.querySelectorAll('.energy-picker [data-energy]').forEach(b => b.classList.toggle('active', b.dataset.energy === (state.settings.energyMode || 'full')));
   document.querySelectorAll('.view-tabs [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === (state.settings.currentView || 'today')));
+  applyStreamDayUI();  // V2.15 — Reflect saved stream-day state in the toggle
   setView(state.settings.currentView || 'today');
   // Init auth silently to restore session if present
   initAuth();
