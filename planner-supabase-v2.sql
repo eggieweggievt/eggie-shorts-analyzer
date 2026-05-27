@@ -132,7 +132,45 @@ CREATE POLICY "editor storage upload" ON storage.objects
   );
 
 -- ============================================================
+--  V2.3 — CREATOR-WIDE BRAND KIT (Branding & Assets section)
+--  Shown to every editor on their dashboard — like a Notion board with
+--  branding images, editing style refs, and asset folder links.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS planner_brand_kit (
+  owner_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  branding_images jsonb DEFAULT '[]'::jsonb,        -- [{url, label}] — images of brand sheets, color palettes, fonts
+  editing_style_videos jsonb DEFAULT '[]'::jsonb,   -- [{url, label, kind}] — YouTube / Shorts / TikTok / direct video URLs
+  asset_links jsonb DEFAULT '[]'::jsonb,            -- [{url, label}] — Drive folders, Figma files, Notion pages
+  notes text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE planner_brand_kit ENABLE ROW LEVEL SECURITY;
+
+-- Owners (creators) manage their own brand kit
+DROP POLICY IF EXISTS "owners manage brand kit" ON planner_brand_kit;
+CREATE POLICY "owners manage brand kit" ON planner_brand_kit
+  FOR ALL
+  USING (auth.uid() = owner_id)
+  WITH CHECK (auth.uid() = owner_id);
+
+-- Editors can READ the brand kit of any creator who has assigned them at least one item.
+-- This is what makes the kit show up on planner-editor.html for the right people.
+DROP POLICY IF EXISTS "editors read brand kit" ON planner_brand_kit;
+CREATE POLICY "editors read brand kit" ON planner_brand_kit
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM planner_items
+      WHERE planner_items.owner_id = planner_brand_kit.owner_id
+        AND planner_items.assignee_email = auth.email()
+    )
+  );
+
+-- ============================================================
 --  Done! Reload planner.html — V2 features will light up automatically.
 --  Check: editor profiles button, footage/editor file links, file uploads,
---  inline title-scoring, planner-editor.html access for editors.
+--  inline title-scoring, planner-editor.html access for editors,
+--  brand kit button in toolbar, branding & assets section on editor dashboard.
 -- ============================================================

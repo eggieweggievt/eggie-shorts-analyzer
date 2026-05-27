@@ -491,6 +491,167 @@
     font-size:12.5px;color:var(--ink-soft);font-style:italic;padding:6px 2px;
   }
 
+  /* V2.3 — BRAND KIT modal */
+  .bk-section{
+    margin:18px 0 0;padding:14px;
+    background:rgba(255,255,255,0.6);
+    border:1.5px solid rgba(144,165,255,0.18);
+    border-radius:14px;
+  }
+  .bk-section-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;
+    padding-bottom:8px;border-bottom:1.5px dashed rgba(144,165,255,0.2);
+  }
+  .bk-section-title{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:18px;color:var(--deep);
+  }
+  .bk-section-hint{
+    font-size:12px;color:var(--ink-soft);line-height:1.4;flex:1;min-width:160px;
+  }
+  .bk-image-grid{
+    display:grid;gap:8px;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    margin-bottom:10px;
+  }
+  .bk-image-grid .bk-img{
+    aspect-ratio:1;background:rgba(255,255,255,0.85);
+    border-radius:10px;overflow:hidden;position:relative;
+    border:1.5px solid rgba(144,165,255,0.2);
+  }
+  .bk-image-grid .bk-img img{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .bk-image-grid .bk-img .bk-img-rm{
+    position:absolute;top:4px;right:4px;
+    background:rgba(60,40,90,0.78);color:#fff;border:none;
+    border-radius:50%;width:22px;height:22px;
+    font-size:12px;cursor:pointer;line-height:1;
+  }
+  .bk-list{display:flex;flex-direction:column;gap:6px}
+  .bk-row{
+    display:grid;grid-template-columns:minmax(120px,160px) 1fr auto;gap:6px;align-items:center;
+    padding:6px 9px;
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(144,165,255,0.2);
+    border-radius:9px;
+  }
+  @media(max-width:540px){.bk-row{grid-template-columns:1fr;gap:5px}}
+  .bk-row input{
+    padding:6px 10px;border-radius:7px;font-size:12.5px;
+    border:1.5px solid rgba(144,165,255,0.22);
+    background:rgba(255,255,255,0.96);width:100%;
+    font-family:inherit;color:var(--ink);box-sizing:border-box;
+  }
+  .bk-row .bk-rm{
+    background:none;border:none;color:#a23556;font-size:14px;cursor:pointer;
+    padding:3px 7px;border-radius:6px;line-height:1;
+  }
+  .bk-row .bk-rm:hover{background:rgba(255,138,168,0.18)}
+
+  /* V2.3 — Brand kit on EDITOR dashboard (planner-editor.html sees these styles via inline injection) */
+  .brand-kit-card{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(255,178,240,0.4);
+    border-radius:18px;padding:18px 20px;margin:0 0 18px;
+  }
+  .brand-kit-card .bk-card-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;
+    margin:0 0 4px;
+  }
+  .brand-kit-card .bk-card-head h3{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:22px;color:var(--deep);margin:0;flex:1;
+  }
+  .brand-kit-card .bk-card-toggle{
+    background:rgba(144,165,255,0.2);color:var(--deep);
+    border:none;border-radius:999px;padding:5px 12px;
+    font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;
+  }
+  .brand-kit-card[data-open="false"] .bk-card-body{display:none}
+  .brand-kit-card .bk-card-body{
+    margin-top:14px;display:flex;flex-direction:column;gap:18px;
+  }
+  .brand-kit-card .bk-card-section h4{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:16px;
+    color:var(--deep);margin:0 0 10px;
+  }
+  .brand-kit-card .bk-card-imgs{
+    display:grid;gap:10px;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .brand-kit-card .bk-card-img-wrap{
+    border-radius:12px;overflow:hidden;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.18);
+    aspect-ratio:16/9;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-kit-card .bk-card-img-wrap a{display:block;width:100%;height:100%}
+  .brand-kit-card .bk-card-img-wrap img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .2s;
+  }
+  .brand-kit-card .bk-card-img-wrap:hover img{transform:scale(1.03)}
+  .brand-kit-card .bk-card-videos{
+    display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .brand-kit-card .bk-card-video{
+    background:rgba(0,0,0,0.04);border-radius:12px;overflow:hidden;
+    aspect-ratio:16/9;position:relative;
+  }
+  .brand-kit-card .bk-card-video iframe,
+  .brand-kit-card .bk-card-video video{
+    width:100%;height:100%;border:none;display:block;
+  }
+  .brand-kit-card .bk-card-video.link-fallback{
+    background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.25));
+    display:flex;align-items:center;justify-content:center;padding:14px;
+  }
+  .brand-kit-card .bk-card-video.link-fallback a{
+    color:var(--deep);font-weight:700;text-decoration:none;font-size:13px;text-align:center;
+    word-break:break-word;line-height:1.4;
+  }
+  .brand-kit-card .bk-card-video-label{
+    position:absolute;bottom:0;left:0;right:0;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,0.7));
+    color:#fff;padding:8px 10px 6px;font-size:11.5px;font-weight:700;
+    pointer-events:none;
+  }
+  .brand-kit-card .bk-card-links{
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .brand-kit-card .bk-card-link{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 13px;
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.2);
+    border-radius:10px;text-decoration:none;
+    transition:background .12s, border-color .12s;
+  }
+  .brand-kit-card .bk-card-link:hover{
+    background:rgba(255,255,255,0.95);border-color:var(--periwinkle);
+  }
+  .brand-kit-card .bk-card-link .bk-card-link-label{
+    font-weight:700;color:var(--deep);font-size:13.5px;flex-shrink:0;
+  }
+  .brand-kit-card .bk-card-link .bk-card-link-url{
+    color:var(--ink-soft);font-size:12px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .brand-kit-card .bk-card-notes{
+    background:rgba(255,255,255,0.6);
+    border-left:3px solid var(--pink-hot);
+    padding:10px 14px;border-radius:0 10px 10px 0;
+    font-size:13px;color:var(--ink);line-height:1.55;
+    white-space:pre-wrap;
+  }
+  .brand-kit-card .bk-empty{
+    color:var(--ink-soft);font-style:italic;font-size:13px;
+    text-align:center;padding:10px 0;
+  }
+
   /* ===== V2: QUICK ANALYZER WIDGET ===== */
   .quick-score{
     background:linear-gradient(135deg, rgba(255,219,247,0.4), rgba(199,210,255,0.35));
@@ -753,6 +914,7 @@
     <div class="toolbar">
       <button class="btn" id="addItemBtn">+ New item</button>
       <button class="btn secondary" id="manageEditorsBtn" style="padding:8px 16px;font-size:13px">👥 Editors</button>
+      <button class="btn secondary" id="brandKitBtn" style="padding:8px 16px;font-size:13px">🎨 Brand kit</button>
       <div class="view-toggle" role="tablist" aria-label="View mode">
         <button data-view="kanban" class="active" type="button">📋 Kanban</button>
         <button data-view="list" type="button">📑 List</button>
@@ -1036,6 +1198,60 @@
     </div>
   </div>
 
+  <!-- ===== V2.3: BRAND KIT MODAL ===== -->
+  <div class="modal-backdrop" id="brandKitModal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:860px">
+      <h2>🎨 Brand Kit</h2>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5">
+        This is the <strong>creator-wide</strong> kit your editors see at the top of <a href="planner-editor.html" target="_blank" style="color:var(--deep);font-weight:700">their dashboard</a> — branding sheets, editing-style references, asset folders. Visible on <em>every</em> project for every editor you've added.
+      </p>
+
+      <!-- BRANDING IMAGES -->
+      <div class="bk-section">
+        <div class="bk-section-head">
+          <span class="bk-section-title">🎨 Fonts, colors &amp; branding</span>
+          <span class="bk-section-hint">Image URLs of brand sheets, palettes, font specimens, model refs</span>
+        </div>
+        <div class="bk-image-grid" id="bkBrandingPreview"></div>
+        <div class="bk-list" id="bkBrandingList"></div>
+        <button type="button" class="btn secondary" id="bkAddBrandingBtn" style="padding:6px 12px;font-size:12px;margin-top:8px">+ Add image link</button>
+        <label style="margin-top:8px;font-size:11.5px;color:var(--ink-soft);font-weight:500">
+          <span>Or upload image →</span>
+          <input type="file" id="bkBrandingUpload" accept="image/*" style="display:inline-block;font-size:11.5px;margin-left:6px" />
+        </label>
+      </div>
+
+      <!-- VIDEO REFERENCES -->
+      <div class="bk-section">
+        <div class="bk-section-head">
+          <span class="bk-section-title">🎬 Video editing styles I like</span>
+          <span class="bk-section-hint">YouTube / Shorts / TikTok / direct MP4 URLs — embedded for editors</span>
+        </div>
+        <div class="bk-list" id="bkVideosList"></div>
+        <button type="button" class="btn secondary" id="bkAddVideoBtn" style="padding:6px 12px;font-size:12px;margin-top:8px">+ Add video link</button>
+      </div>
+
+      <!-- ASSET LINKS -->
+      <div class="bk-section">
+        <div class="bk-section-head">
+          <span class="bk-section-title">📁 Asset folders</span>
+          <span class="bk-section-hint">Drive, Dropbox, Figma, Notion — all-access folders for any project</span>
+        </div>
+        <div class="bk-list" id="bkAssetsList"></div>
+        <button type="button" class="btn secondary" id="bkAddAssetBtn" style="padding:6px 12px;font-size:12px;margin-top:8px">+ Add asset folder link</button>
+      </div>
+
+      <!-- NOTES -->
+      <label for="bkNotes" style="margin-top:18px">Notes for editors <span class="opt">(general rules, voice, do/don'ts)</span></label>
+      <textarea id="bkNotes" rows="3" placeholder="e.g. Always use Quicksand for sub captions. Brand pink is #FFB2F0. Avoid hard cuts on emotional moments…"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn secondary" id="bkCancelBtn">Close</button>
+        <button class="btn" id="bkSaveBtn">💾 Save brand kit</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <a href="index.html">🏠 Hub</a> &middot; <a href="analyzer.html">🛠️ Analyzer</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
     Made with 💗 by Eggie &middot; Data lives in your private Supabase — nobody else can read it.
@@ -1083,6 +1299,11 @@ let editingItemAttachments = [];  // V2: working buffer for current item's files
 let editingItemAssets = [];       // V2.2: working buffer for additional asset links {label, url}
 let editingEditorId = null;       // V2: currently editing editor profile
 let editorFilter = '';            // V2: filter board by editor id
+// V2.3: brand kit state — editable buffers for the modal
+let brandKit = null;
+let bkBranding = [];   // [{url, label}]
+let bkVideos = [];     // [{url, label}]
+let bkAssets = [];     // [{url, label}]
 let realtimeSub = null;
 let editorsSub = null;
 let currentView = 'kanban';
@@ -1811,6 +2032,153 @@ function addAssetRow(){
   }, 10);
 }
 
+// ============================================================
+//  V2.3 — BRAND KIT (creator-wide assets shown to every editor)
+// ============================================================
+async function loadBrandKit(){
+  if(!sb || !currentUser) return;
+  const { data, error } = await sb.from('planner_brand_kit').select('*').eq('owner_id', currentUser.id).maybeSingle();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('[Planner] planner_brand_kit table missing — run planner-supabase-v2.sql to enable Brand Kit.');
+      return;
+    }
+    console.error('Brand kit load failed', error);
+    return;
+  }
+  brandKit = data || null;
+}
+
+async function openBrandKitModal(){
+  await loadBrandKit();
+  bkBranding = Array.isArray(brandKit?.branding_images) ? JSON.parse(JSON.stringify(brandKit.branding_images)) : [];
+  bkVideos = Array.isArray(brandKit?.editing_style_videos) ? JSON.parse(JSON.stringify(brandKit.editing_style_videos)) : [];
+  bkAssets = Array.isArray(brandKit?.asset_links) ? JSON.parse(JSON.stringify(brandKit.asset_links)) : [];
+  $('bkNotes').value = brandKit?.notes || '';
+  renderBkBranding();
+  renderBkVideos();
+  renderBkAssets();
+  $('brandKitModal').classList.add('open');
+}
+
+function closeBrandKitModal(){
+  $('brandKitModal').classList.remove('open');
+}
+
+function renderBkBranding(){
+  // Live preview grid
+  const grid = $('bkBrandingPreview');
+  grid.innerHTML = bkBranding.filter(b => b.url).map((b, i) => `
+    <div class="bk-img" title="${escape(b.label || '')}">
+      <img src="${escape(b.url)}" alt="${escape(b.label || '')}" onerror="this.parentElement.innerHTML='<div style=&quot;padding:12px;font-size:11px;color:var(--ink-soft);text-align:center&quot;>can\\'t load</div>'"/>
+      <button class="bk-img-rm" data-rm="${i}" type="button" title="Remove">✕</button>
+    </div>
+  `).join('');
+  grid.querySelectorAll('button[data-rm]').forEach(b => {
+    b.addEventListener('click', () => {
+      bkBranding.splice(parseInt(b.dataset.rm, 10), 1);
+      renderBkBranding();
+    });
+  });
+  // Editable rows for adding / labeling
+  const list = $('bkBrandingList');
+  list.innerHTML = bkBranding.map((b, i) => `
+    <div class="bk-row" data-idx="${i}">
+      <input type="text" class="bk-label" placeholder="Label (e.g. Brand sheet)" value="${escape(b.label || '')}" maxlength="40" />
+      <input type="url" class="bk-url" placeholder="https://image-url..." value="${escape(b.url || '')}" />
+      <button type="button" class="bk-rm" data-rm="${i}" title="Remove">✕</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.bk-row').forEach(row => {
+    const idx = parseInt(row.dataset.idx, 10);
+    row.querySelector('.bk-label').addEventListener('input', e => { bkBranding[idx].label = e.target.value; });
+    row.querySelector('.bk-url').addEventListener('input', e => { bkBranding[idx].url = e.target.value; renderBkBranding(); });
+    row.querySelector('.bk-rm').addEventListener('click', () => { bkBranding.splice(idx, 1); renderBkBranding(); });
+  });
+}
+
+function renderBkVideos(){
+  const list = $('bkVideosList');
+  list.innerHTML = bkVideos.map((v, i) => `
+    <div class="bk-row" data-idx="${i}">
+      <input type="text" class="bk-label" placeholder="Label (e.g. tight cuts)" value="${escape(v.label || '')}" maxlength="40" />
+      <input type="url" class="bk-url" placeholder="YouTube / TikTok / .mp4 URL" value="${escape(v.url || '')}" />
+      <button type="button" class="bk-rm" data-rm="${i}" title="Remove">✕</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.bk-row').forEach(row => {
+    const idx = parseInt(row.dataset.idx, 10);
+    row.querySelector('.bk-label').addEventListener('input', e => { bkVideos[idx].label = e.target.value; });
+    row.querySelector('.bk-url').addEventListener('input', e => { bkVideos[idx].url = e.target.value; });
+    row.querySelector('.bk-rm').addEventListener('click', () => { bkVideos.splice(idx, 1); renderBkVideos(); });
+  });
+}
+
+function renderBkAssets(){
+  const list = $('bkAssetsList');
+  list.innerHTML = bkAssets.map((a, i) => `
+    <div class="bk-row" data-idx="${i}">
+      <input type="text" class="bk-label" placeholder="Label (e.g. Sqeggie Assets)" value="${escape(a.label || '')}" maxlength="40" />
+      <input type="url" class="bk-url" placeholder="https://drive.google.com/…" value="${escape(a.url || '')}" />
+      <button type="button" class="bk-rm" data-rm="${i}" title="Remove">✕</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.bk-row').forEach(row => {
+    const idx = parseInt(row.dataset.idx, 10);
+    row.querySelector('.bk-label').addEventListener('input', e => { bkAssets[idx].label = e.target.value; });
+    row.querySelector('.bk-url').addEventListener('input', e => { bkAssets[idx].url = e.target.value; });
+    row.querySelector('.bk-rm').addEventListener('click', () => { bkAssets.splice(idx, 1); renderBkAssets(); });
+  });
+}
+
+// Upload a branding image into Supabase Storage and append its signed URL
+async function uploadBrandingImage(file){
+  if(!file || !sb || !currentUser) return;
+  if(file.size > 10 * 1024 * 1024){
+    alert('Branding images should be under 10 MB. Compress it or paste a hosted URL instead.');
+    return;
+  }
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = `${currentUser.id}/brand-kit/${Date.now()}-${safeName}`;
+  const { error } = await sb.storage.from('planner-files').upload(path, file, { cacheControl:'3600', upsert:false });
+  if(error){
+    alert('Upload failed: ' + error.message);
+    return;
+  }
+  // Long-lived signed URL (10 years) — used for display only, refreshed by editor page on each load
+  const { data: signed } = await sb.storage.from('planner-files').createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+  bkBranding.push({ url: signed?.signedUrl || '', label: file.name.replace(/\.[^.]+$/, ''), path });
+  renderBkBranding();
+  $('bkBrandingUpload').value = '';
+}
+
+async function saveBrandKit(){
+  if(!sb || !currentUser){ alert('Sign in first.'); return; }
+  const payload = {
+    owner_id: currentUser.id,
+    branding_images: bkBranding.filter(b => b.url),
+    editing_style_videos: bkVideos.filter(v => v.url),
+    asset_links: bkAssets.filter(a => a.url),
+    notes: $('bkNotes').value.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+  const btn = $('bkSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await sb.from('planner_brand_kit').upsert(payload);
+  btn.disabled = false; btn.innerHTML = '💾 Save brand kit';
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      alert('Brand kit table missing. Run the updated planner-supabase-v2.sql in Supabase first.');
+    } else {
+      alert('Save failed: ' + error.message);
+    }
+    return;
+  }
+  btn.innerHTML = '✓ Saved!';
+  setTimeout(() => { btn.innerHTML = '💾 Save brand kit'; }, 1800);
+  brandKit = payload;
+}
+
 // Refresh signed URLs for attachments when opening an item
 async function refreshAttachmentUrls(){
   for(const a of editingItemAttachments){
@@ -2200,11 +2568,26 @@ function wireApp(){
   // V2.2: additional assets — add row button
   $('addAssetBtn').addEventListener('click', addAssetRow);
 
+  // V2.3: brand kit
+  $('brandKitBtn').addEventListener('click', openBrandKitModal);
+  $('bkCancelBtn').addEventListener('click', closeBrandKitModal);
+  $('bkSaveBtn').addEventListener('click', saveBrandKit);
+  $('brandKitModal').addEventListener('click', e => { if(e.target === $('brandKitModal')) closeBrandKitModal(); });
+  $('bkAddBrandingBtn').addEventListener('click', () => { bkBranding.push({ url:'', label:'' }); renderBkBranding(); });
+  $('bkAddVideoBtn').addEventListener('click', () => { bkVideos.push({ url:'', label:'' }); renderBkVideos(); });
+  $('bkAddAssetBtn').addEventListener('click', () => { bkAssets.push({ url:'', label:'' }); renderBkAssets(); });
+  $('bkBrandingUpload').addEventListener('change', async e => {
+    const file = e.target.files?.[0];
+    if(file) await uploadBrandingImage(file);
+  });
+
   // Esc to close modals
   document.addEventListener('keydown', e => {
     if(e.key !== 'Escape') return;
     if($('itemModal').classList.contains('open')) closeModal();
     else if($('editorsModal').classList.contains('open')) closeEditorsModal();
+    else if($('editorPreviewModal').classList.contains('open')) closeEditorPreview();
+    else if($('brandKitModal').classList.contains('open')) closeBrandKitModal();
   });
 }
 

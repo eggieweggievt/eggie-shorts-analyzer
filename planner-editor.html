@@ -281,6 +281,110 @@
   }
   footer a{color:var(--deep);text-decoration:none;font-weight:700}
   footer a:hover{color:var(--pink-hot)}
+
+  /* V2.3 — Brand kit card (creator-wide assets shown to every editor) */
+  .brand-kit-card{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(255,178,240,0.4);
+    border-radius:18px;padding:18px 20px;margin:0 0 18px;
+    box-shadow:var(--shadow);
+  }
+  .brand-kit-card .bk-card-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;
+    margin:0 0 4px;
+  }
+  .brand-kit-card .bk-card-head h3{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:22px;color:var(--deep);margin:0;flex:1;
+  }
+  .brand-kit-card .bk-card-toggle{
+    background:rgba(144,165,255,0.2);color:var(--deep);
+    border:none;border-radius:999px;padding:5px 12px;
+    font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;
+  }
+  .brand-kit-card[data-open="false"] .bk-card-body{display:none}
+  .brand-kit-card .bk-card-body{
+    margin-top:14px;display:flex;flex-direction:column;gap:18px;
+  }
+  .brand-kit-card .bk-card-section h4{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:16px;
+    color:var(--deep);margin:0 0 10px;
+  }
+  .brand-kit-card .bk-card-imgs{
+    display:grid;gap:10px;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .brand-kit-card .bk-card-img-wrap{
+    border-radius:12px;overflow:hidden;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.18);
+    aspect-ratio:16/9;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-kit-card .bk-card-img-wrap a{display:block;width:100%;height:100%}
+  .brand-kit-card .bk-card-img-wrap img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .2s;
+  }
+  .brand-kit-card .bk-card-img-wrap:hover img{transform:scale(1.03)}
+  .brand-kit-card .bk-card-videos{
+    display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .brand-kit-card .bk-card-video{
+    background:rgba(0,0,0,0.04);border-radius:12px;overflow:hidden;
+    aspect-ratio:16/9;position:relative;
+  }
+  .brand-kit-card .bk-card-video iframe,
+  .brand-kit-card .bk-card-video video{
+    width:100%;height:100%;border:none;display:block;
+  }
+  .brand-kit-card .bk-card-video.link-fallback{
+    background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.25));
+    display:flex;align-items:center;justify-content:center;padding:14px;
+  }
+  .brand-kit-card .bk-card-video.link-fallback a{
+    color:var(--deep);font-weight:700;text-decoration:none;font-size:13px;text-align:center;
+    word-break:break-word;line-height:1.4;
+  }
+  .brand-kit-card .bk-card-video-label{
+    position:absolute;bottom:0;left:0;right:0;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,0.7));
+    color:#fff;padding:8px 10px 6px;font-size:11.5px;font-weight:700;
+    pointer-events:none;
+  }
+  .brand-kit-card .bk-card-links{
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .brand-kit-card .bk-card-link{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 13px;
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.2);
+    border-radius:10px;text-decoration:none;
+    transition:background .12s, border-color .12s;
+  }
+  .brand-kit-card .bk-card-link:hover{
+    background:rgba(255,255,255,0.95);border-color:var(--periwinkle);
+  }
+  .brand-kit-card .bk-card-link .bk-card-link-label{
+    font-weight:700;color:var(--deep);font-size:13.5px;flex-shrink:0;
+  }
+  .brand-kit-card .bk-card-link .bk-card-link-url{
+    color:var(--ink-soft);font-size:12px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .brand-kit-card .bk-card-notes{
+    background:rgba(255,255,255,0.6);
+    border-left:3px solid var(--pink-hot);
+    padding:10px 14px;border-radius:0 10px 10px 0;
+    font-size:13px;color:var(--ink);line-height:1.55;
+    white-space:pre-wrap;
+  }
+  .brand-kit-card .bk-empty{
+    color:var(--ink-soft);font-style:italic;font-size:13px;
+    text-align:center;padding:10px 0;
+  }
 </style>
 </head>
 <body>
@@ -325,6 +429,15 @@
       <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
       <span class="conn-status"><span class="conn-dot" id="connDotApp"></span><span id="connTextApp">Live</span></span>
       <button class="btn secondary" id="signOutBtn" style="padding:7px 16px;font-size:13px">Sign out</button>
+    </div>
+
+    <!-- V2.3 — Creator's Brand Kit (shown to every editor on every project) -->
+    <div id="brandKitCard" class="brand-kit-card hidden" data-open="true">
+      <div class="bk-card-head" id="brandKitHead">
+        <h3>🎨 Branding &amp; assets</h3>
+        <button class="bk-card-toggle" id="brandKitToggleBtn" type="button">Collapse</button>
+      </div>
+      <div class="bk-card-body" id="brandKitBody"></div>
     </div>
 
     <div class="app-grid">
@@ -508,13 +621,161 @@ async function showApp(user){
   $('authView').classList.add('hidden');
   $('appView').classList.remove('hidden');
   $('userEmailDisplay').textContent = user.email;
-  await Promise.all([loadProfile(), loadProjects()]);
+  await Promise.all([loadProfile(), loadProjects(), loadBrandKit()]);
   // Realtime — refetch on any change to items where this editor is assigned
   sb.channel('editor-items-realtime')
     .on('postgres_changes',
         { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${user.email}` },
         () => loadProjects())
     .subscribe();
+  // V2.3 — Wire up brand kit collapse toggle (lazy, so it doesn't matter if the section is hidden)
+  const head = $('brandKitHead'), toggleBtn = $('brandKitToggleBtn'), card = $('brandKitCard');
+  if(head && toggleBtn && card){
+    const flip = () => {
+      const open = card.dataset.open === 'true';
+      card.dataset.open = (!open).toString();
+      toggleBtn.textContent = open ? 'Expand' : 'Collapse';
+    };
+    head.addEventListener('click', e => { if(e.target !== toggleBtn) flip(); });
+    toggleBtn.addEventListener('click', e => { e.stopPropagation(); flip(); });
+  }
+}
+
+// V2.3 — Load the creator's brand kit. RLS picks the right one based on which creator has
+// assigned this editor at least one item.
+let brandKit = null;
+async function loadBrandKit(){
+  const { data, error } = await sb.from('planner_brand_kit').select('*').limit(1).maybeSingle();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('Brand kit table not set up yet — ask your creator to run the latest planner-supabase-v2.sql.');
+      return;
+    }
+    console.error('Brand kit load failed:', error);
+    return;
+  }
+  brandKit = data || null;
+  renderBrandKit();
+}
+
+function renderBrandKit(){
+  const card = $('brandKitCard');
+  const body = $('brandKitBody');
+  if(!card || !body) return;
+  const hasContent =
+    brandKit && (
+      (brandKit.branding_images || []).length ||
+      (brandKit.editing_style_videos || []).length ||
+      (brandKit.asset_links || []).length ||
+      (brandKit.notes || '').trim()
+    );
+  if(!hasContent){
+    card.classList.add('hidden');
+    return;
+  }
+  card.classList.remove('hidden');
+
+  const sections = [];
+
+  // Branding images
+  const imgs = brandKit.branding_images || [];
+  if(imgs.length){
+    sections.push(`
+      <div class="bk-card-section">
+        <h4>🎨 Fonts, colors &amp; branding</h4>
+        <div class="bk-card-imgs">
+          ${imgs.map(b => `
+            <div class="bk-card-img-wrap" title="${escape(b.label || '')}">
+              <a href="${escape(b.url)}" target="_blank" rel="noreferrer">
+                <img src="${escape(b.url)}" alt="${escape(b.label || 'Branding image')}" loading="lazy" onerror="this.parentElement.parentElement.innerHTML='<div style=&quot;padding:18px;font-size:12px;color:var(--ink-soft);text-align:center&quot;>image link broken</div>'" />
+              </a>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `);
+  }
+
+  // Editing style video references
+  const vids = brandKit.editing_style_videos || [];
+  if(vids.length){
+    sections.push(`
+      <div class="bk-card-section">
+        <h4>🎬 Video editing styles I like</h4>
+        <div class="bk-card-videos">
+          ${vids.map(v => renderVideoEmbed(v)).join('')}
+        </div>
+      </div>
+    `);
+  }
+
+  // Asset folder links
+  const links = brandKit.asset_links || [];
+  if(links.length){
+    sections.push(`
+      <div class="bk-card-section">
+        <h4>📁 Asset folders</h4>
+        <div class="bk-card-links">
+          ${links.map(a => `
+            <a class="bk-card-link" href="${escape(a.url)}" target="_blank" rel="noreferrer">
+              <span class="bk-card-link-label">📁 ${escape(a.label || 'Asset folder')}</span>
+              <span class="bk-card-link-url">${escape(a.url)}</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `);
+  }
+
+  // Notes
+  if((brandKit.notes || '').trim()){
+    sections.push(`
+      <div class="bk-card-section">
+        <h4>📝 Notes from your creator</h4>
+        <div class="bk-card-notes">${escape(brandKit.notes)}</div>
+      </div>
+    `);
+  }
+
+  body.innerHTML = sections.join('');
+}
+
+// Build an embedded player for the given video URL.
+// Supports YouTube (yt.com / youtu.be / shorts), Vimeo, direct mp4/webm, otherwise renders a link card.
+function renderVideoEmbed(v){
+  const url = (v.url || '').trim();
+  if(!url) return '';
+  const label = v.label || '';
+  const labelBar = label ? `<div class="bk-card-video-label">${escape(label)}</div>` : '';
+
+  // YouTube — extract video id from any youtu.be / youtube.com / shorts URL shape
+  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/);
+  if(yt){
+    const id = yt[1];
+    return `<div class="bk-card-video">
+      <iframe src="https://www.youtube.com/embed/${escape(id)}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      ${labelBar}
+    </div>`;
+  }
+  // Vimeo
+  const vm = url.match(/vimeo\.com\/(\d+)/);
+  if(vm){
+    return `<div class="bk-card-video">
+      <iframe src="https://player.vimeo.com/video/${escape(vm[1])}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      ${labelBar}
+    </div>`;
+  }
+  // Direct video file
+  if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)){
+    return `<div class="bk-card-video">
+      <video src="${escape(url)}" controls preload="metadata"></video>
+      ${labelBar}
+    </div>`;
+  }
+  // Fallback — link card (TikTok, Reels, etc. don't embed cleanly cross-origin)
+  return `<div class="bk-card-video link-fallback">
+    <a href="${escape(url)}" target="_blank" rel="noreferrer">${label ? `🎬 <strong>${escape(label)}</strong><br/>` : '🎬 '}Open reference →</a>
+  </div>`;
 }
 
 async function loadProfile(){
