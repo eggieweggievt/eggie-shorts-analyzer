@@ -1357,6 +1357,130 @@
   }
   footer a{color:var(--deep);text-decoration:none;font-weight:700}
   footer a:hover{color:var(--pink-hot)}
+
+  /* =========================================================
+     TODO WIDGET — Today's tasks (compact, sits above kanban)
+     Mirrors todo.html visual language so it feels like one app.
+     ========================================================= */
+  .todo-widget{
+    background:rgba(255,255,255,0.78);
+    border:1.5px solid rgba(255,178,240,0.4);
+    border-radius:18px;
+    padding:14px 18px;
+    margin:0 0 18px;
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .todo-widget .tw-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .todo-widget .tw-title{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:20px;color:var(--deep);margin:0;flex:1;min-width:160px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .todo-widget .tw-title .tw-count{
+    font-family:'Quicksand',sans-serif;font-weight:800;font-size:11px;
+    background:rgba(144,165,255,0.2);color:var(--deep);
+    padding:2px 9px;border-radius:999px;letter-spacing:.04em;
+  }
+  .todo-widget .tw-streak{
+    display:inline-flex;align-items:center;gap:5px;
+    background:linear-gradient(135deg, rgba(255,213,138,0.4), rgba(255,178,240,0.3));
+    border:1px solid rgba(255,213,138,0.45);
+    padding:3px 11px;border-radius:999px;
+    color:#a35c00;font-weight:800;font-size:12px;
+  }
+  .todo-widget .tw-link{
+    text-decoration:none;color:var(--deep);font-weight:700;font-size:12.5px;
+    padding:5px 12px;border-radius:999px;background:rgba(144,165,255,0.18);
+    transition:background .12s;
+  }
+  .todo-widget .tw-link:hover{background:rgba(144,165,255,0.32)}
+  .todo-widget .tw-toggle{
+    background:transparent;border:none;cursor:pointer;font-size:14px;
+    color:var(--ink-soft);padding:4px 8px;border-radius:6px;
+  }
+  .todo-widget .tw-toggle:hover{background:rgba(255,255,255,0.8)}
+  .todo-widget[data-collapsed="true"] .tw-body{display:none}
+
+  .todo-widget .tw-add{
+    display:flex;gap:8px;align-items:center;
+    padding:8px 12px;
+    background:rgba(255,255,255,0.78);
+    border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:10px;
+  }
+  .todo-widget .tw-add input{
+    flex:1;border:none;background:transparent;padding:4px;
+    font-size:14px;color:var(--ink);font-family:inherit;font-weight:500;
+  }
+  .todo-widget .tw-add input:focus{outline:none}
+  .todo-widget .tw-add button{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;border:none;border-radius:999px;padding:6px 14px;
+    font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer;
+    box-shadow:0 3px 10px rgba(144,165,255,0.25);
+  }
+
+  .todo-widget .tw-list{
+    display:flex;flex-direction:column;gap:5px;
+    max-height:280px;overflow-y:auto;padding-right:2px;
+  }
+  .todo-widget .tw-row{
+    display:flex;align-items:center;gap:10px;
+    padding:7px 10px;
+    background:rgba(255,255,255,0.78);
+    border:1px solid rgba(144,165,255,0.18);
+    border-left:3px solid var(--cat-color, var(--periwinkle));
+    border-radius:9px;font-size:13.5px;
+  }
+  .todo-widget .tw-row.done{opacity:0.6}
+  .todo-widget .tw-row.done .tw-row-title{text-decoration:line-through;color:var(--ink-soft)}
+  .todo-widget .tw-row.starred{
+    background:linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,213,138,0.12));
+    border-left-width:4px;
+  }
+  .todo-widget .tw-check{
+    width:18px;height:18px;border-radius:5px;
+    border:2px solid var(--cat-color, rgba(144,165,255,0.5));
+    background:rgba(255,255,255,0.9);cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:#fff;
+  }
+  .todo-widget .tw-check.checked{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));border-color:transparent;
+  }
+  .todo-widget .tw-row-title{flex:1;min-width:0;color:var(--ink);font-weight:600;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+  .todo-widget .tw-row-meta{display:flex;gap:5px;flex-shrink:0;align-items:center}
+  .todo-widget .tw-row-meta .tw-due-overdue{color:#a23556;font-weight:700;font-size:11px}
+  .todo-widget .tw-row-meta .tw-due-soon{color:#a35c00;font-weight:700;font-size:11px}
+  .todo-widget .tw-row-meta .tw-cat{
+    background:var(--cat-color, rgba(144,165,255,0.2));color:#fff;
+    padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;
+    text-shadow:0 1px 2px rgba(0,0,0,0.2);
+  }
+  .todo-widget .tw-row-meta .tw-linked{
+    background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.25));
+    color:var(--deep);padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;
+  }
+  .todo-widget .tw-empty{
+    text-align:center;padding:16px 8px;color:var(--ink-soft);
+    font-size:13px;font-style:italic;
+  }
+  .todo-widget .tw-empty a{color:var(--deep);font-weight:700;text-decoration:none;
+    border-bottom:1.5px dashed currentColor}
+  .todo-widget .tw-missing{
+    padding:12px 14px;background:rgba(255,219,247,0.4);
+    border:1.5px dashed rgba(255,178,240,0.6);border-radius:10px;
+    font-size:13px;color:#7a2a3e;line-height:1.5;
+  }
+  .todo-widget .tw-missing strong{color:var(--deep)}
+  .todo-widget .tw-missing code{
+    background:rgba(255,255,255,0.7);padding:1px 6px;border-radius:5px;font-size:12px;
+    color:var(--deep);
+  }
 </style>
 </head>
 <body>
@@ -1364,6 +1488,7 @@
 
   <div class="back-row">
     <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="todo.html" class="back-link">✅ Tasks</a>
     <a href="analyzer.html" class="back-link">🛠️ Analyzer</a>
     <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
     <a href="habits.html" class="back-link">🌸 Habits</a>
@@ -1396,6 +1521,23 @@
       <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
       <span class="conn-status"><span class="conn-dot" id="connDotApp"></span><span id="connTextApp">Live</span></span>
       <button class="btn secondary" id="signOutBtn" style="padding:7px 16px;font-size:13px">Sign out</button>
+    </div>
+
+    <!-- TODO WIDGET — compact today's tasks panel, syncs with todo.html -->
+    <div id="todoWidget" class="todo-widget" data-collapsed="false">
+      <div class="tw-head">
+        <h3 class="tw-title">✅ Today's tasks <span class="tw-count" id="twCount">0</span></h3>
+        <span class="tw-streak hidden" id="twStreak">🔥 <span id="twStreakNum">0</span> day streak</span>
+        <a href="todo.html" class="tw-link">Open full to-do →</a>
+        <button class="tw-toggle" id="twToggle" title="Collapse / expand">▾</button>
+      </div>
+      <div class="tw-body">
+        <div class="tw-add">
+          <input id="twInput" type="text" placeholder="✍️  Quick add a task for today… (Enter to save)" />
+          <button id="twAdd">+ Add</button>
+        </div>
+        <div class="tw-list" id="twList"></div>
+      </div>
     </div>
 
     <div class="toolbar">
@@ -2081,6 +2223,8 @@ async function showApp(user){
   ]);
   subscribeRealtime();
   subscribeEditorsRealtime();
+  // Todo widget — fire-and-forget; widget tolerates missing tables
+  todoWidgetInit();
 }
 
 // ============================================================
@@ -2501,7 +2645,9 @@ async function handleSaveEditor(){
   const references = $('edReferences').value.split('\n').map(s => s.trim()).filter(Boolean);
   const editor = {
     name,
-    email: $('edEmail').value.trim(),
+    // Lowercased so this email matches Supabase auth.email() (which is always lowercase)
+    // when the editor signs in on planner-editor.html
+    email: $('edEmail').value.trim().toLowerCase(),
     color,
     asset_folder_url: $('edAssetFolder').value.trim(),
     reference_links: references,
@@ -4055,6 +4201,21 @@ function openViewModal(item){
       <div class="view-notes">${escape(item.notes)}</div>
     </div>`);
   }
+  // V2.14 — Notes the editor left on this project (visible from planner-editor.html)
+  if(item.editor_notes && item.editor_notes.trim()){
+    const editor = editors.find(e => e.email && item.assignee_email && e.email === item.assignee_email);
+    const editorLabel = editor?.name ? escape(editor.name) : (item.assignee_email ? escape(item.assignee_email) : 'Editor');
+    let updatedLine = '';
+    if(item.editor_notes_updated_at){
+      const d = new Date(item.editor_notes_updated_at);
+      updatedLine = `<div style="font-size:11px;color:var(--ink-soft);font-style:italic;margin-top:6px">Last updated ${escape(d.toLocaleString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}))}</div>`;
+    }
+    body.push(`<div class="view-section">
+      <h4>💬 Notes from ${editorLabel}</h4>
+      <div class="view-notes" style="background:linear-gradient(135deg,rgba(255,213,138,0.2),rgba(255,178,240,0.15));border-left:4px solid #FFB07A;padding:12px 14px;border-radius:0 10px 10px 0;white-space:pre-wrap;font-size:13.5px;line-height:1.55;color:var(--ink)">${escape(item.editor_notes)}</div>
+      ${updatedLine}
+    </div>`);
+  }
   // Empty-state if there's basically nothing to show beyond title
   if(body.length === 0){
     body.push(`<div class="view-section" style="text-align:center;color:var(--ink-soft);font-style:italic;padding:14px">
@@ -4188,7 +4349,9 @@ async function handleSave(){
     platforms,
     assignee: editor?.name || $('fAssignee').value.trim() || null,
     editor_id: editorId || null,
-    assignee_email: editor?.email || $('fAssigneeEmail').value.trim() || null,
+    // Normalize: editor-side query + RLS use exact match on auth.email() (always lowercase),
+    // so we lowercase + trim here too. Belt-and-suspenders even when editor picker is used.
+    assignee_email: ((editor?.email || $('fAssigneeEmail').value || '').trim().toLowerCase()) || null,
     scheduled_at: $('fScheduledAt').value ? new Date($('fScheduledAt').value).toISOString() : '',
     posted_at: $('fPostedAt').value ? new Date($('fPostedAt').value).toISOString() : '',
     hook: $('fHook').value.trim(),
@@ -4244,6 +4407,310 @@ function toLocalInput(iso){
   // Adjust for timezone offset so the displayed value matches local clock
   const tzOff = d.getTimezoneOffset() * 60000;
   return new Date(d - tzOff).toISOString().slice(0, 16);
+}
+
+// ============================================================
+//  TODO WIDGET — compact today's-tasks panel
+//  Reads planner_todos + planner_todo_categories. Tolerates the
+//  table not existing (shows a 1-time setup hint). Subscribes to
+//  realtime so check-offs from todo.html appear instantly here.
+// ============================================================
+let twTodos = [];
+let twCats = [];
+let twRealtimeSub = null;
+let twTableMissing = false;
+
+async function todoWidgetInit(){
+  // Apply remembered collapsed state
+  try{
+    const collapsed = localStorage.getItem('twCollapsed') === '1';
+    document.getElementById('todoWidget').dataset.collapsed = collapsed ? 'true' : 'false';
+    document.getElementById('twToggle').textContent = collapsed ? '▸' : '▾';
+  }catch(e){}
+
+  // Wire UI
+  const input = document.getElementById('twInput');
+  const addBtn = document.getElementById('twAdd');
+  const toggle = document.getElementById('twToggle');
+  if(input && !input.dataset.wired){
+    input.dataset.wired = '1';
+    input.addEventListener('keydown', e => { if(e.key === 'Enter') twQuickAdd(); });
+    addBtn.addEventListener('click', twQuickAdd);
+    toggle.addEventListener('click', () => {
+      const w = document.getElementById('todoWidget');
+      const next = w.dataset.collapsed !== 'true';
+      w.dataset.collapsed = next ? 'true' : 'false';
+      toggle.textContent = next ? '▸' : '▾';
+      try{ localStorage.setItem('twCollapsed', next ? '1' : '0'); }catch(e){}
+    });
+  }
+
+  await Promise.all([twLoadCats(), twLoadTodos()]);
+  twRender();
+  twSubscribe();
+}
+
+async function twLoadTodos(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+  const {data, error} = await sb.from('planner_todos').select('*')
+    .or(`bucket.eq.today,due_at.lt.${tomorrow.toISOString()}`)
+    .order('position', {ascending:true})
+    .order('due_at', {ascending:true})
+    .limit(40);
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      twTableMissing = true;
+      twTodos = [];
+      return;
+    }
+    console.warn('[todo-widget] load failed:', error.message);
+    twTodos = [];
+    return;
+  }
+  twTableMissing = false;
+  twTodos = data || [];
+}
+async function twLoadCats(){
+  const {data, error} = await sb.from('planner_todo_categories').select('*');
+  if(error){ twCats = []; return; }
+  twCats = data || [];
+}
+function twSubscribe(){
+  if(twTableMissing) return;
+  if(twRealtimeSub) sb.removeChannel(twRealtimeSub);
+  twRealtimeSub = sb.channel('planner_todos_widget')
+    .on('postgres_changes',
+      {event:'*', schema:'public', table:'planner_todos', filter:`owner_id=eq.${currentUser.id}`},
+      () => { twLoadTodos().then(twRender); })
+    .subscribe();
+}
+
+function twRender(){
+  const root = document.getElementById('twList');
+  const cnt = document.getElementById('twCount');
+  const streakEl = document.getElementById('twStreak');
+  if(!root) return;
+  root.innerHTML = '';
+
+  if(twTableMissing){
+    cnt.textContent = '—';
+    const m = document.createElement('div');
+    m.className = 'tw-missing';
+    m.innerHTML = `Your task tables aren't set up yet. Run <code>planner-supabase-todos.sql</code> in Supabase → SQL Editor, then refresh. ` +
+                  `<strong>Or just <a href="todo.html" style="color:var(--deep)">open the full to-do page</a></strong> — it'll guide you.`;
+    root.appendChild(m);
+    streakEl.classList.add('hidden');
+    return;
+  }
+
+  // Filter to today / overdue
+  const now = new Date();
+  const today = new Date(now); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+  const visible = twTodos.filter(t => {
+    if(t.is_done){
+      // Show today's just-completed
+      return t.completed_at && new Date(t.completed_at) >= today;
+    }
+    if(t.bucket === 'today') return true;
+    if(t.due_at && new Date(t.due_at) < tomorrow) return true;
+    return false;
+  });
+  // Sort: open priority first, then overdue, then due, then created
+  visible.sort((a,b) => {
+    if(a.is_done !== b.is_done) return a.is_done ? 1 : -1;
+    if(a.is_priority !== b.is_priority) return a.is_priority ? -1 : 1;
+    if(a.due_at && b.due_at) return new Date(a.due_at) - new Date(b.due_at);
+    if(a.due_at) return -1;
+    if(b.due_at) return 1;
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+
+  const openCount = visible.filter(t => !t.is_done).length;
+  cnt.textContent = openCount;
+
+  // Streak
+  const streak = twComputeStreak();
+  if(streak > 0){
+    streakEl.classList.remove('hidden');
+    document.getElementById('twStreakNum').textContent = streak;
+  } else {
+    streakEl.classList.add('hidden');
+  }
+
+  if(!visible.length){
+    const empty = document.createElement('div');
+    empty.className = 'tw-empty';
+    empty.innerHTML = `🌷 Nothing on your plate today. Add one above — or <a href="todo.html">plan ahead in the full to-do</a>.`;
+    root.appendChild(empty);
+    return;
+  }
+
+  visible.forEach(t => {
+    const cat = twCats.find(c => c.id === t.category_id);
+    const color = cat ? cat.color : '#90A5FF';
+    const row = document.createElement('div');
+    row.className = 'tw-row' + (t.is_done ? ' done' : '') + (t.is_priority ? ' starred' : '');
+    row.style.setProperty('--cat-color', color);
+
+    const check = document.createElement('div');
+    check.className = 'tw-check' + (t.is_done ? ' checked' : '');
+    check.textContent = t.is_done ? '✓' : '';
+    check.title = t.is_done ? 'Mark not done' : 'Mark done';
+    check.addEventListener('click', e => { e.stopPropagation(); twToggleDone(t); });
+    row.appendChild(check);
+
+    const title = document.createElement('span');
+    title.className = 'tw-row-title';
+    title.textContent = (t.is_priority ? '⭐ ' : '') + (t.title || '(untitled)');
+    title.title = t.title || '';
+    title.addEventListener('click', () => { window.location.href = 'todo.html'; });
+    row.appendChild(title);
+
+    const meta = document.createElement('span');
+    meta.className = 'tw-row-meta';
+    if(cat){
+      const chip = document.createElement('span');
+      chip.className = 'tw-cat';
+      chip.style.background = cat.color;
+      chip.textContent = ((cat.icon || '') + ' ' + cat.label).trim();
+      meta.appendChild(chip);
+    }
+    if(t.due_at){
+      const due = new Date(t.due_at);
+      const overdue = !t.is_done && due < now;
+      const soon = !overdue && (due - now) < 12*60*60*1000;
+      const d = document.createElement('span');
+      d.className = overdue ? 'tw-due-overdue' : (soon ? 'tw-due-soon' : '');
+      d.textContent = overdue ? '🚨 overdue' : (soon ? '⏰ soon' : '');
+      if(d.textContent) meta.appendChild(d);
+    }
+    if(t.linked_item_id){
+      const link = document.createElement('span');
+      link.className = 'tw-linked';
+      link.textContent = '🔗';
+      link.title = 'Linked to a planner item';
+      meta.appendChild(link);
+    }
+    if(meta.children.length) row.appendChild(meta);
+    root.appendChild(row);
+  });
+}
+
+async function twToggleDone(t){
+  t.is_done = !t.is_done;
+  t.completed_at = t.is_done ? new Date().toISOString() : null;
+  if(t.is_done) t.bucket = 'done';
+  else if(t.bucket === 'done') t.bucket = 'today';
+
+  // Optimistic UI
+  twRender();
+
+  // Spawn next recurring occurrence if applicable
+  if(t.is_done && t.recurrence){
+    const next = twComputeNext(t);
+    if(next){
+      const clone = {
+        owner_id: currentUser.id,
+        title: t.title, notes: t.notes,
+        bucket:'today', position:0,
+        category_id: t.category_id || null,
+        tags: t.tags || [],
+        is_priority: !!t.is_priority,
+        recurrence: t.recurrence,
+        recurrence_days: t.recurrence_days || [],
+        subtasks: (t.subtasks || []).map(s => ({...s, done:false})),
+        linked_item_id: t.linked_item_id || null,
+        estimated_minutes: t.estimated_minutes || null,
+        focus_minutes: 0,
+        due_at: next.toISOString()
+      };
+      const {error} = await sb.from('planner_todos').insert(clone);
+      if(error) console.warn('[todo-widget] recurrence spawn failed:', error.message);
+    }
+  }
+  // Persist toggle
+  const payload = {
+    id: t.id, owner_id: currentUser.id,
+    is_done: t.is_done, completed_at: t.completed_at, bucket: t.bucket
+  };
+  const {error} = await sb.from('planner_todos').update(payload).eq('id', t.id);
+  if(error){
+    alert('Save failed: ' + error.message);
+    // Revert
+    t.is_done = !t.is_done;
+    t.completed_at = t.is_done ? new Date().toISOString() : null;
+    twRender();
+  }
+}
+
+async function twQuickAdd(){
+  if(twTableMissing){
+    alert('Run planner-supabase-todos.sql in Supabase first to enable the to-do list.');
+    return;
+  }
+  const input = document.getElementById('twInput');
+  const raw = input.value.trim();
+  if(!raw) return;
+  // Parse #tags and !today/!week/!later inline like todo.html
+  let title = raw;
+  const tags = [];
+  let bucket = 'today';
+  let priority = false;
+  title = title.replace(/#([\w-]+)/g, (m,t) => { tags.push(t); return ''; }).trim();
+  const bm = title.match(/!(today|week|later)\b/i);
+  if(bm){ bucket = bm[1].toLowerCase(); title = title.replace(bm[0], '').trim(); }
+  if(/\s!\s*$/.test(title) || title === '!'){ priority = true; title = title.replace(/!\s*$/, '').trim(); }
+  if(!title) return;
+
+  const payload = {
+    owner_id: currentUser.id,
+    title, bucket, position: 0,
+    is_priority: priority, tags,
+    subtasks: [], recurrence_days: [], focus_minutes: 0
+  };
+  input.value = '';
+  const {data, error} = await sb.from('planner_todos').insert(payload).select().single();
+  if(error){ alert('Save failed: ' + error.message); return; }
+  twTodos.unshift(data);
+  twRender();
+}
+
+function twComputeStreak(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = new Set();
+  twTodos.forEach(t => {
+    if(t.is_done && t.completed_at){
+      const d = new Date(t.completed_at); d.setHours(0,0,0,0);
+      days.add(d.getTime());
+    }
+  });
+  let streak = 0;
+  let cursor = new Date(today);
+  if(!days.has(today.getTime())) cursor.setDate(cursor.getDate() - 1);
+  while(days.has(cursor.getTime())){ streak++; cursor.setDate(cursor.getDate() - 1); }
+  return streak;
+}
+function twComputeNext(t){
+  const base = t.due_at ? new Date(t.due_at) : new Date();
+  const next = new Date(base);
+  switch(t.recurrence){
+    case 'daily': next.setDate(next.getDate()+1); return next;
+    case 'weekdays':
+      do { next.setDate(next.getDate()+1); } while(next.getDay() === 0 || next.getDay() === 6);
+      return next;
+    case 'weekly': next.setDate(next.getDate()+7); return next;
+    case 'monthly': next.setMonth(next.getMonth()+1); return next;
+    case 'custom':
+      if(!(t.recurrence_days || []).length) return null;
+      for(let i = 1; i <= 14; i++){
+        next.setDate(next.getDate()+1);
+        if(t.recurrence_days.includes(next.getDay())) return next;
+      }
+      return null;
+    default: return null;
+  }
 }
 
 // ============================================================

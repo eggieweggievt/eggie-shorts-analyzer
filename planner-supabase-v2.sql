@@ -64,6 +64,15 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='is_priority') THEN
     ALTER TABLE planner_items ADD COLUMN is_priority boolean DEFAULT false;
   END IF;
+  -- V2.14 — Free-text notes / comments left by the editor for the creator
+  -- (questions about footage, flag for re-record, ideas, etc.). Editor writes
+  -- via planner-editor.html; creator reads in the item-detail modal.
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='editor_notes') THEN
+    ALTER TABLE planner_items ADD COLUMN editor_notes text;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='editor_notes_updated_at') THEN
+    ALTER TABLE planner_items ADD COLUMN editor_notes_updated_at timestamptz;
+  END IF;
 END$$;
 
 -- 2. New table: planner_editors

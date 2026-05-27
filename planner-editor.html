@@ -440,6 +440,241 @@
     color:var(--ink-soft);font-style:italic;font-size:13px;
     text-align:center;padding:10px 0;
   }
+
+  /* V2.14 — Project card redesign: creator-style hierarchy.
+     Big title, prominent assets, hook visible, script collapsible,
+     dedicated editor notes box. */
+  .project-card .pc-title{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:22px;color:var(--deep);line-height:1.3;
+    margin:0 0 10px;
+  }
+  .project-card .pc-meta-row{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    margin:0 0 14px;font-size:12.5px;color:var(--ink-soft);
+  }
+  .project-card .pc-meta-row .platform-chip{
+    background:rgba(144,165,255,0.18);color:var(--deep);
+    padding:3px 10px;border-radius:999px;font-weight:700;font-size:11.5px;
+  }
+  .project-card .pc-meta-row .deadline-chip{
+    background:rgba(255,213,138,0.25);color:#a35c00;
+    padding:3px 10px;border-radius:999px;font-weight:700;font-size:11.5px;
+  }
+  .project-card .pc-meta-row .deadline-chip.overdue{
+    background:rgba(255,138,168,0.25);color:#a23556;
+  }
+  .project-card .pc-meta-row .posted-chip{
+    background:rgba(168,230,190,0.4);color:#1f6b35;
+    padding:3px 10px;border-radius:999px;font-weight:700;font-size:11.5px;
+  }
+
+  /* Status changer row — mirrors the creator's STATUS: pill row */
+  .pc-status-strip{
+    display:flex;align-items:center;flex-wrap:wrap;gap:8px;
+    padding:10px 12px;margin:0 0 14px;
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(144,165,255,0.2);
+    border-radius:12px;
+  }
+  .pc-status-strip .pc-status-label{
+    font-weight:800;font-size:11px;letter-spacing:.08em;color:var(--ink-soft);
+    text-transform:uppercase;margin-right:4px;
+  }
+  .pc-status-strip .pc-status-current{
+    padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .pc-status-strip .pc-status-current.idea     {background:rgba(255,138,168,0.3);color:#a23556}
+  .pc-status-strip .pc-status-current.script   {background:rgba(255,176,122,0.35);color:#a35c00}
+  .pc-status-strip .pc-status-current.recording{background:rgba(144,165,255,0.35);color:#4a3a8a}
+  .pc-status-strip .pc-status-current.editing  {background:rgba(201,168,255,0.4);color:#5a3a8a}
+  .pc-status-strip .pc-status-current.scheduled{background:rgba(107,228,234,0.4);color:#0b6a76}
+  .pc-status-strip .pc-status-current.posted   {background:rgba(168,230,190,0.5);color:#1f6b35}
+
+  /* Section headers — mirror the creator-modal "🪝 Hook" / "📝 Script / outline" style */
+  .pc-section{margin:0 0 14px}
+  .pc-section-head{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:17px;color:var(--deep);
+    margin:0 0 8px;line-height:1.3;
+  }
+  .pc-section-body{
+    background:rgba(255,255,255,0.65);
+    border:1px solid rgba(144,165,255,0.2);
+    border-radius:12px;padding:12px 14px;
+    font-size:13.5px;color:var(--ink);line-height:1.55;
+    white-space:pre-wrap;
+  }
+  /* Hook gets a pink accent bar like the creator modal */
+  .pc-section.pc-hook .pc-section-body{
+    background:linear-gradient(135deg,rgba(255,178,240,0.18),rgba(144,165,255,0.12));
+    border-left:4px solid var(--pink-hot);
+  }
+  /* Creator notes get a periwinkle accent */
+  .pc-section.pc-notes-creator .pc-section-body{
+    background:rgba(144,165,255,0.12);
+    border-left:4px solid var(--periwinkle);
+  }
+
+  /* Collapsible script — use <details> for native a11y */
+  details.pc-section{
+    background:rgba(255,255,255,0.55);
+    border:1.5px solid rgba(144,165,255,0.22);
+    border-radius:12px;padding:0;margin:0 0 14px;
+    overflow:hidden;
+  }
+  details.pc-section summary{
+    list-style:none;cursor:pointer;
+    padding:12px 14px;
+    display:flex;align-items:center;gap:8px;
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:17px;color:var(--deep);line-height:1.3;
+    transition:background .12s;
+  }
+  details.pc-section summary::-webkit-details-marker{display:none}
+  details.pc-section summary:hover{background:rgba(255,255,255,0.65)}
+  details.pc-section summary::after{
+    content:"▸";margin-left:auto;font-size:14px;
+    transition:transform .15s;color:var(--ink-soft);
+  }
+  details.pc-section[open] summary::after{transform:rotate(90deg)}
+  details.pc-section .pc-section-body{
+    border:none;border-radius:0;
+    background:rgba(255,255,255,0.4);
+    border-top:1px solid rgba(144,165,255,0.15);
+  }
+
+  /* ASSETS — the big one. Visually prominent, card-style links. */
+  .pc-assets-wrap{
+    margin:0 0 16px;
+    padding:14px;
+    background:linear-gradient(135deg,rgba(107,228,234,0.15),rgba(144,165,255,0.12));
+    border:1.5px solid rgba(107,228,234,0.35);
+    border-radius:14px;
+  }
+  .pc-assets-wrap .pc-section-head{margin-bottom:10px}
+  .pc-assets-grid{
+    display:grid;gap:8px;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .pc-asset-card{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 14px;text-decoration:none;
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:10px;
+    transition:transform .12s, box-shadow .15s, border-color .15s;
+  }
+  .pc-asset-card:hover{
+    transform:translateY(-1px);
+    box-shadow:0 6px 16px rgba(99,170,244,0.18);
+    border-color:var(--periwinkle);
+  }
+  .pc-asset-card .pc-asset-icon{
+    font-size:22px;flex-shrink:0;line-height:1;
+  }
+  .pc-asset-card .pc-asset-info{
+    display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;
+  }
+  .pc-asset-card .pc-asset-label{
+    font-weight:800;font-size:13px;color:var(--deep);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .pc-asset-card .pc-asset-sub{
+    font-size:11px;color:var(--ink-soft);font-weight:600;
+  }
+  /* Primary asset (raw footage) gets extra emphasis */
+  .pc-asset-card.primary{
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));
+    border-color:rgba(255,178,240,0.5);
+  }
+  .pc-asset-card.primary .pc-asset-label{color:var(--deep)}
+  .pc-assets-empty{
+    padding:14px;text-align:center;color:var(--ink-soft);font-style:italic;
+    font-size:13px;background:rgba(255,255,255,0.5);border-radius:10px;
+  }
+
+  /* Uploaded file rows live just under the assets section */
+  .pc-attach-wrap{margin-top:10px}
+  .pc-attach-wrap .pc-attach-head{
+    font-size:11.5px;font-weight:800;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;
+  }
+
+  /* Upload CTA + status transition buttons */
+  .pc-upload-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding:12px 14px;margin:0 0 14px;
+    background:rgba(168,230,190,0.18);
+    border:1.5px dashed rgba(168,230,190,0.6);
+    border-radius:12px;
+  }
+  .pc-upload-row .upload-label{
+    flex:1;min-width:0;font-size:13px;color:#1f6b35;font-weight:700;
+  }
+  .pc-upload-row .upload-label small{
+    display:block;font-weight:500;color:#3a7a4a;font-size:11.5px;margin-top:2px;
+  }
+  .pc-upload-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 18px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    background:linear-gradient(135deg,#6BC78A,#5BA875);
+    border:none;box-shadow:0 4px 12px rgba(91,168,117,0.32);
+    transition:transform .12s,filter .12s;
+  }
+  .pc-upload-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+
+  /* Editor notes box — the new feature, with a save button */
+  .pc-editor-notes-section{
+    margin:0 0 12px;padding:14px;
+    background:linear-gradient(135deg,rgba(255,213,138,0.2),rgba(255,178,240,0.15));
+    border:1.5px solid rgba(255,213,138,0.5);
+    border-radius:14px;
+  }
+  .pc-editor-notes-section .pc-section-head{margin-bottom:8px;color:#a35c00}
+  .pc-editor-notes-section .pc-section-sub{
+    font-size:12px;color:var(--ink-soft);margin:0 0 10px;line-height:1.5;
+  }
+  .pc-editor-notes{
+    width:100%;min-height:80px;padding:11px 13px;
+    border:1.5px solid rgba(255,213,138,0.5);
+    background:rgba(255,255,255,0.85);
+    border-radius:10px;font-family:inherit;font-size:13.5px;color:var(--ink);
+    resize:vertical;line-height:1.5;box-sizing:border-box;
+    transition:border-color .15s;
+  }
+  .pc-editor-notes:focus{outline:none;border-color:#FFB07A;background:#fff}
+  .pc-editor-notes-actions{
+    display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;
+  }
+  .pc-save-notes-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:800;font-size:13px;color:#fff;
+    background:linear-gradient(135deg,#FFB07A,#FF8AA8);
+    border:none;box-shadow:0 4px 10px rgba(255,138,168,0.32);
+    transition:transform .12s,filter .12s;
+  }
+  .pc-save-notes-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+  .pc-save-notes-btn[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+  .pc-notes-saved{
+    font-size:12px;color:#1f6b35;font-weight:700;
+    opacity:0;transition:opacity .2s;
+  }
+  .pc-notes-saved.show{opacity:1}
+  .pc-notes-updated{
+    font-size:11px;color:var(--ink-soft);font-style:italic;
+  }
+
+  /* Status transition buttons row (when present) */
+  .pc-transition-row{
+    display:flex;flex-wrap:wrap;gap:8px;
+    padding-top:10px;border-top:1.5px dashed rgba(144,165,255,0.22);
+    margin-top:4px;
+  }
 </style>
 </head>
 <body>
@@ -678,10 +913,16 @@ async function showApp(user){
   $('appView').classList.remove('hidden');
   $('userEmailDisplay').textContent = user.email;
   await Promise.all([loadProfile(), loadProjects(), loadBrandKit()]);
-  // Realtime — refetch on any change to items where this editor is assigned
+  // Realtime — refetch on any change to items where this editor is assigned.
+  // Note: postgres_changes filter only supports eq (no ilike), so we send the
+  // lowercased email. Newly-saved rows from planner.html are now normalized to
+  // lowercase, so live refresh works for all new data. Legacy mis-cased rows
+  // still show up via the case-insensitive loadProjects() call, just not in
+  // real time — they'll appear on next manual reload.
+  const realtimeEmail = (user.email || '').trim().toLowerCase();
   sb.channel('editor-items-realtime')
     .on('postgres_changes',
-        { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${user.email}` },
+        { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${realtimeEmail}` },
         () => loadProjects())
     .subscribe();
   // V2.3 — Wire up brand kit collapse toggle (lazy, so it doesn't matter if the section is hidden)
@@ -908,9 +1149,13 @@ async function saveProfile(){
 
 async function loadProjects(){
   setConn(true, 'Loading…');
+  // Case-insensitive match so legacy rows where the creator typed the email with
+  // different casing (e.g. "Extremelyearly@gmail.com") still show up. Trim too,
+  // in case a stray space snuck in on either side.
+  const emailForQuery = (currentUser.email || '').trim().toLowerCase();
   const { data, error } = await sb.from('planner_items')
     .select('*')
-    .eq('assignee_email', currentUser.email)
+    .ilike('assignee_email', emailForQuery)
     .order('scheduled_at', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false });
   if(error){
@@ -1024,49 +1269,224 @@ function renderProjects(){
   wrap.querySelectorAll('input[type=file][data-upload-id]').forEach(input => {
     input.addEventListener('change', e => uploadEditorFile(input.dataset.uploadId, e.target.files));
   });
+  // V2.14 — Wire up editor-notes save buttons
+  wrap.querySelectorAll('button[data-save-notes-id]').forEach(btn => {
+    btn.addEventListener('click', () => saveEditorNotes(btn.dataset.saveNotesId, btn));
+  });
 }
 
+// V2.14 — Save free-text notes the editor leaves for the creator on a project.
+// Uses the RLS update policy ("editors update assigned items") so editors can
+// write but only to items already assigned to them.
+async function saveEditorNotes(itemId, btn){
+  const card = btn.closest('.project-card');
+  if(!card) return;
+  const textarea = card.querySelector('textarea.pc-editor-notes[data-id="' + cssEscape(itemId) + '"]');
+  if(!textarea) return;
+  const newValue = textarea.value.trim() || null;
+  btn.disabled = true;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = 'Saving…';
+  const nowIso = new Date().toISOString();
+  const { error } = await sb.from('planner_items')
+    .update({ editor_notes: newValue, editor_notes_updated_at: nowIso })
+    .eq('id', itemId);
+  btn.disabled = false;
+  btn.innerHTML = originalText;
+  if(error){
+    if(/column .* does not exist/i.test(error.message || '')){
+      alert('The editor_notes column hasn\'t been added to your Supabase database yet. Ask your creator to re-run planner-supabase-v2.sql in the Supabase SQL Editor.');
+    } else {
+      alert('Couldn\'t save notes: ' + error.message);
+    }
+    return;
+  }
+  // Update local cache so a re-render won't blow away the new value before realtime fires
+  const item = projects.find(p => p.id === itemId);
+  if(item){
+    item.editor_notes = newValue;
+    item.editor_notes_updated_at = nowIso;
+  }
+  // Flash the saved indicator
+  const savedEl = card.querySelector('[data-saved-for="' + cssEscape(itemId) + '"]');
+  if(savedEl){
+    savedEl.classList.add('show');
+    setTimeout(() => savedEl.classList.remove('show'), 2200);
+  }
+}
+
+// CSS.escape polyfill-ish (only handles the characters that can appear in a UUID,
+// since item IDs are UUIDs — no quotes, no backslashes — so we just return as-is).
+function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
+
+// V2.14 — Redesigned to mirror creator-side hierarchy. Hook visible, script
+// collapsed by default, assets get the biggest visual weight, dedicated editor
+// notes box at the bottom for sending comments back to the creator.
 function renderProjectCard(p){
-  const due = p.scheduled_at ? renderDue(p.scheduled_at) : '';
   const platforms = (p.platforms || []).map(pl => PLATFORM_LABELS[pl] || pl).join(' · ');
   const attachments = Array.isArray(p.attachments) ? p.attachments : [];
-  const attachHtml = attachments.length ? `
-    <div class="pc-attach-list">
-      ${attachments.map(a => `<div class="row"><span class="name">📄 ${escape(a.name || 'file')}</span>${a.url ? `<a href="${escape(a.url)}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>'}</div>`).join('')}
-    </div>` : '';
-  // Status transition buttons — show legal next statuses for editors
+  const additionalAssets = (Array.isArray(p.additional_assets) ? p.additional_assets : []).filter(a => a && a.url);
+
+  // Deadline + posted chips (creator-style meta row)
+  let deadlineChip = '';
+  if(p.scheduled_at){
+    const d = new Date(p.scheduled_at);
+    const now = new Date();
+    const diff = (d - now) / (1000 * 60 * 60 * 24);
+    const fmt = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+    const time = d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+    const cls = diff < 0 ? ' overdue' : '';
+    const label = diff < 0 ? 'Overdue' : 'Deadline';
+    deadlineChip = `<span class="deadline-chip${cls}">📅 ${label} ${escape(fmt)}, ${escape(time)}</span>`;
+  }
+  let postedChip = '';
+  if(p.posted_at){
+    const d = new Date(p.posted_at);
+    const fmt = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+    postedChip = `<span class="posted-chip">✅ Posted ${escape(fmt)}</span>`;
+  }
+
+  // Status transition buttons — show legal next statuses for editors.
+  // These get inlined into the status strip below.
   const idx = EDITOR_STATUSES.indexOf(p.status);
   const nextStatuses = [];
   if(idx === -1){
-    // If item is in idea/script, editor can pull it into recording. If posted/archived, no edits.
     if(p.status === 'idea' || p.status === 'script') nextStatuses.push('recording');
   } else {
     if(idx > 0) nextStatuses.push(EDITOR_STATUSES[idx - 1]);
     if(idx < EDITOR_STATUSES.length - 1) nextStatuses.push(EDITOR_STATUSES[idx + 1]);
   }
-  const statusBtns = nextStatuses.map(s => `<button class="pc-status-pick" data-id="${escape(p.id)}" data-next="${escape(s)}">→ ${STATUS_LABELS[s]}</button>`).join('');
+
+  // ASSETS section — the visually heaviest block, so editors find the footage fast.
+  const assetCards = [];
+  if(p.footage_url){
+    assetCards.push(`<a class="pc-asset-card primary" href="${escape(p.footage_url)}" target="_blank" rel="noreferrer">
+      <span class="pc-asset-icon">🎬</span>
+      <span class="pc-asset-info">
+        <span class="pc-asset-label">Raw footage</span>
+        <span class="pc-asset-sub">Open source files</span>
+      </span>
+    </a>`);
+  }
+  if(p.editor_files_url){
+    assetCards.push(`<a class="pc-asset-card" href="${escape(p.editor_files_url)}" target="_blank" rel="noreferrer">
+      <span class="pc-asset-icon">📤</span>
+      <span class="pc-asset-info">
+        <span class="pc-asset-label">Editor folder</span>
+        <span class="pc-asset-sub">Drop edits here</span>
+      </span>
+    </a>`);
+  }
+  if(p.thumbnail_url){
+    assetCards.push(`<a class="pc-asset-card" href="${escape(p.thumbnail_url)}" target="_blank" rel="noreferrer">
+      <span class="pc-asset-icon">🖼️</span>
+      <span class="pc-asset-info">
+        <span class="pc-asset-label">Thumbnail ref</span>
+        <span class="pc-asset-sub">Visual reference</span>
+      </span>
+    </a>`);
+  }
+  additionalAssets.forEach(a => {
+    assetCards.push(`<a class="pc-asset-card" href="${escape(a.url)}" target="_blank" rel="noreferrer">
+      <span class="pc-asset-icon">📦</span>
+      <span class="pc-asset-info">
+        <span class="pc-asset-label">${escape(a.label || 'Asset')}</span>
+        <span class="pc-asset-sub">External link</span>
+      </span>
+    </a>`);
+  });
+
+  const assetsHtml = assetCards.length
+    ? `<div class="pc-assets-grid">${assetCards.join('')}</div>`
+    : `<div class="pc-assets-empty">No asset links yet — your creator hasn't shared the footage folder.</div>`;
+
+  // Already-uploaded files (your previous uploads + creator's attachments)
+  const attachHtml = attachments.length ? `
+    <div class="pc-attach-wrap">
+      <div class="pc-attach-head">📎 Files shared on this project</div>
+      <div class="pc-attach-list">
+        ${attachments.map(a => `<div class="row">
+          <span class="name">${a.uploaded_by_editor ? '⬆️' : '📄'} ${escape(a.name || 'file')}</span>
+          ${a.url ? `<a href="${escape(a.url)}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>'}
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // Editor notes — display "last updated" hint if present
+  let notesUpdatedHtml = '';
+  if(p.editor_notes_updated_at){
+    const d = new Date(p.editor_notes_updated_at);
+    notesUpdatedHtml = `<span class="pc-notes-updated">Last saved ${escape(d.toLocaleString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}))}</span>`;
+  }
 
   return `
     <div class="project-card" data-status="${escape(p.status)}">
+
       <div class="pc-title">${escape(p.title || '(untitled)')}</div>
-      <div class="pc-meta">
-        <span class="status-tag ${escape(p.status)}">${escape(p.status)}</span>
-        ${platforms ? `<span>${escape(platforms)}</span>` : ''}
-        ${due}
+
+      <div class="pc-meta-row">
+        ${platforms ? `<span class="platform-chip">${escape(platforms)}</span>` : ''}
+        ${deadlineChip}
+        ${postedChip}
       </div>
-      ${p.hook ? `<div class="pc-body"><strong>Hook:</strong>\n${escape(p.hook)}</div>` : ''}
-      ${p.script ? `<div class="pc-body"><strong>Script / outline:</strong>\n${escape(p.script)}</div>` : ''}
-      ${p.notes ? `<div class="pc-body"><strong>Notes from creator:</strong>\n${escape(p.notes)}</div>` : ''}
-      ${attachHtml}
-      <div class="pc-actions">
-        ${p.footage_url ? `<a class="pc-link" href="${escape(p.footage_url)}" target="_blank" rel="noreferrer">🎬 Raw footage</a>` : ''}
-        ${p.editor_files_url ? `<a class="pc-link secondary" href="${escape(p.editor_files_url)}" target="_blank" rel="noreferrer">📤 Editor folder</a>` : ''}
-        ${p.thumbnail_url ? `<a class="pc-link secondary" href="${escape(p.thumbnail_url)}" target="_blank" rel="noreferrer">🖼️ Thumbnail ref</a>` : ''}
-        ${/* V2.2 — additional asset links (BGM, fonts, references, etc.) */(Array.isArray(p.additional_assets) ? p.additional_assets : []).filter(a => a && a.url).map(a => `<a class="pc-link secondary" href="${escape(a.url)}" target="_blank" rel="noreferrer">📦 ${escape(a.label || 'Asset')}</a>`).join('')}
-        <label class="pc-link upload" for="upload-${escape(p.id)}">⬆️ Upload my edit</label>
+
+      <!-- Status strip: shows current + transition buttons inline -->
+      <div class="pc-status-strip">
+        <span class="pc-status-label">Status:</span>
+        <span class="pc-status-current ${escape(p.status)}">${STATUS_LABELS[p.status] || escape(p.status)}</span>
+        ${nextStatuses.map(s => `<button class="pc-status-pick" data-id="${escape(p.id)}" data-next="${escape(s)}">→ ${STATUS_LABELS[s]}</button>`).join('')}
+      </div>
+
+      <!-- 🔗 LINKS & ASSETS — the main event for editors -->
+      <div class="pc-assets-wrap">
+        <div class="pc-section-head">🔗 Links &amp; assets</div>
+        ${assetsHtml}
+        ${attachHtml}
+      </div>
+
+      <!-- Upload my edit CTA -->
+      <div class="pc-upload-row">
+        <span class="upload-label">
+          ⬆️ Ready to send your cut?
+          <small>Drop the final file here — up to 500 MB. Larger files: use the editor folder above.</small>
+        </span>
+        <label class="pc-upload-btn" for="upload-${escape(p.id)}">Upload my edit</label>
         <input id="upload-${escape(p.id)}" type="file" data-upload-id="${escape(p.id)}" style="display:none" />
-        ${statusBtns}
       </div>
+
+      <!-- Hook — always visible (it's a quick read and sets the tone for the edit) -->
+      ${p.hook ? `
+        <div class="pc-section pc-hook">
+          <div class="pc-section-head">🪝 Hook</div>
+          <div class="pc-section-body">${escape(p.hook)}</div>
+        </div>` : ''}
+
+      <!-- Script — collapsible (toggle), since it's often long -->
+      ${p.script ? `
+        <details class="pc-section">
+          <summary>📝 Script / outline <span style="font-size:11px;color:var(--ink-soft);font-style:italic;font-family:Quicksand,sans-serif;font-weight:500;margin-left:4px">(click to expand)</span></summary>
+          <div class="pc-section-body">${escape(p.script)}</div>
+        </details>` : ''}
+
+      <!-- Notes from creator — visible if present -->
+      ${p.notes ? `
+        <div class="pc-section pc-notes-creator">
+          <div class="pc-section-head">📌 Notes from creator</div>
+          <div class="pc-section-body">${escape(p.notes)}</div>
+        </div>` : ''}
+
+      <!-- 💬 Editor notes back to creator — NEW -->
+      <div class="pc-editor-notes-section">
+        <div class="pc-section-head">💬 Your notes for the creator</div>
+        <p class="pc-section-sub">Questions, flags, things you want re-recorded, ideas — they'll see this on their planner.</p>
+        <textarea class="pc-editor-notes" data-id="${escape(p.id)}" placeholder="e.g. 'Audio clipping at 1:34, want me to denoise or pull a new take?'">${escape(p.editor_notes || '')}</textarea>
+        <div class="pc-editor-notes-actions">
+          <button class="pc-save-notes-btn" data-save-notes-id="${escape(p.id)}">💾 Save notes</button>
+          <span class="pc-notes-saved" data-saved-for="${escape(p.id)}">✓ Saved</span>
+          ${notesUpdatedHtml}
+        </div>
+      </div>
+
     </div>
   `;
 }
