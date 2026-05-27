@@ -219,6 +219,28 @@
     color:var(--deep);
   }
 
+  /* Category filter dropdown — pill-styled select so it matches the other filters */
+  .cat-filter{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(144,165,255,0.12);
+    border-radius:999px;padding:3px 5px 3px 12px;
+  }
+  .cat-filter label{
+    margin:0;font-size:12px;font-weight:800;color:var(--ink-soft);
+    white-space:nowrap;letter-spacing:.02em;
+  }
+  .cat-filter select{
+    width:auto;padding:6px 26px 6px 12px;border-radius:999px;
+    font-family:inherit;font-size:12.5px;font-weight:800;
+    border:1.5px solid transparent;background:transparent;color:var(--deep);
+    cursor:pointer;
+  }
+  .cat-filter select:focus{outline:none;border-color:var(--periwinkle);background:rgba(255,255,255,0.9)}
+  .cat-filter.has-filter{
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.28));
+  }
+  .cat-filter.has-filter label{color:var(--deep)}
+
   /* Filter pills */
   .filter-pills{display:inline-flex;gap:5px;flex-wrap:wrap}
   .filter-pills .fp{
@@ -679,6 +701,41 @@
   .link-pick-row .lp-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
 
   /* ============= FOCUS TIMER DOCK ============= */
+  /* The FAB and the dock share the same screen real estate (bottom-right).
+     When no session is running, the FAB shows. When one starts, the FAB
+     hides and the dock takes over the same spot. */
+  .focus-fab{
+    position:fixed;right:20px;bottom:20px;z-index:49;
+    display:flex;align-items:center;gap:8px;
+    padding:14px 22px;border-radius:999px;cursor:pointer;border:none;
+    font-family:'Quicksand',sans-serif;font-weight:800;font-size:15px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 55%,var(--mint));
+    box-shadow:0 12px 32px rgba(144,165,255,0.42), 0 4px 12px rgba(255,178,240,0.3);
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    animation:fab-bob 4s ease-in-out infinite;
+  }
+  .focus-fab:hover{
+    transform:translateY(-2px) scale(1.03);
+    box-shadow:0 16px 40px rgba(144,165,255,0.55), 0 6px 16px rgba(255,178,240,0.4);
+    filter:brightness(1.06);
+  }
+  .focus-fab:active{transform:translateY(-1px) scale(0.99)}
+  .focus-fab .fab-icon{font-size:20px;line-height:1}
+  .focus-fab .fab-sub{
+    font-size:10.5px;font-weight:700;opacity:0.92;letter-spacing:.04em;
+    display:block;margin-top:1px;
+  }
+  .focus-fab .fab-label{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
+  @keyframes fab-bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-3px)}
+  }
+  .focus-fab.hidden{display:none !important}
+  @media(max-width:560px){
+    .focus-fab{padding:12px 18px;font-size:14px}
+    .focus-fab .fab-sub{display:none}
+  }
+
   .focus-dock{
     position:fixed;right:18px;bottom:18px;z-index:50;
     background:rgba(255,255,255,0.92);
@@ -927,7 +984,12 @@
       <div class="grow">
         <input id="searchInput" type="search" placeholder="🔍 Search tasks (title, notes, tag, linked video…)" />
       </div>
-      <div class="filter-pills" id="categoryFilters"></div>
+      <div class="cat-filter">
+        <label for="categoryFilter">🎨 Category:</label>
+        <select id="categoryFilter">
+          <option value="">All</option>
+        </select>
+      </div>
       <div class="filter-pills">
         <button class="fp priority" id="prioFilter" data-on="false">⭐ Priority</button>
         <button class="fp" id="overdueFilter" data-on="false">🚨 Overdue</button>
@@ -939,7 +1001,6 @@
         <button id="viewList" data-view="list" title="List view">📃 List</button>
         <button id="viewToday" data-view="today" title="Today only">📍 Today</button>
       </div>
-      <button id="focusBtn" class="btn" style="padding:8px 16px;font-size:13.5px" title="Start a focus session — pop it out to keep the timer floating above other windows">⏱️ Focus</button>
       <button id="catsBtn" class="btn secondary" style="padding:8px 14px;font-size:13px">🎨 Categories</button>
       <button id="reviewBtn" class="btn secondary" style="padding:8px 14px;font-size:13px">🌙 Review</button>
     </div>
@@ -976,6 +1037,16 @@
 
   </div>
 </div>
+
+<!-- Focus FAB — always-visible "Start focus" button, bottom-right.
+     Hides automatically when a session is running (the dock below takes over). -->
+<button id="focusFab" class="focus-fab hidden" title="Start a focus session (Pomodoro)">
+  <span class="fab-icon">⏱️</span>
+  <span class="fab-label">
+    <span>Start focus</span>
+    <span class="fab-sub">25 min pomodoro</span>
+  </span>
+</button>
 
 <!-- Focus dock (mini) — floats bottom-right; Pop out makes it stay above other windows -->
 <div id="focusDock" class="focus-dock">
@@ -1323,6 +1394,8 @@ function showAuth(){
   currentUser = null;
   $('authView').classList.remove('hidden');
   $('appView').classList.add('hidden');
+  const fab = document.getElementById('focusFab');
+  if(fab) fab.classList.add('hidden');
 }
 async function showApp(user){
   currentUser = user;
@@ -1580,18 +1653,21 @@ function renderStats(){
 }
 
 function renderFilters(){
-  const c = $('categoryFilters');
-  c.innerHTML = '';
-  const allBtn = el('button', 'fp' + (filterCategory === '' ? ' active' : ''), 'All');
-  allBtn.addEventListener('click', () => { filterCategory = ''; render(); });
-  c.appendChild(allBtn);
-  cats.forEach(cat => {
-    const b = el('button', 'fp' + (filterCategory === cat.id ? ' active' : ''),
-      `<span class="swatch" style="--cat-color:${cat.color}"></span>${cat.icon || ''} ${escapeHtml(cat.label)}`);
-    b.style.setProperty('--cat-color', cat.color);
-    b.addEventListener('click', () => { filterCategory = (filterCategory === cat.id ? '' : cat.id); render(); });
-    c.appendChild(b);
-  });
+  // Category filter is a dropdown — populated dynamically as categories
+  // change. Wrap gets a "has-filter" class when a category is selected
+  // so it visually highlights the same way the old pills did.
+  const sel = $('categoryFilter');
+  if(sel){
+    const current = filterCategory;
+    sel.innerHTML = '<option value="">All categories</option>' +
+      cats.map(c => {
+        const label = `${c.icon || ''} ${c.label}`.trim();
+        return `<option value="${c.id}">${escapeHtml(label)}</option>`;
+      }).join('');
+    sel.value = current && cats.find(c => c.id === current) ? current : '';
+    const wrap = sel.closest('.cat-filter');
+    if(wrap) wrap.classList.toggle('has-filter', !!sel.value);
+  }
 
   // sync filter pill state
   $('prioFilter').classList.toggle('active', filterPriority);
@@ -2381,6 +2457,7 @@ function startFocus(todoId){
   if(focus.interval) clearInterval(focus.interval);
   focus.interval = setInterval(tickFocus, 1000);
   updateFocusUI();
+  $('focusFab').classList.add('hidden');   // FAB hides — dock takes over the same spot
   $('focusDock').classList.add('open');
   closeEditor();
   $('focusOverlay').classList.add('open');
@@ -2425,6 +2502,8 @@ function stopFocus(){
   focus.interval = null;
   $('focusOverlay').classList.remove('open');
   $('focusDock').classList.remove('open');
+  // FAB comes back once the session ends (but only if the user is signed in)
+  if(currentUser) $('focusFab').classList.remove('hidden');
   closePopout();
   document.title = 'To-Do List ✓ — Eggie\'s Creator Hub';
 }
@@ -2669,6 +2748,9 @@ function wireApp(){
   // Search
   $('searchInput').addEventListener('input', e => { searchQuery = e.target.value; render(); });
 
+  // Category filter dropdown
+  $('categoryFilter').addEventListener('change', e => { filterCategory = e.target.value; render(); });
+
   // Filter pills
   $('prioFilter').addEventListener('click', () => { filterPriority = !filterPriority; render(); });
   $('overdueFilter').addEventListener('click', () => { filterOverdue = !filterOverdue; render(); });
@@ -2778,15 +2860,18 @@ function wireApp(){
     if(e.target === $('reviewModal')) closeReview();
   });
 
-  // Focus — toolbar button starts (or expands) a session
-  $('focusBtn').addEventListener('click', () => {
+  // Focus — the always-visible FAB starts a session (or expands the overlay
+  // if one is already running). The FAB is hidden by default and shown when
+  // the user is authed via showApp -> wireApp -> here.
+  $('focusFab').addEventListener('click', () => {
     if(focus.interval){
-      // Session already running — expand the overlay so they can see it
       expandFocus();
     } else {
       startFocus(null);
     }
   });
+  // Show the FAB now that the app is up
+  $('focusFab').classList.remove('hidden');
   $('foPause').addEventListener('click', pauseFocus);
   $('foSkip').addEventListener('click', skipFocus);
   $('foStop').addEventListener('click', stopFocus);
