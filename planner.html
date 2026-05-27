@@ -853,6 +853,139 @@
     box-shadow:inset 0 0 0 2px #fff, 0 0 0 1.5px rgba(0,0,0,0.06);
   }
 
+  /* ===== V2.8 — READ-ONLY VIEW MODAL ===== */
+  .view-content{padding:20px 24px 20px}
+  .view-toolbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    margin-bottom:14px;padding-bottom:14px;
+    border-bottom:1.5px dashed rgba(144,165,255,0.2);
+  }
+  .view-pills{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+  .view-pills .v-pill{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;
+  }
+  .view-pills .v-pill.status{background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));color:var(--deep)}
+  .view-pills .v-pill.status.idea     {background:rgba(255,138,168,0.25);color:#a23556}
+  .view-pills .v-pill.status.script   {background:rgba(255,176,122,0.3);color:#a35c00}
+  .view-pills .v-pill.status.recording{background:rgba(144,165,255,0.3);color:#4a3a8a}
+  .view-pills .v-pill.status.editing  {background:rgba(201,168,255,0.35);color:#5a3a8a}
+  .view-pills .v-pill.status.scheduled{background:rgba(107,228,234,0.35);color:#0b6a76}
+  .view-pills .v-pill.status.posted   {background:rgba(168,230,190,0.45);color:#1f6b35}
+  .view-pills .v-pill.status.archived {background:rgba(144,165,255,0.15);color:var(--ink-soft)}
+  .view-pills .v-pill.editor{
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid var(--editor-color, var(--periwinkle));
+    color:var(--editor-color, var(--deep));
+  }
+  .view-pills .v-pill.score{
+    background:linear-gradient(135deg,rgba(168,230,190,0.45),rgba(107,228,234,0.4));color:var(--deep);
+  }
+  .view-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .view-actions .btn{padding:7px 14px;font-size:13px}
+  .view-actions #viewCloseBtn{padding:7px 12px;min-width:36px}
+
+  .view-title{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:30px;color:var(--deep);
+    margin:0 0 8px;line-height:1.2;word-break:break-word;
+  }
+  .view-meta{
+    display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;
+  }
+  .view-meta .platform-chip{
+    background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
+    color:var(--deep);padding:2px 9px;border-radius:999px;font-weight:700;font-size:11px;
+  }
+  .view-meta .due-overdue{color:#a23556;font-weight:700}
+  .view-meta .due-soon{color:#a35c00;font-weight:700}
+
+  /* Quick status changer — horizontal pill row that lets the user re-status without entering edit mode */
+  .view-status-row{
+    display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+    margin:0 0 14px;padding:8px 10px;
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(144,165,255,0.18);
+    border-radius:12px;
+  }
+  .view-status-row .vsr-label{
+    font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--ink-soft);margin-right:6px;
+  }
+  .view-status-row .vsr-btn{
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.25);
+    color:var(--ink-soft);padding:4px 10px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-size:11.5px;font-weight:700;
+    transition:transform .1s, background .12s;
+  }
+  .view-status-row .vsr-btn:hover{transform:translateY(-1px)}
+  .view-status-row .vsr-btn.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
+    color:var(--deep);border-color:transparent;
+  }
+
+  /* Body sections — readable, scannable */
+  .view-section{
+    margin:14px 0 0;
+  }
+  .view-section h4{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:17px;color:var(--deep);
+    margin:0 0 8px;display:flex;align-items:center;gap:8px;
+  }
+  .view-hook{
+    background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(199,210,255,0.45));
+    border-left:4px solid var(--pink-hot);
+    border-radius:0 14px 14px 0;
+    padding:14px 18px;
+    font-size:16px;font-weight:700;color:var(--ink);line-height:1.5;
+    white-space:pre-wrap;
+  }
+  .view-script{
+    background:rgba(255,255,255,0.6);
+    border:1.5px solid rgba(144,165,255,0.18);
+    border-radius:12px;
+    padding:14px 18px;
+    font-size:14px;color:var(--ink);line-height:1.65;
+    white-space:pre-wrap;
+    max-height:300px;overflow-y:auto;
+  }
+  .view-notes{
+    background:rgba(255,255,255,0.5);
+    border-left:3px solid var(--periwinkle);
+    border-radius:0 10px 10px 0;
+    padding:10px 14px;
+    font-size:13.5px;color:var(--ink);line-height:1.55;
+    white-space:pre-wrap;font-style:italic;
+  }
+  .view-hashtags{
+    display:flex;flex-wrap:wrap;gap:5px;
+  }
+  .view-hashtags .v-tag{
+    background:rgba(144,165,255,0.18);color:var(--deep);
+    padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;
+  }
+  /* Asset / link list (footage, editor folder, additional assets) */
+  .view-links{display:flex;flex-direction:column;gap:6px}
+  .view-link{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 13px;
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.2);
+    border-radius:10px;text-decoration:none;
+    transition:background .12s, border-color .12s;
+  }
+  .view-link:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
+  .view-link .v-link-label{font-weight:700;color:var(--deep);font-size:13.5px;flex-shrink:0}
+  .view-link .v-link-url{color:var(--ink-soft);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .view-thumb{
+    max-width:280px;border-radius:12px;border:1.5px solid rgba(144,165,255,0.25);
+    box-shadow:0 6px 16px rgba(99,170,244,0.15);
+    display:block;
+  }
+
   /* ===== V2.7 — TELEPROMPTER / RECORDING MODE ===== */
   .tp-overlay{
     display:none;position:fixed;inset:0;z-index:1000;
@@ -1285,6 +1418,36 @@
         <button class="btn secondary pull-left" id="previewBackToEditor" style="padding:8px 16px;font-size:13px">← Back to edit</button>
         <a class="btn secondary" href="planner-editor.html" target="_blank" rel="noreferrer" style="padding:8px 16px;font-size:13px;text-decoration:none">🔗 Open real editor page</a>
         <button class="btn" id="previewDoneBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V2.8: READ-ONLY VIEW MODAL ===== -->
+  <div class="modal-backdrop" id="viewModal" role="dialog" aria-modal="true">
+    <div class="modal-content view-content" style="max-width:760px">
+      <!-- Top action bar -->
+      <div class="view-toolbar">
+        <div class="view-pills" id="viewPills"></div>
+        <div class="view-actions">
+          <button class="btn" id="viewEditBtn">✏️ Edit</button>
+          <button class="btn secondary" id="viewRecordBtn" title="Open teleprompter for recording">🎬 Record</button>
+          <button class="btn secondary" id="viewCloseBtn" title="Close (Esc)">✕</button>
+        </div>
+      </div>
+
+      <h2 class="view-title" id="viewTitle">—</h2>
+      <div class="view-meta" id="viewMeta"></div>
+
+      <!-- Quick status changer (kanban-style pills) -->
+      <div class="view-status-row" id="viewStatusRow"></div>
+
+      <!-- Body sections — rendered conditionally based on what the item has -->
+      <div id="viewBody"></div>
+
+      <div class="modal-actions">
+        <button class="btn danger pull-left" id="viewDeleteBtn">🗑 Delete</button>
+        <button class="btn secondary" id="viewCloseBtn2">Close</button>
+        <button class="btn" id="viewEditBtn2">✏️ Edit this item</button>
       </div>
     </div>
   </div>
@@ -2146,13 +2309,16 @@ const TP = {
   speed: 1.5,        // px per frame
   fontSize: 40,
   mirrored: false,
-  maxScroll: 0
+  maxScroll: 0,
+  returnTo: null     // V2.8 — which modal to reopen on exit ('itemModal' or 'viewModal')
 };
 
-function openTeleprompter(){
-  const title = ($('fTitle').value || '').trim() || 'Untitled';
-  const hook = ($('fHook').value || '').trim();
-  const script = ($('fScript').value || '').trim();
+// V2.8 — Teleprompter now optionally accepts a pre-built {title, hook, script} object
+// so the view modal can fire it directly without going through the edit form.
+function openTeleprompter(opts){
+  const title = (opts && opts.title) || ($('fTitle').value || '').trim() || 'Untitled';
+  const hook = (opts && opts.hook) || ($('fHook').value || '').trim();
+  const script = (opts && opts.script) || ($('fScript').value || '').trim();
   if(!hook && !script){
     alert('Add a hook or a script first — there\'s nothing to read.');
     return;
@@ -2170,8 +2336,13 @@ function openTeleprompter(){
   $('tpSpeedValue').textContent = TP.speed.toFixed(1) + '×';
   $('tpFontValue').textContent = TP.fontSize + 'px';
 
-  // Hide the item modal underneath so it's not visually competing
+  // Remember which modal we came from so we can restore on exit
+  if($('itemModal').classList.contains('open')) TP.returnTo = 'itemModal';
+  else if($('viewModal').classList.contains('open')) TP.returnTo = 'viewModal';
+  else TP.returnTo = null;
+  // Hide whichever modal was open so it's not visually competing
   $('itemModal').classList.remove('open');
+  $('viewModal').classList.remove('open');
   const overlay = $('teleprompterOverlay');
   overlay.classList.add('open');
   // Recalculate max scroll once layout settles
@@ -2256,8 +2427,10 @@ function tpToggleMirror(){
 function closeTeleprompter(){
   tpPause();
   $('teleprompterOverlay').classList.remove('open');
-  // Reopen the item modal so the user can keep editing if they want
-  $('itemModal').classList.add('open');
+  // V2.8 — Restore whichever modal opened us (edit form OR view modal)
+  if(TP.returnTo === 'viewModal') $('viewModal').classList.add('open');
+  else if(TP.returnTo === 'itemModal') $('itemModal').classList.add('open');
+  TP.returnTo = null;
 }
 
 function wireTeleprompter(){
@@ -2666,9 +2839,9 @@ function renderKanban(filtered){
       </div>
     `;
   }).join('');
-  // Click handlers
+  // Click handlers — V2.8: cards open the read-only view by default (edit button inside view)
   board.querySelectorAll('.item-card').forEach(el => {
-    el.addEventListener('click', () => openModal(items.find(i => i.id === el.dataset.id)));
+    el.addEventListener('click', () => openViewModal(items.find(i => i.id === el.dataset.id)));
   });
   board.querySelectorAll('.add-in-col').forEach(el => {
     el.addEventListener('click', () => openModal(null, el.dataset.addStatus));
@@ -2807,7 +2980,8 @@ function renderList(filtered){
     `;
   }).join('');
   body.querySelectorAll('tr[data-id]').forEach(tr => {
-    tr.addEventListener('click', () => openModal(items.find(i => i.id === tr.dataset.id)));
+    // V2.8 — list rows also open the view modal by default
+    tr.addEventListener('click', () => openViewModal(items.find(i => i.id === tr.dataset.id)));
   });
 }
 
@@ -2902,6 +3076,15 @@ function wireApp(){
   // V2.7: teleprompter / recording mode
   wireTeleprompter();
 
+  // V2.8: read-only view modal wiring
+  $('viewEditBtn').addEventListener('click', editFromView);
+  $('viewEditBtn2').addEventListener('click', editFromView);
+  $('viewRecordBtn').addEventListener('click', recordFromView);
+  $('viewDeleteBtn').addEventListener('click', deleteFromView);
+  $('viewCloseBtn').addEventListener('click', closeViewModal);
+  $('viewCloseBtn2').addEventListener('click', closeViewModal);
+  $('viewModal').addEventListener('click', e => { if(e.target === $('viewModal')) closeViewModal(); });
+
   // V2.3: brand kit
   $('brandKitBtn').addEventListener('click', openBrandKitModal);
   $('bkCancelBtn').addEventListener('click', closeBrandKitModal);
@@ -2915,10 +3098,12 @@ function wireApp(){
     if(file) await uploadBrandingImage(file);
   });
 
-  // Esc to close modals
+  // Esc to close modals (teleprompter handles its own Esc)
   document.addEventListener('keydown', e => {
     if(e.key !== 'Escape') return;
+    if($('teleprompterOverlay').classList.contains('open')) return;  // teleprompter manages Esc
     if($('itemModal').classList.contains('open')) closeModal();
+    else if($('viewModal').classList.contains('open')) closeViewModal();
     else if($('editorsModal').classList.contains('open')) closeEditorsModal();
     else if($('editorPreviewModal').classList.contains('open')) closeEditorPreview();
     else if($('brandKitModal').classList.contains('open')) closeBrandKitModal();
@@ -2980,6 +3165,213 @@ function openModal(item, defaultStatus){
 function closeModal(){
   $('itemModal').classList.remove('open');
   editingItemId = null;
+}
+
+// ============================================================
+//  V2.8 — READ-ONLY VIEW MODAL
+//  Default click-into experience for items. Edit button switches to the form.
+// ============================================================
+let viewingItemId = null;
+
+function openViewModal(item){
+  if(!item) return;
+  viewingItemId = item.id;
+  // Pills row — status + editor + analyzer score
+  const pills = [];
+  pills.push(`<span class="v-pill status ${escape(item.status)}">${escape(item.status)}</span>`);
+  if(item.editor_id){
+    const ed = editors.find(e => e.id === item.editor_id);
+    if(ed){
+      pills.push(`<span class="v-pill editor" style="--editor-color:${escape(ed.color || '#90A5FF')}">👤 ${escape(ed.name)}</span>`);
+    } else if(item.assignee){
+      pills.push(`<span class="v-pill editor">👤 ${escape(item.assignee)}</span>`);
+    }
+  } else if(item.assignee){
+    pills.push(`<span class="v-pill editor">👤 ${escape(item.assignee)}</span>`);
+  }
+  if(item.analyzer_score != null && item.analyzer_score !== ''){
+    pills.push(`<span class="v-pill score">⭐ ${escape(item.analyzer_score)}/100</span>`);
+  }
+  $('viewPills').innerHTML = pills.join('');
+
+  // Title
+  $('viewTitle').textContent = item.title || '(untitled)';
+
+  // Meta row — platforms + deadline + posted date
+  const metaParts = [];
+  (item.platforms || []).forEach(p => {
+    metaParts.push(`<span class="platform-chip">${escape(PLATFORM_LABELS[p] || p)}</span>`);
+  });
+  if(item.scheduled_at){
+    const d = new Date(item.scheduled_at);
+    const now = new Date();
+    const diffDays = (d - now) / (86400 * 1000);
+    let cls = '';
+    if(diffDays < 0) cls = 'due-overdue';
+    else if(diffDays < 2) cls = 'due-soon';
+    metaParts.push(`<span class="${cls}">📅 Deadline ${d.toLocaleString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'})}</span>`);
+  }
+  if(item.posted_at){
+    metaParts.push(`<span>✅ Posted ${new Date(item.posted_at).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span>`);
+  }
+  $('viewMeta').innerHTML = metaParts.join('');
+
+  // Quick status changer — pills for all the canonical statuses
+  const statusRow = STATUSES.map(s => `
+    <button class="vsr-btn ${item.status === s.value ? 'active' : ''}" data-status="${escape(s.value)}">${escape(s.label)}</button>
+  `).join('');
+  $('viewStatusRow').innerHTML = '<span class="vsr-label">Status:</span>' + statusRow;
+  $('viewStatusRow').querySelectorAll('.vsr-btn').forEach(btn => {
+    btn.addEventListener('click', () => quickStatusChange(item.id, btn.dataset.status));
+  });
+
+  // Body — conditional sections
+  const body = [];
+  if(item.hook && item.hook.trim()){
+    body.push(`<div class="view-section">
+      <h4>🪝 Hook</h4>
+      <div class="view-hook">${escape(item.hook)}</div>
+    </div>`);
+  }
+  if(item.script && item.script.trim()){
+    body.push(`<div class="view-section">
+      <h4>📝 Script / outline</h4>
+      <div class="view-script">${escape(item.script)}</div>
+    </div>`);
+  }
+  // Links section — footage / editor folder / additional assets
+  const links = [];
+  if(item.footage_url) links.push({ label:'🎬 Raw footage', url: item.footage_url });
+  if(item.editor_files_url) links.push({ label:'📤 Editor folder', url: item.editor_files_url });
+  if(item.analyzer_link) links.push({ label:'🛠️ Analyzer run', url: item.analyzer_link });
+  (item.additional_assets || []).forEach(a => {
+    if(a.url) links.push({ label: '📦 ' + (a.label || 'Asset'), url: a.url });
+  });
+  if(links.length){
+    body.push(`<div class="view-section">
+      <h4>🔗 Links &amp; assets</h4>
+      <div class="view-links">
+        ${links.map(l => `<a class="view-link" href="${escape(l.url)}" target="_blank" rel="noreferrer">
+          <span class="v-link-label">${escape(l.label)}</span>
+          <span class="v-link-url">${escape(l.url)}</span>
+        </a>`).join('')}
+      </div>
+    </div>`);
+  }
+  // Attachments (files uploaded to Supabase Storage)
+  if(Array.isArray(item.attachments) && item.attachments.length){
+    body.push(`<div class="view-section">
+      <h4>📎 Uploaded files</h4>
+      <div class="view-links">
+        ${item.attachments.map(a => `<a class="view-link" href="${a.url ? escape(a.url) : '#'}" target="_blank" rel="noreferrer" ${!a.url ? 'onclick="alert(\\'File link expired — open the edit form to refresh.\\');return false;"' : ''}>
+          <span class="v-link-label">📄 ${escape(a.name || 'file')}</span>
+          <span class="v-link-url">${a.size ? formatFileSize(a.size) : ''}</span>
+        </a>`).join('')}
+      </div>
+    </div>`);
+  }
+  // Thumbnail preview
+  if(item.thumbnail_url){
+    body.push(`<div class="view-section">
+      <h4>🖼️ Thumbnail reference</h4>
+      <a href="${escape(item.thumbnail_url)}" target="_blank" rel="noreferrer">
+        <img src="${escape(item.thumbnail_url)}" alt="" class="view-thumb" onerror="this.outerHTML='<div style=&quot;padding:14px;color:var(--ink-soft);font-size:12.5px;font-style:italic&quot;>thumbnail link broken — <a href=&quot;'+this.src+'&quot; target=_blank style=&quot;color:var(--deep)&quot;>open URL</a></div>'" />
+      </a>
+    </div>`);
+  }
+  // Hashtags
+  if(Array.isArray(item.hashtags) && item.hashtags.length){
+    body.push(`<div class="view-section">
+      <h4>🏷️ Hashtags</h4>
+      <div class="view-hashtags">
+        ${item.hashtags.map(h => `<span class="v-tag">#${escape(h)}</span>`).join('')}
+      </div>
+    </div>`);
+  }
+  // Notes
+  if(item.notes && item.notes.trim()){
+    body.push(`<div class="view-section">
+      <h4>📓 Notes</h4>
+      <div class="view-notes">${escape(item.notes)}</div>
+    </div>`);
+  }
+  // Empty-state if there's basically nothing to show beyond title
+  if(body.length === 0){
+    body.push(`<div class="view-section" style="text-align:center;color:var(--ink-soft);font-style:italic;padding:14px">
+      Nothing else to show yet. Hit <strong>✏️ Edit</strong> to add a hook, script, links, etc.
+    </div>`);
+  }
+  $('viewBody').innerHTML = body.join('');
+
+  $('viewModal').classList.add('open');
+}
+
+function closeViewModal(){
+  $('viewModal').classList.remove('open');
+  viewingItemId = null;
+}
+
+async function quickStatusChange(itemId, newStatus){
+  const item = items.find(i => i.id === itemId);
+  if(!item || item.status === newStatus) return;
+  // Optimistic update
+  const prev = item.status;
+  item.status = newStatus;
+  // Update view modal pills visually
+  $('viewModal').querySelectorAll('.vsr-btn').forEach(b => b.classList.toggle('active', b.dataset.status === newStatus));
+  const statusPill = $('viewPills').querySelector('.v-pill.status');
+  if(statusPill){
+    statusPill.className = 'v-pill status ' + newStatus;
+    statusPill.textContent = newStatus;
+  }
+  const saved = await saveItem({
+    id: item.id, title: item.title, status: newStatus,
+    platforms: item.platforms, assignee: item.assignee,
+    scheduled_at: item.scheduled_at, posted_at: item.posted_at,
+    notes: item.notes, hook: item.hook, script: item.script,
+    hashtags: item.hashtags, thumbnail_url: item.thumbnail_url,
+    analyzer_score: item.analyzer_score, analyzer_link: item.analyzer_link,
+    editor_id: item.editor_id, assignee_email: item.assignee_email,
+    footage_url: item.footage_url, editor_files_url: item.editor_files_url,
+    attachments: item.attachments, additional_assets: item.additional_assets
+  });
+  if(!saved){
+    item.status = prev;  // rollback
+    openViewModal(item);  // re-render in old state
+  } else {
+    render();  // refresh the kanban so the card moves columns
+  }
+}
+
+function editFromView(){
+  const item = items.find(i => i.id === viewingItemId);
+  if(!item) return;
+  closeViewModal();
+  openModal(item);
+}
+
+function deleteFromView(){
+  const item = items.find(i => i.id === viewingItemId);
+  if(!item) return;
+  if(!confirm('Delete "' + (item.title || 'this item') + '"? This cannot be undone.')) return;
+  deleteItem(item.id).then(() => {
+    closeViewModal();
+    loadItems();
+  });
+}
+
+function recordFromView(){
+  const item = items.find(i => i.id === viewingItemId);
+  if(!item) return;
+  if(!(item.hook || '').trim() && !(item.script || '').trim()){
+    alert('Add a hook or a script first — there\'s nothing to read.');
+    return;
+  }
+  openTeleprompter({
+    title: item.title,
+    hook: item.hook || '',
+    script: item.script || ''
+  });
 }
 
 async function handleSave(){
