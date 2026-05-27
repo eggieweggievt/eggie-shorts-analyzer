@@ -618,83 +618,101 @@ const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 const STORAGE_KEY = 'eggie.habits.v1';
 
+// V2.6 — Categories now map to actual playbook section anchors with real content
 const CATEGORIES = {
-  'pre-stream':  { label:'🌅 Pre-stream prep',  link:'growth.html#stream-prep' },
-  'on-air':      { label:'🎙️ On-air',           link:'growth.html#during-stream' },
-  'post-stream': { label:'🌙 Post-stream care', link:'growth.html#post-stream' },
-  'content':     { label:'📅 Daily content',    link:'growth.html#content-cadence' },
-  'community':   { label:'💬 Community',         link:'growth.html#community' },
-  'health':      { label:'💖 Health & burnout', link:'growth.html#mental-health' },
-  'business':    { label:'💼 Business',          link:'growth.html#monetization' },
-  'batch':       { label:'🎨 Batch days',        link:'growth.html#content-cadence' }
+  'pre-stream':  { label:'🌅 Pre-stream prep',     link:'growth.html#chat' },        // 20-min pre-stream routine
+  'on-air':      { label:'🎙️ On-air & chat',       link:'growth.html#chat' },        // 50% return rate for first-time chatters
+  'post-stream': { label:'🌙 Post-stream care',    link:'growth.html#funnel' },      // content that travels + clip pipeline
+  'content':     { label:'📅 Daily content',       link:'growth.html#alg' },         // algorithm + 4-criteria + watch time
+  'community':   { label:'💬 Community + retention', link:'growth.html#funnel' },    // Discord, backlog, retention math
+  'health':      { label:'💖 Health & burnout',    link:'growth.html#twitch' },      // mindset shift, consistency ≠ daily
+  'business':    { label:'💼 Business + sponsors', link:'growth.html#monetize' },    // media kit, pitch, virtual busker
+  'batch':       { label:'🎨 Batch days',          link:'growth.html#ytshorts' }     // 45-55s shorts, edit always
 };
 
 // ============================================================
-//  HABIT LIBRARY — curated VTuber/streamer habits, energy-tagged
+//  HABIT LIBRARY — VTuber + streamer habits, energy-tagged
+//  Numbers + concepts pulled from Eggie's Growth Playbook so every
+//  habit has a real "why?" link readers can follow.
 // ============================================================
 const HABIT_LIBRARY = [
-  // ----- PRE-STREAM PREP -----
-  { id:'lib_water_pre',     name:'Hydrate before going live', icon:'💧', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Bottle of water within reach before stream starts.' },
-  { id:'lib_vocals',        name:'Vocal warm-up (5 min)',     icon:'🎤', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'Sirens, lip trills, scales. Saves your voice on 4hr streams.' },
-  { id:'lib_grounding',     name:'Grounding breath (2 min)',  icon:'🧘', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Box breathing or 5-4-3-2-1 senses to settle pre-stream nerves.' },
-  { id:'lib_audio_check',   name:'Mic + audio test',          icon:'🔊', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Quick "test test" + listen back. Catches bad gain before viewers arrive.' },
-  { id:'lib_thumb_check',   name:'Confirm thumbnail + title', icon:'🖼️', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'Last-second check before going live.' },
-  { id:'lib_eat_pre',       name:'Eat something real',        icon:'🍎', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Energy bar minimum. Empty-stomach streams = irritable streams.' },
-  { id:'lib_model_check',   name:'Model + expression test',   icon:'🪞', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'VTuber-specific. Run through key expressions before going live.' },
-  { id:'lib_phone_silent',  name:'Phone on DND',              icon:'📱', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Prevents the dreaded mid-stream notification beep.' },
-  { id:'lib_household',     name:'Tell household you\'re live', icon:'🚪', category:'pre-stream', energy:'normal',  tracking:'daily', target:1, desc:'Avoids the "knock on the door at the worst moment" disaster.' },
+  // ----- PRE-STREAM PREP (the 20-min pre-stream routine from the playbook chat chapter) -----
+  { id:'lib_water_pre',     name:'Hydrate before going live',        icon:'💧', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Bottle within reach before going live. Your vocal cords need it more than your throat tells you.' },
+  { id:'lib_vocals',        name:'Vocal warm-up (5 min)',            icon:'🎤', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'Sirens, lip trills, scales. Saves your voice on 4-hour streams — gravelly voice = lower retention.' },
+  { id:'lib_grounding',     name:'Grounding breath (2 min)',         icon:'🧘', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Box breathing or 5-4-3-2-1 senses. Pre-stream nerves = stiff energy = chat can feel it.' },
+  { id:'lib_audio_check',   name:'Mic + OBS audio check',            icon:'🔊', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Test record 10 sec, listen back. Catches gain spikes, hiss, and "is my mic even on" before viewers arrive.' },
+  { id:'lib_model_check',   name:'Model + expression test',          icon:'🪞', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'Run through key expressions, blinks, and lip-sync. Anime body language is YOUR body language — viewers read it instantly.' },
+  { id:'lib_thumb_check',   name:'Confirm title + thumbnail',        icon:'🖼️', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'Playbook format: [aesthetic emoji] + [hook/meme] + [game] + [VTuber]. "Chill vibes" tells nobody anything.' },
+  { id:'lib_hook_in_title', name:'Put a question / hot take in the title', icon:'❓', category:'pre-stream', energy:'normal', tracking:'daily', target:1, desc:'Primes chat engagement before viewers click — "What\'s your most cursed game opinion?" beats "Just Chatting".' },
+  { id:'lib_eat_pre',       name:'Eat something real',               icon:'🍎', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Energy bar minimum. Empty-stomach streams = irritable streams = chat picks up on it.' },
+  { id:'lib_phone_silent',  name:'Phone on DND',                     icon:'📱', category:'pre-stream', energy:'essential', tracking:'daily', target:1, desc:'Mid-stream notification beep = "wait, is that on stream?" panic spiral.' },
+  { id:'lib_household',     name:'Tell household you\'re live',      icon:'🚪', category:'pre-stream', energy:'normal',    tracking:'daily', target:1, desc:'Avoids the knock-on-the-door disaster + the doxxing-via-roommate moment.' },
 
-  // ----- ON-AIR -----
-  { id:'lib_water_during',  name:'Sip water every 30 min',    icon:'💧', category:'on-air', energy:'essential', tracking:'count', target:4, unit:'sips', desc:'Vocal cords need it. Set a timer if you forget.' },
-  { id:'lib_stretch_break', name:'Stretch on every break',    icon:'🚶', category:'on-air', energy:'essential', tracking:'count', target:2, unit:'breaks', desc:'Stand up, shake out shoulders, look at something 10ft away.' },
-  { id:'lib_camera_look',   name:'Look at camera, not chat',  icon:'👀', category:'on-air', energy:'normal',    tracking:'daily', target:1, desc:'Don\'t doomstare at chat. Engages viewers more.' },
-  { id:'lib_chat_acknowledge', name:'Greet new chatters',     icon:'👋', category:'on-air', energy:'normal',    tracking:'daily', target:1, desc:'Hello-by-name when feasible. Massive retention multiplier.' },
-  { id:'lib_audio_self',    name:'Audio self-check',          icon:'🎧', category:'on-air', energy:'normal',    tracking:'count', target:2, unit:'checks', desc:'Listen back once or twice mid-stream — catch desync, hiss, peaking early.' },
+  // ----- ON-AIR & CHAT (50% return rate when new chatters get acknowledged) -----
+  { id:'lib_chat_acknowledge', name:'Welcome every new chatter',     icon:'👋', category:'on-air', energy:'essential', tracking:'daily', target:1, desc:'Playbook stat: if a new viewer types in chat, they\'re 50% more likely to return. Welcome by name when feasible.' },
+  { id:'lib_intro_each_raid', name:'Intro yourself on every follow / raid', icon:'🎙️', category:'on-air', energy:'normal', tracking:'daily', target:1, desc:'"Hi I\'m [name], I play [X], love [Y], welcome to the cult." Repeating it is the point — new viewers need the orientation.' },
+  { id:'lib_open_questions', name:'Ask an open-ended question to chat', icon:'💭', category:'on-air', energy:'normal',    tracking:'count', target:3, unit:'questions', desc:'Not yes/no. "Your favorite childhood game that still holds up?" beats "do you like this game?"' },
+  { id:'lib_water_during',  name:'Sip water every 30 min',           icon:'💧', category:'on-air', energy:'essential', tracking:'count', target:4, unit:'sips', desc:'Vocal cords are a muscle — they fatigue without hydration. Set an OBS timer if you forget.' },
+  { id:'lib_stretch_break', name:'Stretch on every break',           icon:'🚶', category:'on-air', energy:'essential', tracking:'count', target:2, unit:'breaks', desc:'Stand, shake out shoulders, look at something 10ft away. Save your back + your eyes.' },
+  { id:'lib_camera_look',   name:'Look at camera, not chat',         icon:'👀', category:'on-air', energy:'normal',    tracking:'daily', target:1, desc:'Doomstaring at chat reads as disengaged. Camera contact engages new viewers way harder.' },
+  { id:'lib_plug_goal',     name:'Plug a current goal / project',    icon:'🎯', category:'on-air', energy:'normal',    tracking:'count', target:2, unit:'plugs', desc:'Playbook: always be plugging what you\'re working toward — fundraiser, sub goal, milestone. New viewers want context.' },
+  { id:'lib_audio_self',    name:'Mid-stream audio self-check',      icon:'🎧', category:'on-air', energy:'normal',    tracking:'count', target:2, unit:'checks', desc:'Listen back once or twice — catch desync, hiss, peaking before the VOD goes up.' },
 
-  // ----- POST-STREAM CARE -----
-  { id:'lib_makeup_off',    name:'Take off makeup / wash up', icon:'🧴', category:'post-stream', energy:'essential', tracking:'daily', target:1, desc:'Skin under stream lights needs this. Non-negotiable.' },
-  { id:'lib_real_meal',     name:'Eat a real meal',           icon:'🍽️', category:'post-stream', energy:'essential', tracking:'daily', target:1, desc:'Post-stream adrenaline crashes — fuel matters.' },
-  { id:'lib_reflection',    name:'2-line stream reflection',  icon:'📓', category:'post-stream', energy:'normal',    tracking:'daily', target:1, desc:'What worked. What was hard. Tracks your growth.' },
-  { id:'lib_clip_capture',  name:'Mark clips to repurpose',   icon:'✂️', category:'post-stream', energy:'normal',    tracking:'count', target:3, unit:'clips', desc:'Timestamps go in the planner. Future-you will thank past-you.' },
-  { id:'lib_winddown',      name:'Screen-off 30 min before bed', icon:'🛌', category:'post-stream', energy:'essential', tracking:'daily', target:1, desc:'Streaming spikes adrenaline. Your brain needs the runway.' },
-  { id:'lib_voice_rest',    name:'Cool drink + voice rest',   icon:'🧊', category:'post-stream', energy:'normal',    tracking:'daily', target:1, desc:'Cool (not ice) drink + 30 min of speaking less.' },
+  // ----- POST-STREAM CARE (clip pipeline + winddown) -----
+  { id:'lib_clip_capture',  name:'Mark clips to repurpose',          icon:'✂️', category:'post-stream', energy:'normal', tracking:'count', target:3, unit:'clips', desc:'Playbook: clip stream highlights → shorts. Double-duty content. Timestamps + a one-line hook go in the planner.' },
+  { id:'lib_makeup_off',    name:'Take off makeup / wash up',        icon:'🧴', category:'post-stream', energy:'essential', tracking:'daily', target:1, desc:'Stream lights are brutal on skin. Non-negotiable — even on the worst-energy days.' },
+  { id:'lib_real_meal',     name:'Eat a real meal',                  icon:'🍽️', category:'post-stream', energy:'essential', tracking:'daily', target:1, desc:'Post-stream adrenaline crashes hard. Fuel matters or tomorrow\'s mood is wrecked.' },
+  { id:'lib_reflection',    name:'2-line stream reflection',         icon:'📓', category:'post-stream', energy:'normal', tracking:'daily', target:1, desc:'What worked. What was hard. Builds the data you need for the weekly metrics review.' },
+  { id:'lib_voice_rest',    name:'Cool drink + voice rest',          icon:'🧊', category:'post-stream', energy:'normal', tracking:'daily', target:1, desc:'Cool (not ice) drink + 30 min of speaking less. Vocal cords need the recovery time.' },
+  { id:'lib_winddown',      name:'Screens off 30 min before bed',    icon:'🛌', category:'post-stream', energy:'essential', tracking:'daily', target:1, desc:'Streaming spikes adrenaline. Your brain needs runway — otherwise you\'ll be staring at the ceiling at 4am.' },
 
-  // ----- DAILY CONTENT -----
-  { id:'lib_post_x',        name:'Post once on X / Twitter',  icon:'🐦', category:'content', energy:'normal',    tracking:'daily', target:1, desc:'Daily presence is the algorithm\'s love language.' },
-  { id:'lib_community_engage', name:'Reply to 10 comments', icon:'💬', category:'content', energy:'normal',  tracking:'count', target:10, unit:'replies', desc:'Across YouTube / TikTok / IG. Set a 15-min window.' },
-  { id:'lib_idea_capture',  name:'Capture one content idea',  icon:'💡', category:'content', energy:'essential', tracking:'daily', target:1, desc:'Drop it in the planner before you forget.' },
-  { id:'lib_clip_edit',     name:'Queue one clip for editor', icon:'🎬', category:'content', energy:'intensive', tracking:'daily', target:1, desc:'Or edit one yourself. Keeps the shorts pipeline alive.' },
-  { id:'lib_schedule_ann',  name:'Schedule announcement',     icon:'📅', category:'content', energy:'normal',    tracking:'daily', target:1, desc:'Post tomorrow\'s stream announcement before bed.' },
+  // ----- DAILY CONTENT (algorithm-aware) -----
+  { id:'lib_idea_capture',  name:'Capture one content idea',         icon:'💡', category:'content', energy:'essential', tracking:'daily', target:1, desc:'Drop it in the planner before it\'s gone. The 4-criteria rule: relevant, non-obvious, absorbable, actionable.' },
+  { id:'lib_post_x',        name:'Post once on X / Twitter',         icon:'🐦', category:'content', energy:'normal',    tracking:'daily', target:1, desc:'Playbook rule: 1–3× daily, NO hashtags, keyword-rich text, short looping clips. Upload video directly — don\'t link to YouTube.' },
+  { id:'lib_x_replies',     name:'Reply to other creators on X',     icon:'💬', category:'content', energy:'normal',    tracking:'count', target:5, unit:'replies', desc:'Playbook: replies matter MORE than your own tweets. Best free distribution on X.' },
+  { id:'lib_comment_reply', name:'Reply to comments across platforms', icon:'📨', category:'content', energy:'normal',  tracking:'count', target:10, unit:'replies', desc:'YT / TikTok / IG. 15-min window. Replying to comments tells the algorithm your post deserves more push.' },
+  { id:'lib_short_edited',  name:'One short uploaded (edited, not auto-converted)', icon:'🎬', category:'content', energy:'intensive', tracking:'daily', target:1, desc:'Playbook rule: edit your shorts. ALWAYS. Auto-converting landscape clips does not work — vertical-first or it dies.' },
+  { id:'lib_schedule_ann',  name:'Schedule tomorrow\'s announcement', icon:'📅', category:'content', energy:'normal',   tracking:'daily', target:1, desc:'Post before bed. Schedule visible in bio = retention. People who don\'t know when you\'re live can\'t show up.' },
+  { id:'lib_niche_study',   name:'Watch shorts in your niche (15 min)', icon:'🔍', category:'content', energy:'normal', tracking:'weekly', target:3, desc:'Playbook: 1–2 hrs/week studying what\'s working in your niche. The algorithm rewards niche consistency.' },
+  { id:'lib_hot_take',      name:'Take a hard stance / hot take',    icon:'🔥', category:'content', energy:'normal',    tracking:'weekly', target:1, desc:'Playbook driver of comments: people comment when they strongly agree OR disagree. Wishy-washy = invisible.' },
 
-  // ----- COMMUNITY -----
-  { id:'lib_dms',           name:'Reply to DMs (15 min)',     icon:'📩', category:'community', energy:'normal',  tracking:'daily', target:1, desc:'One window per day. Don\'t make it a 24/7 thing.' },
-  { id:'lib_mod_checkin',   name:'Mod check-in',              icon:'🛡️', category:'community', energy:'normal',  tracking:'weekly', target:2, desc:'Chat with your mod team. Catches problems early.' },
-  { id:'lib_member_thanks', name:'Thank new subs / members',  icon:'🎉', category:'community', energy:'essential', tracking:'daily', target:1, desc:'Even a single emoji reply lands. Don\'t skip.' },
-  { id:'lib_goal_post',     name:'Update sub goal / progress', icon:'🎁', category:'community', energy:'normal', tracking:'weekly', target:1, desc:'Visible progress = sticky community.' },
+  // ----- COMMUNITY + RETENTION (Discord ready BEFORE going viral) -----
+  { id:'lib_discord_check', name:'Discord 10-min check-in',          icon:'🗨️', category:'community', energy:'normal',  tracking:'daily', target:1, desc:'Playbook: have Discord ready BEFORE you go viral. New viewers ask "where\'s your server?" within minutes.' },
+  { id:'lib_dms',           name:'Reply to DMs (15-min window)',     icon:'📩', category:'community', energy:'normal',  tracking:'daily', target:1, desc:'One window per day max. Don\'t live in DMs — it tanks the rest of your work.' },
+  { id:'lib_member_thanks', name:'Thank new subs / members',         icon:'🎉', category:'community', energy:'essential', tracking:'daily', target:1, desc:'Even one emoji reply lands. Lurkers are the backbone of Twitch — don\'t make subbing feel anonymous.' },
+  { id:'lib_mod_checkin',   name:'Mod team check-in',                icon:'🛡️', category:'community', energy:'normal',  tracking:'weekly', target:2, desc:'Chat with mods 2× a week. Catches drama, burnout, and bad-faith chatters early.' },
+  { id:'lib_goal_post',     name:'Update sub goal / progress',       icon:'🎁', category:'community', energy:'normal',  tracking:'weekly', target:1, desc:'Playbook: visible progress = sticky community. People back things they can see moving.' },
+  { id:'lib_backlog_check', name:'Make sure backlog is up-to-date',  icon:'📼', category:'community', energy:'normal',  tracking:'weekly', target:1, desc:'New viewers want old videos to binge. If your channel feels empty when they land, they bounce.' },
+  { id:'lib_bio_audit',     name:'Bio + links audit (everywhere)',   icon:'🔗', category:'community', energy:'normal',  tracking:'weekly', target:1, desc:'Stream schedule visible in bios. Carrd/Linktree current. One broken link = lost conversion.' },
 
-  // ----- HEALTH & BURNOUT -----
-  { id:'lib_water_daily',   name:'Drink 8 glasses of water',  icon:'💧', category:'health', energy:'essential', tracking:'count', target:8, unit:'glasses', desc:'Vocal cords. Skin. Brain. All of it.' },
-  { id:'lib_sunlight',      name:'Get outside / sunlight',    icon:'☀️', category:'health', energy:'essential', tracking:'daily', target:1, desc:'15 min. Circadian rhythm reset. Critical for night streamers.' },
-  { id:'lib_sleep',         name:'7+ hrs sleep',              icon:'😴', category:'health', energy:'essential', tracking:'daily', target:1, desc:'The biggest single perf-and-mood lever you have.' },
-  { id:'lib_meals',         name:'Eat 3 meals',               icon:'🍽️', category:'health', energy:'essential', tracking:'count', target:3, unit:'meals', desc:'Real food. Not just snacks between streams.' },
-  { id:'lib_morning_buffer', name:'No screens first 30 min', icon:'📵', category:'health', energy:'normal',     tracking:'daily', target:1, desc:'Your nervous system needs a soft start.' },
-  { id:'lib_mental_check',  name:'Mental health check',       icon:'🧠', category:'health', energy:'normal',    tracking:'daily', target:1, desc:'Therapy session, journal, or just 5 min of honest self-check.' },
-  { id:'lib_move',          name:'Move your body',            icon:'💪', category:'health', energy:'normal',    tracking:'count', target:20, unit:'minutes', desc:'Walk, stretch, dance, lift — whatever isn\'t sitting at the PC.' },
-  { id:'lib_joy',           name:'One small joy outside content', icon:'🌸', category:'health', energy:'essential', tracking:'daily', target:1, desc:'Something just for you. Reading, game, friend, bath. Required.' },
-  { id:'lib_offday',        name:'At least one no-stream day this week', icon:'🛑', category:'health', energy:'essential', tracking:'weekly', target:1, desc:'Burnout is a math problem. This is the math.' },
+  // ----- HEALTH & BURNOUT (consistency ≠ daily — playbook quote) -----
+  { id:'lib_water_daily',   name:'Drink 8 glasses of water',         icon:'💧', category:'health', energy:'essential', tracking:'count', target:8, unit:'glasses', desc:'Vocal cords. Skin under stream lights. Brain. All of it depends on this.' },
+  { id:'lib_sunlight',      name:'Sunlight / outside (15 min)',      icon:'☀️', category:'health', energy:'essential', tracking:'daily', target:1, desc:'Circadian rhythm reset. Critical for night streamers — your sleep falls apart without it.' },
+  { id:'lib_sleep',         name:'7+ hrs sleep',                     icon:'😴', category:'health', energy:'essential', tracking:'daily', target:1, desc:'The single biggest perf-and-mood lever you have. Sleep-deprived streams sound exactly like sleep-deprived streams.' },
+  { id:'lib_meals',         name:'Eat 3 meals',                      icon:'🍽️', category:'health', energy:'essential', tracking:'count', target:3, unit:'meals', desc:'Real food. Not just snacks-between-streams. Your body knows the difference.' },
+  { id:'lib_morning_buffer', name:'No screens first 30 min of day', icon:'📵', category:'health', energy:'normal',     tracking:'daily', target:1, desc:'Your nervous system needs a soft start. Opening Twitter before coffee = day starts at 11/10 cortisol.' },
+  { id:'lib_mental_check',  name:'Mental health check-in',           icon:'🧠', category:'health', energy:'normal',    tracking:'daily', target:1, desc:'Therapy session, journal, or 5 min of honest self-check. Catch burnout before it catches you.' },
+  { id:'lib_move',          name:'Move your body',                   icon:'💪', category:'health', energy:'normal',    tracking:'count', target:20, unit:'minutes', desc:'Walk, stretch, dance, lift — anything that\'s not sitting at the PC. Spine longevity > one more clip.' },
+  { id:'lib_joy',           name:'One small joy outside content',    icon:'🌸', category:'health', energy:'essential', tracking:'daily', target:1, desc:'Reading, game, friend, bath. Required. If everything is content, you have no self left to bring to stream.' },
+  { id:'lib_offday',        name:'At least one no-stream day',       icon:'🛑', category:'health', energy:'essential', tracking:'weekly', target:1, desc:'Playbook: consistency ≠ streaming every day, it means reliable patterns. Burnout is a math problem.' },
+  { id:'lib_no_sad_post',   name:'Skip sad-posting on the main',     icon:'🪷', category:'health', energy:'normal',    tracking:'daily', target:1, desc:'Sponsors audit your socials. Playbook flag: drama + heavy venting on the main = doors closed. Keep that for trusted spaces.' },
 
-  // ----- BUSINESS -----
-  { id:'lib_email',         name:'Check business email',      icon:'💌', category:'business', energy:'normal',   tracking:'daily', target:1, desc:'Once a day max. Don\'t live in it.' },
-  { id:'lib_sponsor_followup', name:'Sponsor follow-ups',     icon:'🤝', category:'business', energy:'normal', tracking:'weekly', target:1, desc:'5 min of cleaning up the pitch pipeline.' },
-  { id:'lib_income_log',    name:'Log income / expenses',     icon:'💰', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'15 min once a week. Future-you (tax season-you) will thank you.' },
-  { id:'lib_metrics_review', name:'Weekly metrics review',   icon:'📈', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'What grew? What flopped? Set next week\'s focus.' },
+  // ----- BUSINESS + SPONSORS (virtual busker mindset) -----
+  { id:'lib_email',         name:'Check business email',             icon:'💌', category:'business', energy:'normal',   tracking:'daily', target:1, desc:'Once a day max. Sponsor replies + brand outreach live here — but don\'t live IN it.' },
+  { id:'lib_sponsor_pitch', name:'Pitch one sponsor',                icon:'📬', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'Playbook: pitch first, pitch often. CCV isn\'t the only metric — engaged small audiences are valuable. Worst they say is no.' },
+  { id:'lib_sponsor_followup', name:'Sponsor follow-ups',           icon:'🤝', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'5-min sweep of your pitch pipeline. The follow-up converts more than the original pitch.' },
+  { id:'lib_media_kit',     name:'Update media kit',                 icon:'📊', category:'business', energy:'intensive', tracking:'weekly', target:1, desc:'Playbook: follower counts + avg viewership + engagement rate + audience age + content genres + past collabs. Keep it current.' },
+  { id:'lib_income_log',    name:'Log income + expenses',            icon:'💰', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'15 min once a week. Tax-season-you will weep with gratitude.' },
+  { id:'lib_metrics_review', name:'Weekly metrics review',          icon:'📈', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'Playbook\'s 3 metrics that matter: avg watch time, engagement rate, session share. Set next week\'s focus.' },
+  { id:'lib_diversify_audit', name:'Income diversification audit',  icon:'🌳', category:'business', energy:'normal',   tracking:'weekly', target:1, desc:'Playbook: never rely on one income source. Subs, ads, sponsors, merch, tips, Throne, paid collabs. Audit which are alive.' },
 
-  // ----- BATCH DAYS -----
-  { id:'lib_batch_record',  name:'Batch record session',      icon:'🎥', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'2-3 hr block. Multiple shorts/clips in one session. Saves 5x the time.' },
-  { id:'lib_batch_edit',    name:'Edit a video',              icon:'✂️', category:'batch', energy:'intensive', tracking:'weekly', target:2, desc:'Dedicated edit block. No multitasking.' },
-  { id:'lib_thumb_batch',   name:'Make 3 thumbnails',         icon:'🖌️', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'Batch design beats single-thumbnail panic.' },
-  { id:'lib_script',        name:'Write a script',            icon:'📝', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'Even a beat sheet counts. Saves recording fumbles.' },
-  { id:'lib_brand_update',  name:'Update brand assets',       icon:'🎨', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'New overlay, sticker pack, sub badge. Keeps your kit fresh.' }
+  // ----- BATCH DAYS (the 45–55s shorts pipeline) -----
+  { id:'lib_batch_record',  name:'Batch record session (2-3 hrs)',   icon:'🎥', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'Playbook ROI: one block produces a week of shorts. Beats panic-recording the day-of every time.' },
+  { id:'lib_batch_edit',    name:'Edit a video / short',             icon:'✂️', category:'batch', energy:'intensive', tracking:'weekly', target:2, desc:'Playbook target: 45–55s shorts, 85–90% retention, 75%+ viewed-vs-swiped. Dedicated edit blocks, no multitasking.' },
+  { id:'lib_thumb_batch',   name:'Make 3 thumbnails',                icon:'🖌️', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'Batch design beats single-thumb panic. Run them through the Thumbnail Checker before shipping.' },
+  { id:'lib_script',        name:'Write a script / beat sheet',      icon:'📝', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'Even a beat sheet counts. Saves recording fumbles + keeps your hook within the first 3 sec.' },
+  { id:'lib_brand_update',  name:'Update brand assets',              icon:'🎨', category:'batch', energy:'intensive', tracking:'weekly', target:1, desc:'New overlay, sticker pack, sub badge, lower-third. Playbook: branding consistent across ALL platforms.' },
+  { id:'lib_clip_for_short', name:'Cut one stream clip into a short', icon:'🎞️', category:'batch', energy:'intensive', tracking:'weekly', target:2, desc:'Playbook funnel: stream highlight → short. Take 2 of your week\'s best moments and reshape for vertical.' }
 ];
 
 // ============================================================
@@ -1350,9 +1368,17 @@ function escapeAttr(s){ return escapeHtml(s); }
 // ============================================================
 function boot(){
   loadLocal();
-  // First-time defaults — enable a handful of essential habits so the page isn't empty
+  // First-time defaults — enable a curated starter set so the page is useful out-of-the-box.
+  // Pulled across all categories so new users see how the tool works without being overwhelmed.
   if(Object.keys(state.enabled).length === 0 && (state.customs || []).length === 0){
-    const defaults = ['lib_water_pre','lib_grounding','lib_audio_check','lib_water_daily','lib_sunlight','lib_sleep','lib_joy','lib_idea_capture'];
+    const defaults = [
+      'lib_water_pre','lib_grounding','lib_audio_check',         // pre-stream essentials
+      'lib_chat_acknowledge',                                    // on-air — the 50% return rate one
+      'lib_clip_capture',                                        // post-stream — clip pipeline
+      'lib_idea_capture','lib_post_x',                           // content essentials
+      'lib_water_daily','lib_sunlight','lib_sleep','lib_joy',    // health essentials
+      'lib_metrics_review','lib_offday'                          // sustainable cadence
+    ];
     defaults.forEach(id => { state.enabled[id] = true; });
     saveLocal();
   }

@@ -1656,9 +1656,10 @@ function renderEditorsList(){
       <div class="ed-color-swatch"></div>
       <div class="ed-info">
         <div class="name">${escape(e.name)}</div>
-        <div class="meta">${escape(e.email || 'no email yet')}${e.asset_folder_url ? ' · 📁 asset folder' : ''}${assignedCount > 0 ? ` · ${assignedCount} item${assignedCount > 1 ? 's' : ''} assigned` : ''}</div>
+        <div class="meta">${escape(e.email || 'no email yet')}${assignedCount > 0 ? ` · ${assignedCount} item${assignedCount > 1 ? 's' : ''} assigned` : ''}</div>
       </div>
       <div class="ed-actions">
+        <button class="ed-copy-link" data-id="${escape(e.id)}" title="Copy their personal hub invite link">🔗 Copy link</button>
         <button class="ed-preview" data-id="${escape(e.id)}" title="See exactly what they see">👁 Preview</button>
         <button class="ed-edit" data-id="${escape(e.id)}">Edit</button>
         <button class="ed-rm danger" data-id="${escape(e.id)}">Remove</button>
@@ -1670,6 +1671,23 @@ function renderEditorsList(){
     // Load into form first so the preview reads the latest values
     loadEditorIntoForm(b.dataset.id);
     openEditorPreview();
+  }));
+  // V2.6 — Quick-copy invite link from the list (no need to open the edit form first)
+  wrap.querySelectorAll('.ed-copy-link').forEach(b => b.addEventListener('click', async () => {
+    const editor = editors.find(x => x.id === b.dataset.id);
+    if(!editor) return;
+    const url = buildEditorInviteUrl(editor);
+    try{
+      await navigator.clipboard.writeText(url);
+      const original = b.innerHTML;
+      b.innerHTML = '✓ Copied';
+      b.style.background = 'rgba(168,230,190,0.45)';
+      b.style.color = '#1f6b35';
+      setTimeout(() => { b.innerHTML = original; b.style.background = ''; b.style.color = ''; }, 1500);
+    }catch(_){
+      // Fallback for browsers without clipboard API
+      window.prompt('Copy this link to send to ' + editor.name + ':', url);
+    }
   }));
   wrap.querySelectorAll('.ed-rm').forEach(b => b.addEventListener('click', async () => {
     if(!confirm('Remove this editor? Items assigned to them will keep the name on file but lose the colored pill.')) return;
