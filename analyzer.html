@@ -1016,12 +1016,41 @@
     input[type=text],input[type=url],input[type=number],textarea,select{font-size:16px;padding:13px 14px} /* 16px prevents iOS zoom */
   }
 
+  /* V3.3 — Top nav row, matching planner / habits / thumbnail pages */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+  /* Current-page state — non-interactive, visually distinct so users know where they are */
+  .back-link.current{
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));
+    border-color:var(--periwinkle);
+    cursor:default;pointer-events:none;
+  }
+
 </style>
 </head>
 <body>
 
 
 <div class="wrap">
+
+  <!-- V3.3 — Top nav, mirrors planner / habits / thumbnail / playbook for consistency -->
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="analyzer.html" class="back-link current" aria-current="page">🛠️ Analyzer</a>
+    <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
+    <a href="planner.html" class="back-link">📅 Planner</a>
+    <a href="habits.html" class="back-link">🌸 Habits</a>
+    <a href="growth.html" class="back-link">🌱 Playbook</a>
+    <a href="about.html" class="back-link">📖 About</a>
+  </div>
 
   <header class="hero">
     <!--
