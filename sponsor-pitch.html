@@ -747,10 +747,9 @@ async function onSignIn(user){
   showAppView();
   await loadMediaKit();
   await loadPitches();
-  renderTypeGrid();
-  renderGoals();
-  renderToneRow();
-  renderDeliverables();
+  // Don't render pitch-form UI yet — there's no active pitch until the user
+  // clicks "✨ New pitch" or picks one from the sidebar. The render functions
+  // below all assume activePitch is set.
 }
 
 function onSignOut(){
@@ -986,6 +985,7 @@ function renderTypeGrid(){
 
 function renderGoals(){
   const host = document.getElementById('goalsRow'); host.innerHTML = '';
+  if(!activePitch) return;
   GOAL_DEFS.forEach(([k,label]) => {
     const b = document.createElement('button');
     b.className = 'tone-pill' + ((activePitch.goals||[]).includes(k) ? ' active' : '');
@@ -1001,6 +1001,7 @@ function renderGoals(){
 }
 
 function renderToneRow(){
+  if(!activePitch) return;
   document.querySelectorAll('#toneRow .tone-pill').forEach(b => {
     b.classList.toggle('active', activePitch.tone === b.dataset.tone);
     b.onclick = () => { activePitch.tone = b.dataset.tone; renderToneRow(); };
@@ -1009,6 +1010,7 @@ function renderToneRow(){
 
 function renderDeliverables(){
   const host = $('ed_deliverables'); host.innerHTML = '';
+  if(!activePitch) return;
   (activePitch.deliverables||[]).forEach((d,i) => {
     const row = document.createElement('div');
     row.className = 'deliv-row';

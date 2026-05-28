@@ -87,8 +87,7 @@ Twelve pages (eleven HTML + one set of SQL migrations). Each one has a one-liner
 | [`planner-managers.sql`](./planner-managers.sql) | Manager delegation: roster, RPCs, RLS helper. | 3rd |
 | [`planner-managers-open-invites.sql`](./planner-managers-open-invites.sql) | Lets manager invites be "open" (any email can claim). | 4th |
 | [`planner-manager-hub-v2.sql`](./planner-manager-hub-v2.sql) | Per-manager client profiles + polymorphic comments. | 5th |
-| [`planner-sponsor-kit.sql`](./planner-sponsor-kit.sql) | Media kit (public-readable) + sponsor pitches + slug RPCs. | 6th |
-| [`planner-sponsor-kit-v2.sql`](./planner-sponsor-kit-v2.sql) | 10 new media-kit fields (aggregate stats, posting cadence, stream schedule, content rating, active partnerships, group, management clients, merch, Discord, creator collabs). | 7th |
+| [`planner-sponsor-kit.sql`](./planner-sponsor-kit.sql) | Media kit (public-readable) + sponsor pitches + slug RPCs + all V4.1 fields (aggregate stats, cadence, stream schedule, content rating, active partnerships, group, management clients, merch, Discord, creator collabs). One idempotent file. | 6th |
 | [`habits-supabase.sql`](./habits-supabase.sql) | Habit-state sync table (standalone). | any time |
 | [`analyzer-supabase.sql`](./analyzer-supabase.sql) | Analyzer preferences, saved runs, ratings, trends cache. | any time |
 
