@@ -145,6 +145,25 @@ Key columns: `user_id` (PK), `slug` (unique, friendly URL), `is_public` (bool �
 
 **`platforms` row shape:** `{ platform, label, url, handle, subscribers, avg_views, avg_live_viewers, engagement_rate, last_updated, notes }`. The editor's "paste channel URL" helper extracts handle from the URL but stats stay manual.
 
+**V4.1 columns added by `planner-sponsor-kit-v2.sql`** — these came from cross-referencing eggieweggie.ca/#media-kit:
+
+| Column | Type | Shape | Purpose |
+|---|---|---|---|
+| `total_views_all_platforms` | text | "3M+", free-form | Aggregate reach sponsors love seeing |
+| `aggregate_engagement_rate` | numeric(5,2) | 11.00 | Single cross-socials engagement % |
+| `posting_schedule` | JSONB array | `[{kind, frequency, notes}]` (kind = stream / longform / short / community / newsletter / other) | Per-content-type cadence |
+| `stream_schedule` | JSONB object | `{days_per_week, start_time, end_time, timezone, days_of_week[], multistream_to[], notes}` | Stream-sponsor-specific |
+| `content_rating` | text | `all-ages` / `mature` / `18-plus` | Sponsors filter on this aggressively |
+| `content_rating_notes` | text | free-form | Qualifier — e.g. "streams 18+, YouTube clean" |
+| `active_partnerships` | JSONB array | `[{brand, blurb, link, promo_code, discount, logo_url, since}]` | Current sponsors with codes — social proof |
+| `group_affiliation` | JSONB object | `{name, role, link, blurb, members:[{name,link}]}` | VTuber collective / agency |
+| `management_clients` | JSONB array | `[{name, link, role, current, since, notes}]` | Creators the user manages — business credential |
+| `merch_links` | JSONB array | `[{label, url, kind, notes}]` (kind = storefront / affiliate / partnership / tip-jar / other) | Commerce channels |
+| `discord` | JSONB object | `{invite_url, server_name, member_count, vibe}` | Community server |
+| `past_creator_collabs` | JSONB array | `[{name, link, notes}]` | Distinct from past_sponsorships (which is brand-side) |
+
+The `planner_media_kit_peek` RPC is `DROP+CREATE`-recreated by v2 to return these new columns. Anything reading the peek RPC needs no client-side change.
+
 **RLS:**
 - Owner: full access.
 - Manager: full access via `planner_is_manager_of(user_id)`.
@@ -1011,6 +1030,7 @@ Copy this whenever you ship a new feature, modal, page, or table. Paste it under
 
 Append to this when something big ships. Keep it short — date + one-liner + which migration if any.
 
+- **2026-05-28** — V4.1 Media kit field extensions. `planner-sponsor-kit-v2.sql`. 10 new fields after cross-referencing eggieweggie.ca/#media-kit: aggregate stats (total views + engagement), posting cadence, stream schedule, content rating, active partnerships (with promo codes), group affiliation, management clients, merch links, Discord, past creator collabs. `media-kit.html` editor + public view extended. Pitch builder `ctx()` now exposes `totalReachLine`, `cadenceLine`, `streamLine`, `partnersLine`, `ratingWarning`, `merchLine` — used context-aware in email / DM / pitch-doc builders.
 - **2026-05-28** — V4 Sponsor kit + pitch builder. `planner-sponsor-kit.sql`. Adds `planner_media_kit` (public-readable when toggled on) + `planner_sponsor_pitches` (owner/manager only) + two RPCs (`planner_media_kit_peek`, `planner_media_kit_claim_slug`). Two new pages: `media-kit.html` (public sponsor view + editor) and `sponsor-pitch.html` (5-step resume-builder-style wizard producing email + 3 DM variants + printable pitch doc + rate card snapshot).
 - **2026-05-27** — V3.3 Open invites. `planner-managers-open-invites.sql`. Manager invite emails are now optional; blank email = any-email-can-claim link.
 - **2026-05-27** — V3.2 Manager hub redux. `planner-manager-hub-v2.sql`. Per-client profiles + private notes + polymorphic comments on items/todos. Homepage now has a `👑 Manager Hub` pill button.

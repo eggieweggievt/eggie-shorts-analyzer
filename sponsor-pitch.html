@@ -251,6 +251,7 @@
   .out-output[contenteditable=true]{outline:none}
   .out-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
   .char-count{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-top:4px}
+  .dirty-badge{display:inline-block;font-size:11px;font-weight:800;color:#a05a00;background:#fff3d6;border:1px solid #f1c878;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle}
   .char-count.warn{color:#a23556}
 
   /* Rate card preview */
@@ -496,9 +497,9 @@
 
           <!-- Email -->
           <div class="out-pane active" data-out="email">
-            <label>Subject line</label>
+            <label>Subject line<span class="dirty-badge hidden" id="dirty_email_subject" title="Frozen — saved/edited copy. Form changes won't overwrite this. Hit Regenerate to refresh.">frozen</span></label>
             <input type="text" id="out_email_subject" />
-            <label style="margin-top:10px">Email body</label>
+            <label style="margin-top:10px">Email body<span class="dirty-badge hidden" id="dirty_email_body" title="Frozen — saved/edited copy. Form changes won't overwrite this. Hit Regenerate to refresh.">frozen</span></label>
             <div class="out-output" id="out_email_body" contenteditable="true"></div>
             <div class="out-actions">
               <button class="btn small" onclick="copyOutput('email')">📋 Copy email</button>
@@ -511,6 +512,7 @@
           <div class="out-pane" data-out="twitter">
             <div class="out-output" id="out_twitter" contenteditable="true"></div>
             <div class="char-count" id="cc_twitter">0 / 280</div>
+            <span class="dirty-badge hidden" id="dirty_twitter" title="Frozen — saved/edited copy. Form changes won't overwrite this. Hit Regenerate to refresh.">frozen</span>
             <div class="out-actions">
               <button class="btn small" onclick="copyOutput('twitter')">📋 Copy</button>
             </div>
@@ -520,6 +522,7 @@
           <div class="out-pane" data-out="discord">
             <div class="out-output" id="out_discord" contenteditable="true"></div>
             <div class="char-count" id="cc_discord">0 / 2000</div>
+            <span class="dirty-badge hidden" id="dirty_discord" title="Frozen — saved/edited copy. Form changes won't overwrite this. Hit Regenerate to refresh.">frozen</span>
             <div class="out-actions">
               <button class="btn small" onclick="copyOutput('discord')">📋 Copy</button>
             </div>
@@ -529,6 +532,7 @@
           <div class="out-pane" data-out="instagram">
             <div class="out-output" id="out_instagram" contenteditable="true"></div>
             <div class="char-count" id="cc_instagram">0 / 1000</div>
+            <span class="dirty-badge hidden" id="dirty_instagram" title="Frozen — saved/edited copy. Form changes won't overwrite this. Hit Regenerate to refresh.">frozen</span>
             <div class="out-actions">
               <button class="btn small" onclick="copyOutput('instagram')">📋 Copy</button>
             </div>
@@ -619,6 +623,25 @@ let impersonating = false;
 let pitches = [];           // sidebar list
 let activePitch = null;     // currently editing
 let mediaKit = null;        // creator's media kit (for templates)
+// Per-output dirty flags. If true, the user has hand-edited that output
+// and we MUST NOT auto-regenerate it from form data. Reset by newPitch /
+// openPitch / regenerateAll / generateAndGo.
+let outputsDirty = { email_subject:false, email_body:false, twitter_dm:false, discord_dm:false, instagram_dm:false };
+function resetOutputsDirty(seedFrom){
+  // If we're loading a saved pitch that already has output text, treat it as
+  // dirty so we preserve the user's saved edits on re-open.
+  const s = seedFrom || {};
+  outputsDirty = {
+    email_subject: !!s.email_subject,
+    email_body:    !!s.email_body,
+    twitter_dm:    !!s.twitter_dm,
+    discord_dm:    !!s.discord_dm,
+    instagram_dm:  !!s.instagram_dm
+  };
+}
+function clearOutputsDirty(){
+  outputsDirty = { email_subject:false, email_body:false, twitter_dm:false, discord_dm:false, instagram_dm:false };
+}
 
 // ============================================================
 //  SPONSORSHIP TYPES
@@ -812,6 +835,7 @@ function blankPitch(){
 
 function newPitch(){
   activePitch = blankPitch();
+  clearOutputsDirty();
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('pitchView').classList.remove('hidden');
   fillForm();
@@ -825,6 +849,10 @@ async function openPitch(id){
   activePitch = JSON.parse(JSON.stringify(found));
   if(!activePitch.deliverables) activePitch.deliverables = [];
   if(!activePitch.goals) activePitch.goals = [];
+  // Saved outputs are treated as user-owned: don't clobber them with a fresh
+  // build, but DO mark them dirty so the creator knows they're frozen until
+  // they hit Regenerate.
+  resetOutputsDirty(activePitch);
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('pitchView').classList.remove('hidden');
   fillForm();
@@ -833,7 +861,7 @@ async function openPitch(id){
   // If they already have generated outputs, jump to step 5
   if(activePitch.email_body) {
     goStep(5);
-    renderAllOutputs(true);
+    renderAllOutputs(false);
   } else {
     goStep(1);
   }
@@ -927,12 +955,19 @@ function pullForm(){
   activePitch.proposed_pricing = $('pf_pricing').value.trim();
   activePitch.status = $('pf_status').value;
   activePitch.outcome_notes = $('pf_outcome_notes').value.trim();
-  // outputs (if user edited them)
-  activePitch.email_subject = $('out_email_subject').value || activePitch.email_subject;
-  activePitch.email_body = $('out_email_body').innerText || activePitch.email_body;
-  activePitch.twitter_dm = $('out_twitter').innerText || activePitch.twitter_dm;
-  activePitch.discord_dm = $('out_discord').innerText || activePitch.discord_dm;
-  activePitch.instagram_dm = $('out_instagram').innerText || activePitch.instagram_dm;
+  // outputs — read literally; if user edited it (dirty), trust what's in the DOM.
+  // Only fall back to the stored value when the output node doesn't exist yet
+  // (e.g. step 5 has never been rendered).
+  const eSub = document.getElementById('out_email_subject');
+  const eBod = document.getElementById('out_email_body');
+  const tw   = document.getElementById('out_twitter');
+  const dc   = document.getElementById('out_discord');
+  const ig   = document.getElementById('out_instagram');
+  if(eSub) activePitch.email_subject = eSub.value;
+  if(eBod) activePitch.email_body    = eBod.innerText;
+  if(tw)   activePitch.twitter_dm    = tw.innerText;
+  if(dc)   activePitch.discord_dm    = dc.innerText;
+  if(ig)   activePitch.instagram_dm  = ig.innerText;
 }
 
 function renderTypeGrid(){
@@ -1023,6 +1058,7 @@ function goStep(n){
 function generateAndGo(){
   pullForm();
   // Force fresh generation, ignore stored values
+  clearOutputsDirty();
   activePitch.email_subject = '';
   activePitch.email_body = '';
   activePitch.twitter_dm = '';
@@ -1034,6 +1070,7 @@ function generateAndGo(){
 
 function regenerateAll(){
   if(!confirm('Regenerate all outputs from the form? This will overwrite any edits you\'ve made to the generated text.')) return;
+  clearOutputsDirty();
   activePitch.email_subject = '';
   activePitch.email_body = '';
   activePitch.twitter_dm = '';
@@ -1103,7 +1140,51 @@ function ctx(){
   };
   const tFrame = typeFrames[p.sponsorship_type] || typeFrames.other;
 
-  return { k, p, greetingByTone, closerByTone, signoff, audienceLine, demoLine, nicheLine, delivLines, delivInline, tFrame };
+  // ---------- V4.1 context additions ----------
+  // Aggregate reach — preferred over per-platform when present
+  const totalReachLine = k.total_views_all_platforms
+    ? `${k.total_views_all_platforms} views across platforms${k.aggregate_engagement_rate ? ` · ${k.aggregate_engagement_rate}% avg engagement` : ''}`
+    : null;
+
+  // Posting cadence — one short line
+  const cadenceRows = (k.posting_schedule || []).filter(r => r.frequency);
+  const cadenceLine = cadenceRows.length
+    ? cadenceRows.map(r => {
+        const kindMap = { stream:'streams', longform:'long-form videos', short:'shorts', community:'community posts', newsletter:'newsletters', other:'content' };
+        return `${r.frequency} ${kindMap[r.kind] || r.kind}`;
+      }).join(', ')
+    : null;
+
+  // Stream schedule — only surface for stream-related sponsorship types
+  const ss = k.stream_schedule || {};
+  const isStreamPitch = p.sponsorship_type === 'stream_sponsor' || p.sponsorship_type === 'event';
+  const streamLine = (isStreamPitch && (ss.days_per_week || ss.start_time))
+    ? `Live ${ss.days_per_week ? ss.days_per_week + 'x/week' : ''}${ss.start_time ? ' at '+ss.start_time : ''}${ss.timezone ? ' '+ss.timezone : ''}${(ss.days_of_week||[]).length ? ' ('+ss.days_of_week.join(', ')+')' : ''}`.trim()
+    : null;
+
+  // Active partnerships — social proof for paid / long-term pitches
+  const activePartners = (k.active_partnerships||[]).filter(ap => ap.brand).map(ap => ap.brand);
+  const partnersLine = activePartners.length
+    ? `Currently partnered with ${activePartners.slice(0,4).join(', ')}${activePartners.length > 4 ? ', and others' : ''}`
+    : null;
+
+  // Content rating warning (only if 18+ — sponsors NEED to know)
+  const ratingWarning = k.content_rating === '18-plus' || k.content_rating === 'mature'
+    ? `Heads up: my content is rated ${k.content_rating === '18-plus' ? '18+ only' : 'mature themes'}${k.content_rating_notes ? ' — '+k.content_rating_notes : ''}.`
+    : null;
+
+  // Merch / commerce presence — proof of commercial channels
+  const merchCount = (k.merch_links||[]).filter(m => m.url).length;
+  const merchLine = merchCount >= 2
+    ? `I run ${merchCount} active commerce channels (storefronts + affiliate links) so your product lands in a place sponsors trust.`
+    : null;
+
+  return {
+    k, p, greetingByTone, closerByTone, signoff,
+    audienceLine, demoLine, nicheLine, delivLines, delivInline, tFrame,
+    // v4.1
+    totalReachLine, cadenceLine, streamLine, partnersLine, ratingWarning, merchLine
+  };
 }
 
 function topKey(obj){
@@ -1137,11 +1218,28 @@ function buildEmail(){
   if(c.nicheLine) introBits.push(c.nicheLine.replace(/^I /,'and I '));
   const intro = introBits.length ? introBits.join(' — ') + '.' : null;
   if(intro) lines.push(intro);
-  if(c.audienceLine || c.demoLine){
-    const parts = [];
-    if(c.audienceLine) parts.push(c.audienceLine);
-    if(c.demoLine) parts.push(c.demoLine.toLowerCase());
-    lines.push('Reach: ' + parts.join(' · ') + '.');
+
+  // Reach line — prefer aggregate total + engagement, fall back to per-platform
+  const reachParts = [];
+  if(c.totalReachLine) reachParts.push(c.totalReachLine);
+  else if(c.audienceLine) reachParts.push(c.audienceLine);
+  if(c.demoLine) reachParts.push(c.demoLine.toLowerCase());
+  if(reachParts.length) lines.push('Reach: ' + reachParts.join(' · ') + '.');
+
+  // Stream schedule — only for stream pitches
+  if(c.streamLine) lines.push(c.streamLine + '.');
+  // Cadence — for paid / long-term pitches where rhythm matters
+  if(c.cadenceLine && (c.p.sponsorship_type === 'paid_integration' || c.p.sponsorship_type === 'long_term_ambassador' || c.p.sponsorship_type === 'affiliate')){
+    lines.push('Content cadence: ' + c.cadenceLine + '.');
+  }
+  // Active partners as social proof — for paid / long-term / event
+  if(c.partnersLine && (c.p.sponsorship_type === 'paid_integration' || c.p.sponsorship_type === 'long_term_ambassador' || c.p.sponsorship_type === 'event')){
+    lines.push(c.partnersLine + '.');
+  }
+  // Content rating warning — surface upfront so neither side wastes time
+  if(c.ratingWarning){
+    lines.push('');
+    lines.push(c.ratingWarning);
   }
   lines.push('');
   // Why them
@@ -1186,7 +1284,10 @@ function buildTwitter(){
     ? c.p.personal_angle.split(/[.!?]/)[0]
     : `${c.greetingByTone[c.p.tone]||'Hi!'} I'm ${c.signoff} — ${c.k && c.k.tagline ? c.k.tagline.toLowerCase() : 'a creator'}`;
   const ask = `Would love to chat about a ${c.tFrame.short} with ${c.p.brand_name || 'you'}.`;
-  const audience = c.audienceLine ? `Reach: ${c.audienceLine}.` : '';
+  // Prefer compact aggregate reach over per-platform — saves characters
+  const audience = c.totalReachLine
+    ? `Reach: ${c.totalReachLine}.`
+    : (c.audienceLine ? `Reach: ${c.audienceLine}.` : '');
   const cta = (c.k && c.k.is_public && c.k.slug)
     ? `Media kit: creatorhub.eggieweggie.ca/media-kit.html?u=${c.k.slug}`
     : 'Happy to share my media kit if interesting.';
@@ -1214,7 +1315,14 @@ function buildDiscord(){
   // Who
   const intro = `I'm **${c.signoff}**${c.k && c.k.tagline ? ' — '+c.k.tagline.toLowerCase().replace(/\.$/,'') : ''}.`;
   lines.push(intro);
-  if(c.audienceLine) lines.push(`Reach: ${c.audienceLine}.`);
+  // Reach — prefer aggregate
+  if(c.totalReachLine) lines.push(`Reach: ${c.totalReachLine}.`);
+  else if(c.audienceLine) lines.push(`Reach: ${c.audienceLine}.`);
+  if(c.streamLine) lines.push(c.streamLine + '.');
+  if(c.partnersLine && (c.p.sponsorship_type === 'paid_integration' || c.p.sponsorship_type === 'long_term_ambassador')){
+    lines.push(c.partnersLine + '.');
+  }
+  if(c.ratingWarning) lines.push('⚠️ ' + c.ratingWarning);
   lines.push('');
   // Ask
   lines.push(`**The ask:** ${c.tFrame.ask}`);
@@ -1275,9 +1383,18 @@ function buildPitchDoc(){
 
   const delivList = (c.p.deliverables||[]).filter(d => d.kind_label || d.kind);
 
+  // V4.1 — gather extra data points to enrich the pitch doc
+  const activePartners = (k.active_partnerships||[]).filter(ap => ap.brand);
+  const creatorCollabs = (k.past_creator_collabs||[]).filter(cc => cc.name);
+  const ratingBlock = (k.content_rating === '18-plus' || k.content_rating === 'mature') ? `
+    <p style="background:rgba(255,213,138,0.3);border-left:3px solid #d8a04a;padding:8px 12px;border-radius:8px;margin:8px 0">
+      <strong>Content rating:</strong> ${k.content_rating === '18-plus' ? '🔞 18+ only' : '⚠️ Mature themes'}${k.content_rating_notes ? ' — '+escapeHtml(k.content_rating_notes) : ''}
+    </p>` : '';
+
   const html = `
     <h1>${escapeHtml(k.display_name || c.signoff)} × ${escapeHtml(c.p.brand_name || 'Your brand')}</h1>
     <p style="color:var(--ink-soft);font-weight:700;margin:0 0 4px">${escapeHtml(k.tagline || '')}</p>
+    ${ratingBlock}
 
     <h2>The opportunity</h2>
     <p>${escapeHtml(c.p.audience_fit_notes || c.p.brand_description || 'A collaboration that gets the right product in front of the right audience.')}</p>
@@ -1286,7 +1403,10 @@ function buildPitchDoc(){
     <h2>About me</h2>
     <p>${escapeHtml(k.bio || c.nicheLine || 'I make content for an engaged audience that trusts what I bring to them.')}</p>
     ${statsHtml}
-    ${c.demoLine ? `<p style="margin-top:8px;color:var(--ink-soft);font-weight:600">${escapeHtml(c.demoLine)}.</p>` : ''}
+    ${c.totalReachLine ? `<p style="margin-top:8px;font-weight:700;color:var(--deep)">${escapeHtml(c.totalReachLine)}.</p>` : ''}
+    ${c.demoLine ? `<p style="margin-top:4px;color:var(--ink-soft);font-weight:600">${escapeHtml(c.demoLine)}.</p>` : ''}
+    ${c.cadenceLine ? `<p style="margin-top:4px;color:var(--ink-soft);font-weight:600"><strong>Cadence:</strong> ${escapeHtml(c.cadenceLine)}.</p>` : ''}
+    ${c.streamLine ? `<p style="margin-top:4px;color:var(--ink-soft);font-weight:600"><strong>Stream schedule:</strong> ${escapeHtml(c.streamLine)}.</p>` : ''}
 
     <h2>What I'd make</h2>
     ${delivList.length ? `<ul>${delivList.map(d => `<li><strong>${d.quantity>1?d.quantity+'× ':''}${escapeHtml(d.kind_label||d.kind)}</strong>${d.notes ? ' — '+escapeHtml(d.notes) : ''}</li>`).join('')}</ul>` : '<p class="muted">To be defined.</p>'}
@@ -1294,9 +1414,24 @@ function buildPitchDoc(){
     <h2>Investment</h2>
     <p>${escapeHtml(c.p.proposed_pricing || 'Open to a conversation about scope and budget.')}</p>
 
+    ${activePartners.length ? `
+      <h2>Currently partnered with</h2>
+      <ul>${activePartners.slice(0,6).map(ap => `<li><strong>${escapeHtml(ap.brand)}</strong>${ap.since?' · since '+escapeHtml(ap.since):''}${ap.blurb?' — '+escapeHtml(ap.blurb):''}</li>`).join('')}</ul>
+    ` : ''}
+
     ${(k.past_sponsorships||[]).length ? `
-      <h2>Past collaborations</h2>
+      <h2>Past brand collaborations</h2>
       <ul>${k.past_sponsorships.slice(0,5).map(s => `<li><strong>${escapeHtml(s.brand||'')}</strong>${s.type?' · '+escapeHtml(s.type):''}${s.year?' · '+escapeHtml(s.year):''}${s.results?' — '+escapeHtml(s.results):''}</li>`).join('')}</ul>
+    ` : ''}
+
+    ${creatorCollabs.length ? `
+      <h2>Past creator collabs</h2>
+      <p>${creatorCollabs.map(cc => escapeHtml(cc.name)).join(' · ')}</p>
+    ` : ''}
+
+    ${(k.management_clients||[]).filter(c => c.name).length ? `
+      <h2>Creators I've managed</h2>
+      <p>${(k.management_clients||[]).filter(c => c.name).map(c => escapeHtml(c.name)).join(' · ')}</p>
     ` : ''}
 
     <h2>Next step</h2>
@@ -1331,24 +1466,44 @@ function buildRateCard(){
 //  RENDER OUTPUTS
 // ============================================================
 function renderAllOutputs(force){
-  if(force || !activePitch.email_body){
+  // Rebuild each output unless the user has manually edited it (dirty).
+  // `force` overrides dirty — used by Regenerate / Generate buttons.
+  if(force || !outputsDirty.email_subject || !outputsDirty.email_body){
     const e = buildEmail();
-    activePitch.email_subject = e.subject;
-    activePitch.email_body = e.body;
+    if(force || !outputsDirty.email_subject) activePitch.email_subject = e.subject;
+    if(force || !outputsDirty.email_body)    activePitch.email_body = e.body;
   }
-  if(force || !activePitch.twitter_dm) activePitch.twitter_dm = buildTwitter();
-  if(force || !activePitch.discord_dm) activePitch.discord_dm = buildDiscord();
-  if(force || !activePitch.instagram_dm) activePitch.instagram_dm = buildInstagram();
+  if(force || !outputsDirty.twitter_dm)   activePitch.twitter_dm   = buildTwitter();
+  if(force || !outputsDirty.discord_dm)   activePitch.discord_dm   = buildDiscord();
+  if(force || !outputsDirty.instagram_dm) activePitch.instagram_dm = buildInstagram();
   activePitch.pitch_doc_html = buildPitchDoc();
 
-  $('out_email_subject').value = activePitch.email_subject;
-  $('out_email_body').innerText = activePitch.email_body;
-  $('out_twitter').innerText = activePitch.twitter_dm;
-  $('out_discord').innerText = activePitch.discord_dm;
-  $('out_instagram').innerText = activePitch.instagram_dm;
+  $('out_email_subject').value = activePitch.email_subject || '';
+  $('out_email_body').innerText = activePitch.email_body || '';
+  $('out_twitter').innerText = activePitch.twitter_dm || '';
+  $('out_discord').innerText = activePitch.discord_dm || '';
+  $('out_instagram').innerText = activePitch.instagram_dm || '';
   $('out_pdoc').innerHTML = activePitch.pitch_doc_html;
   $('out_rate').innerHTML = buildRateCard();
   updateCharCounts();
+  updateDirtyBadges();
+}
+
+// Show a tiny "edited" badge near each output that's been hand-modified,
+// so the creator knows form changes won't propagate into that field until
+// they hit Regenerate.
+function updateDirtyBadges(){
+  const map = [
+    ['email_subject','dirty_email_subject'],
+    ['email_body','dirty_email_body'],
+    ['twitter_dm','dirty_twitter'],
+    ['discord_dm','dirty_discord'],
+    ['instagram_dm','dirty_instagram']
+  ];
+  map.forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('hidden', !outputsDirty[k]);
+  });
 }
 
 function updateCharCounts(){
@@ -1367,10 +1522,21 @@ function updateCharCounts(){
     }
   });
 }
-['out_twitter','out_discord','out_instagram'].forEach(id => {
-  document.addEventListener('input', e => {
-    if(e.target && e.target.id === id) updateCharCounts();
-  });
+// Char counts + dirty-flag tracking on output edits.
+// Map each editable output node id → the outputsDirty key it controls.
+const OUTPUT_FIELDS = {
+  out_email_subject: 'email_subject',
+  out_email_body:    'email_body',
+  out_twitter:       'twitter_dm',
+  out_discord:       'discord_dm',
+  out_instagram:     'instagram_dm'
+};
+document.addEventListener('input', e => {
+  const key = OUTPUT_FIELDS[e.target && e.target.id];
+  if(!key) return;
+  outputsDirty[key] = true;
+  updateDirtyBadges();
+  if(key === 'twitter_dm' || key === 'discord_dm' || key === 'instagram_dm') updateCharCounts();
 });
 
 // Tab switching

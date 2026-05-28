@@ -555,9 +555,27 @@
     <section class="card" id="statsCard">
       <h2>📊 Channels & stats</h2>
       <p class="muted" id="statsLastUpdated">Last updated —</p>
+      <div id="aggregateStats" class="stats-grid" style="margin-bottom:14px"></div>
       <div class="stats-grid" id="statsGrid">
         <div class="empty">No platforms added yet.</div>
       </div>
+    </section>
+
+    <!-- Posting cadence + stream schedule -->
+    <section class="card hidden" id="cadenceCard">
+      <h2>📅 Posting cadence</h2>
+      <p class="muted">When and how often new content drops.</p>
+      <div id="cadenceList"></div>
+      <div id="streamScheduleBlock" class="hidden" style="margin-top:14px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3)">
+        <h3 style="margin:0 0 6px;font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep)">🎙 Live stream schedule</h3>
+        <div id="streamScheduleSummary" class="muted" style="font-size:14px;line-height:1.55"></div>
+      </div>
+    </section>
+
+    <!-- Content rating badge -->
+    <section class="card hidden" id="ratingCard" style="display:none">
+      <h2>🔞 Content rating</h2>
+      <div id="ratingBadge"></div>
     </section>
 
     <!-- Demographics -->
@@ -578,13 +596,53 @@
       </div>
     </section>
 
-    <!-- Past sponsorships -->
+    <!-- Active partnerships -->
+    <section class="card hidden" id="activePartnersCard">
+      <h2>🤝 Active partnerships</h2>
+      <p class="muted">Brands I'm currently working with. Use the codes!</p>
+      <div class="sponsor-list" id="activePartnersList"></div>
+    </section>
+
+    <!-- Past brand sponsorships -->
     <section class="card" id="sponsorshipsCard">
-      <h2>🤝 Past collaborations</h2>
+      <h2>📦 Past brand collaborations</h2>
       <p class="muted">Brands I've worked with before, and what came of it.</p>
       <div class="sponsor-list" id="sponsorList">
         <div class="empty">No past sponsorships listed.</div>
       </div>
+    </section>
+
+    <!-- Past creator collabs -->
+    <section class="card hidden" id="creatorCollabsCard">
+      <h2>🎙️ Past creator collabs</h2>
+      <p class="muted">Other creators I've worked with — the people behind the work.</p>
+      <div class="tag-cloud" id="creatorCollabsCloud"></div>
+    </section>
+
+    <!-- Group / collective -->
+    <section class="card hidden" id="groupCard">
+      <h2>🫂 Group / collective</h2>
+      <div id="groupBody"></div>
+    </section>
+
+    <!-- Management clients -->
+    <section class="card hidden" id="managementCard">
+      <h2>📋 Creators I've managed</h2>
+      <p class="muted">Business credentials — proof I understand the brand side from both ends.</p>
+      <div id="managementList"></div>
+    </section>
+
+    <!-- Merch + storefronts -->
+    <section class="card hidden" id="merchCard">
+      <h2>🛍️ Merch &amp; storefronts</h2>
+      <p class="muted">Where you can already find me in commerce.</p>
+      <div id="merchList"></div>
+    </section>
+
+    <!-- Discord -->
+    <section class="card hidden" id="discordCard">
+      <h2>💬 Community</h2>
+      <div id="discordBody"></div>
     </section>
 
     <!-- Services + pricing -->
@@ -700,6 +758,87 @@
         <em>Last bulk update:</em> <span id="ed_last_stats_label">—</span>
         <button class="btn small secondary" onclick="markStatsUpdated()" style="margin-left:8px">Mark all updated now</button>
       </p>
+
+      <h3 style="margin-top:18px">Cross-platform totals</h3>
+      <p class="muted" style="font-size:12.5px">Aggregate numbers sponsors love. "3M+ views" hits harder than per-platform breakdowns.</p>
+      <div class="field-row">
+        <div>
+          <label>Total views across platforms (free-form)</label>
+          <input type="text" id="ed_total_views_all_platforms" placeholder="3 million+" />
+        </div>
+        <div>
+          <label>Aggregate engagement rate (% across socials)</label>
+          <input type="number" step="0.1" id="ed_aggregate_engagement_rate" placeholder="11" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Posting schedule + stream schedule -->
+    <section class="card">
+      <h2>📅 Posting cadence</h2>
+      <p class="muted">How often content drops and when. Sponsors plan around this.</p>
+
+      <h3>Content cadence</h3>
+      <p class="muted" style="font-size:12.5px">One row per content type. E.g. "Stream — 4x/week — 4pm EDT" + "Long-form YouTube — weekly — Saturdays" + "Shorts — daily".</p>
+      <div id="ed_posting_schedule"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+        <button class="btn small secondary" onclick="addPostingRow('stream','')">+ Stream</button>
+        <button class="btn small secondary" onclick="addPostingRow('longform','')">+ Long-form</button>
+        <button class="btn small secondary" onclick="addPostingRow('short','')">+ Shorts</button>
+        <button class="btn small secondary" onclick="addPostingRow('community','')">+ Community / Discord</button>
+        <button class="btn small secondary" onclick="addPostingRow('newsletter','')">+ Newsletter</button>
+        <button class="btn small secondary" onclick="addPostingRow('other','')">+ Other</button>
+      </div>
+
+      <h3 style="margin-top:18px">Stream specifics</h3>
+      <p class="muted" style="font-size:12.5px">For stream sponsors — when you're live, where, in what timezone.</p>
+      <div class="field-row">
+        <div>
+          <label>Days per week</label>
+          <input type="number" id="ed_stream_days_per_week" min="0" max="7" />
+        </div>
+        <div>
+          <label>Timezone</label>
+          <input type="text" id="ed_stream_timezone" placeholder="EDT / PST / GMT+1" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Start time</label>
+          <input type="text" id="ed_stream_start_time" placeholder="4pm" />
+        </div>
+        <div>
+          <label>End time (or "until done")</label>
+          <input type="text" id="ed_stream_end_time" placeholder="9pm" />
+        </div>
+      </div>
+      <label>Typical days of the week (comma-separated)</label>
+      <input type="text" id="ed_stream_days_of_week" placeholder="Tue, Wed, Fri, Sat" />
+      <label>Multi-streamed to (comma-separated)</label>
+      <input type="text" id="ed_stream_multistream_to" placeholder="YouTube, X (Twitter)" />
+      <label>Notes (optional)</label>
+      <input type="text" id="ed_stream_notes" placeholder="Occasional late-night streams on Saturdays" />
+    </section>
+
+    <!-- Content rating -->
+    <section class="card">
+      <h2>🔞 Content rating</h2>
+      <p class="muted">Sponsors filter on this. Be honest — getting it wrong wastes both sides' time.</p>
+      <div class="tone-row" id="ed_content_rating_row" style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px">
+        <button type="button" class="tone-pill" data-rating="all-ages">🌸 All-ages</button>
+        <button type="button" class="tone-pill" data-rating="mature">⚠️ Mature themes</button>
+        <button type="button" class="tone-pill" data-rating="18-plus">🔞 18+ only</button>
+      </div>
+      <label>Rating notes (optional)</label>
+      <input type="text" id="ed_content_rating_notes" placeholder="e.g. 'streams are 18+ but YouTube uploads are clean'" />
+    </section>
+
+    <!-- Active partnerships -->
+    <section class="card">
+      <h2>🤝 Active partnerships</h2>
+      <p class="muted">Brands you're currently working with. Sponsors love seeing this — it proves you actually deliver. Promo codes show up on the public kit.</p>
+      <div id="ed_active_partnerships"></div>
+      <button class="btn small secondary" onclick="addActivePartnership()">+ Add active partner</button>
     </section>
 
     <!-- Demographics -->
@@ -744,6 +883,85 @@
       <p class="muted">A starting menu. The "hidden" toggle lets you stage a price you don't want to show publicly yet (it stays saved, just hidden from the public view).</p>
       <div id="ed_services"></div>
       <button class="btn small secondary" onclick="addService()">+ Add service</button>
+    </section>
+
+    <!-- Group / collective affiliation -->
+    <section class="card">
+      <h2>🫂 Group / collective</h2>
+      <p class="muted">If you're part of an indie group, agency, or collective. Skip if N/A.</p>
+      <div class="field-row">
+        <div>
+          <label>Group name</label>
+          <input type="text" id="ed_group_name" placeholder="Amai Fusei" />
+        </div>
+        <div>
+          <label>Your role</label>
+          <input type="text" id="ed_group_role" placeholder="Co-founder / Member" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Group link</label>
+          <input type="url" id="ed_group_link" placeholder="https://…" />
+        </div>
+        <div>
+          <label>Tagline / blurb (optional)</label>
+          <input type="text" id="ed_group_blurb" placeholder="A short description of the group" />
+        </div>
+      </div>
+      <h3>Co-members (comma-separated)</h3>
+      <p class="muted" style="font-size:12.5px">Format: <code>Name (https://link)</code>, one per comma. Links are optional.</p>
+      <input type="text" id="ed_group_members" placeholder="Mifuyu (https://twitch.tv/mifuyu), Cyphriee (https://twitch.tv/cyphriee)" />
+    </section>
+
+    <!-- Management clients -->
+    <section class="card">
+      <h2>📋 Management clients</h2>
+      <p class="muted">Creators you've managed. A business credential — proves you understand the brand side. Skip if N/A.</p>
+      <div id="ed_management_clients"></div>
+      <button class="btn small secondary" onclick="addManagementClient()">+ Add client</button>
+    </section>
+
+    <!-- Merch + storefronts -->
+    <section class="card">
+      <h2>🛍️ Merch &amp; storefronts</h2>
+      <p class="muted">Existing commerce channels — signals to sponsors that you've already monetized.</p>
+      <div id="ed_merch_links"></div>
+      <button class="btn small secondary" onclick="addMerchLink()">+ Add link</button>
+    </section>
+
+    <!-- Discord -->
+    <section class="card">
+      <h2>💬 Discord community</h2>
+      <p class="muted">Your community server, member count, vibe. Optional but powerful — shows community beyond follower numbers.</p>
+      <div class="field-row">
+        <div>
+          <label>Invite URL</label>
+          <input type="url" id="ed_discord_invite_url" placeholder="https://discord.gg/yourserver" />
+        </div>
+        <div>
+          <label>Server name</label>
+          <input type="text" id="ed_discord_server_name" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Member count (approx)</label>
+          <input type="number" id="ed_discord_member_count" min="0" />
+        </div>
+        <div>
+          <label>Vibe (1 line)</label>
+          <input type="text" id="ed_discord_vibe" placeholder="Cozy chaos, lots of art-sharing" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Past creator collabs -->
+    <section class="card">
+      <h2>🎙️ Past creator collabs</h2>
+      <p class="muted">Named creators you've collaborated with. Light list — just names + links. Signals cultural reach to brands.</p>
+      <div id="ed_past_creator_collabs"></div>
+      <button class="btn small secondary" onclick="addCreatorCollab()">+ Add collab</button>
     </section>
 
     <!-- Contact -->
@@ -853,7 +1071,27 @@ function blankKit(){
     social_handles:{},
     contact_blurb:'',
     last_stats_update_at:null,
-    theme:'default'
+    theme:'default',
+    // ---------- V4.1 (cross-ref with eggieweggie.ca) ----------
+    total_views_all_platforms:'',         // "3M+", free-form
+    aggregate_engagement_rate:null,       // numeric — "~11" stored as 11
+    posting_schedule:[],                  // [{kind, frequency, notes}]
+    stream_schedule:{                     // single object
+      days_per_week:null, start_time:'', end_time:'', timezone:'',
+      days_of_week:[], multistream_to:[], notes:''
+    },
+    content_rating:'all-ages',            // 'all-ages' | 'mature' | '18-plus'
+    content_rating_notes:'',
+    active_partnerships:[],               // [{brand, blurb, link, promo_code, discount, logo_url, since}]
+    group_affiliation:{                   // single object
+      name:'', role:'', link:'', blurb:'', members:[]
+    },
+    management_clients:[],                // [{name, link, role, current, since, notes}]
+    merch_links:[],                       // [{label, url, kind, notes}]
+    discord:{                             // single object
+      invite_url:'', server_name:'', member_count:null, vibe:''
+    },
+    past_creator_collabs:[]               // [{name, link, notes}]
   };
 }
 
@@ -1114,6 +1352,10 @@ function mergeIntoBlank(row){
   if(row.audience_demographics && row.audience_demographics._blurb){
     b.contact_blurb = row.audience_demographics._blurb;
   }
+  // V4.1 nested defaults — merge into the blank object so missing keys are filled
+  b.stream_schedule = Object.assign(blankKit().stream_schedule, row.stream_schedule || {});
+  b.group_affiliation = Object.assign(blankKit().group_affiliation, row.group_affiliation || {});
+  b.discord = Object.assign(blankKit().discord, row.discord || {});
   return b;
 }
 
@@ -1247,6 +1489,35 @@ function renderEditor(){
   $('ed_last_stats_label').textContent = kit.last_stats_update_at
     ? niceDate(kit.last_stats_update_at) : '—';
 
+  // V4.1 fields
+  $('ed_total_views_all_platforms').value = kit.total_views_all_platforms || '';
+  $('ed_aggregate_engagement_rate').value = kit.aggregate_engagement_rate == null ? '' : kit.aggregate_engagement_rate;
+
+  const ss = kit.stream_schedule || {};
+  $('ed_stream_days_per_week').value = ss.days_per_week == null ? '' : ss.days_per_week;
+  $('ed_stream_timezone').value = ss.timezone || '';
+  $('ed_stream_start_time').value = ss.start_time || '';
+  $('ed_stream_end_time').value = ss.end_time || '';
+  $('ed_stream_days_of_week').value = (ss.days_of_week || []).join(', ');
+  $('ed_stream_multistream_to').value = (ss.multistream_to || []).join(', ');
+  $('ed_stream_notes').value = ss.notes || '';
+
+  renderContentRatingRow();
+  $('ed_content_rating_notes').value = kit.content_rating_notes || '';
+
+  const grp = kit.group_affiliation || {};
+  $('ed_group_name').value = grp.name || '';
+  $('ed_group_role').value = grp.role || '';
+  $('ed_group_link').value = grp.link || '';
+  $('ed_group_blurb').value = grp.blurb || '';
+  $('ed_group_members').value = (grp.members || []).map(m => m.link ? `${m.name} (${m.link})` : m.name).join(', ');
+
+  const d = kit.discord || {};
+  $('ed_discord_invite_url').value = d.invite_url || '';
+  $('ed_discord_server_name').value = d.server_name || '';
+  $('ed_discord_member_count').value = d.member_count == null ? '' : d.member_count;
+  $('ed_discord_vibe').value = d.vibe || '';
+
   renderPillarsEditor();
   renderPlatformsEditor();
   renderAgeBracketsEditor();
@@ -1255,6 +1526,181 @@ function renderEditor(){
   renderTopContentEditor();
   renderSponsorsEditor();
   renderServicesEditor();
+  // V4.1 list editors
+  renderPostingScheduleEditor();
+  renderActivePartnershipsEditor();
+  renderManagementClientsEditor();
+  renderMerchLinksEditor();
+  renderCreatorCollabsEditor();
+}
+
+function renderContentRatingRow(){
+  document.querySelectorAll('#ed_content_rating_row .tone-pill').forEach(b => {
+    b.classList.toggle('active', kit.content_rating === b.dataset.rating);
+    b.onclick = () => {
+      kit.content_rating = b.dataset.rating;
+      renderContentRatingRow();
+    };
+  });
+}
+
+function renderPostingScheduleEditor(){
+  const host = $('ed_posting_schedule'); host.innerHTML = '';
+  const labels = { stream:'🎙 Stream', longform:'📺 Long-form', short:'📱 Short', community:'💬 Community', newsletter:'📧 Newsletter', other:'✨ Other' };
+  (kit.posting_schedule || []).forEach((row, i) => {
+    const div = document.createElement('div');
+    div.className = 'pillar-row';
+    div.innerHTML = `
+      <div class="field-row" style="grid-template-columns:120px 1fr 1fr">
+        <select data-i="${i}" data-k="kind">
+          ${Object.entries(labels).map(([k,l]) => `<option value="${k}" ${row.kind===k?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <input type="text" placeholder="Frequency (e.g. 4x/week)" value="${escapeAttr(row.frequency||'')}" data-i="${i}" data-k="frequency" />
+        <input type="text" placeholder="Notes (e.g. 4-6pm EDT)" value="${escapeAttr(row.notes||'')}" data-i="${i}" data-k="notes" />
+      </div>
+      <div style="margin-top:6px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    div.querySelectorAll('input,select').forEach(inp => {
+      inp.addEventListener('input', e => {
+        kit.posting_schedule[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+      });
+    });
+    div.querySelector('[data-rm]').onclick = () => { kit.posting_schedule.splice(i,1); renderPostingScheduleEditor(); };
+    host.appendChild(div);
+  });
+}
+function addPostingRow(kind, freq){
+  if(!kit.posting_schedule) kit.posting_schedule = [];
+  kit.posting_schedule.push({ kind, frequency:freq||'', notes:'' });
+  renderPostingScheduleEditor();
+}
+
+function renderActivePartnershipsEditor(){
+  const host = $('ed_active_partnerships'); host.innerHTML = '';
+  (kit.active_partnerships || []).forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'sponsor-row';
+    div.style.padding = '14px 16px';
+    div.innerHTML = `
+      <div class="field-row">
+        <div><label>Brand</label><input type="text" data-i="${i}" data-k="brand" value="${escapeAttr(p.brand||'')}" /></div>
+        <div><label>Link</label><input type="url" data-i="${i}" data-k="link" value="${escapeAttr(p.link||'')}" /></div>
+      </div>
+      <label>Short blurb (what they do, how you fit)</label>
+      <textarea rows="2" data-i="${i}" data-k="blurb">${escapeHtml(p.blurb||'')}</textarea>
+      <div class="field-row">
+        <div><label>Promo code (optional)</label><input type="text" data-i="${i}" data-k="promo_code" value="${escapeAttr(p.promo_code||'')}" placeholder="SUCKEGG" /></div>
+        <div><label>Discount</label><input type="text" data-i="${i}" data-k="discount" value="${escapeAttr(p.discount||'')}" placeholder="10% off" /></div>
+      </div>
+      <div class="field-row">
+        <div><label>Logo URL (optional)</label><input type="url" data-i="${i}" data-k="logo_url" value="${escapeAttr(p.logo_url||'')}" /></div>
+        <div><label>Active since (optional)</label><input type="text" data-i="${i}" data-k="since" value="${escapeAttr(p.since||'')}" placeholder="2024" /></div>
+      </div>
+      <div style="margin-top:8px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    div.querySelectorAll('input,textarea').forEach(inp => {
+      inp.addEventListener('input', e => {
+        kit.active_partnerships[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+      });
+    });
+    div.querySelector('[data-rm]').onclick = () => { kit.active_partnerships.splice(i,1); renderActivePartnershipsEditor(); };
+    host.appendChild(div);
+  });
+}
+function addActivePartnership(){
+  if(!kit.active_partnerships) kit.active_partnerships = [];
+  kit.active_partnerships.push({ brand:'', blurb:'', link:'', promo_code:'', discount:'', logo_url:'', since:'' });
+  renderActivePartnershipsEditor();
+}
+
+function renderManagementClientsEditor(){
+  const host = $('ed_management_clients'); host.innerHTML = '';
+  (kit.management_clients || []).forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'pillar-row';
+    div.innerHTML = `
+      <div class="field-row" style="grid-template-columns:1fr 1fr 110px">
+        <input type="text" placeholder="Creator name" value="${escapeAttr(c.name||'')}" data-i="${i}" data-k="name" />
+        <input type="url" placeholder="Link (optional)" value="${escapeAttr(c.link||'')}" data-i="${i}" data-k="link" />
+        <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;margin:0">
+          <input type="checkbox" data-i="${i}" data-k="current" ${c.current ? 'checked':''} style="width:auto" /> Current
+        </label>
+      </div>
+      <div class="field-row" style="margin-top:6px">
+        <input type="text" placeholder="Role / scope (e.g. social + sponsorships)" value="${escapeAttr(c.role||'')}" data-i="${i}" data-k="role" />
+        <input type="text" placeholder="Since (optional)" value="${escapeAttr(c.since||'')}" data-i="${i}" data-k="since" />
+      </div>
+      <div style="margin-top:6px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    div.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = +e.target.dataset.i, k = e.target.dataset.k;
+        kit.management_clients[idx][k] = (e.target.type === 'checkbox') ? e.target.checked : e.target.value;
+      });
+    });
+    div.querySelector('[data-rm]').onclick = () => { kit.management_clients.splice(i,1); renderManagementClientsEditor(); };
+    host.appendChild(div);
+  });
+}
+function addManagementClient(){
+  if(!kit.management_clients) kit.management_clients = [];
+  kit.management_clients.push({ name:'', link:'', role:'', current:true, since:'', notes:'' });
+  renderManagementClientsEditor();
+}
+
+function renderMerchLinksEditor(){
+  const host = $('ed_merch_links'); host.innerHTML = '';
+  const kinds = { storefront:'🛍 Storefront', affiliate:'🔗 Affiliate', partnership:'🤝 Partnership', 'tip-jar':'☕ Tip jar', other:'✨ Other' };
+  (kit.merch_links || []).forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'pillar-row';
+    div.innerHTML = `
+      <div class="field-row" style="grid-template-columns:140px 1fr 1fr">
+        <select data-i="${i}" data-k="kind">
+          ${Object.entries(kinds).map(([k,l]) => `<option value="${k}" ${m.kind===k?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <input type="text" placeholder="Label (e.g. KatDragonz Merch)" value="${escapeAttr(m.label||'')}" data-i="${i}" data-k="label" />
+        <input type="url" placeholder="URL" value="${escapeAttr(m.url||'')}" data-i="${i}" data-k="url" />
+      </div>
+      <input type="text" placeholder="Notes (e.g. new drops quarterly)" value="${escapeAttr(m.notes||'')}" data-i="${i}" data-k="notes" style="margin-top:6px" />
+      <div style="margin-top:6px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    div.querySelectorAll('input,select').forEach(inp => {
+      inp.addEventListener('input', e => {
+        kit.merch_links[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+      });
+    });
+    div.querySelector('[data-rm]').onclick = () => { kit.merch_links.splice(i,1); renderMerchLinksEditor(); };
+    host.appendChild(div);
+  });
+}
+function addMerchLink(){
+  if(!kit.merch_links) kit.merch_links = [];
+  kit.merch_links.push({ label:'', url:'', kind:'storefront', notes:'' });
+  renderMerchLinksEditor();
+}
+
+function renderCreatorCollabsEditor(){
+  const host = $('ed_past_creator_collabs'); host.innerHTML = '';
+  (kit.past_creator_collabs || []).forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'pillar-row';
+    div.innerHTML = `
+      <div class="field-row" style="grid-template-columns:1fr 1fr">
+        <input type="text" placeholder="Creator name" value="${escapeAttr(c.name||'')}" data-i="${i}" data-k="name" />
+        <input type="url" placeholder="Link (optional)" value="${escapeAttr(c.link||'')}" data-i="${i}" data-k="link" />
+      </div>
+      <input type="text" placeholder="Notes (e.g. 'duo stream — 80k VOD views')" value="${escapeAttr(c.notes||'')}" data-i="${i}" data-k="notes" style="margin-top:6px" />
+      <div style="margin-top:6px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    div.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        kit.past_creator_collabs[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+      });
+    });
+    div.querySelector('[data-rm]').onclick = () => { kit.past_creator_collabs.splice(i,1); renderCreatorCollabsEditor(); };
+    host.appendChild(div);
+  });
+}
+function addCreatorCollab(){
+  if(!kit.past_creator_collabs) kit.past_creator_collabs = [];
+  kit.past_creator_collabs.push({ name:'', link:'', notes:'' });
+  renderCreatorCollabsEditor();
 }
 
 function renderPillarsEditor(){
@@ -1624,6 +2070,44 @@ async function saveAll(){
   kit.audience_demographics.top_interests = parseCommas($('ed_top_interests').value);
   kit.audience_demographics._blurb = kit.contact_blurb;  // persist contact_blurb inside JSONB
 
+  // V4.1 fields
+  kit.total_views_all_platforms = $('ed_total_views_all_platforms').value.trim();
+  const er = $('ed_aggregate_engagement_rate').value.trim();
+  kit.aggregate_engagement_rate = er === '' ? null : Number(er);
+  kit.content_rating_notes = $('ed_content_rating_notes').value.trim();
+
+  // Stream schedule from individual fields
+  kit.stream_schedule = {
+    days_per_week: $('ed_stream_days_per_week').value === '' ? null : Number($('ed_stream_days_per_week').value),
+    timezone: $('ed_stream_timezone').value.trim(),
+    start_time: $('ed_stream_start_time').value.trim(),
+    end_time: $('ed_stream_end_time').value.trim(),
+    days_of_week: parseCommas($('ed_stream_days_of_week').value),
+    multistream_to: parseCommas($('ed_stream_multistream_to').value),
+    notes: $('ed_stream_notes').value.trim()
+  };
+
+  // Group affiliation — parse "Name (link)" comma-separated members
+  kit.group_affiliation = {
+    name: $('ed_group_name').value.trim(),
+    role: $('ed_group_role').value.trim(),
+    link: $('ed_group_link').value.trim(),
+    blurb: $('ed_group_blurb').value.trim(),
+    members: parseCommas($('ed_group_members').value).map(s => {
+      const m = s.match(/^(.+?)\s*\((.+?)\)\s*$/);
+      return m ? { name: m[1].trim(), link: m[2].trim() } : { name: s, link: '' };
+    })
+  };
+
+  // Discord
+  const dcm = $('ed_discord_member_count').value.trim();
+  kit.discord = {
+    invite_url: $('ed_discord_invite_url').value.trim(),
+    server_name: $('ed_discord_server_name').value.trim(),
+    member_count: dcm === '' ? null : Number(dcm),
+    vibe: $('ed_discord_vibe').value.trim()
+  };
+
   // Compose payload
   const payload = {
     user_id: currentOwnerId,
@@ -1652,7 +2136,20 @@ async function saveAll(){
     booking_link: kit.booking_link || null,
     social_handles: kit.social_handles,
     last_stats_update_at: kit.last_stats_update_at,
-    theme: kit.theme || 'default'
+    theme: kit.theme || 'default',
+    // V4.1
+    total_views_all_platforms: kit.total_views_all_platforms || null,
+    aggregate_engagement_rate: kit.aggregate_engagement_rate,
+    posting_schedule: kit.posting_schedule || [],
+    stream_schedule: kit.stream_schedule || {},
+    content_rating: kit.content_rating || 'all-ages',
+    content_rating_notes: kit.content_rating_notes || null,
+    active_partnerships: kit.active_partnerships || [],
+    group_affiliation: kit.group_affiliation || {},
+    management_clients: kit.management_clients || [],
+    merch_links: kit.merch_links || [],
+    discord: kit.discord || {},
+    past_creator_collabs: kit.past_creator_collabs || []
   };
 
   const { error } = await sb
@@ -1819,6 +2316,179 @@ function renderPublic(){
         ${p.notes ? `<div class="svc-notes">${escapeHtml(p.notes)}</div>` : ''}
       </div>`).join('');
   } else svc.innerHTML = '<div class="empty" style="grid-column:1 / -1">No deliverables listed yet.</div>';
+
+  // ---------- V4.1 sections ----------
+  // Aggregate stats (in the stats card, above per-platform grid)
+  const agg = document.getElementById('aggregateStats');
+  const aggCells = [];
+  if(kit.total_views_all_platforms){
+    aggCells.push(`<div class="platform-card" style="text-align:center"><div class="pc-stat"><div class="stat-num">${escapeHtml(kit.total_views_all_platforms)}</div><div class="stat-label">Total reach</div></div></div>`);
+  }
+  if(kit.aggregate_engagement_rate != null && kit.aggregate_engagement_rate !== ''){
+    aggCells.push(`<div class="platform-card" style="text-align:center"><div class="pc-stat"><div class="stat-num">${kit.aggregate_engagement_rate}%</div><div class="stat-label">Engagement (avg)</div></div></div>`);
+  }
+  const totalFollowers = (kit.platforms||[]).reduce((s,p) => s + (Number(p.subscribers)||0), 0);
+  if(totalFollowers > 0){
+    aggCells.push(`<div class="platform-card" style="text-align:center"><div class="pc-stat"><div class="stat-num">${fmtNum(totalFollowers)}</div><div class="stat-label">Combined audience</div></div></div>`);
+  }
+  agg.innerHTML = aggCells.join('');
+
+  // Posting cadence + stream schedule
+  const cadenceCard = document.getElementById('cadenceCard');
+  const cadenceList = document.getElementById('cadenceList');
+  const cadenceRows = (kit.posting_schedule || []).filter(r => r.frequency || r.notes);
+  const ss = kit.stream_schedule || {};
+  const hasStream = ss.days_per_week || ss.start_time || ss.timezone || (ss.days_of_week||[]).length || ss.notes;
+  if(cadenceRows.length || hasStream){
+    cadenceCard.classList.remove('hidden');
+    const labels = { stream:'🎙 Stream', longform:'📺 Long-form', short:'📱 Short', community:'💬 Community', newsletter:'📧 Newsletter', other:'✨ Other' };
+    if(cadenceRows.length){
+      cadenceList.innerHTML = cadenceRows.map(r => `
+        <div class="pillar-row">
+          <div class="p-title">${escapeHtml(labels[r.kind] || r.kind || '—')} · ${escapeHtml(r.frequency || '')}</div>
+          ${r.notes ? `<div class="p-desc">${escapeHtml(r.notes)}</div>` : ''}
+        </div>`).join('');
+    } else cadenceList.innerHTML = '';
+    const streamBlock = document.getElementById('streamScheduleBlock');
+    if(hasStream){
+      streamBlock.classList.remove('hidden');
+      const bits = [];
+      if(ss.days_per_week) bits.push(`<strong>${ss.days_per_week}× per week</strong>`);
+      if(ss.start_time || ss.end_time){
+        const range = [ss.start_time, ss.end_time].filter(Boolean).join('–');
+        bits.push(`<strong>${escapeHtml(range)}${ss.timezone ? ' '+escapeHtml(ss.timezone) : ''}</strong>`);
+      } else if(ss.timezone){
+        bits.push(`<strong>${escapeHtml(ss.timezone)}</strong>`);
+      }
+      if((ss.days_of_week||[]).length){
+        bits.push((ss.days_of_week).map(escapeHtml).join(' · '));
+      }
+      if((ss.multistream_to||[]).length){
+        bits.push(`Multi-streamed to ${ss.multistream_to.map(escapeHtml).join(' + ')}`);
+      }
+      let html = bits.join(' &nbsp;·&nbsp; ');
+      if(ss.notes) html += `<div class="muted" style="margin-top:6px">${escapeHtml(ss.notes)}</div>`;
+      document.getElementById('streamScheduleSummary').innerHTML = html;
+    } else streamBlock.classList.add('hidden');
+  } else cadenceCard.classList.add('hidden');
+
+  // Content rating
+  const ratingCard = document.getElementById('ratingCard');
+  if(kit.content_rating && kit.content_rating !== 'all-ages'){
+    ratingCard.style.display = '';
+    ratingCard.classList.remove('hidden');
+    const map = {
+      'mature':   { label:'⚠️ Mature themes', color:'rgba(255,213,138,0.5)', text:'#7a4a00' },
+      '18-plus':  { label:'🔞 18+ only',      color:'rgba(255,138,168,0.4)', text:'#9c2a4c' },
+      'all-ages': { label:'🌸 All-ages',      color:'rgba(168,230,190,0.5)', text:'#1f6580' }
+    };
+    const r = map[kit.content_rating] || map['all-ages'];
+    document.getElementById('ratingBadge').innerHTML = `
+      <div style="display:inline-flex;align-items:center;gap:10px;background:${r.color};color:${r.text};font-weight:800;padding:8px 18px;border-radius:999px;font-size:14px">${r.label}</div>
+      ${kit.content_rating_notes ? `<p class="muted" style="margin-top:10px">${escapeHtml(kit.content_rating_notes)}</p>` : ''}
+    `;
+  } else ratingCard.style.display = 'none';
+
+  // Active partnerships
+  const apCard = document.getElementById('activePartnersCard');
+  const apList = document.getElementById('activePartnersList');
+  const activePartners = (kit.active_partnerships||[]).filter(p => p.brand);
+  if(activePartners.length){
+    apCard.classList.remove('hidden');
+    apList.innerHTML = activePartners.map(p => {
+      const code = (p.promo_code || p.discount) ? `
+        <div style="margin-top:8px;display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap">
+          ${p.promo_code ? `<span style="background:linear-gradient(135deg,rgba(255,178,240,0.5),rgba(144,165,255,0.4));color:var(--deep);font-weight:800;font-size:13px;padding:5px 14px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase">code: ${escapeHtml(p.promo_code)}</span>` : ''}
+          ${p.discount ? `<span class="muted" style="font-weight:700">${escapeHtml(p.discount)}</span>` : ''}
+        </div>` : '';
+      return `
+        <div class="sponsor-row">
+          <div class="sr-head">
+            <span class="sr-brand">${escapeHtml(p.brand)}</span>
+            ${p.since ? `<span class="sr-year">since ${escapeHtml(p.since)}</span>` : ''}
+          </div>
+          ${p.blurb ? `<div class="sr-results">${escapeHtml(p.blurb)}</div>` : ''}
+          ${code}
+          ${p.link ? `<div style="margin-top:6px"><a href="${escapeAttr(p.link)}" target="_blank" rel="noopener" style="font-size:12.5px;color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dotted">Check them out →</a></div>` : ''}
+        </div>`;
+    }).join('');
+  } else apCard.classList.add('hidden');
+
+  // Past creator collabs (tag cloud — light)
+  const ccCard = document.getElementById('creatorCollabsCard');
+  const ccCloud = document.getElementById('creatorCollabsCloud');
+  const collabs = (kit.past_creator_collabs||[]).filter(c => c.name);
+  if(collabs.length){
+    ccCard.classList.remove('hidden');
+    ccCloud.innerHTML = collabs.map(c => {
+      const inner = `<span class="tag" title="${escapeAttr(c.notes||'')}">${escapeHtml(c.name)}</span>`;
+      return c.link ? `<a href="${escapeAttr(c.link)}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
+    }).join('');
+  } else ccCard.classList.add('hidden');
+
+  // Group / collective
+  const grpCard = document.getElementById('groupCard');
+  const grp = kit.group_affiliation || {};
+  if(grp.name){
+    grpCard.classList.remove('hidden');
+    const memberHtml = (grp.members||[]).length
+      ? `<p style="margin-top:8px"><strong>Co-members:</strong> ${grp.members.map(m => m.link ? `<a href="${escapeAttr(m.link)}" target="_blank" rel="noopener" style="color:var(--deep);font-weight:700">${escapeHtml(m.name)}</a>` : escapeHtml(m.name)).join(' · ')}</p>`
+      : '';
+    document.getElementById('groupBody').innerHTML = `
+      <div class="p-title" style="font-size:18px;font-family:'Pacifico',cursive;font-weight:400">
+        ${grp.link ? `<a href="${escapeAttr(grp.link)}" target="_blank" rel="noopener" style="color:var(--deep);text-decoration:none;border-bottom:1.5px dotted">${escapeHtml(grp.name)}</a>` : escapeHtml(grp.name)}
+        ${grp.role ? `<span style="font-family:'Quicksand';font-size:13px;color:var(--ink-soft);font-weight:700;margin-left:8px">— ${escapeHtml(grp.role)}</span>` : ''}
+      </div>
+      ${grp.blurb ? `<p class="muted" style="margin-top:6px">${escapeHtml(grp.blurb)}</p>` : ''}
+      ${memberHtml}
+    `;
+  } else grpCard.classList.add('hidden');
+
+  // Management clients
+  const mgmtCard = document.getElementById('managementCard');
+  const clients = (kit.management_clients||[]).filter(c => c.name);
+  if(clients.length){
+    mgmtCard.classList.remove('hidden');
+    document.getElementById('managementList').innerHTML = `
+      <div class="tag-cloud">${clients.map(c => {
+        const t = c.current ? '🟢' : '○';
+        const inner = `<span class="tag" title="${escapeAttr([c.role, c.since && 'since '+c.since].filter(Boolean).join(' · '))}">${t} ${escapeHtml(c.name)}</span>`;
+        return c.link ? `<a href="${escapeAttr(c.link)}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
+      }).join('')}</div>
+    `;
+  } else mgmtCard.classList.add('hidden');
+
+  // Merch + storefronts
+  const merchCard = document.getElementById('merchCard');
+  const merch = (kit.merch_links||[]).filter(m => m.label || m.url);
+  if(merch.length){
+    merchCard.classList.remove('hidden');
+    const kinds = { storefront:'🛍', affiliate:'🔗', partnership:'🤝', 'tip-jar':'☕', other:'✨' };
+    document.getElementById('merchList').innerHTML = `
+      <div class="service-grid">${merch.map(m => `
+        <a class="service-card" href="${escapeAttr(m.url||'#')}" target="_blank" rel="noopener" style="text-decoration:none">
+          <div class="svc-name">${kinds[m.kind]||'✨'} ${escapeHtml(m.label || m.url)}</div>
+          ${m.notes ? `<div class="svc-notes">${escapeHtml(m.notes)}</div>` : ''}
+        </a>`).join('')}</div>
+    `;
+  } else merchCard.classList.add('hidden');
+
+  // Discord
+  const dCard = document.getElementById('discordCard');
+  const d = kit.discord || {};
+  if(d.invite_url || d.server_name){
+    dCard.classList.remove('hidden');
+    document.getElementById('discordBody').innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-weight:800;color:var(--deep);font-size:16px">${escapeHtml(d.server_name || 'Discord community')}</div>
+          ${d.member_count ? `<div class="muted" style="margin-top:2px">${fmtNum(d.member_count)} members</div>` : ''}
+          ${d.vibe ? `<div class="muted" style="margin-top:4px;font-style:italic">"${escapeHtml(d.vibe)}"</div>` : ''}
+        </div>
+        ${d.invite_url ? `<a class="btn" href="${escapeAttr(d.invite_url)}" target="_blank" rel="noopener">💬 Join the server</a>` : ''}
+      </div>
+    `;
+  } else dCard.classList.add('hidden');
 
   // CTA
   if(kit.contact_blurb) document.getElementById('contactBlurb').textContent = kit.contact_blurb;
