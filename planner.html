@@ -343,6 +343,110 @@
   .tweet-card .tw-meta .due-soon{color:#a35c00;font-weight:700}
   .tweet-card .tw-meta .due-overdue{color:#a23556;font-weight:700}
 
+  /* V2.18 — Read-only tweet view modal: thread chain + media gallery + copy buttons */
+  .tweet-view-toolbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    margin-bottom:14px;padding-bottom:14px;
+    border-bottom:1.5px dashed rgba(29,161,242,0.25);
+  }
+  .tweet-view-pills{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
+  .tweet-view-pills .tvp{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;
+    background:rgba(29,161,242,0.15);color:#0e608f;
+  }
+  .tweet-view-pills .tvp.draft     {background:rgba(255,213,138,0.45);color:#a35c00}
+  .tweet-view-pills .tvp.scheduled {background:rgba(29,161,242,0.18);color:#0e608f}
+  .tweet-view-pills .tvp.posted    {background:rgba(168,230,190,0.5);color:#1f6b35}
+  .tweet-view-pills .tvp.archived  {background:rgba(144,165,255,0.2);color:var(--ink-soft)}
+  .tweet-view-pills .tvp.starred   {background:rgba(255,213,138,0.55);color:#a35c00}
+  .tweet-view-pills .tvp.over      {background:rgba(255,138,168,0.3);color:#7a2a3e}
+  .tweet-view-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .tweet-view-actions .btn{padding:7px 14px;font-size:13px}
+
+  /* Thread chain — each tweet card connects with a faint vertical line on the left */
+  .tweet-thread{display:flex;flex-direction:column;gap:14px;position:relative;min-width:0}
+  .tweet-thread .tt-part{
+    background:rgba(255,255,255,0.92);
+    border:1.5px solid rgba(29,161,242,0.22);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:15px;color:var(--ink);line-height:1.55;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;word-break:break-word;
+    position:relative;min-width:0;
+  }
+  .tweet-thread .tt-part.main{
+    background:linear-gradient(135deg, rgba(29,161,242,0.08), rgba(107,228,234,0.08));
+    border-left:4px solid #1DA1F2;
+  }
+  .tweet-thread .tt-part .tt-part-head{
+    font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:6px;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  .tweet-thread .tt-part .tt-part-head .tt-counter{
+    color:var(--ink-soft);font-weight:700;
+  }
+  .tweet-thread .tt-part .tt-part-head .tt-counter.over{color:#a23556}
+  /* Connector line between thread parts */
+  .tweet-thread .tt-part + .tt-part::before{
+    content:"";position:absolute;left:24px;top:-14px;width:2px;height:14px;
+    background:rgba(29,161,242,0.25);
+  }
+
+  /* Media gallery */
+  .tweet-view-media{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:10px;
+    margin-top:12px;max-width:100%;
+  }
+  .tw-media-tile{
+    background:rgba(255,255,255,0.92);
+    border:1.5px solid rgba(29,161,242,0.22);
+    border-radius:12px;
+    padding:8px;display:flex;flex-direction:column;gap:6px;
+    min-width:0;overflow:hidden;
+  }
+  .tw-media-tile .tw-media-preview{
+    width:100%;aspect-ratio:1/1;border-radius:8px;overflow:hidden;
+    background:rgba(29,161,242,0.06);
+    display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .tw-media-tile .tw-media-preview img,
+  .tw-media-tile .tw-media-preview video{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .tw-media-tile .tw-media-preview .tw-media-fallback{
+    font-size:32px;color:var(--ink-soft);
+  }
+  .tw-media-tile .tw-media-meta{
+    font-size:11.5px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .tw-media-tile .tw-media-meta strong{color:var(--deep);font-weight:700}
+  .tw-media-tile .tw-media-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .tw-media-tile .tw-media-actions .btn{padding:5px 10px;font-size:12px;flex:1;text-align:center}
+  .tw-media-tile .tw-copy-status{
+    font-size:11px;font-weight:700;color:#1f6b35;display:none;align-items:center;gap:4px;
+  }
+  .tw-media-tile .tw-copy-status.show{display:inline-flex}
+
+  /* Inline meta rows in the view */
+  .tweet-view-meta-row{
+    display:flex;flex-wrap:wrap;gap:8px 16px;
+    font-size:13px;color:var(--ink-soft);margin-top:14px;
+  }
+  .tweet-view-meta-row strong{color:var(--deep);font-weight:700}
+  .tweet-view-perf{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));gap:8px;margin-top:10px;
+  }
+  .tweet-view-perf .perf-stat{
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(29,161,242,0.18);
+    border-radius:10px;padding:8px 12px;
+  }
+  .tweet-view-perf .perf-stat .ps-num{font-weight:800;color:var(--deep);font-size:18px;line-height:1}
+  .tweet-view-perf .perf-stat .ps-label{font-size:11px;color:var(--ink-soft);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+
   /* ===== KANBAN BOARD ===== */
   .kanban-board{
     display:grid;gap:14px;
@@ -2421,6 +2525,57 @@
     </div>
   </div>
 
+  <!-- ===== V2.18: TWEET READ-ONLY VIEW MODAL ===== -->
+  <div class="modal-backdrop" id="tweetViewModal" role="dialog" aria-modal="true">
+    <div class="modal-content view-content" style="max-width:740px">
+      <div class="tweet-view-toolbar">
+        <div class="tweet-view-pills" id="tvPills"></div>
+        <div class="tweet-view-actions">
+          <button class="btn secondary" id="tvCopyBtn" title="Copy the full tweet (with hashtags + thread) to your clipboard">📋 Copy text</button>
+          <button class="btn" id="tvEditBtn">✏️ Edit</button>
+          <button class="btn secondary" id="tvCloseBtn" title="Close (Esc)">✕</button>
+        </div>
+      </div>
+
+      <!-- Tweet chain: main + thread parts -->
+      <div class="tweet-thread" id="tvThread"></div>
+
+      <!-- Media gallery (only renders when media_urls.length > 0) -->
+      <div id="tvMediaSection" class="hidden">
+        <h4 style="font-family:'Pacifico',cursive;font-weight:400;font-size:17px;color:var(--deep);margin:18px 0 8px;display:flex;align-items:center;gap:8px">📎 Media</h4>
+        <div class="tweet-view-media" id="tvMediaGallery"></div>
+      </div>
+
+      <!-- Hashtags -->
+      <div id="tvHashtagsSection" class="hidden">
+        <h4 style="font-family:'Pacifico',cursive;font-weight:400;font-size:17px;color:var(--deep);margin:18px 0 8px;display:flex;align-items:center;gap:8px">🏷️ Hashtags</h4>
+        <div class="view-hashtags" id="tvHashtags"></div>
+      </div>
+
+      <!-- Scheduled / Posted meta -->
+      <div class="tweet-view-meta-row" id="tvMetaRow"></div>
+
+      <!-- Posted performance (only when status === 'posted') -->
+      <div id="tvPerfSection" class="hidden">
+        <h4 style="font-family:'Pacifico',cursive;font-weight:400;font-size:17px;color:var(--deep);margin:18px 0 8px;display:flex;align-items:center;gap:8px">📊 Performance</h4>
+        <div class="tweet-view-perf" id="tvPerf"></div>
+        <div id="tvPostedLink" style="margin-top:8px;font-size:13px"></div>
+      </div>
+
+      <!-- Notes -->
+      <div id="tvNotesSection" class="hidden">
+        <h4 style="font-family:'Pacifico',cursive;font-weight:400;font-size:17px;color:var(--deep);margin:18px 0 8px;display:flex;align-items:center;gap:8px">📓 Notes</h4>
+        <div class="view-notes" id="tvNotes"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn danger pull-left" id="tvDeleteBtn">🗑 Delete</button>
+        <button class="btn secondary" id="tvCloseBtn2">Close</button>
+        <button class="btn" id="tvEditBtn2">✏️ Edit this tweet</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <a href="index.html">🏠 Hub</a> &middot; <a href="analyzer.html">🛠️ Analyzer</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
     Made with 💗 by Eggie &middot; Data lives in your private Supabase — nobody else can read it.
@@ -3067,6 +3222,229 @@ async function deleteTweet(id){
   const { error } = await sb.from('planner_tweets').delete().eq('id', id);
   if(error){ alert('Delete failed: ' + error.message); return false; }
   return true;
+}
+
+// ============================================================
+//  V2.18 — TWEET READ-ONLY VIEW MODAL
+//  Mirrors the item viewModal pattern: shows the tweet without edit fields,
+//  with ✏️ Edit, 📋 Copy text, ✕ Close. Per-media Copy buttons live here too.
+// ============================================================
+let viewingTweetId = null;
+
+function openTweetView(t){
+  if(!t || !t.id) return;
+  viewingTweetId = t.id;
+  // ----- Status / star / over-limit pills -----
+  const charCount = tweetCharCount(t);
+  const overLimit = tweetIsOverLimit(t);
+  const pills = [];
+  pills.push(`<span class="tvp ${escape(t.status || 'draft')}">${
+    t.status === 'scheduled' ? '📅 Scheduled' :
+    t.status === 'posted' ? '✅ Posted' :
+    t.status === 'archived' ? '📦 Archived' :
+    '📝 Draft'
+  }</span>`);
+  if(t.is_priority) pills.push('<span class="tvp starred">⭐ Important</span>');
+  pills.push(`<span class="tvp ${overLimit ? 'over' : ''}">${charCount}/${TWEET_CHAR_LIMIT}${overLimit ? ' ⚠ over' : ''}</span>`);
+  if(Array.isArray(t.thread_parts) && t.thread_parts.length){
+    pills.push(`<span class="tvp">🧵 ${t.thread_parts.length + 1} parts</span>`);
+  }
+  $('tvPills').innerHTML = pills.join('');
+
+  // ----- Tweet chain (main + thread parts) -----
+  const parts = [{ text: t.content || '', label: 'Tweet' }];
+  (Array.isArray(t.thread_parts) ? t.thread_parts : []).forEach((p, i) => {
+    parts.push({ text: p || '', label: `🧵 Part ${i + 2}` });
+  });
+  $('tvThread').innerHTML = parts.map((p, i) => {
+    const len = String(p.text || '').length;
+    const overP = len > TWEET_CHAR_LIMIT;
+    return `
+      <div class="tt-part ${i === 0 ? 'main' : ''}">
+        <div class="tt-part-head">
+          <span>${escape(p.label)}</span>
+          <span class="tt-counter ${overP ? 'over' : ''}">${len}/${TWEET_CHAR_LIMIT}</span>
+        </div>
+        <div>${escape(p.text || '(empty)')}</div>
+      </div>
+    `;
+  }).join('');
+
+  // ----- Media gallery -----
+  const media = Array.isArray(t.media_urls) ? t.media_urls : [];
+  $('tvMediaSection').classList.toggle('hidden', media.length === 0);
+  if(media.length){
+    $('tvMediaGallery').innerHTML = media.map((m, i) => {
+      const isVideo = /\.(mp4|mov|webm)$/i.test(m.name || '') || /\.(mp4|mov|webm)$/i.test(m.url || '');
+      const preview = m.url
+        ? (isVideo
+          ? `<video src="${escape(m.url)}" preload="metadata" muted></video>`
+          : `<img src="${escape(m.url)}" alt="${escape(m.name || '')}" onerror="this.parentElement.innerHTML='<span class=\\'tw-media-fallback\\'>📎</span>'" />`)
+        : '<span class="tw-media-fallback">📎</span>';
+      return `
+        <div class="tw-media-tile" data-media-idx="${i}">
+          <div class="tw-media-preview">${preview}</div>
+          <div class="tw-media-meta"><strong>${escape(m.name || 'file')}</strong>${m.size ? ' · ' + formatFileSize(m.size) : ''}</div>
+          <div class="tw-media-actions">
+            ${m.url ? `<a href="${escape(m.url)}" target="_blank" rel="noreferrer" class="btn secondary" style="text-decoration:none">View ↗</a>` : ''}
+            <button type="button" class="btn" data-tw-copy-media="${i}" title="${isVideo ? 'Copy the URL — paste into a media app' : 'Copy the image to your clipboard so you can paste it into Discord, Photoshop, etc.'}">${isVideo ? '🔗 Copy URL' : '📋 Copy'}</button>
+          </div>
+          <span class="tw-copy-status">✓ Copied!</span>
+        </div>
+      `;
+    }).join('');
+    // Wire per-media copy buttons (they can't conflict across re-renders since wireApp ran once)
+    $('tvMediaGallery').querySelectorAll('button[data-tw-copy-media]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.twCopyMedia, 10);
+        copyTweetMediaToClipboard(media[idx], btn);
+      });
+    });
+  }
+
+  // ----- Hashtags -----
+  const tags = Array.isArray(t.hashtags) ? t.hashtags : [];
+  $('tvHashtagsSection').classList.toggle('hidden', tags.length === 0);
+  if(tags.length){
+    $('tvHashtags').innerHTML = tags.map(h => `<span class="v-tag">#${escape(String(h).replace(/^#/, ''))}</span>`).join('');
+  }
+
+  // ----- Scheduled / Posted meta line -----
+  const metaBits = [];
+  if(t.scheduled_at){
+    const d = new Date(t.scheduled_at);
+    metaBits.push(`<span>📅 <strong>Scheduled:</strong> ${d.toLocaleString(undefined, { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span>`);
+  }
+  if(t.posted_at){
+    const d = new Date(t.posted_at);
+    metaBits.push(`<span>📤 <strong>Posted:</strong> ${d.toLocaleString(undefined, { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span>`);
+  }
+  $('tvMetaRow').innerHTML = metaBits.join('');
+  $('tvMetaRow').style.display = metaBits.length ? '' : 'none';
+
+  // ----- Performance (only when posted) -----
+  const hasPerf = (t.status === 'posted') && (
+    t.impressions != null || t.likes != null || t.retweets != null ||
+    t.replies != null || t.bookmarks != null || t.posted_url
+  );
+  $('tvPerfSection').classList.toggle('hidden', !hasPerf);
+  if(hasPerf){
+    const stats = [
+      { num: t.impressions, label: 'Impressions' },
+      { num: t.likes,       label: 'Likes ♥' },
+      { num: t.retweets,    label: 'Retweets 🔁' },
+      { num: t.replies,     label: 'Replies 💬' },
+      { num: t.bookmarks,   label: 'Bookmarks 🔖' }
+    ].filter(s => s.num != null);
+    $('tvPerf').innerHTML = stats.map(s =>
+      `<div class="perf-stat"><div class="ps-num">${formatNum(s.num)}</div><div class="ps-label">${s.label}</div></div>`
+    ).join('');
+    $('tvPostedLink').innerHTML = t.posted_url
+      ? `🔗 <a href="${escape(t.posted_url)}" target="_blank" rel="noreferrer" style="color:var(--deep);font-weight:700">View the posted tweet ↗</a>`
+      : '';
+  }
+
+  // ----- Notes -----
+  const hasNotes = t.notes && String(t.notes).trim();
+  $('tvNotesSection').classList.toggle('hidden', !hasNotes);
+  if(hasNotes) $('tvNotes').textContent = t.notes;
+
+  $('tweetViewModal').classList.add('open');
+}
+
+function closeTweetView(){
+  $('tweetViewModal').classList.remove('open');
+  viewingTweetId = null;
+}
+
+// Convert a tweet object to plain text for clipboard: main + thread joined with separators,
+// hashtags appended once at the end.
+function tweetToPlainText(t){
+  const main = String(t.content || '');
+  const thread = Array.isArray(t.thread_parts) ? t.thread_parts.filter(p => String(p || '').trim()) : [];
+  const tags = Array.isArray(t.hashtags) && t.hashtags.length
+    ? '\n\n' + t.hashtags.map(h => '#' + String(h).replace(/^#/, '')).join(' ')
+    : '';
+  const threadStr = thread.length ? '\n\n---\n\n' + thread.join('\n\n---\n\n') : '';
+  return main + tags + threadStr;
+}
+
+function handleTweetViewCopy(){
+  const t = tweets.find(x => x.id === viewingTweetId);
+  if(!t) return;
+  const text = tweetToPlainText(t);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = $('tvCopyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }).catch(e => alert('Copy failed: ' + e.message));
+}
+
+// V2.18 — Copy a media file to the user's clipboard.
+//   - Images: fetch + write as ClipboardItem (so they can paste into Photoshop / Discord / etc.)
+//   - Videos: fall back to copying the URL (clipboard can't hold video data)
+//   - Any failure: fall back to copying the URL with a small toast change
+async function copyTweetMediaToClipboard(media, btnEl){
+  if(!media || !media.url){ alert('No URL available for this media.'); return; }
+  const isVideo = /\.(mp4|mov|webm)$/i.test(media.name || '') || /\.(mp4|mov|webm)$/i.test(media.url || '');
+  const statusEl = btnEl && btnEl.closest('.tw-media-tile')?.querySelector('.tw-copy-status');
+  const showOk = (label) => {
+    if(statusEl){
+      statusEl.textContent = label || '✓ Copied!';
+      statusEl.classList.add('show');
+      setTimeout(() => statusEl.classList.remove('show'), 1500);
+    }
+  };
+  // Videos go straight to URL copy
+  if(isVideo){
+    try {
+      await navigator.clipboard.writeText(media.url);
+      showOk('✓ URL copied!');
+    } catch(e){
+      alert('Copy failed: ' + e.message);
+    }
+    return;
+  }
+  // Images — try to copy the actual image data so users can paste into apps
+  try {
+    const resp = await fetch(media.url);
+    if(!resp.ok) throw new Error('Image fetch failed (' + resp.status + ')');
+    let blob = await resp.blob();
+    // Most browsers only accept PNG via the clipboard API. If we got something else,
+    // we draw it into a canvas + re-encode as PNG.
+    if(!/^image\/png$/i.test(blob.type)){
+      try {
+        const img = await new Promise((resolve, reject) => {
+          const i = new Image();
+          i.crossOrigin = 'anonymous';
+          i.onload = () => resolve(i);
+          i.onerror = reject;
+          i.src = URL.createObjectURL(blob);
+        });
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        c.getContext('2d').drawImage(img, 0, 0);
+        blob = await new Promise(res => c.toBlob(res, 'image/png'));
+      } catch(reencodeErr){
+        // If re-encoding fails (e.g. tainted canvas from cross-origin), fall through to URL copy
+        throw reencodeErr;
+      }
+    }
+    if(!window.ClipboardItem || !navigator.clipboard?.write){
+      throw new Error('Clipboard image API not supported in this browser');
+    }
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    showOk('✓ Image copied!');
+  } catch(e){
+    console.warn('[Planner V2.18] Image clipboard copy failed, falling back to URL:', e);
+    try {
+      await navigator.clipboard.writeText(media.url);
+      showOk('✓ URL copied (image API unavailable)');
+    } catch(e2){
+      alert('Copy failed: ' + e2.message);
+    }
+  }
 }
 
 // ============================================================
@@ -4856,9 +5234,9 @@ function renderTweets(){
     </div>
   `).join('');
 
-  // Wire click handlers
+  // Wire click handlers — cards open the read-only view; Edit lives inside the view
   wrap.querySelectorAll('.tweet-card').forEach(el => {
-    el.addEventListener('click', () => openTweetModal(tweets.find(t => t.id === el.dataset.id)));
+    el.addEventListener('click', () => openTweetView(tweets.find(t => t.id === el.dataset.id)));
   });
 }
 
@@ -5214,13 +5592,13 @@ function renderCalendar(filtered){
     `;
   }).join('');
 
-  // Click a bubble → open view modal for items, or tweet editor for tweets
+  // Click a bubble → open the read-only view modal (items + tweets)
   grid.querySelectorAll('[data-bubble-id]').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
       if(el.dataset.bubbleKind === 'tweet'){
         const tw = tweets.find(t => t.id === el.dataset.bubbleId);
-        if(tw) openTweetModal(tw);
+        if(tw) openTweetView(tw);
       } else {
         const item = items.find(i => i.id === el.dataset.bubbleId);
         if(item) openViewModal(item);
@@ -5650,6 +6028,29 @@ function wireApp(){
   $('twDeleteBtn').addEventListener('click', handleTweetDelete);
   $('twCopyBtn').addEventListener('click', handleTweetCopy);
   $('tweetModal').addEventListener('click', e => { if(e.target === $('tweetModal')) closeTweetModal(); });
+
+  // V2.18 — Tweet read-only view modal wiring
+  const tvEditFromView = () => {
+    const t = tweets.find(x => x.id === viewingTweetId);
+    closeTweetView();
+    if(t) openTweetModal(t);
+  };
+  const tvDeleteFromView = async () => {
+    if(!viewingTweetId) return;
+    const ok = await deleteTweet(viewingTweetId);
+    if(ok){
+      tweets = tweets.filter(t => t.id !== viewingTweetId);
+      closeTweetView();
+      render();
+    }
+  };
+  $('tvCloseBtn').addEventListener('click', closeTweetView);
+  $('tvCloseBtn2').addEventListener('click', closeTweetView);
+  $('tvEditBtn').addEventListener('click', tvEditFromView);
+  $('tvEditBtn2').addEventListener('click', tvEditFromView);
+  $('tvCopyBtn').addEventListener('click', handleTweetViewCopy);
+  $('tvDeleteBtn').addEventListener('click', tvDeleteFromView);
+  $('tweetViewModal').addEventListener('click', e => { if(e.target === $('tweetViewModal')) closeTweetView(); });
   $('twContent').addEventListener('input', updateTwCounters);
   $('twStatus').addEventListener('change', togglePostedSection);
   $('twAddThreadBtn').addEventListener('click', () => {
@@ -5694,6 +6095,7 @@ function wireApp(){
     else if($('streamScheduleModal').classList.contains('open')) closeStreamScheduleModal();
     else if($('managersModal') && $('managersModal').classList.contains('open')) closeManagersModal();
     else if($('tweetModal') && $('tweetModal').classList.contains('open')) closeTweetModal();
+    else if($('tweetViewModal') && $('tweetViewModal').classList.contains('open')) closeTweetView();
   });
 }
 
