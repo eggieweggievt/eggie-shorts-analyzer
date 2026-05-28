@@ -1129,6 +1129,19 @@
     <input id="eLinkSearch" type="search" placeholder="Search your planner items…" />
     <div id="eLinkPicker" class="link-picker"></div>
 
+    <!-- V3.2 — Comment thread (owner + manager can post) -->
+    <label style="margin-top:14px">💬 Comments <span class="opt"><span id="tdCommentsCount">0</span></span></label>
+    <p style="margin:0 0 8px;font-size:12px;color:var(--ink-soft);line-height:1.45">
+      Visible to the task owner and any active managers of this hub. Managers can leave notes on your tasks here.
+    </p>
+    <div class="td-comments-list" id="tdCommentsList" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;margin-bottom:8px">
+      <div style="text-align:center;color:var(--ink-soft);font-size:12.5px;font-style:italic;padding:8px 0">Save the task first to start a thread.</div>
+    </div>
+    <div class="td-comments-composer" id="tdCommentsComposer" style="display:none;gap:8px;align-items:flex-end">
+      <textarea id="tdCommentBody" rows="2" placeholder="Write a comment… (Enter to send, Shift+Enter for newline)" maxlength="4000" style="flex:1;padding:8px 12px;border-radius:12px;border:2px solid rgba(144,165,255,0.4);background:rgba(255,255,255,0.9);font-family:inherit;font-size:13px;resize:vertical;min-height:38px"></textarea>
+      <button type="button" id="tdPostCommentBtn" class="btn" style="padding:7px 14px;font-size:12.5px">Post</button>
+    </div>
+
     <div class="modal-actions">
       <button id="eDeleteBtn" type="button" class="btn danger pull-left">🗑️ Delete</button>
       <button id="eFocusBtn" type="button" class="btn secondary">⏱️ Start focus</button>
@@ -2102,10 +2115,167 @@ function openEditor(id){
   // link picker
   renderLinkPicker('');
 
+  // V3.2 — Load comment thread for this todo
+  loadTodoComments(editingTodoId);
+
   $('editorModal').classList.add('open');
   setTimeout(() => $('eTitle').focus(), 50);
 }
 function closeEditor(){ $('editorModal').classList.remove('open'); }
+
+// ============================================================
+//  V3.2 — TODO COMMENT THREAD
+//  Uses planner_comments with parent_type = 'todo'. Visible to owner + any
+//  active managers of the hub. Editors don't see todo comments (only item ones).
+//  In todo.html, currentUser is always the owner — we don't yet support manager
+//  impersonation here. Managers viewing/posting comments will use planner.html
+//  → todo widget or the owner's own session.
+// ============================================================
+let editingTodoCommentsId = null;
+
+function escapeHtmlTd(s){
+  return String(s == null ? '' : s)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function fmtRelativeTd(ts){
+  if(!ts) return '';
+  const d = new Date(ts);
+  const diff = Date.now() - d.getTime();
+  const m = Math.floor(diff / 60000);
+  if(m < 1) return 'just now';
+  if(m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if(h < 24) return `${h}h ago`;
+  const days = Math.floor(h / 24);
+  if(days < 7) return `${days}d ago`;
+  return d.toLocaleDateString();
+}
+
+async function loadTodoComments(todoId){
+  editingTodoCommentsId = todoId || null;
+  const list = $('tdCommentsList');
+  const composer = $('tdCommentsComposer');
+  const countEl = $('tdCommentsCount');
+  if(!list || !composer) return;
+
+  if(!todoId){
+    list.innerHTML = '<div style="text-align:center;color:var(--ink-soft);font-size:12.5px;font-style:italic;padding:8px 0">Save the task first to start a thread.</div>';
+    composer.style.display = 'none';
+    if(countEl) countEl.textContent = '0';
+    return;
+  }
+  if(!sb || !currentUser){
+    list.innerHTML = '<div style="text-align:center;color:var(--ink-soft);font-size:12.5px;font-style:italic;padding:8px 0">Sign in to use comments.</div>';
+    composer.style.display = 'none';
+    return;
+  }
+
+  composer.style.display = 'flex';
+  list.innerHTML = '<div style="text-align:center;color:var(--ink-soft);font-size:12.5px;padding:8px 0">Loading…</div>';
+
+  const { data, error } = await sb.from('planner_comments')
+    .select('*')
+    .eq('owner_id', currentUser.id)
+    .eq('parent_type', 'todo')
+    .eq('parent_id', todoId)
+    .order('created_at', { ascending: true });
+
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      list.innerHTML = '<div style="text-align:center;color:var(--ink-soft);font-size:12.5px;font-style:italic;padding:8px 0">Comments not enabled yet — run planner-manager-hub-v2.sql to turn this on.</div>';
+      composer.style.display = 'none';
+      return;
+    }
+    console.error('[Todo comments] load failed:', error);
+    list.innerHTML = '<div style="text-align:center;color:#a23556;font-size:12.5px;padding:8px 0">Couldn\'t load comments.</div>';
+    return;
+  }
+
+  const comments = data || [];
+  if(countEl) countEl.textContent = String(comments.length);
+  if(!comments.length){
+    list.innerHTML = '<div style="text-align:center;color:var(--ink-soft);font-size:12.5px;font-style:italic;padding:8px 0">No comments yet — be the first ✨</div>';
+    return;
+  }
+
+  list.innerHTML = comments.map(c => {
+    const roleLabel = c.author_role === 'owner' ? 'Owner' : c.author_role === 'manager' ? 'Manager' : 'Editor';
+    const author = c.author_label || c.author_email || 'someone';
+    const canDelete = c.author_user_id === currentUser.id || currentUser.id === c.owner_id;
+    const bgColor = c.author_role === 'manager' ? 'rgba(255,219,247,0.4)' : c.author_role === 'editor' ? 'rgba(255,245,220,0.55)' : 'rgba(199,210,255,0.3)';
+    const pillBg = c.author_role === 'manager' ? 'rgba(255,178,240,0.5);color:#a23556' : c.author_role === 'editor' ? 'rgba(255,210,122,0.55);color:#7a5818' : 'rgba(144,165,255,0.45);color:#4D5BC0';
+    return `
+      <div style="background:${bgColor};border:1.5px solid rgba(199,210,255,0.4);border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.5">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;font-size:11.5px;color:var(--ink-soft)">
+          <span style="font-weight:800;color:var(--ink)">${escapeHtmlTd(author)}</span>
+          <span style="padding:2px 8px;border-radius:999px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;font-size:10px;background:${pillBg}">${roleLabel}</span>
+          <span style="margin-left:auto;font-size:10.5px;font-style:italic">${escapeHtmlTd(fmtRelativeTd(c.created_at))}</span>
+          ${canDelete ? `<button class="td-c-delete" data-id="${escapeHtmlTd(c.id)}" type="button" style="background:transparent;border:none;cursor:pointer;color:#a23556;font-size:11px;font-weight:700;padding:0;font-family:inherit">Delete</button>` : ''}
+        </div>
+        <div style="white-space:pre-wrap;color:var(--ink);font-size:13px">${escapeHtmlTd(c.body)}</div>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.td-c-delete').forEach(b => b.addEventListener('click', async () => {
+    if(!confirm("Delete this comment? This can't be undone.")) return;
+    await sb.from('planner_comments').delete().eq('id', b.dataset.id);
+    loadTodoComments(editingTodoCommentsId);
+  }));
+  list.scrollTop = list.scrollHeight;
+}
+
+async function postTodoComment(){
+  const body = ($('tdCommentBody').value || '').trim();
+  if(!body) return;
+  if(!editingTodoCommentsId){ alert("Save the task first."); return; }
+  if(!currentUser) return;
+
+  const btn = $('tdPostCommentBtn');
+  btn.disabled = true; btn.textContent = 'Posting…';
+
+  const payload = {
+    owner_id: currentUser.id,
+    parent_type: 'todo',
+    parent_id: editingTodoCommentsId,
+    author_user_id: currentUser.id,
+    author_role: 'owner',
+    author_email: currentUser.email,
+    author_label: currentUser.email,
+    body
+  };
+
+  const { error } = await sb.from('planner_comments').insert(payload);
+  btn.disabled = false; btn.textContent = 'Post';
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      alert("Comments table doesn't exist yet. Run planner-manager-hub-v2.sql in Supabase first.");
+    } else {
+      alert('Post failed: ' + (error.message || error));
+    }
+    return;
+  }
+  $('tdCommentBody').value = '';
+  loadTodoComments(editingTodoCommentsId);
+}
+
+// Wire the composer once
+document.addEventListener('DOMContentLoaded', () => {
+  const post = $('tdPostCommentBtn');
+  if(post) post.addEventListener('click', postTodoComment);
+  const body = $('tdCommentBody');
+  if(body) body.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      postTodoComment();
+    }
+  });
+});
 
 function syncEditPrioBtn(){
   const b = $('ePrio');

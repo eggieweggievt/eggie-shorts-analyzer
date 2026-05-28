@@ -214,6 +214,88 @@
   @keyframes spin{to{transform:rotate(360deg)}}
 
   .hidden{display:none !important}
+
+  /* V3.2 — Add-client panel */
+  .add-client-panel{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.5);
+    border-radius:18px;padding:16px 20px;margin:0 0 18px;
+    box-shadow:var(--shadow);
+  }
+  .acp-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .acp-head h3{margin:0;font-size:16px;color:var(--deep);font-weight:800}
+  .acp-help{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.55}
+  .acp-row{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
+  .acp-row input{
+    flex:1 1 280px;padding:10px 14px;border-radius:12px;
+    border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.95);
+    font-family:inherit;font-size:14px;color:var(--ink);min-width:0;
+  }
+  .acp-row input:focus{outline:none;border-color:var(--pink-hot);box-shadow:0 0 0 4px rgba(255,178,240,0.25)}
+  .acp-row .btn{padding:10px 18px;font-size:14px}
+  .acp-collapse{
+    background:transparent;border:none;cursor:pointer;color:var(--deep);
+    font-family:inherit;font-weight:700;font-size:12px;padding:0;letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .acp-collapse:hover{text-decoration:underline}
+
+  /* V3.2 — Pinned star on client cards */
+  .client-card.pinned{
+    border-color:rgba(255,178,240,0.65);
+    box-shadow:0 8px 32px rgba(255,138,168,0.25), 0 2px 8px rgba(255,178,240,0.18);
+  }
+  .cc-pin{
+    background:transparent;border:none;cursor:pointer;
+    font-size:18px;line-height:1;padding:0;color:rgba(180,180,180,0.7);
+    transition:color .15s ease, transform .15s ease;
+  }
+  .cc-pin.on{color:var(--pink-hot)}
+  .cc-pin:hover{transform:scale(1.15)}
+
+  /* V3.2 — Profile + private notes section (expandable) */
+  .cc-profile{
+    background:rgba(255,219,247,0.25);
+    border:1.5px dashed rgba(255,178,240,0.45);
+    border-radius:12px;padding:10px 12px;
+    font-size:13px;
+  }
+  .cc-profile summary{
+    cursor:pointer;font-weight:700;color:var(--deep);font-size:12.5px;
+    letter-spacing:.03em;text-transform:uppercase;
+    list-style:none;display:flex;align-items:center;gap:6px;
+  }
+  .cc-profile summary::-webkit-details-marker{display:none}
+  .cc-profile summary::before{content:"▸";transition:transform .18s ease;font-size:10px}
+  .cc-profile[open] summary::before{transform:rotate(90deg)}
+  .cc-profile .pf-body{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .cc-profile label{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;display:block}
+  .cc-profile input[type=text],
+  .cc-profile textarea{
+    width:100%;padding:8px 10px;border-radius:10px;
+    border:1.5px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.85);
+    font-family:inherit;font-size:13px;color:var(--ink);resize:vertical;
+  }
+  .cc-profile input[type=text]:focus,
+  .cc-profile textarea:focus{outline:none;border-color:var(--pink-hot);box-shadow:0 0 0 3px rgba(255,178,240,0.2)}
+  .cc-profile textarea{min-height:60px;font-size:13px;line-height:1.5}
+  .cc-profile .pf-actions{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+  .cc-profile .pf-save-status{flex:1;font-size:11.5px;color:var(--ink-soft);font-style:italic}
+  .cc-profile .pf-save-status.saved{color:#1f6b35;font-style:normal}
+  .cc-profile button.pf-btn{
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--deep);
+    cursor:pointer;font-family:inherit;
+  }
+  .cc-profile button.pf-btn:hover{background:rgba(255,255,255,1)}
+  .cc-profile .pf-private-warn{
+    background:rgba(255,245,220,0.55);
+    border:1px solid rgba(255,210,122,0.5);
+    border-radius:8px;padding:6px 10px;font-size:11.5px;color:#7a5818;
+    margin-bottom:4px;
+  }
 </style>
 </head>
 <body>
@@ -250,9 +332,28 @@
     <div class="user-bar">
       <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn secondary" id="toggleAddClientBtn" type="button">➕ Add a client</button>
         <button class="btn secondary" id="refreshBtn" type="button">🔄 Refresh</button>
         <button class="btn secondary" id="signOutBtn" type="button">Sign out</button>
       </div>
+    </div>
+
+    <!-- ADD A CLIENT PANEL -->
+    <div class="add-client-panel hidden" id="addClientPanel">
+      <div class="acp-head">
+        <h3>➕ Add a new client</h3>
+        <button class="acp-collapse" id="closeAddClientBtn" type="button">Hide</button>
+      </div>
+      <p class="acp-help">
+        Paste an invite link a creator sent you (the <code>manager-claim.html?token=...</code> URL) — OR just the raw token. We'll claim it for the email you're signed in with: <strong id="acpYourEmail">—</strong>.
+        <br/>
+        Don't have an invite yet? Ask the creator you want to manage to open their planner's 👑 Managers panel and generate one for your email.
+      </p>
+      <div class="acp-row">
+        <input id="acpInput" type="text" placeholder="https://creatorhub.eggieweggie.ca/manager-claim.html?token=… (or just the token)" />
+        <button class="btn" id="acpClaimBtn" type="button">👑 Claim invite</button>
+      </div>
+      <div class="status info hidden" id="acpStatus" style="margin-top:10px"></div>
     </div>
 
     <div class="summary-bar" id="summaryBar">
@@ -284,6 +385,9 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 const $ = (id) => document.getElementById(id);
 let currentUser = null;
 let delegations = [];
+let clientProfiles = {};   // V3.2 — keyed by owner_id → profile row
+let saveTimers = {};       // V3.2 — debounce per-client autosave
+
 
 // ============================================================
 //  Status column metadata (mirrors planner.html STATUSES)
@@ -325,6 +429,138 @@ async function enterDashboard(user){
   $('authView').classList.add('hidden');
   $('dashboardView').classList.remove('hidden');
   $('userEmailDisplay').textContent = user.email;
+  $('acpYourEmail').textContent = user.email;
+  await loadDashboard();
+}
+
+// ============================================================
+//  Add-client panel (paste invite link / token, claim)
+// ============================================================
+$('toggleAddClientBtn').addEventListener('click', () => {
+  $('addClientPanel').classList.toggle('hidden');
+  if(!$('addClientPanel').classList.contains('hidden')){
+    $('acpInput').focus();
+  }
+});
+$('closeAddClientBtn').addEventListener('click', () => $('addClientPanel').classList.add('hidden'));
+$('acpInput').addEventListener('keydown', e => { if(e.key === 'Enter') $('acpClaimBtn').click(); });
+
+$('acpClaimBtn').addEventListener('click', async () => {
+  const raw = ($('acpInput').value || '').trim();
+  if(!raw){ setStatus('acpStatus', 'Paste an invite link or token first.', 'error'); return; }
+
+  // Accept either a full URL with ?token=... or just the bare token
+  let token = raw;
+  try{
+    if(raw.includes('?') || raw.includes('://')){
+      const u = new URL(raw, window.location.origin);
+      const t = u.searchParams.get('token');
+      if(t) token = t;
+    }
+  }catch(_){ /* not a URL — treat raw as the token */ }
+
+  const btn = $('acpClaimBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Claiming…';
+  setStatus('acpStatus', 'Looking up the invite…', 'info');
+
+  try{
+    // Peek first so we can show a helpful error if the email doesn't match
+    const { data: peekData, error: peekErr } = await sb.rpc('planner_manager_peek_invite', { p_token: token });
+    if(peekErr) throw peekErr;
+    if(!peekData || !peekData.length){
+      setStatus('acpStatus', "That token isn't recognized. Double-check the link the creator sent you.", 'error');
+      return;
+    }
+    const peek = peekData[0];
+    if(peek.revoked){ setStatus('acpStatus', 'That invite has been revoked. Ask the creator for a new one.', 'error'); return; }
+    if((peek.email || '').toLowerCase() !== (currentUser.email || '').toLowerCase()){
+      setStatus('acpStatus',
+        `This invite is locked to ${peek.email}, but you're signed in as ${currentUser.email}. Sign out and sign in with the correct email — or ask the creator to re-issue the invite for ${currentUser.email}.`,
+        'error');
+      return;
+    }
+
+    const { error: claimErr } = await sb.rpc('planner_manager_claim_invite', { p_token: token });
+    if(claimErr) throw claimErr;
+
+    setStatus('acpStatus', `🎉 Claimed! ${peek.creator_email}'s hub is now in your dashboard.`, 'success');
+    $('acpInput').value = '';
+    await loadDashboard();
+  }catch(e){
+    console.error('[ManagerHub] claim failed:', e);
+    setStatus('acpStatus', "Couldn't claim that invite: " + (e.message || e), 'error');
+  }finally{
+    btn.disabled = false; btn.innerHTML = '👑 Claim invite';
+  }
+});
+
+// ============================================================
+//  Client profiles (manager's per-client metadata)
+// ============================================================
+async function loadClientProfiles(){
+  const { data, error } = await sb.from('planner_client_profiles')
+    .select('*')
+    .eq('manager_user_id', currentUser.id);
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('[ManagerHub] planner_client_profiles missing — run planner-manager-hub-v2.sql.');
+      clientProfiles = {};
+      return;
+    }
+    console.error('[ManagerHub] profile load failed:', error);
+    return;
+  }
+  clientProfiles = {};
+  (data || []).forEach(p => { clientProfiles[p.owner_id] = p; });
+}
+
+async function saveProfileField(ownerId, patch){
+  const existing = clientProfiles[ownerId];
+  if(existing){
+    const { data, error } = await sb.from('planner_client_profiles')
+      .update(patch)
+      .eq('id', existing.id)
+      .select()
+      .single();
+    if(error){ console.error('[ManagerHub] profile update failed:', error); return null; }
+    clientProfiles[ownerId] = data;
+    return data;
+  } else {
+    const payload = { manager_user_id: currentUser.id, owner_id: ownerId, ...patch };
+    const { data, error } = await sb.from('planner_client_profiles')
+      .insert(payload)
+      .select()
+      .single();
+    if(error){
+      if(/relation.*does not exist/i.test(error.message || '')){
+        alert("Client profile feature not enabled yet. Run planner-manager-hub-v2.sql in Supabase first.");
+      } else {
+        console.error('[ManagerHub] profile insert failed:', error);
+      }
+      return null;
+    }
+    clientProfiles[ownerId] = data;
+    return data;
+  }
+}
+
+function scheduleProfileSave(ownerId, patch, statusEl){
+  // Debounce per-client so we don't hammer the DB on every keystroke
+  if(saveTimers[ownerId]) clearTimeout(saveTimers[ownerId]);
+  if(statusEl){ statusEl.textContent = 'Editing…'; statusEl.classList.remove('saved'); }
+  saveTimers[ownerId] = setTimeout(async () => {
+    const saved = await saveProfileField(ownerId, patch);
+    if(statusEl){
+      if(saved){ statusEl.textContent = '✓ Saved'; statusEl.classList.add('saved'); }
+      else { statusEl.textContent = 'Save failed'; statusEl.classList.remove('saved'); }
+    }
+  }, 700);
+}
+
+async function togglePinned(ownerId){
+  const existing = clientProfiles[ownerId];
+  const newPinned = !(existing?.pinned);
+  await saveProfileField(ownerId, { pinned: newPinned });
   await loadDashboard();
 }
 
@@ -383,21 +619,24 @@ async function loadDashboard(){
   area.innerHTML = '<div class="loading-card"><span class="spin"></span> Loading your clients…</div>';
   resetSummary();
 
-  // 1. Fetch delegations
+  // 1. Fetch delegations + client profiles in parallel
   let delegRows = [];
   try{
-    const { data, error } = await sb.rpc('planner_list_my_delegations');
-    if(error){
-      if(/function.*does not exist|relation.*does not exist/i.test(error.message || '')){
+    const [delegRes] = await Promise.all([
+      sb.rpc('planner_list_my_delegations'),
+      loadClientProfiles()
+    ]);
+    if(delegRes.error){
+      if(/function.*does not exist|relation.*does not exist/i.test(delegRes.error.message || '')){
         area.innerHTML = renderEmptyState(
           'Manager features not enabled yet',
           "Your creator needs to run planner-managers.sql in Supabase first. (If you're Eggie reading this — that's the SQL migration in your hub folder.)"
         );
         return;
       }
-      throw error;
+      throw delegRes.error;
     }
-    delegRows = data || [];
+    delegRows = delegRes.data || [];
   }catch(e){
     console.error('[ManagerHub] list_my_delegations failed:', e);
     area.innerHTML = renderEmptyState('Something went wrong', "Couldn't load your delegations: " + (e.message || e));
@@ -408,10 +647,18 @@ async function loadDashboard(){
   if(!delegRows.length){
     area.innerHTML = renderEmptyState(
       'No client hubs yet',
-      'You haven\'t been delegated as a manager by any creator. Ask the creator you work with to send you an invite link from their 👑 Managers panel inside planner.html.'
+      "You haven't been delegated as a manager by any creator yet. Got an invite link? Click \"➕ Add a client\" above and paste it in. Otherwise, ask the creator to generate one from their planner's 👑 Managers panel."
     );
     return;
   }
+
+  // V3.2 — Sort: pinned clients first, then by most-recent claim
+  delegRows.sort((a, b) => {
+    const ap = clientProfiles[a.owner_id]?.pinned ? 1 : 0;
+    const bp = clientProfiles[b.owner_id]?.pinned ? 1 : 0;
+    if(ap !== bp) return bp - ap;
+    return (b.claimed_at || '').localeCompare(a.claimed_at || '');
+  });
 
   // 2. For each delegation, load items + compute summary stats in parallel
   area.innerHTML = '<div class="clients-grid" id="clientsGrid"></div>';
@@ -443,7 +690,7 @@ async function loadDashboard(){
   results.forEach(r => {
     const card = document.getElementById('card-' + r.delegation.manager_id);
     if(card) card.replaceWith(buildClientCard(r));
-    summary.active += r.counts.active;
+    summary.active += r.activeCount;
     summary.scheduled += r.attention.scheduledSoon.length;
     summary.editing += r.attention.stuckEditing.length;
     summary.notes += r.attention.recentNotes.length;
@@ -508,6 +755,12 @@ function buildClientCard(r){
   div.className = 'client-card';
   div.id = 'card-' + r.delegation.manager_id;
 
+  const profile = clientProfiles[r.delegation.owner_id] || {};
+  if(profile.pinned) div.classList.add('pinned');
+
+  // Display name — manager's override takes precedence, else creator's email
+  const displayName = (profile.display_name && profile.display_name.trim()) || r.delegation.owner_email || 'creator';
+
   // Status count row
   const countsHtml = STATUS_DEFS.map(s => {
     const n = r.counts[s.value] || 0;
@@ -542,13 +795,17 @@ function buildClientCard(r){
     ? attItems.map(a => `<div style="margin-bottom:6px"><strong>${escapeHtml(a.label)}</strong><ul>${a.html}</ul></div>`).join('')
     : 'All caught up — no items need attention right now ✨';
 
+  const profileOpen = (profile.private_notes || '').trim() ? 'open' : '';
+  const ownerId = r.delegation.owner_id;
+
   div.innerHTML = `
     <div class="cc-head">
       <span class="crown">👑</span>
       <div class="nameblock">
-        <div class="creator">${escapeHtml(r.delegation.owner_email || 'creator')}</div>
-        <div class="role">Manager · ${escapeHtml(r.delegation.manager_email || '')}</div>
+        <div class="creator">${escapeHtml(displayName)}</div>
+        <div class="role">${escapeHtml(r.delegation.owner_email || '')} · Manager</div>
       </div>
+      <button class="cc-pin ${profile.pinned ? 'on' : ''}" data-pin="${escapeHtml(ownerId)}" title="${profile.pinned ? 'Unpin from top' : 'Pin to top'}">${profile.pinned ? '★' : '☆'}</button>
     </div>
 
     <div class="cc-counts">${countsHtml}</div>
@@ -562,11 +819,45 @@ function buildClientCard(r){
       ${attItems.length ? attHtml : '<div>No upcoming deadlines, stuck items, or new editor notes.</div>'}
     </div>
 
+    <details class="cc-profile" ${profileOpen} data-owner="${escapeHtml(ownerId)}">
+      <summary>Client profile + private notes</summary>
+      <div class="pf-body">
+        <div class="pf-private-warn">🔒 These fields are <strong>private to you</strong> — the creator can never see them.</div>
+        <div>
+          <label>Display name <span style="font-weight:500;text-transform:none;letter-spacing:0;font-style:italic;color:var(--ink-soft)">(your label for this client — only you see it)</span></label>
+          <input type="text" class="pf-display-name" placeholder="${escapeHtml(r.delegation.owner_email || 'creator')}" value="${escapeHtml(profile.display_name || '')}" maxlength="80" />
+        </div>
+        <div>
+          <label>Private notes <span style="font-weight:500;text-transform:none;letter-spacing:0;font-style:italic;color:var(--ink-soft)">(your client briefing, contact details, anything else)</span></label>
+          <textarea class="pf-private-notes" placeholder="e.g. Prefers AM check-ins; loves clean cuts; pet peeve = jump cuts in long-form" rows="4">${escapeHtml(profile.private_notes || '')}</textarea>
+        </div>
+        <div class="pf-actions">
+          <span class="pf-save-status">Auto-saves as you type</span>
+        </div>
+      </div>
+    </details>
+
     <div class="cc-actions">
       <a class="btn" href="planner.html?manage=${encodeURIComponent(r.delegation.manager_id)}">Open hub →</a>
       <a class="btn secondary" href="planner-editor.html" target="_blank" rel="noreferrer" title="Open the editor-facing view (if you're also assigned to projects)">📑 Editor view</a>
     </div>
   `;
+
+  // Wire pin toggle
+  const pinBtn = div.querySelector('.cc-pin');
+  pinBtn.addEventListener('click', () => togglePinned(ownerId));
+
+  // Wire profile autosave
+  const nameInput = div.querySelector('.pf-display-name');
+  const notesInput = div.querySelector('.pf-private-notes');
+  const statusEl = div.querySelector('.pf-save-status');
+  nameInput.addEventListener('input', () => {
+    scheduleProfileSave(ownerId, { display_name: nameInput.value.trim() || null }, statusEl);
+  });
+  notesInput.addEventListener('input', () => {
+    scheduleProfileSave(ownerId, { private_notes: notesInput.value || null }, statusEl);
+  });
+
   return div;
 }
 
