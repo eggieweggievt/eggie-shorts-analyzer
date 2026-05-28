@@ -356,9 +356,14 @@
   .board-col{
     background:rgba(255,255,255,0.62);
     border:1.5px solid rgba(255,255,255,0.95);
-    border-radius:16px;padding:16px 12px;
-    display:flex;flex-direction:column;gap:16px;  /* more breathing room between cards */
+    border-radius:16px;padding:14px 12px;
+    display:flex;flex-direction:column;gap:12px;
     min-height:140px;
+  }
+  /* The cards actually live inside .board-col-body, not directly in .board-col.
+     So THIS is the rule that controls how far apart the cards sit. */
+  .board-col-body{
+    display:flex;flex-direction:column;gap:14px;
   }
   .board-col-head{
     display:flex;align-items:center;justify-content:space-between;
