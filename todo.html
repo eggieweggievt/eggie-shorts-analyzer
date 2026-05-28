@@ -1025,7 +1025,7 @@
       <div class="board-col" data-bucket="done">
         <div class="board-col-head"><span>✅ Done</span><span class="count" id="cntDone">0</span></div>
         <div class="board-col-body" data-bucket="done"></div>
-        <div class="empty-col" id="doneEmpty">Recently completed tasks land here. Old ones auto-tidy after a week.</div>
+        <div class="empty-col" id="doneEmpty">Today's completed tasks land here — the column clears each day at midnight. Your streak + weekly chart still remember everything.</div>
       </div>
     </div>
 
@@ -1419,6 +1419,26 @@ async function showApp(user){
   subscribeRealtime();
   render();
   maybeShowReviewBanner();
+  scheduleMidnightRefresh();
+}
+
+// Schedule a re-render at local midnight so the Done column visibly clears
+// even when the page is left open overnight. After firing it re-schedules
+// itself for the next midnight. Stats and the daily review banner also
+// re-evaluate as part of the render.
+let _midnightTimer = null;
+function scheduleMidnightRefresh(){
+  if(_midnightTimer) clearTimeout(_midnightTimer);
+  const now = new Date();
+  const next = new Date(now);
+  next.setDate(next.getDate() + 1);
+  next.setHours(0, 0, 5, 0);  // 00:00:05 — safely past the boundary
+  const ms = next - now;
+  _midnightTimer = setTimeout(() => {
+    render();
+    maybeShowReviewBanner();
+    scheduleMidnightRefresh();
+  }, ms);
 }
 
 // ============================================================
@@ -1740,13 +1760,24 @@ function renderBoard(){
   groups.done.sort((a,b1) =>
     new Date(b1.completed_at || b1.updated_at || 0) - new Date(a.completed_at || a.updated_at || 0)
   );
-  // Trim done to last 25 for the board
-  groups.done = groups.done.slice(0, 25);
+  // Done column auto-clears daily — only show tasks completed today
+  // (local midnight). Older completed tasks stay in the database for the
+  // streak counter, weekly chart, and daily review; they just don't
+  // pile up visually on the board.
+  const todayStart = startOfDay(new Date());
+  groups.done = groups.done.filter(t =>
+    t.completed_at && new Date(t.completed_at) >= todayStart
+  );
 
   const counts = {today:0, week:0, later:0, done:0};
   todos.forEach(t => {
-    const b = t.is_done ? 'done' : (t.bucket || 'today');
-    counts[b] = (counts[b] || 0) + 1;
+    if(t.is_done){
+      // Only count today's done in the column badge — matches what's shown.
+      if(t.completed_at && new Date(t.completed_at) >= todayStart) counts.done++;
+    } else {
+      const b = t.bucket || 'today';
+      counts[b] = (counts[b] || 0) + 1;
+    }
   });
   $('cntToday').textContent = counts.today || 0;
   $('cntWeek').textContent = counts.week || 0;
@@ -1873,6 +1904,11 @@ function renderList(){
     });
   });
   groups.done.sort((a,b1) => new Date(b1.completed_at || 0) - new Date(a.completed_at || 0));
+  // Done section clears daily — only today's completions show here too
+  const todayStartList = startOfDay(new Date());
+  groups.done = groups.done.filter(t =>
+    t.completed_at && new Date(t.completed_at) >= todayStartList
+  );
 
   const root = $('listView');
   root.innerHTML = '';
