@@ -723,6 +723,84 @@
       </div>
     </section>
 
+    <!-- Theme & visual branding -->
+    <section class="card">
+      <h2>🎨 Theme & visual branding</h2>
+      <p class="muted">This controls how YOUR public media kit looks to sponsors — colors, fonts, mascot emoji. It doesn't change this editor. Hit <strong>Preview as sponsor</strong> after saving to see the result.</p>
+
+      <label style="margin-top:10px">Colors</label>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+        <div>
+          <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Primary</label>
+          <input type="color" id="ed_theme_primary" />
+        </div>
+        <div>
+          <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Secondary</label>
+          <input type="color" id="ed_theme_secondary" />
+        </div>
+        <div>
+          <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Accent</label>
+          <input type="color" id="ed_theme_accent" />
+        </div>
+        <div>
+          <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Background top</label>
+          <input type="color" id="ed_theme_bg_start" />
+        </div>
+        <div>
+          <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Background bottom</label>
+          <input type="color" id="ed_theme_bg_end" />
+        </div>
+        <div>
+          <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Text color</label>
+          <input type="color" id="ed_theme_ink" />
+        </div>
+      </div>
+
+      <div class="field-row" style="margin-top:14px">
+        <div>
+          <label>Body font</label>
+          <select id="ed_theme_font_body">
+            <option value="Quicksand">Quicksand (rounded sans)</option>
+            <option value="Inter">Inter (clean sans)</option>
+            <option value="Poppins">Poppins (geometric sans)</option>
+            <option value="Nunito">Nunito (soft sans)</option>
+            <option value="DM Sans">DM Sans (modern sans)</option>
+            <option value="Lato">Lato (humanist sans)</option>
+            <option value="Manrope">Manrope (techy sans)</option>
+            <option value="Work Sans">Work Sans (utility sans)</option>
+            <option value="Outfit">Outfit (display-ish sans)</option>
+          </select>
+        </div>
+        <div>
+          <label>Display / heading font</label>
+          <select id="ed_theme_font_display">
+            <option value="Pacifico">Pacifico (cursive, playful)</option>
+            <option value="Caveat">Caveat (handwritten)</option>
+            <option value="Dancing Script">Dancing Script (flowy)</option>
+            <option value="Sacramento">Sacramento (script)</option>
+            <option value="Lobster">Lobster (bold script)</option>
+            <option value="Satisfy">Satisfy (casual script)</option>
+            <option value="Playfair Display">Playfair Display (elegant serif)</option>
+            <option value="Abril Fatface">Abril Fatface (chunky serif)</option>
+            <option value="Permanent Marker">Permanent Marker (graffiti)</option>
+            <option value="Bebas Neue">Bebas Neue (tall caps)</option>
+            <option value="Righteous">Righteous (retro)</option>
+            <option value="Press Start 2P">Press Start 2P (pixel)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row" style="margin-top:14px">
+        <div>
+          <label>Mascot emoji (fallback when no avatar uploaded)</label>
+          <input type="text" id="ed_theme_mascot" maxlength="4" placeholder="🐙" style="font-size:22px;text-align:center" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn small secondary" type="button" onclick="resetThemeDefaults()">↺ Reset to hub default</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Niche + vibe -->
     <section class="card">
       <h2>🎯 Niche & vibe</h2>
@@ -1080,6 +1158,21 @@ function blankKit(){
     contact_blurb:'',
     last_stats_update_at:null,
     theme:'default',
+    // V4.2 — visual theme for the PUBLIC sponsor view. Owner edit view
+    // always renders in the hub theme so the editor stays consistent.
+    // Persisted in audience_demographics._theme (no migration needed,
+    // mirrors the audience_demographics._blurb pattern).
+    theme_v2:{
+      primary:'#FFB2F0',    // pink hot   — buttons, accents
+      secondary:'#63AAF4',  // blue       — secondary
+      accent:'#6BE4EA',     // mint       — third highlight
+      bg_start:'#fef0fb',   // background top
+      bg_end:'#e7fbfc',     // background bottom
+      ink:'#3a2a5a',        // body text
+      font_body:'Quicksand',
+      font_display:'Pacifico',
+      mascot:'🐙'           // fallback when no avatar uploaded
+    },
     // ---------- V4.1 (cross-ref with eggieweggie.ca) ----------
     total_views_all_platforms:'',         // "3M+", free-form
     aggregate_engagement_rate:null,       // numeric — "~11" stored as 11
@@ -1306,10 +1399,11 @@ function applyPublicBranding(k){
     ? `${name} — Media Kit`
     : 'Media Kit';
 
-  // Favicon — prefer uploaded avatar; fall back to a neutral sparkle
+  // Favicon — prefer uploaded avatar; fall back to the creator's mascot emoji
+  const mascot = (k.theme_v2 && k.theme_v2.mascot) || '✨';
   const favHref = k.avatar_url && /^https?:\/\//i.test(k.avatar_url)
     ? k.avatar_url
-    : emojiToDataURL('✨');
+    : emojiToDataURL(mascot);
   let fav = document.querySelector('link[rel="icon"]');
   if(!fav){ fav = document.createElement('link'); fav.rel='icon'; document.head.appendChild(fav); }
   fav.type = k.avatar_url ? '' : 'image/svg+xml';
@@ -1340,6 +1434,139 @@ function setMeta(attr, key, val){
 function emojiToDataURL(emoji){
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="56%" font-size="52" text-anchor="middle" dominant-baseline="middle">${emoji}</text></svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+// ============================================================
+//  CUSTOM VISUAL THEME (V4.2)
+//  applyTheme runs only when the public/preview view is shown — it
+//  overrides the CSS custom properties on :root and dynamically loads
+//  the chosen Google Fonts. resetTheme() puts everything back to the
+//  hub default so the editor view stays consistent for the owner.
+//
+//  Theme persistence: stored in audience_demographics._theme (JSONB)
+//  to avoid a schema migration. See `_blurb` for the same pattern.
+// ============================================================
+const HUB_DEFAULT_THEME = {
+  primary:'#FFB2F0', secondary:'#63AAF4', accent:'#6BE4EA',
+  bg_start:'#fef0fb', bg_end:'#e7fbfc', ink:'#3a2a5a',
+  font_body:'Quicksand', font_display:'Pacifico', mascot:'🐙'
+};
+
+function applyTheme(theme){
+  const t = Object.assign({}, HUB_DEFAULT_THEME, theme || {});
+  const r = document.documentElement.style;
+  r.setProperty('--pink-hot',   t.primary);
+  r.setProperty('--blue',       t.secondary);
+  r.setProperty('--mint',       t.accent);
+  // Derived softer tints so the existing gradients still feel cohesive
+  r.setProperty('--pink-light', tintLighten(t.primary, 0.55));
+  r.setProperty('--periwinkle', tintLighten(t.secondary, 0.35));
+  r.setProperty('--deep',       tintDarken(t.secondary, 0.25));
+  r.setProperty('--ink',        t.ink);
+  r.setProperty('--ink-soft',   tintLighten(t.ink, 0.4));
+  // Background gradient endpoints — used by the body radial/linear grads
+  r.setProperty('--bg-start',   t.bg_start);
+  r.setProperty('--bg-end',     t.bg_end);
+  // Fonts: stash on :root, the body / Pacifico rules read these via var()
+  r.setProperty('--font-body',    `'${t.font_body}'`);
+  r.setProperty('--font-display', `'${t.font_display}'`);
+  loadGoogleFont(t.font_body);
+  loadGoogleFont(t.font_display);
+  // Body bg override — old rule used hardcoded #fef0fb / #e7fbfc
+  document.body.style.background =
+    `radial-gradient(1200px 600px at 10% -10%, ${withAlpha(t.primary, 0.55)}, transparent 60%),`+
+    `radial-gradient(1200px 600px at 90% 10%, ${withAlpha(t.accent, 0.55)}, transparent 60%),`+
+    `radial-gradient(1200px 600px at 50% 100%, ${withAlpha(t.secondary, 0.45)}, transparent 60%),`+
+    `linear-gradient(180deg, ${t.bg_start} 0%, ${mix(t.bg_start, t.bg_end, 0.5)} 50%, ${t.bg_end} 100%)`;
+  document.body.style.fontFamily = `'${t.font_body}', system-ui, -apple-system, sans-serif`;
+  document.body.style.color = t.ink;
+
+  // Inject a font override stylesheet — the existing CSS hardcodes
+  // 'Pacifico' / 'Quicksand' in many selectors. Replacing them by
+  // selector is more reliable than trying to convert every rule to use
+  // CSS vars. The block is removed in resetTheme().
+  let s = document.getElementById('custom-theme-overrides');
+  if(!s){ s = document.createElement('style'); s.id = 'custom-theme-overrides'; document.head.appendChild(s); }
+  s.textContent = `
+    body, .btn, label, input, textarea, select, .card h3,
+    .card h2 .h-emoji { font-family: '${t.font_body}', system-ui, -apple-system, sans-serif !important; }
+    h1, h2,
+    .auth-card h2, .modal h2,
+    .id-text h1, .kit-banner h2,
+    .card h2,
+    [style*="Pacifico"] { font-family: '${t.font_display}', cursive, serif !important; }
+  `;
+}
+
+function resetTheme(){
+  const r = document.documentElement.style;
+  ['--pink-hot','--blue','--mint','--pink-light','--periwinkle','--deep',
+   '--ink','--ink-soft','--bg-start','--bg-end','--font-body','--font-display']
+    .forEach(p => r.removeProperty(p));
+  document.body.style.background = '';
+  document.body.style.fontFamily = '';
+  document.body.style.color = '';
+  const s = document.getElementById('custom-theme-overrides');
+  if(s) s.remove();
+}
+
+function resetThemeDefaults(){
+  Object.assign(kit.theme_v2, HUB_DEFAULT_THEME);
+  // Re-hydrate the editor inputs from the reset theme
+  $('ed_theme_primary').value      = HUB_DEFAULT_THEME.primary;
+  $('ed_theme_secondary').value    = HUB_DEFAULT_THEME.secondary;
+  $('ed_theme_accent').value       = HUB_DEFAULT_THEME.accent;
+  $('ed_theme_bg_start').value     = HUB_DEFAULT_THEME.bg_start;
+  $('ed_theme_bg_end').value       = HUB_DEFAULT_THEME.bg_end;
+  $('ed_theme_ink').value          = HUB_DEFAULT_THEME.ink;
+  $('ed_theme_font_body').value    = HUB_DEFAULT_THEME.font_body;
+  $('ed_theme_font_display').value = HUB_DEFAULT_THEME.font_display;
+  $('ed_theme_mascot').value       = HUB_DEFAULT_THEME.mascot;
+  flashToast('Theme reset — hit save to keep it 💾');
+}
+
+// --- font loading ---
+const _loadedFonts = new Set();
+function loadGoogleFont(family){
+  if(!family) return;
+  const key = family.toLowerCase();
+  if(_loadedFonts.has(key)) return;
+  _loadedFonts.add(key);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  // Display fonts often have only one weight; sans fonts get a range.
+  // Google Fonts is tolerant of extra weights it doesn't have.
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g,'+')}:wght@400;500;600;700;800&display=swap`;
+  document.head.appendChild(link);
+}
+
+// --- tiny color utils so we don't pull in a color lib ---
+function hexToRgb(hex){
+  const s = (hex||'').replace('#','');
+  const n = s.length === 3
+    ? s.split('').map(c => parseInt(c+c,16))
+    : [parseInt(s.slice(0,2),16), parseInt(s.slice(2,4),16), parseInt(s.slice(4,6),16)];
+  return { r:n[0]||0, g:n[1]||0, b:n[2]||0 };
+}
+function rgbToHex({r,g,b}){
+  const h = n => Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,'0');
+  return `#${h(r)}${h(g)}${h(b)}`;
+}
+function tintLighten(hex, amt){
+  const {r,g,b} = hexToRgb(hex);
+  return rgbToHex({ r:r+(255-r)*amt, g:g+(255-g)*amt, b:b+(255-b)*amt });
+}
+function tintDarken(hex, amt){
+  const {r,g,b} = hexToRgb(hex);
+  return rgbToHex({ r:r*(1-amt), g:g*(1-amt), b:b*(1-amt) });
+}
+function mix(hexA, hexB, t){
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  return rgbToHex({ r:a.r+(b.r-a.r)*t, g:a.g+(b.g-a.g)*t, b:a.b+(b.b-a.b)*t });
+}
+function withAlpha(hex, a){
+  const {r,g,b} = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${a})`;
 }
 
 async function loadAsManager(managerId){
@@ -1417,6 +1644,12 @@ function mergeIntoBlank(row){
   if(row.audience_demographics && row.audience_demographics._blurb){
     b.contact_blurb = row.audience_demographics._blurb;
   }
+  // Same trick for the V4.2 visual theme — persisted inside audience_demographics._theme
+  // so we don't need a schema migration. Defensive merge so missing keys
+  // fall back to the hub defaults instead of producing undefined CSS values.
+  if(row.audience_demographics && row.audience_demographics._theme){
+    b.theme_v2 = Object.assign({}, blankKit().theme_v2, row.audience_demographics._theme);
+  }
   // V4.1 nested defaults — merge into the blank object so missing keys are filled
   b.stream_schedule = Object.assign(blankKit().stream_schedule, row.stream_schedule || {});
   b.group_affiliation = Object.assign(blankKit().group_affiliation, row.group_affiliation || {});
@@ -1453,6 +1686,8 @@ function setMode(m){
     document.getElementById('publicView').classList.add('hidden');
     document.getElementById('previewBanner').classList.add('hidden');
     document.getElementById('editorActions').classList.remove('hidden');
+    // Editor stays in the hub theme so the owner has a consistent UI.
+    resetTheme();
     renderEditor();
   } else if(m === 'preview'){
     document.getElementById('editorView').classList.add('hidden');
@@ -1557,6 +1792,18 @@ function renderEditor(){
   $('ed_top_interests').value = (kit.audience_demographics?.top_interests||[]).join(', ');
   $('ed_last_stats_label').textContent = kit.last_stats_update_at
     ? niceDate(kit.last_stats_update_at) : '—';
+
+  // Theme — hydrate color pickers, font dropdowns, mascot
+  const th = kit.theme_v2 || blankKit().theme_v2;
+  $('ed_theme_primary').value = th.primary;
+  $('ed_theme_secondary').value = th.secondary;
+  $('ed_theme_accent').value = th.accent;
+  $('ed_theme_bg_start').value = th.bg_start;
+  $('ed_theme_bg_end').value = th.bg_end;
+  $('ed_theme_ink').value = th.ink;
+  $('ed_theme_font_body').value = th.font_body;
+  $('ed_theme_font_display').value = th.font_display;
+  $('ed_theme_mascot').value = th.mascot;
 
   // V4.1 fields
   $('ed_total_views_all_platforms').value = kit.total_views_all_platforms || '';
@@ -2139,6 +2386,20 @@ async function saveAll(){
   kit.audience_demographics.top_interests = parseCommas($('ed_top_interests').value);
   kit.audience_demographics._blurb = kit.contact_blurb;  // persist contact_blurb inside JSONB
 
+  // Theme — read pickers back into kit.theme_v2, then mirror into _theme so it persists.
+  kit.theme_v2 = {
+    primary:      $('ed_theme_primary').value,
+    secondary:    $('ed_theme_secondary').value,
+    accent:       $('ed_theme_accent').value,
+    bg_start:     $('ed_theme_bg_start').value,
+    bg_end:       $('ed_theme_bg_end').value,
+    ink:          $('ed_theme_ink').value,
+    font_body:    $('ed_theme_font_body').value,
+    font_display: $('ed_theme_font_display').value,
+    mascot:       ($('ed_theme_mascot').value || '🐙').trim().slice(0,4)
+  };
+  kit.audience_demographics._theme = kit.theme_v2;
+
   // V4.1 fields
   kit.total_views_all_platforms = $('ed_total_views_all_platforms').value.trim();
   const er = $('ed_aggregate_engagement_rate').value.trim();
@@ -2236,6 +2497,10 @@ async function saveAll(){
 //  PUBLIC RENDER
 // ============================================================
 function renderPublic(){
+  // Apply the creator's custom theme to colors + fonts. Runs in both
+  // 'preview' (owner) and 'public' (sponsor) modes so the owner sees
+  // the actual sponsor experience when previewing.
+  applyTheme(kit.theme_v2);
   // Banner
   const banner = document.getElementById('kitBanner');
   if(kit.banner_url){
@@ -2248,9 +2513,11 @@ function renderPublic(){
 
   // Identity
   const av = document.getElementById('idAvatar');
+  const mascot = (kit.theme_v2 && kit.theme_v2.mascot) || '🐙';
+  const safeMascot = mascot.replace(/'/g, "\\'");
   if(kit.avatar_url){
-    av.innerHTML = `<img src="${escapeAttr(kit.avatar_url)}" alt="" onerror="this.parentNode.innerHTML='🐙'" />`;
-  } else av.innerHTML = '🐙';
+    av.innerHTML = `<img src="${escapeAttr(kit.avatar_url)}" alt="" onerror="this.parentNode.innerHTML='${safeMascot}'" />`;
+  } else av.innerHTML = mascot;
 
   document.getElementById('idName').textContent = kit.display_name || 'Your name here';
   document.getElementById('idTag').textContent = kit.tagline || 'A one-liner that says exactly who you are.';
