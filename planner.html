@@ -264,6 +264,85 @@
     color:var(--deep);
   }
 
+  /* V2.18 — Top-level mode toggle (Content ↔ Tweets) */
+  .mode-toggle{
+    display:inline-flex;background:rgba(255,255,255,0.7);
+    border:2px solid rgba(144,165,255,0.4);
+    border-radius:999px;padding:3px;gap:2px;
+    margin:0 0 12px;
+  }
+  .mode-toggle button{
+    background:transparent;border:none;padding:9px 18px;border-radius:999px;
+    font-family:inherit;font-weight:800;font-size:14px;color:var(--ink-soft);
+    cursor:pointer;transition:background .15s, color .15s;
+  }
+  .mode-toggle button.active[data-mode="content"]{
+    background:linear-gradient(135deg,rgba(255,178,240,0.5),rgba(144,165,255,0.4));
+    color:var(--deep);
+  }
+  .mode-toggle button.active[data-mode="tweets"]{
+    background:linear-gradient(135deg,rgba(29,161,242,0.18),rgba(107,228,234,0.35));
+    color:#0e608f;
+  }
+
+  /* V2.18 — Tweets view: cards grouped by status, X-flavored aesthetic */
+  .tweets-view{
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .tweets-group{
+    background:rgba(255,255,255,0.62);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:16px;padding:14px;
+  }
+  .tweets-group h3{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep);
+    margin:0 0 10px;display:flex;align-items:center;gap:8px;
+  }
+  .tweets-group h3 .tw-count-pill{
+    background:rgba(29,161,242,0.15);color:#0e608f;
+    padding:2px 10px;border-radius:999px;font-family:'Quicksand',sans-serif;
+    font-size:12px;font-weight:800;letter-spacing:.04em;
+  }
+  .tweets-group .tw-empty{
+    color:var(--ink-soft);font-style:italic;font-size:13px;padding:8px 4px;
+  }
+  .tweet-card{
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(255,255,255,0.95);
+    border-left:3px solid #1DA1F2;
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:8px;
+    cursor:pointer;
+    transition:transform .12s, box-shadow .15s;
+    box-shadow:0 2px 6px rgba(29,161,242,0.08);
+    overflow:hidden;
+  }
+  .tweet-card:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(29,161,242,0.18)}
+  .tweet-card.starred{border-left-color:#FFD27A;background:linear-gradient(135deg,rgba(255,213,138,0.08),rgba(255,255,255,0.92))}
+  .tweet-card .tw-preview{
+    font-size:14px;color:var(--ink);line-height:1.45;
+    overflow-wrap:anywhere;word-break:break-word;
+    margin-bottom:6px;
+    white-space:pre-wrap;
+  }
+  .tweet-card .tw-preview .tw-trunc{color:var(--ink-soft);font-style:italic}
+  .tweet-card .tw-meta{
+    display:flex;flex-wrap:wrap;gap:5px 12px;
+    font-size:11.5px;color:var(--ink-soft);
+  }
+  .tweet-card .tw-meta .chip{
+    background:rgba(29,161,242,0.15);color:#0e608f;
+    padding:2px 8px;border-radius:999px;font-weight:700;
+  }
+  .tweet-card .tw-meta .chip.thread{background:rgba(201,168,255,0.35);color:#5a3a8a}
+  .tweet-card .tw-meta .chip.media{background:rgba(168,230,190,0.45);color:#1f6b35}
+  .tweet-card .tw-meta .chip.over{background:rgba(255,138,168,0.3);color:#7a2a3e}
+  .tweet-card .tw-meta .chip.posted{background:rgba(168,230,190,0.45);color:#1f6b35}
+  .tweet-card .tw-meta .chip.starred{background:rgba(255,213,138,0.55);color:#a35c00}
+  .tweet-card .tw-meta .due-soon{color:#a35c00;font-weight:700}
+  .tweet-card .tw-meta .due-overdue{color:#a23556;font-weight:700}
+
   /* ===== KANBAN BOARD ===== */
   .kanban-board{
     display:grid;gap:14px;
@@ -1304,7 +1383,18 @@
   .cal-item-bubble.posted{
     background:linear-gradient(135deg,rgba(168,230,190,0.65),rgba(107,228,234,0.5));
   }
+  /* V2.18 — Tweets get a distinct X-blue bubble so they're instantly recognizable on the calendar */
+  .cal-item-bubble.tweet{
+    background:linear-gradient(135deg,rgba(29,161,242,0.65),rgba(107,228,234,0.5));
+    color:#fff;font-weight:800;
+  }
+  .cal-item-bubble.tweet.posted{
+    background:linear-gradient(135deg,rgba(29,161,242,0.45),rgba(168,230,190,0.55));
+    color:var(--ink);
+  }
+  .cal-item-bubble.tweet::before{content:"🐦 ";}
   .cal-item-bubble.priority::before{content:"⭐ ";}
+  .cal-item-bubble.tweet.priority::before{content:"⭐ 🐦 ";}
   .cal-more{
     font-size:10px;font-weight:700;color:var(--deep);
     background:rgba(144,165,255,0.15);
@@ -1709,6 +1799,12 @@
       </div>
     </div>
 
+    <!-- V2.18 — Top-level mode toggle: Content (shorts/long-form) vs Tweets (X / Twitter posts) -->
+    <div class="mode-toggle" role="tablist" aria-label="Planner mode">
+      <button data-mode="content" class="active" type="button" aria-selected="true">📅 Content</button>
+      <button data-mode="tweets" type="button" aria-selected="false">🐦 Tweets</button>
+    </div>
+
     <div class="toolbar">
       <button class="btn" id="addItemBtn">+ New item</button>
       <button class="btn secondary" id="manageEditorsBtn" style="padding:8px 16px;font-size:13px">👥 Editors</button>
@@ -1753,6 +1849,7 @@
       <div class="cal-legend">
         <span class="cal-legend-item"><span class="cal-legend-dot" style="background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle))"></span>Item deadline</span>
         <span class="cal-legend-item"><span class="cal-legend-dot" style="background:linear-gradient(135deg,#A8E6BE,#6BE4EA)"></span>Item posted</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:linear-gradient(135deg,#1DA1F2,#6BE4EA)"></span>🐦 Tweet</span>
         <span class="cal-legend-item"><span class="cal-legend-dot" style="background:rgba(144,165,255,0.4)"></span>Stream slot (recurring)</span>
       </div>
     </div>
@@ -1771,6 +1868,19 @@
     <div id="emptyBoard" class="empty-board hidden">
       <h3>Your planner is empty 🌸</h3>
       <p>Click <strong>+ New item</strong> above to add your first content idea. Items sync in real-time across all your devices.</p>
+    </div>
+
+    <!-- V2.18 — TWEETS MODE: separate toolbar + list view -->
+    <div id="tweetsToolbar" class="toolbar hidden" aria-label="Tweets toolbar">
+      <button class="btn" id="addTweetBtn">+ New tweet</button>
+      <div class="grow"><input type="search" id="tweetSearchInput" placeholder="🔍 Search tweets by text, hashtag, or notes…" /></div>
+    </div>
+    <div id="tweetsView" class="tweets-view hidden">
+      <!-- Three status sections rendered by renderTweets() — Draft, Scheduled, Posted -->
+    </div>
+    <div id="tweetsEmpty" class="empty-board hidden">
+      <h3>No tweets yet 🐦</h3>
+      <p>Click <strong>+ New tweet</strong> to draft your first post. Threads supported. Schedule a date to see it on the calendar.</p>
     </div>
 
   </div>
@@ -2230,6 +2340,87 @@
     </div>
   </div>
 
+  <!-- ===== V2.18: TWEET EDITOR MODAL ===== -->
+  <div class="modal-backdrop" id="tweetModal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:740px">
+      <h2 id="tweetModalTitle">New tweet 🐦</h2>
+
+      <!-- Main tweet body -->
+      <div class="tweet-part" data-part="main">
+        <label for="twContent" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span>Tweet</span>
+          <span class="tw-counter" id="twCounterMain" style="font-size:12px;font-weight:700">0/280</span>
+        </label>
+        <textarea id="twContent" rows="4" placeholder="What's happening?" maxlength="1000" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:2px solid rgba(29,161,242,0.25);background:rgba(255,255,255,0.95);font-family:inherit;font-size:15px;color:var(--ink);line-height:1.5;resize:vertical;min-height:90px"></textarea>
+      </div>
+
+      <!-- V2.18 — Thread parts container (dynamic). Each part has its own counter + remove button. -->
+      <div id="twThreadParts"></div>
+      <div style="margin-top:8px">
+        <button type="button" class="btn secondary" id="twAddThreadBtn" style="padding:7px 14px;font-size:12.5px">+ Add thread part</button>
+      </div>
+
+      <!-- Media uploads -->
+      <label style="margin-top:18px">📎 Media <span class="opt" style="color:var(--ink-soft);font-weight:500;font-size:12.5px">(up to 4 images or 1 video — stored in your Supabase)</span></label>
+      <div class="attach-list" id="twMediaList" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+      <div class="attach-upload" style="margin-top:8px">
+        <label class="upload-trigger" for="twMediaInput" style="cursor:pointer">📎 Upload media</label>
+        <input id="twMediaInput" type="file" multiple accept="image/*,video/*" style="display:none" />
+        <div class="hint" id="twMediaHint" style="font-size:12px;color:var(--ink-soft);margin-top:4px">Up to <strong>5 GB</strong> per file.</div>
+      </div>
+
+      <!-- Status + scheduling + priority -->
+      <div class="modal-row cols-2">
+        <div>
+          <label for="twStatus">Status</label>
+          <select id="twStatus">
+            <option value="draft">📝 Draft</option>
+            <option value="scheduled">📅 Scheduled</option>
+            <option value="posted">✅ Posted</option>
+            <option value="archived">📦 Archived</option>
+          </select>
+        </div>
+        <div>
+          <label for="twScheduledAt">Scheduled for <span class="opt" style="color:var(--ink-soft);font-weight:500;font-size:12px">(when you plan to post it)</span></label>
+          <input id="twScheduledAt" type="datetime-local" />
+        </div>
+      </div>
+      <label style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;padding:6px 12px;background:rgba(255,213,138,0.15);border-radius:999px;border:1.5px solid rgba(255,213,138,0.4)">
+        <input id="twIsPriority" type="checkbox" style="margin:0" />
+        <span>⭐ Mark as important</span>
+      </label>
+
+      <!-- Hashtags -->
+      <label for="twHashtags" style="margin-top:14px">Hashtags <span class="opt" style="color:var(--ink-soft);font-weight:500;font-size:12px">(comma / space separated — included in the tweet text on copy)</span></label>
+      <input id="twHashtags" type="text" placeholder="#vtuber #stream #clip" />
+
+      <!-- Posted performance — visible when status === 'posted' -->
+      <div id="twPostedSection" class="hidden">
+        <div class="section-title" style="margin-top:18px;font-weight:800;font-size:14px;color:var(--deep)">📊 Posted performance</div>
+        <label for="twPostedUrl">Posted URL <span class="opt" style="color:var(--ink-soft);font-weight:500;font-size:12px">(link to the live tweet)</span></label>
+        <input id="twPostedUrl" type="url" placeholder="https://x.com/yourname/status/…" />
+        <div class="modal-row cols-2" style="margin-top:8px">
+          <div><label for="twImpressions">Impressions</label><input id="twImpressions" type="number" min="0" placeholder="e.g. 12400" /></div>
+          <div><label for="twLikes">Likes ♥</label><input id="twLikes" type="number" min="0" placeholder="e.g. 840" /></div>
+          <div><label for="twRetweets">Retweets 🔁</label><input id="twRetweets" type="number" min="0" placeholder="e.g. 67" /></div>
+          <div><label for="twReplies">Replies 💬</label><input id="twReplies" type="number" min="0" placeholder="e.g. 22" /></div>
+          <div><label for="twBookmarks">Bookmarks 🔖</label><input id="twBookmarks" type="number" min="0" placeholder="e.g. 18" /></div>
+          <div><label for="twPostedAt">Posted at</label><input id="twPostedAt" type="datetime-local" /></div>
+        </div>
+      </div>
+
+      <label for="twNotes" style="margin-top:14px">Notes <span class="opt" style="color:var(--ink-soft);font-weight:500;font-size:12px">(why this matters, what to tweak)</span></label>
+      <textarea id="twNotes" rows="2" placeholder="Any context, references, or follow-up ideas…"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn danger pull-left hidden" id="twDeleteBtn">🗑 Delete</button>
+        <button class="btn secondary" id="twCopyBtn" title="Copy the full tweet (with hashtags) to your clipboard">📋 Copy text</button>
+        <button class="btn secondary" id="twCancelBtn">Cancel</button>
+        <button class="btn" id="twSaveBtn">💾 Save tweet</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <a href="index.html">🏠 Hub</a> &middot; <a href="analyzer.html">🛠️ Analyzer</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
     Made with 💗 by Eggie &middot; Data lives in your private Supabase — nobody else can read it.
@@ -2338,6 +2529,14 @@ let realtimeSub = null;
 let editorsSub = null;
 let currentView = 'kanban';
 let searchQuery = '';
+// V2.18 — Tweets state. Separate cache + subscription from items because they have
+// a different lifecycle (draft → scheduled → posted) and don't go through the kanban.
+let tweets = [];
+let tweetsSub = null;
+let editingTweetId = null;          // current tweet being edited (null = new)
+let currentMode = 'content';        // 'content' | 'tweets' — top-level toggle
+const TWEET_CHAR_LIMIT = 280;
+const X_BLUE = '#1DA1F2';           // tweet bubble color on the calendar
 
 // V2.13 — Default palette for stream slot colors
 const STREAM_COLORS = [
@@ -2497,14 +2696,17 @@ async function showApp(user){
 
   // V2: load editors + titles.json in parallel with items
   // V2.13 — Also load brand kit (so the calendar can show stream slots immediately)
+  // V2.18 — Tweets load in parallel; calendar uses them too
   await Promise.all([
     loadItems(),
     loadEditors(),
     loadTitlesDb(),
-    loadBrandKit()
+    loadBrandKit(),
+    loadTweets()
   ]);
   subscribeRealtime();
   subscribeEditorsRealtime();
+  subscribeTweetsRealtime();
   // V3 — load manager roster + subscribe (only meaningful when NOT impersonating)
   if(!impersonating){
     loadManagers();
@@ -2784,6 +2986,317 @@ function subscribeEditorsRealtime(){
         { event:'*', schema:'public', table:'planner_editors', filter:`owner_id=eq.${currentOwnerId}` },
         () => loadEditors())
     .subscribe();
+}
+
+// ============================================================
+//  V2.18 — TWEETS (planner_tweets table)
+//  Separate lifecycle from planner_items: draft → scheduled → posted.
+//  Owner-only access; no editor sharing.
+// ============================================================
+async function loadTweets(){
+  if(!sb || !currentOwnerId){ tweets = []; return; }
+  const { data, error } = await sb
+    .from('planner_tweets')
+    .select('*')
+    .eq('owner_id', currentOwnerId)
+    .order('created_at', { ascending: false });
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('[Planner V2.18] planner_tweets table missing — run planner-supabase-v2.sql to enable Tweets.');
+      tweets = [];
+      return;
+    }
+    console.error('Tweets load failed:', error);
+    return;
+  }
+  tweets = data || [];
+}
+
+function subscribeTweetsRealtime(){
+  if(!sb || !currentOwnerId) return;
+  if(tweetsSub) sb.removeChannel(tweetsSub);
+  tweetsSub = sb
+    .channel('planner_tweets_realtime')
+    .on('postgres_changes',
+        { event:'*', schema:'public', table:'planner_tweets', filter:`owner_id=eq.${currentOwnerId}` },
+        () => { loadTweets().then(() => { if(currentMode === 'tweets' || currentView === 'calendar') render(); }); })
+    .subscribe();
+}
+
+async function saveTweet(tweet){
+  if(!sb || !currentUser){ alert('Sign in first.'); return null; }
+  // Coerce empty strings → null for date fields and numbers
+  const numOrNull = v => (v === '' || v == null) ? null : (isNaN(Number(v)) ? null : Number(v));
+  const payload = {
+    ...tweet,
+    owner_id: currentOwnerId,
+    content: String(tweet.content || ''),
+    thread_parts: Array.isArray(tweet.thread_parts) ? tweet.thread_parts.filter(p => String(p || '').trim()) : [],
+    media_urls: Array.isArray(tweet.media_urls) ? tweet.media_urls : [],
+    hashtags: Array.isArray(tweet.hashtags) ? tweet.hashtags : [],
+    status: tweet.status || 'draft',
+    scheduled_at: tweet.scheduled_at || null,
+    posted_at: tweet.posted_at || null,
+    posted_url: tweet.posted_url || null,
+    impressions: numOrNull(tweet.impressions),
+    likes: numOrNull(tweet.likes),
+    retweets: numOrNull(tweet.retweets),
+    replies: numOrNull(tweet.replies),
+    bookmarks: numOrNull(tweet.bookmarks),
+    notes: tweet.notes || null,
+    is_priority: !!tweet.is_priority,
+    updated_at: new Date().toISOString()
+  };
+  // Don't try to send id when inserting a new tweet
+  if(!payload.id) delete payload.id;
+  const { data, error } = await sb.from('planner_tweets').upsert(payload).select().single();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      alert('Tweets table missing. Run the updated planner-supabase-v2.sql in Supabase first.');
+    } else {
+      alert('Save failed: ' + error.message);
+    }
+    return null;
+  }
+  return data;
+}
+
+async function deleteTweet(id){
+  if(!sb || !currentUser || !id) return false;
+  if(!confirm('Delete this tweet draft? This can\'t be undone.')) return false;
+  const { error } = await sb.from('planner_tweets').delete().eq('id', id);
+  if(error){ alert('Delete failed: ' + error.message); return false; }
+  return true;
+}
+
+// ============================================================
+//  V2.18 — TWEET EDITOR MODAL (open / save / delete / threads / media)
+// ============================================================
+let __twDraftThreadParts = [];   // working buffer for thread parts in the open modal
+let __twDraftMedia = [];          // working buffer for uploaded media
+
+function openTweetModal(t){
+  editingTweetId = t ? t.id : null;
+  __twDraftThreadParts = t && Array.isArray(t.thread_parts) ? [...t.thread_parts] : [];
+  __twDraftMedia = t && Array.isArray(t.media_urls) ? JSON.parse(JSON.stringify(t.media_urls)) : [];
+  $('tweetModalTitle').textContent = t ? 'Edit tweet 🐦' : 'New tweet 🐦';
+  $('twContent').value = t?.content || '';
+  $('twStatus').value = t?.status || 'draft';
+  $('twScheduledAt').value = t?.scheduled_at ? toLocalInput(t.scheduled_at) : '';
+  $('twPostedAt').value = t?.posted_at ? toLocalInput(t.posted_at) : '';
+  $('twPostedUrl').value = t?.posted_url || '';
+  $('twImpressions').value = t?.impressions ?? '';
+  $('twLikes').value = t?.likes ?? '';
+  $('twRetweets').value = t?.retweets ?? '';
+  $('twReplies').value = t?.replies ?? '';
+  $('twBookmarks').value = t?.bookmarks ?? '';
+  $('twNotes').value = t?.notes || '';
+  $('twHashtags').value = (Array.isArray(t?.hashtags) ? t.hashtags : []).map(h => '#' + String(h).replace(/^#/,'')).join(' ');
+  $('twIsPriority').checked = !!t?.is_priority;
+  $('twDeleteBtn').classList.toggle('hidden', !t);
+  renderTwThreadParts();
+  renderTwMediaList();
+  updateTwCounters();
+  togglePostedSection();
+  $('tweetModal').classList.add('open');
+  // Focus the main textarea for fast entry
+  setTimeout(() => $('twContent').focus(), 50);
+}
+function closeTweetModal(){
+  $('tweetModal').classList.remove('open');
+  editingTweetId = null;
+  __twDraftThreadParts = [];
+  __twDraftMedia = [];
+}
+function togglePostedSection(){
+  const isPosted = $('twStatus').value === 'posted';
+  $('twPostedSection').classList.toggle('hidden', !isPosted);
+}
+function renderTwThreadParts(){
+  const wrap = $('twThreadParts');
+  if(!wrap) return;
+  if(__twDraftThreadParts.length === 0){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = __twDraftThreadParts.map((p, i) => `
+    <div class="tweet-part" data-part-idx="${i}" style="margin-top:10px;padding:10px;background:rgba(29,161,242,0.06);border:1.5px dashed rgba(29,161,242,0.3);border-radius:12px">
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
+        <span>🧵 Part ${i + 2}</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700">
+          <span class="tw-counter-part" data-counter="${i}">0/280</span>
+          <button type="button" class="btn secondary" data-tw-rm-part="${i}" title="Remove this thread part" style="padding:3px 9px;font-size:11.5px">✕</button>
+        </span>
+      </label>
+      <textarea data-tw-part="${i}" rows="3" maxlength="1000" placeholder="Continue the thread…" style="width:100%;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(29,161,242,0.25);background:rgba(255,255,255,0.95);font-family:inherit;font-size:14px;color:var(--ink);line-height:1.5;resize:vertical;min-height:64px">${escape(p)}</textarea>
+    </div>
+  `).join('');
+  // Wire textarea input + remove buttons
+  wrap.querySelectorAll('textarea[data-tw-part]').forEach(ta => {
+    ta.addEventListener('input', e => {
+      const idx = parseInt(ta.dataset.twPart, 10);
+      __twDraftThreadParts[idx] = ta.value;
+      updateTwCounters();
+    });
+  });
+  wrap.querySelectorAll('button[data-tw-rm-part]').forEach(b => {
+    b.addEventListener('click', () => {
+      __twDraftThreadParts.splice(parseInt(b.dataset.twRmPart, 10), 1);
+      renderTwThreadParts();
+      updateTwCounters();
+    });
+  });
+}
+function renderTwMediaList(){
+  const wrap = $('twMediaList');
+  if(!wrap) return;
+  if(__twDraftMedia.length === 0){
+    wrap.innerHTML = '<div style="font-size:12.5px;color:var(--ink-soft);font-style:italic;padding:4px 0">No media yet — use the button below to upload images or a video.</div>';
+    return;
+  }
+  wrap.innerHTML = __twDraftMedia.map((m, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,0.9);border:1.5px solid rgba(29,161,242,0.2);border-radius:10px">
+      <span style="font-size:18px">${/\.(mp4|mov|webm)$/i.test(m.name || '') ? '🎬' : '🖼️'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px;color:var(--deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escape(m.name || 'file')}</div>
+        <div style="font-size:11.5px;color:var(--ink-soft)">${m.size ? formatFileSize(m.size) : ''}</div>
+      </div>
+      ${m.url ? `<a href="${escape(m.url)}" target="_blank" rel="noreferrer" style="color:var(--deep);text-decoration:none;font-size:12px;font-weight:700">View ↗</a>` : ''}
+      <button type="button" data-tw-rm-media="${i}" title="Remove" style="background:none;border:none;color:#a23556;cursor:pointer;font-size:14px;padding:2px 6px">✕</button>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('button[data-tw-rm-media]').forEach(b => {
+    b.addEventListener('click', () => {
+      __twDraftMedia.splice(parseInt(b.dataset.twRmMedia, 10), 1);
+      renderTwMediaList();
+    });
+  });
+}
+async function handleTweetMediaUpload(files){
+  if(!sb || !currentUser){ alert('Sign in first.'); return; }
+  for(const file of files){
+    if(file.size > MAX_UPLOAD_BYTES){
+      alert(`"${file.name}" is over the 5 GB cap. Try a smaller file or compress it first.`);
+      continue;
+    }
+    // Twitter caps at 4 images OR 1 video per tweet — soft enforce in UI
+    const hasVideo = __twDraftMedia.some(m => /\.(mp4|mov|webm)$/i.test(m.name || ''));
+    const isVideo = /video\//i.test(file.type || '') || /\.(mp4|mov|webm)$/i.test(file.name);
+    if(__twDraftMedia.length >= 4 && !isVideo){ alert('X allows up to 4 images per tweet.'); break; }
+    if((__twDraftMedia.length > 0 && isVideo) || (hasVideo && !isVideo)){
+      alert('X allows either 1 video OR up to 4 images per tweet — not both.');
+      break;
+    }
+    const safeName = String(file.name || 'media').replace(/[^a-zA-Z0-9._-]/g, '_');
+    // For new tweets we don't have an id yet; use 'pending' until first save creates the row
+    const folder = editingTweetId || 'pending';
+    const path = `${currentOwnerId}/tweets/${folder}/${Date.now()}-${safeName}`;
+    const { error } = await sb.storage.from('planner-files').upload(path, file, { cacheControl:'3600', upsert:false });
+    if(error){
+      alert(`Upload failed for ${file.name}: ${error.message}`);
+      continue;
+    }
+    const { data: signed } = await sb.storage.from('planner-files').createSignedUrl(path, 60 * 60 * 24 * 365);
+    __twDraftMedia.push({ name: file.name, size: file.size, path, url: signed?.signedUrl || null });
+  }
+  renderTwMediaList();
+  // Reset the input so the same file can be re-picked if needed
+  const el = $('twMediaInput'); if(el) el.value = '';
+}
+function updateTwCounters(){
+  const main = $('twContent').value || '';
+  const mainCount = main.length;
+  const mainEl = $('twCounterMain');
+  if(mainEl){
+    mainEl.textContent = `${mainCount}/${TWEET_CHAR_LIMIT}`;
+    mainEl.style.color = mainCount > TWEET_CHAR_LIMIT ? '#a23556' : (mainCount > 250 ? '#a35c00' : 'var(--ink-soft)');
+  }
+  document.querySelectorAll('.tw-counter-part').forEach(el => {
+    const idx = parseInt(el.dataset.counter, 10);
+    const len = (__twDraftThreadParts[idx] || '').length;
+    el.textContent = `${len}/${TWEET_CHAR_LIMIT}`;
+    el.style.color = len > TWEET_CHAR_LIMIT ? '#a23556' : (len > 250 ? '#a35c00' : 'var(--ink-soft)');
+  });
+}
+function parseTwHashtagsFromInput(){
+  const raw = $('twHashtags').value || '';
+  return raw.split(/[,\s]+/).map(s => s.trim().replace(/^#/, '').toLowerCase()).filter(Boolean);
+}
+function buildTweetFromModal(){
+  return {
+    id: editingTweetId || undefined,
+    content: $('twContent').value || '',
+    thread_parts: __twDraftThreadParts.filter(p => String(p || '').trim()),
+    media_urls: __twDraftMedia,
+    hashtags: parseTwHashtagsFromInput(),
+    status: $('twStatus').value || 'draft',
+    scheduled_at: $('twScheduledAt').value ? new Date($('twScheduledAt').value).toISOString() : null,
+    posted_at: $('twPostedAt').value ? new Date($('twPostedAt').value).toISOString() : null,
+    posted_url: $('twPostedUrl').value.trim() || null,
+    impressions: $('twImpressions').value,
+    likes: $('twLikes').value,
+    retweets: $('twRetweets').value,
+    replies: $('twReplies').value,
+    bookmarks: $('twBookmarks').value,
+    notes: $('twNotes').value.trim() || null,
+    is_priority: !!$('twIsPriority').checked
+  };
+}
+async function handleTweetSave(){
+  if(!currentUser){ alert('Sign in first.'); return; }
+  const draft = buildTweetFromModal();
+  if(!draft.content.trim() && draft.thread_parts.length === 0){
+    alert('Tweet body can\'t be empty. Type something or add a thread part.');
+    return;
+  }
+  // Auto-promote status to 'scheduled' if a date is set and status is still 'draft'
+  if(draft.status === 'draft' && draft.scheduled_at) draft.status = 'scheduled';
+  // Auto-promote to 'posted' if posted_url is set + status is still draft/scheduled
+  if(draft.posted_url && (draft.status === 'draft' || draft.status === 'scheduled')){
+    draft.status = 'posted';
+    if(!draft.posted_at) draft.posted_at = new Date().toISOString();
+  }
+  const saved = await saveTweet(draft);
+  if(saved){
+    // Refresh local cache so the UI reflects immediately (in case realtime is laggy)
+    const idx = tweets.findIndex(t => t.id === saved.id);
+    if(idx >= 0) tweets[idx] = saved; else tweets.unshift(saved);
+    closeTweetModal();
+    render();
+  }
+}
+async function handleTweetDelete(){
+  if(!editingTweetId) return;
+  const ok = await deleteTweet(editingTweetId);
+  if(ok){
+    tweets = tweets.filter(t => t.id !== editingTweetId);
+    closeTweetModal();
+    render();
+  }
+}
+function handleTweetCopy(){
+  const draft = buildTweetFromModal();
+  const tagStr = draft.hashtags.length ? '\n\n' + draft.hashtags.map(h => '#' + h).join(' ') : '';
+  const body = draft.content + tagStr;
+  const thread = draft.thread_parts.length ? '\n\n---\n\n' + draft.thread_parts.join('\n\n---\n\n') : '';
+  navigator.clipboard.writeText(body + thread).then(() => {
+    const btn = $('twCopyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }).catch(e => alert('Copy failed: ' + e.message));
+}
+
+// Computed: total character count across main + thread parts
+function tweetCharCount(t){
+  const main = String(t.content || '').length;
+  const thread = Array.isArray(t.thread_parts) ? t.thread_parts.reduce((s, p) => s + String(p || '').length, 0) : 0;
+  return main + thread;
+}
+// True if any tweet part exceeds the 280 limit
+function tweetIsOverLimit(t){
+  if(String(t.content || '').length > TWEET_CHAR_LIMIT) return true;
+  if(Array.isArray(t.thread_parts)){
+    for(const p of t.thread_parts){ if(String(p || '').length > TWEET_CHAR_LIMIT) return true; }
+  }
+  return false;
 }
 
 async function saveEditor(editor){
@@ -3121,7 +3634,7 @@ async function handleDeleteEditor(){
 // V2.2 — Upload limit bumped to 500MB. We also show clearer progress UI for big files
 // (Supabase JS doesn't expose per-chunk progress on the standard upload, so we use a
 // pulsing "uploading" indicator with file size + warn early on >500MB files.)
-const MAX_UPLOAD_BYTES = 500 * 1024 * 1024;  // 500MB
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // V2.18 — 5 GB (Supabase Pro per-file cap)
 
 async function uploadAttachments(files){
   if(!files || files.length === 0) return;
@@ -3136,7 +3649,7 @@ async function uploadAttachments(files){
     }
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const path = `${currentOwnerId}/${itemId}/${Date.now()}-${safeName}`;
-    progressEl.innerHTML = `⏳ Uploading <strong>${escape(file.name)}</strong> &middot; ${formatFileSize(file.size)}${file.size > 50 * 1024 * 1024 ? ' &middot; <em>this may take a minute on large files</em>' : ''}…`;
+    progressEl.innerHTML = `⏳ Uploading <strong>${escape(file.name)}</strong> &middot; ${formatFileSize(file.size)}${file.size > 200 * 1024 * 1024 ? ' &middot; <em>this may take a few minutes on large files</em>' : ''}…`;
     const { error } = await sb.storage.from('planner-files').upload(path, file, {
       cacheControl:'3600', upsert:false
     });
@@ -4272,16 +4785,134 @@ function render(){
     return hay.includes(q);
   }) : pool;
 
+  // V2.18 — Mode-aware visibility. Tweets mode hides the content toolbar + views,
+  // shows the tweets toolbar + list. Calendar is shared (renders both items + tweets).
+  const isTweets = currentMode === 'tweets';
+  const toolbar = document.querySelector('.toolbar:not(#tweetsToolbar)');
+  if(toolbar) toolbar.classList.toggle('hidden', isTweets);
+  $('tweetsToolbar').classList.toggle('hidden', !isTweets);
+
   // V2.13 — Calendar view always renders (shows stream slots even with no items)
   const noItems = items.length === 0 && currentView !== 'calendar';
-  $('emptyBoard').classList.toggle('hidden', !noItems);
-  $('kanbanView').classList.toggle('hidden', currentView !== 'kanban' || noItems);
-  $('listView').classList.toggle('hidden', currentView !== 'list' || noItems);
-  $('calendarView').classList.toggle('hidden', currentView !== 'calendar');
+  $('emptyBoard').classList.toggle('hidden', !noItems || isTweets);
+  $('kanbanView').classList.toggle('hidden', isTweets || currentView !== 'kanban' || noItems);
+  $('listView').classList.toggle('hidden', isTweets || currentView !== 'list' || noItems);
+  $('calendarView').classList.toggle('hidden', isTweets || currentView !== 'calendar');
 
-  if(currentView === 'kanban') renderKanban(filtered);
+  // V2.18 — Tweets section visibility
+  $('tweetsView').classList.toggle('hidden', !isTweets || tweets.length === 0);
+  $('tweetsEmpty').classList.toggle('hidden', !isTweets || tweets.length > 0);
+
+  if(isTweets){
+    renderTweets();
+  } else if(currentView === 'kanban') renderKanban(filtered);
   else if(currentView === 'list') renderList(filtered);
   else if(currentView === 'calendar') renderCalendar(filtered);
+}
+
+// V2.18 — Render the tweet list grouped by status (Draft / Scheduled / Posted).
+function renderTweets(){
+  const wrap = $('tweetsView');
+  if(!wrap) return;
+  const q = ($('tweetSearchInput')?.value || '').toLowerCase().trim();
+  const filtered = q
+    ? tweets.filter(t => {
+        const hay = [
+          t.content,
+          ...(Array.isArray(t.thread_parts) ? t.thread_parts : []),
+          ...(Array.isArray(t.hashtags) ? t.hashtags : []),
+          t.notes,
+          t.posted_url
+        ].filter(Boolean).join(' ').toLowerCase();
+        return hay.includes(q);
+      })
+    : tweets;
+
+  const groups = [
+    { key:'draft',     label:'📝 Drafts',    items: filtered.filter(t => t.status === 'draft') },
+    { key:'scheduled', label:'📅 Scheduled', items: filtered.filter(t => t.status === 'scheduled') },
+    { key:'posted',    label:'✅ Posted',     items: filtered.filter(t => t.status === 'posted') }
+  ];
+  // Sort: scheduled by date asc, posted by date desc, drafts by created desc, starred first within each
+  groups.forEach(g => {
+    g.items.sort((a, b) => {
+      if(!!b.is_priority !== !!a.is_priority) return (b.is_priority ? 1 : 0) - (a.is_priority ? 1 : 0);
+      if(g.key === 'scheduled') return (a.scheduled_at || '').localeCompare(b.scheduled_at || '');
+      if(g.key === 'posted')    return (b.posted_at || '').localeCompare(a.posted_at || '');
+      return (b.created_at || '').localeCompare(a.created_at || '');
+    });
+  });
+
+  wrap.innerHTML = groups.map(g => `
+    <div class="tweets-group">
+      <h3>${g.label}<span class="tw-count-pill">${g.items.length}</span></h3>
+      ${g.items.length === 0
+        ? `<div class="tw-empty">${
+            g.key === 'draft' ? 'No drafts yet. Hit + New tweet to start one.'
+            : g.key === 'scheduled' ? 'Nothing scheduled. Set a date on a draft to queue it up.'
+            : 'No posted tweets yet. Mark a draft as Posted after you ship it.'
+          }</div>`
+        : g.items.map(tweetCard).join('')}
+    </div>
+  `).join('');
+
+  // Wire click handlers
+  wrap.querySelectorAll('.tweet-card').forEach(el => {
+    el.addEventListener('click', () => openTweetModal(tweets.find(t => t.id === el.dataset.id)));
+  });
+}
+
+function tweetCard(t){
+  const text = String(t.content || '');
+  const previewMax = 180;
+  const isLong = text.length > previewMax;
+  const preview = isLong
+    ? escape(text.slice(0, previewMax)) + ' <span class="tw-trunc">…</span>'
+    : escape(text || '(empty draft)');
+  const charCount = tweetCharCount(t);
+  const overLimit = tweetIsOverLimit(t);
+  const threadCount = Array.isArray(t.thread_parts) ? t.thread_parts.length : 0;
+  const mediaCount = Array.isArray(t.media_urls) ? t.media_urls.length : 0;
+  const starred = !!t.is_priority;
+  // Time chip
+  let timeChip = '';
+  if(t.status === 'scheduled' && t.scheduled_at){
+    const d = new Date(t.scheduled_at);
+    const cls = d < new Date() ? 'due-overdue' : (d - new Date() < 2 * 86400000 ? 'due-soon' : '');
+    timeChip = `<span class="meta-line ${cls}">📅 ${d.toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span>`;
+  } else if(t.status === 'posted' && t.posted_at){
+    const d = new Date(t.posted_at);
+    timeChip = `<span>📤 ${d.toLocaleDateString(undefined, { month:'short', day:'numeric' })}</span>`;
+  }
+  // Perf chip (only when posted)
+  let perfChip = '';
+  if(t.status === 'posted' && (t.impressions != null || t.likes != null)){
+    const bits = [];
+    if(t.impressions != null) bits.push(`${formatNum(t.impressions)} imp`);
+    if(t.likes != null) bits.push(`${formatNum(t.likes)} ♥`);
+    if(t.retweets != null) bits.push(`${formatNum(t.retweets)} RT`);
+    perfChip = `<span class="chip posted">${bits.join(' · ')}</span>`;
+  }
+  return `
+    <div class="tweet-card ${starred ? 'starred' : ''}" data-id="${escape(t.id)}">
+      <div class="tw-preview">${preview}</div>
+      <div class="tw-meta">
+        <span class="chip ${overLimit ? 'over' : ''}">${charCount}/${TWEET_CHAR_LIMIT}${overLimit ? ' ⚠ over' : ''}</span>
+        ${threadCount > 0 ? `<span class="chip thread">🧵 thread · ${threadCount + 1} parts</span>` : ''}
+        ${mediaCount > 0 ? `<span class="chip media">📎 ${mediaCount}</span>` : ''}
+        ${starred ? `<span class="chip starred">⭐ important</span>` : ''}
+        ${timeChip}
+        ${perfChip}
+      </div>
+    </div>
+  `;
+}
+// Small number formatter so 12400 → 12.4K (re-uses pattern from analyzer's backend)
+function formatNum(n){
+  const v = Number(n) || 0;
+  if(v >= 1000000) return (v/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+  if(v >= 1000)    return (v/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+  return String(v);
 }
 
 function renderKanban(filtered){
@@ -4503,7 +5134,7 @@ function renderCalendar(filtered){
   }
 
   // Bucket items by their deadline date (scheduled_at) AND by posted_at
-  const byDay = {};   // key -> [{item, kind:'deadline'|'posted'}]
+  const byDay = {};   // key -> [{item, kind:'deadline'|'posted'|'tweet'|'tweet-posted'}]
   filtered.forEach(item => {
     if(item.scheduled_at){
       const d = new Date(item.scheduled_at);
@@ -4517,6 +5148,22 @@ function renderCalendar(filtered){
       if(!isNaN(d)){
         const k = ymdKey(d);
         (byDay[k] = byDay[k] || []).push({ item, kind: 'posted' });
+      }
+    }
+  });
+  // V2.18 — Bucket tweets the same way so they share calendar bubbles with content items.
+  (tweets || []).forEach(tw => {
+    if(tw.scheduled_at){
+      const d = new Date(tw.scheduled_at);
+      if(!isNaN(d)){
+        const k = ymdKey(d);
+        (byDay[k] = byDay[k] || []).push({ item: tw, kind: tw.status === 'posted' ? 'tweet-posted' : 'tweet' });
+      }
+    } else if(tw.posted_at){
+      const d = new Date(tw.posted_at);
+      if(!isNaN(d)){
+        const k = ymdKey(d);
+        (byDay[k] = byDay[k] || []).push({ item: tw, kind: 'tweet-posted' });
       }
     }
   });
@@ -4537,11 +5184,23 @@ function renderCalendar(filtered){
       slots.slice(0, 2).map(s => `<div class="cal-stream-slot" style="border-left-color:${escape(s.color || '#90A5FF')};background:${slotBg(s.color)}" title="${escape(s.title || '')}${s.start ? ' · ' + escape(s.start) : ''}${s.end ? '–' + escape(s.end) : ''}">${escape(s.start ? s.start + ' ' : '')}${escape(s.title || '')}</div>`).join('')
     }${slots.length > 2 ? `<div class="cal-more">+${slots.length - 2} more</div>` : ''}</div>`;
 
-    // Item bubbles
+    // Item bubbles (with V2.18 tweet support)
     const visible = bucket.slice(0, MAX_BUBBLES);
     const bubblesHtml = visible.map(({item, kind}) => {
-      const cls = ['cal-item-bubble', kind === 'posted' ? 'posted' : '', item.is_priority ? 'priority' : ''].filter(Boolean).join(' ');
-      return `<div class="${cls}" data-bubble-id="${escape(item.id)}" title="${escape(item.title || '')}">${escape(item.title || '(untitled)')}</div>`;
+      const isTweet = kind === 'tweet' || kind === 'tweet-posted';
+      const isPosted = kind === 'posted' || kind === 'tweet-posted';
+      const cls = ['cal-item-bubble',
+        isPosted ? 'posted' : '',
+        isTweet ? 'tweet' : '',
+        item.is_priority ? 'priority' : ''
+      ].filter(Boolean).join(' ');
+      // Tweets show first 40 chars of content; items show title
+      const label = isTweet
+        ? (String(item.content || '').slice(0, 40) + (item.content && item.content.length > 40 ? '…' : '')) || '(empty tweet)'
+        : (item.title || '(untitled)');
+      const fullTitle = isTweet ? String(item.content || '') : (item.title || '');
+      const kindAttr = isTweet ? ' data-bubble-kind="tweet"' : '';
+      return `<div class="${cls}" data-bubble-id="${escape(item.id)}"${kindAttr} title="${escape(fullTitle)}">${escape(label)}</div>`;
     }).join('');
     const moreHtml = bucket.length > MAX_BUBBLES ? `<div class="cal-more" data-day-more="${key}">+${bucket.length - MAX_BUBBLES} more</div>` : '';
 
@@ -4555,12 +5214,17 @@ function renderCalendar(filtered){
     `;
   }).join('');
 
-  // Click a bubble → open view modal for that item
+  // Click a bubble → open view modal for items, or tweet editor for tweets
   grid.querySelectorAll('[data-bubble-id]').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
-      const item = items.find(i => i.id === el.dataset.bubbleId);
-      if(item) openViewModal(item);
+      if(el.dataset.bubbleKind === 'tweet'){
+        const tw = tweets.find(t => t.id === el.dataset.bubbleId);
+        if(tw) openTweetModal(tw);
+      } else {
+        const item = items.find(i => i.id === el.dataset.bubbleId);
+        if(item) openViewModal(item);
+      }
     });
   });
   // Click a day cell (but not a bubble) → open new-item modal pre-filled with that deadline
@@ -4791,6 +5455,24 @@ function wireApp(){
   $('addItemBtn').addEventListener('click', () => openModal());
   $('searchInput').addEventListener('input', e => { searchQuery = e.target.value; render(); });
 
+  // V2.18 — Mode toggle (Content ↔ Tweets)
+  document.querySelectorAll('.mode-toggle button[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentMode = btn.dataset.mode;
+      document.querySelectorAll('.mode-toggle button[data-mode]').forEach(b => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', String(active));
+      });
+      render();
+    });
+  });
+  // V2.18 — Tweets toolbar wiring
+  const addTw = $('addTweetBtn');
+  if(addTw) addTw.addEventListener('click', () => openTweetModal(null));
+  const twSearch = $('tweetSearchInput');
+  if(twSearch) twSearch.addEventListener('input', () => { if(currentMode === 'tweets') renderTweets(); });
+
   // V3 — Manager / impersonation controls
   const mgrBtn = $('manageManagersBtn');
   if(mgrBtn) mgrBtn.addEventListener('click', openManagersModal);
@@ -4962,6 +5644,29 @@ function wireApp(){
   $('ssSaveBtn').addEventListener('click', saveStreamSchedule);
   $('streamScheduleModal').addEventListener('click', e => { if(e.target === $('streamScheduleModal')) closeStreamScheduleModal(); });
 
+  // V2.18 — Tweet editor modal wiring
+  $('twCancelBtn').addEventListener('click', closeTweetModal);
+  $('twSaveBtn').addEventListener('click', handleTweetSave);
+  $('twDeleteBtn').addEventListener('click', handleTweetDelete);
+  $('twCopyBtn').addEventListener('click', handleTweetCopy);
+  $('tweetModal').addEventListener('click', e => { if(e.target === $('tweetModal')) closeTweetModal(); });
+  $('twContent').addEventListener('input', updateTwCounters);
+  $('twStatus').addEventListener('change', togglePostedSection);
+  $('twAddThreadBtn').addEventListener('click', () => {
+    __twDraftThreadParts.push('');
+    renderTwThreadParts();
+    updateTwCounters();
+    // Focus the new textarea
+    setTimeout(() => {
+      const all = document.querySelectorAll('#twThreadParts textarea[data-tw-part]');
+      if(all.length) all[all.length - 1].focus();
+    }, 50);
+  });
+  $('twMediaInput').addEventListener('change', e => {
+    const files = Array.from(e.target.files || []);
+    if(files.length) handleTweetMediaUpload(files);
+  });
+
   // V2.13 — Calendar nav (prev / next / today)
   $('calPrev').addEventListener('click', () => {
     calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
@@ -4988,6 +5693,7 @@ function wireApp(){
     else if($('brandKitModal').classList.contains('open')) closeBrandKitModal();
     else if($('streamScheduleModal').classList.contains('open')) closeStreamScheduleModal();
     else if($('managersModal') && $('managersModal').classList.contains('open')) closeManagersModal();
+    else if($('tweetModal') && $('tweetModal').classList.contains('open')) closeTweetModal();
   });
 }
 

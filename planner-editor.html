@@ -1511,7 +1511,7 @@ async function updateStatus(itemId, nextStatus){
 }
 
 // V2.2 — Upload limit bumped to 500MB on the editor side too.
-const EDITOR_MAX_UPLOAD_BYTES = 500 * 1024 * 1024;
+const EDITOR_MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // V2.18 — 5 GB (Supabase Pro per-file cap)
 
 async function uploadEditorFile(itemId, files){
   if(!files || files.length === 0) return;

@@ -229,8 +229,48 @@ CREATE POLICY "editors read brand kit" ON planner_brand_kit
   );
 
 -- ============================================================
+--  V2.18 — TWEETS TABLE (Twitter / X post drafting + scheduling)
+--  Separate table from planner_items because tweets have a different lifecycle
+--  (draft → scheduled → posted), don't need editor sharing, and use threads
+--  instead of multi-platform fan-out.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS planner_tweets (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  content text NOT NULL DEFAULT '',                    -- main tweet body
+  thread_parts jsonb DEFAULT '[]'::jsonb,              -- array of strings; each = one follow-up tweet in the thread
+  media_urls jsonb DEFAULT '[]'::jsonb,                -- [{url, name, size, path}] for uploaded images/videos
+  hashtags jsonb DEFAULT '[]'::jsonb,                  -- ['vtuber','clips',...]
+  status text NOT NULL DEFAULT 'draft',                -- 'draft' | 'scheduled' | 'posted' | 'archived'
+  scheduled_at timestamptz,
+  posted_at timestamptz,
+  posted_url text,                                     -- link to the live tweet/X post
+  -- Post-performance metrics (filled in by the user after they ship)
+  impressions int,
+  likes int,
+  retweets int,
+  replies int,
+  bookmarks int,
+  notes text,
+  is_priority boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS planner_tweets_owner_status_idx ON planner_tweets(owner_id, status, scheduled_at DESC);
+CREATE INDEX IF NOT EXISTS planner_tweets_owner_created_idx ON planner_tweets(owner_id, created_at DESC);
+
+ALTER TABLE planner_tweets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "owners manage own tweets" ON planner_tweets;
+CREATE POLICY "owners manage own tweets" ON planner_tweets
+  FOR ALL
+  USING (auth.uid() = owner_id)
+  WITH CHECK (auth.uid() = owner_id);
+
+-- ============================================================
 --  Done! Reload planner.html — V2 features will light up automatically.
 --  Check: editor profiles button, footage/editor file links, file uploads,
 --  inline title-scoring, planner-editor.html access for editors,
---  brand kit button in toolbar, branding & assets section on editor dashboard.
+--  brand kit button in toolbar, branding & assets section on editor dashboard,
+--  + V2.18 tweets section with threads, media, calendar bubbles.
 -- ============================================================
