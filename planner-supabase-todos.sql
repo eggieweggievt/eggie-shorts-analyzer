@@ -141,6 +141,29 @@ CREATE POLICY "owners manage own focus sessions" ON planner_focus_sessions
   USING (auth.uid() = owner_id)
   WITH CHECK (auth.uid() = owner_id);
 
+-- 4. Realtime ----------------------------------------------------
+-- Add the todo tables to the supabase_realtime publication so changes
+-- broadcast live to every device + the planner widget. Wrapped in
+-- DO blocks because ADD TABLE errors if the table is already in the
+-- publication, which would block the rest of this migration.
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'planner_todos'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE planner_todos;
+  END IF;
+END$$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'planner_todo_categories'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE planner_todo_categories;
+  END IF;
+END$$;
+
 -- ============================================================
 --  Done! Reload todo.html (or planner.html) -- the to-do list
 --  will light up automatically.

@@ -1986,17 +1986,30 @@ async function toggleDone(t){
         subtasks: (t.subtasks || []).map(s => ({...s, done:false})),
         focus_minutes: 0
       };
-      await saveTodo(clone);
+      const spawned = await saveTodo(clone);
+      if(spawned) upsertLocalTodo(spawned);
     }
   }
-  await saveTodo(t);
+  const saved = await saveTodo(t);
+  if(saved) upsertLocalTodo(saved);
   render();
 }
 
 async function togglePriority(t){
   t.is_priority = !t.is_priority;
-  await saveTodo(t);
+  const saved = await saveTodo(t);
+  if(saved) upsertLocalTodo(saved);
   render();
+}
+
+// Replace (or insert) a todo in the local cache by id. Used everywhere
+// we save, so the UI reflects the latest server state without waiting
+// for realtime to push the change back.
+function upsertLocalTodo(row){
+  if(!row || !row.id) return;
+  const idx = todos.findIndex(t => t.id === row.id);
+  if(idx >= 0) todos[idx] = row;
+  else todos.unshift(row);
 }
 
 // ============================================================
@@ -2027,7 +2040,8 @@ function setupDragAndDrop(){
         t.is_done = false; t.completed_at = null;
       }
       t.bucket = newBucket;
-      await saveTodo(t);
+      const saved = await saveTodo(t);
+      if(saved) upsertLocalTodo(saved);
       render();
     });
   });
@@ -2067,7 +2081,11 @@ async function quickAdd(){
     subtasks: [],
     position: 0
   };
-  await saveTodo(t);
+  const saved = await saveTodo(t);
+  // Push the saved row into the local cache so the task appears INSTANTLY
+  // — we don't wait for the realtime subscription to push it back, which
+  // can be slow or silent if realtime isn't enabled on the table yet.
+  if(saved) upsertLocalTodo(saved);
   $('qaInput').value = '';
   qaPriority = false;
   $('qaPrio').classList.remove('on');
@@ -2392,7 +2410,9 @@ async function saveEditor(){
   // If bucket changed to/from done, sync is_done
   if(t.bucket === 'done' && !t.is_done){ t.is_done = true; t.completed_at = new Date().toISOString(); }
   if(t.bucket !== 'done' && t.is_done){ t.is_done = false; t.completed_at = null; }
-  await saveTodo(t);
+  const saved = await saveTodo(t);
+  // Update local cache immediately so the change appears without waiting for realtime
+  if(saved) upsertLocalTodo(saved);
   closeEditor();
   render();
 }
@@ -2578,7 +2598,8 @@ async function rolloverPending(){
   for(const t of pending){
     t.bucket = 'today';   // Stays "today" — but if you want them stamped with tomorrow, set due_at:
     if(!t.due_at) t.due_at = tomorrow.toISOString();
-    await saveTodo(t);
+    const saved = await saveTodo(t);
+    if(saved) upsertLocalTodo(saved);
   }
   closeReview();
   render();
