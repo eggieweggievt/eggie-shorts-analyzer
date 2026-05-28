@@ -1924,9 +1924,12 @@
 
     <div class="toolbar">
       <button class="btn" id="addItemBtn">+ New item</button>
+      <button class="btn" id="addShortBtn" title="New item pre-filled with your Shorts defaults (platforms, description, editor link)" style="background:linear-gradient(135deg,#FFB2F0,#FFC9F5);color:#5B2A6E">📱 + Short</button>
+      <button class="btn" id="addLongBtn" title="New item pre-filled with your Long-form defaults (platforms, description, editor link)" style="background:linear-gradient(135deg,#90A5FF,#B4C2FF);color:#1F2A6B">📺 + Long</button>
       <button class="btn secondary" id="manageEditorsBtn" style="padding:8px 16px;font-size:13px">👥 Editors</button>
       <button class="btn secondary" id="manageManagersBtn" style="padding:8px 16px;font-size:13px" title="Delegate co-owner access to your hub via an invite link">👑 Managers</button>
       <button class="btn secondary" id="brandKitBtn" style="padding:8px 16px;font-size:13px">🎨 Brand kit</button>
+      <button class="btn secondary" id="templatesBtn" style="padding:8px 16px;font-size:13px" title="Edit your default editor dump for Shorts and Long-form">📝 Templates</button>
       <button class="btn secondary" id="streamScheduleBtn" style="padding:8px 16px;font-size:13px" title="Recurring weekly stream schedule (Sun-Sat)">🎙️ Stream schedule</button>
       <div class="view-toggle" role="tablist" aria-label="View mode">
         <button data-view="kanban" class="active" type="button">📋 Kanban</button>
@@ -2007,6 +2010,17 @@
     <div class="modal-content">
       <h2 id="modalTitle">New item</h2>
 
+      <!-- V2.20 — Per-format toggle. Picking Short/Long fills in any EMPTY fields from your saved defaults
+           (platforms, description, editor output link). Won't overwrite anything you've already typed. -->
+      <div class="format-toggle" id="fFormatToggle" role="tablist" aria-label="Item format defaults" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:rgba(255,219,247,0.25);border:1.5px solid rgba(255,178,240,0.35);border-radius:14px;padding:8px 10px;margin-bottom:14px">
+        <span style="font-size:11.5px;font-weight:700;color:var(--ink-soft);letter-spacing:0.04em;text-transform:uppercase;margin-right:4px">Defaults</span>
+        <button type="button" class="ft-pill" data-format="" aria-pressed="true" style="padding:5px 12px;font-size:12.5px;font-weight:700;border:1.5px solid rgba(180,180,200,0.45);border-radius:999px;background:#fff;color:var(--ink);cursor:pointer">— None</button>
+        <button type="button" class="ft-pill" data-format="shorts" aria-pressed="false" style="padding:5px 12px;font-size:12.5px;font-weight:700;border:1.5px solid rgba(255,178,240,0.5);border-radius:999px;background:#fff;color:var(--ink);cursor:pointer">📱 Short</button>
+        <button type="button" class="ft-pill" data-format="long" aria-pressed="false" style="padding:5px 12px;font-size:12.5px;font-weight:700;border:1.5px solid rgba(144,165,255,0.5);border-radius:999px;background:#fff;color:var(--ink);cursor:pointer">📺 Long</button>
+        <span class="ft-status" id="fFormatStatus" style="font-size:11.5px;color:var(--ink-soft);font-style:italic;margin-left:6px"></span>
+        <a href="#" id="fEditTemplatesLink" style="font-size:11.5px;color:var(--deep);font-weight:700;margin-left:auto;text-decoration:none" title="Edit your Shorts/Long defaults">✏️ Edit defaults</a>
+      </div>
+
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <label for="fTitle" style="flex:1;margin:0">Title <span class="opt">(required)</span></label>
         <!-- V2.12 — Inline star toggle so it's part of the main metadata row -->
@@ -2041,7 +2055,13 @@
       <input id="fAssignee" type="hidden" /><!-- legacy: kept in sync with editor name -->
       <input id="fAssigneeEmail" type="hidden" /><!-- editor email (so editor-facing page can match) -->
 
-      <label>Platforms</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:2px">
+        <label style="margin:0">Platforms</label>
+        <span class="set-default-group" style="display:inline-flex;gap:4px">
+          <button type="button" class="set-default-btn" data-target="platforms" data-format="shorts" title="Save the platforms you've picked as your Shorts default" style="padding:3px 8px;font-size:10.5px;font-weight:700;border:1px solid rgba(255,178,240,0.5);border-radius:999px;background:rgba(255,219,247,0.4);color:#5B2A6E;cursor:pointer">★ Save as Short default</button>
+          <button type="button" class="set-default-btn" data-target="platforms" data-format="long" title="Save the platforms you've picked as your Long default" style="padding:3px 8px;font-size:10.5px;font-weight:700;border:1px solid rgba(144,165,255,0.5);border-radius:999px;background:rgba(199,210,255,0.4);color:#1F2A6B;cursor:pointer">★ Save as Long default</button>
+        </span>
+      </div>
       <div class="platform-picker" id="fPlatforms">
         <button type="button" class="platform-pick" data-platform="youtube_shorts" aria-pressed="false">📺 YT Shorts</button>
         <button type="button" class="platform-pick" data-platform="youtube_long"   aria-pressed="false">📺 YT Long-form</button>
@@ -2093,7 +2113,11 @@
         <div class="pc-field">
           <div class="pc-field-head">
             <label for="fDescription">Description / caption</label>
-            <button type="button" class="pc-copy-btn" id="pcCopyDescription" title="Copy description to clipboard">📋 Copy</button>
+            <span style="display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap">
+              <button type="button" class="set-default-btn" data-target="description" data-format="shorts" title="Save the current description as your Shorts default" style="padding:3px 8px;font-size:10.5px;font-weight:700;border:1px solid rgba(255,178,240,0.5);border-radius:999px;background:rgba(255,219,247,0.4);color:#5B2A6E;cursor:pointer">★ Save as Short default</button>
+              <button type="button" class="set-default-btn" data-target="description" data-format="long" title="Save the current description as your Long default" style="padding:3px 8px;font-size:10.5px;font-weight:700;border:1px solid rgba(144,165,255,0.5);border-radius:999px;background:rgba(199,210,255,0.4);color:#1F2A6B;cursor:pointer">★ Save as Long default</button>
+              <button type="button" class="pc-copy-btn" id="pcCopyDescription" title="Copy description to clipboard">📋 Copy</button>
+            </span>
           </div>
           <textarea id="fDescription" class="pc-input" rows="4" placeholder="One strong hook sentence, a few keywords, a CTA — whatever you want to paste into YouTube / TikTok / IG when it's time to publish."></textarea>
           <p class="pc-hint">Save your sign-off / socials block here too — it lives on the project, so you don't have to retype it every upload.</p>
@@ -2125,7 +2149,13 @@
           <input id="fFootageUrl" type="url" placeholder="https://drive.google.com/…" />
         </div>
         <div>
-          <label for="fEditorFilesUrl">Editor output link <span class="opt">(final files from editor)</span></label>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap">
+            <label for="fEditorFilesUrl" style="margin:0">Editor output link <span class="opt">(final files from editor)</span></label>
+            <span style="display:inline-flex;gap:4px">
+              <button type="button" class="set-default-btn" data-target="editor_files_url" data-format="shorts" title="Save the current link as your Shorts editor-output default" style="padding:3px 8px;font-size:10.5px;font-weight:700;border:1px solid rgba(255,178,240,0.5);border-radius:999px;background:rgba(255,219,247,0.4);color:#5B2A6E;cursor:pointer">★ Short</button>
+              <button type="button" class="set-default-btn" data-target="editor_files_url" data-format="long" title="Save the current link as your Long editor-output default" style="padding:3px 8px;font-size:10.5px;font-weight:700;border:1px solid rgba(144,165,255,0.5);border-radius:999px;background:rgba(199,210,255,0.4);color:#1F2A6B;cursor:pointer">★ Long</button>
+            </span>
+          </div>
           <input id="fEditorFilesUrl" type="url" placeholder="https://drive.google.com/…" />
         </div>
       </div>
@@ -2431,9 +2461,75 @@
       <label for="bkNotes" style="margin-top:18px">Notes for editors <span class="opt">(general rules, voice, do/don'ts)</span></label>
       <textarea id="bkNotes" rows="3" placeholder="e.g. Always use Quicksand for sub captions. Brand pink is #FFB2F0. Avoid hard cuts on emotional moments…"></textarea>
 
+      <!-- V2.20 — PER-FORMAT DEFAULTS ("editor dump" templates) -->
+      <div class="section-title" style="margin-top:18px">📝 Per-format defaults <span class="badge">auto-fills new items</span></div>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">
+        Set what gets pre-filled when you click <strong>📱 + Short</strong> or <strong>📺 + Long</strong> in the toolbar (or switch the format toggle inside a new item). Only fills in <em>empty</em> fields — anything you've already typed is left alone.
+      </p>
+      <div class="bk-format-defaults" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <!-- Shorts column -->
+        <div class="bk-fmt-col" style="background:rgba(255,219,247,0.25);border:1.5px solid rgba(255,178,240,0.4);border-radius:14px;padding:12px 14px">
+          <div style="font-weight:800;color:#5B2A6E;font-size:13.5px;margin-bottom:8px">📱 Shorts default</div>
+          <label style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:0">Platforms</label>
+          <div class="platform-picker" id="bkShortsPlatforms" data-fmt="shorts" style="margin-bottom:8px"></div>
+          <label for="bkShortsDescription" style="font-size:11.5px;font-weight:700;color:var(--ink-soft)">Description / caption</label>
+          <textarea id="bkShortsDescription" rows="4" placeholder="Your default sign-off, socials, CTA for Shorts…"></textarea>
+          <label for="bkShortsEditorFilesUrl" style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:8px">Editor output link <span class="opt">(where finished Shorts go)</span></label>
+          <input id="bkShortsEditorFilesUrl" type="url" placeholder="https://drive.google.com/…" />
+        </div>
+        <!-- Long column -->
+        <div class="bk-fmt-col" style="background:rgba(199,210,255,0.25);border:1.5px solid rgba(144,165,255,0.4);border-radius:14px;padding:12px 14px">
+          <div style="font-weight:800;color:#1F2A6B;font-size:13.5px;margin-bottom:8px">📺 Long-form default</div>
+          <label style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:0">Platforms</label>
+          <div class="platform-picker" id="bkLongPlatforms" data-fmt="long" style="margin-bottom:8px"></div>
+          <label for="bkLongDescription" style="font-size:11.5px;font-weight:700;color:var(--ink-soft)">Description / caption</label>
+          <textarea id="bkLongDescription" rows="4" placeholder="Your default sign-off, socials, CTA for Long-form…"></textarea>
+          <label for="bkLongEditorFilesUrl" style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:8px">Editor output link <span class="opt">(where finished Long-forms go)</span></label>
+          <input id="bkLongEditorFilesUrl" type="url" placeholder="https://drive.google.com/…" />
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button class="btn secondary" id="bkCancelBtn">Close</button>
         <button class="btn" id="bkSaveBtn">💾 Save brand kit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V2.20: TEMPLATES MODAL (focused per-format defaults editor) ===== -->
+  <!-- Same data as the Brand Kit's Per-format defaults section — just lifted into its own
+       modal for fast access from the toolbar. Save here writes to planner_brand_kit.format_defaults. -->
+  <div class="modal-backdrop" id="templatesModal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:860px">
+      <h2>📝 Per-format templates <span style="font-size:12px;font-weight:600;color:var(--ink-soft);margin-left:8px">your editor dump for Shorts & Long-form</span></h2>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5">
+        These auto-fill into a new item when you click <strong>📱 + Short</strong> or <strong>📺 + Long</strong> in the toolbar, or when you switch the <strong>Defaults</strong> toggle inside the item modal. Already-typed values are never overwritten.
+      </p>
+      <div class="bk-format-defaults" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <!-- Shorts column -->
+        <div class="bk-fmt-col" style="background:rgba(255,219,247,0.25);border:1.5px solid rgba(255,178,240,0.4);border-radius:14px;padding:14px 16px">
+          <div style="font-weight:800;color:#5B2A6E;font-size:14px;margin-bottom:10px">📱 Shorts default</div>
+          <label style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:0">Platforms</label>
+          <div class="platform-picker" id="tplShortsPlatforms" data-fmt="shorts" style="margin-bottom:8px"></div>
+          <label for="tplShortsDescription" style="font-size:11.5px;font-weight:700;color:var(--ink-soft)">Description / caption</label>
+          <textarea id="tplShortsDescription" rows="5" placeholder="Your default sign-off, socials, CTA for Shorts…"></textarea>
+          <label for="tplShortsEditorFilesUrl" style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:8px">Editor output link <span class="opt">(where finished Shorts go)</span></label>
+          <input id="tplShortsEditorFilesUrl" type="url" placeholder="https://drive.google.com/…" />
+        </div>
+        <!-- Long column -->
+        <div class="bk-fmt-col" style="background:rgba(199,210,255,0.25);border:1.5px solid rgba(144,165,255,0.4);border-radius:14px;padding:14px 16px">
+          <div style="font-weight:800;color:#1F2A6B;font-size:14px;margin-bottom:10px">📺 Long-form default</div>
+          <label style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:0">Platforms</label>
+          <div class="platform-picker" id="tplLongPlatforms" data-fmt="long" style="margin-bottom:8px"></div>
+          <label for="tplLongDescription" style="font-size:11.5px;font-weight:700;color:var(--ink-soft)">Description / caption</label>
+          <textarea id="tplLongDescription" rows="5" placeholder="Your default sign-off, socials, CTA for Long-form…"></textarea>
+          <label for="tplLongEditorFilesUrl" style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:8px">Editor output link <span class="opt">(where finished Long-forms go)</span></label>
+          <input id="tplLongEditorFilesUrl" type="url" placeholder="https://drive.google.com/…" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="tplCancelBtn">Close</button>
+        <button class="btn" id="tplSaveBtn">💾 Save templates</button>
       </div>
     </div>
   </div>
@@ -4836,6 +4932,8 @@ async function openBrandKitModal(){
   renderBkBranding();
   renderBkVideos();
   renderBkAssets();
+  // V2.20 — Hydrate the Per-format defaults section from brandKit.format_defaults
+  hydrateBkFormatDefaults();
   $('brandKitModal').classList.add('open');
 }
 
@@ -4938,6 +5036,8 @@ async function saveBrandKit(){
     editing_style_videos: bkVideos.filter(v => v.url),
     asset_links: bkAssets.filter(a => a.url),
     notes: $('bkNotes').value.trim() || null,
+    // V2.20 — Persist the per-format defaults too (Shorts + Long-form column inputs)
+    format_defaults: readBkFormatDefaults(),
     updated_at: new Date().toISOString()
   };
   const btn = $('bkSaveBtn');
@@ -4955,6 +5055,228 @@ async function saveBrandKit(){
   btn.innerHTML = '✓ Saved!';
   setTimeout(() => { btn.innerHTML = '💾 Save brand kit'; }, 1800);
   brandKit = payload;
+}
+
+// ============================================================
+//  V2.20 — PER-FORMAT DEFAULTS ("editor dump" templates)
+//  Live on planner_brand_kit.format_defaults (jsonb). Auto-fill the
+//  New Item modal when the creator picks + Short / + Long.
+// ============================================================
+const FMT_FALLBACK = {
+  shorts: { platforms: ['youtube_shorts','tiktok','instagram'], description: '', editor_files_url: '' },
+  long:   { platforms: ['youtube_long','twitch'],                description: '', editor_files_url: '' }
+};
+const PLATFORM_BUTTONS = [
+  { p:'youtube_shorts', label:'📺 YT Shorts' },
+  { p:'youtube_long',   label:'📺 YT Long-form' },
+  { p:'tiktok',         label:'🎵 TikTok' },
+  { p:'instagram',      label:'📷 Instagram' },
+  { p:'twitter',        label:'🐦 X / Twitter' },
+  { p:'twitch',         label:'🟣 Twitch' }
+];
+
+function getFormatDefaults(fmt){
+  if(fmt !== 'shorts' && fmt !== 'long') return null;
+  const saved = (brandKit && brandKit.format_defaults && brandKit.format_defaults[fmt]) || {};
+  const fb = FMT_FALLBACK[fmt];
+  return {
+    platforms: Array.isArray(saved.platforms) && saved.platforms.length ? saved.platforms : fb.platforms,
+    description: saved.description || '',
+    editor_files_url: saved.editor_files_url || ''
+  };
+}
+
+// Apply the chosen format's defaults to the open item modal.
+// onlyEmpty=true → won't overwrite anything the user has typed.
+function applyFormatDefaults(fmt, { onlyEmpty = true } = {}){
+  const defs = getFormatDefaults(fmt);
+  if(!defs) return;
+  // Description
+  const desc = $('fDescription');
+  if(desc && (!onlyEmpty || !desc.value.trim()) && defs.description) desc.value = defs.description;
+  // Editor output link
+  const efu = $('fEditorFilesUrl');
+  if(efu && (!onlyEmpty || !efu.value.trim()) && defs.editor_files_url) efu.value = defs.editor_files_url;
+  // Platforms — if nothing is selected (or onlyEmpty=false), apply the default set
+  const pickedNow = Array.from(document.querySelectorAll('#fPlatforms .platform-pick[aria-pressed="true"]'));
+  if(!onlyEmpty || pickedNow.length === 0){
+    document.querySelectorAll('#fPlatforms .platform-pick').forEach(btn => {
+      btn.setAttribute('aria-pressed', defs.platforms.includes(btn.dataset.platform) ? 'true' : 'false');
+    });
+  }
+  const status = $('fFormatStatus');
+  if(status){
+    status.textContent = `Filled empty fields from your ${fmt === 'shorts' ? '📱 Shorts' : '📺 Long-form'} defaults.`;
+    setTimeout(() => { if(status.textContent.startsWith('Filled empty')) status.textContent = ''; }, 3500);
+  }
+}
+
+function setFormatToggleState(fmt){
+  document.querySelectorAll('#fFormatToggle .ft-pill').forEach(b => {
+    const active = (b.dataset.format || '') === (fmt || '');
+    b.setAttribute('aria-pressed', String(active));
+    b.style.background = active
+      ? (fmt === 'shorts' ? 'linear-gradient(135deg,#FFB2F0,#FFC9F5)'
+         : fmt === 'long' ? 'linear-gradient(135deg,#90A5FF,#B4C2FF)'
+         : 'linear-gradient(135deg,#E5E5EC,#F4F4F8)')
+      : '#fff';
+    b.style.color = active
+      ? (fmt === 'shorts' ? '#5B2A6E' : fmt === 'long' ? '#1F2A6B' : 'var(--ink)')
+      : 'var(--ink)';
+  });
+  const status = $('fFormatStatus');
+  if(status) status.textContent = '';
+}
+
+// Persist a single field from the open item modal as the new default for that format.
+async function setFieldAsDefault(target, fmt){
+  if(!sb || !currentUser){ alert('Sign in first.'); return; }
+  if(fmt !== 'shorts' && fmt !== 'long'){ return; }
+  // Pull current value from the open modal
+  let value;
+  if(target === 'platforms'){
+    value = Array.from(document.querySelectorAll('#fPlatforms .platform-pick[aria-pressed="true"]'))
+      .map(b => b.dataset.platform);
+    if(!value.length){ alert('Pick at least one platform first.'); return; }
+  } else if(target === 'description'){
+    value = ($('fDescription').value || '').trim();
+    if(!value){ alert('Type a description first.'); return; }
+  } else if(target === 'editor_files_url'){
+    value = ($('fEditorFilesUrl').value || '').trim();
+    if(!value){ alert('Paste an editor output link first.'); return; }
+  } else {
+    return;
+  }
+  const fmtDefaults = JSON.parse(JSON.stringify(brandKit?.format_defaults || {}));
+  if(!fmtDefaults[fmt]) fmtDefaults[fmt] = {};
+  fmtDefaults[fmt][target] = value;
+  const payload = {
+    owner_id: currentOwnerId,
+    format_defaults: fmtDefaults,
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('planner_brand_kit').upsert(payload);
+  if(error){
+    if(/format_defaults|column.*does not exist/i.test(error.message || '')){
+      alert('Per-format defaults column missing. Run the updated planner-supabase-v2.sql in Supabase first (it adds format_defaults jsonb to planner_brand_kit).');
+    } else {
+      alert('Save failed: ' + error.message);
+    }
+    return;
+  }
+  brandKit = { ...(brandKit || {}), format_defaults: fmtDefaults };
+  // Tiny inline confirmation
+  const status = $('fFormatStatus');
+  if(status){
+    const label = target === 'platforms' ? 'Platforms' : target === 'description' ? 'Description' : 'Editor link';
+    status.textContent = `✓ Saved as ${fmt === 'shorts' ? '📱 Shorts' : '📺 Long-form'} default (${label}).`;
+    setTimeout(() => { if(status.textContent.includes('Saved as')) status.textContent = ''; }, 2800);
+  }
+}
+
+// Render a platform-picker into the given container, with default-selected platforms pressed.
+function renderFormatPlatformPicker(containerId, selected){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = PLATFORM_BUTTONS.map(({p, label}) =>
+    `<button type="button" class="platform-pick" data-platform="${p}" aria-pressed="${selected.includes(p) ? 'true' : 'false'}">${label}</button>`
+  ).join('');
+  el.querySelectorAll('.platform-pick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cur = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', String(!cur));
+    });
+  });
+}
+
+function readFormatPlatformPicker(containerId){
+  return Array.from(document.querySelectorAll(`#${containerId} .platform-pick[aria-pressed="true"]`))
+    .map(b => b.dataset.platform);
+}
+
+// Brand Kit modal — Per-format defaults section (separate from saveBrandKit so each section is independent)
+function hydrateBkFormatDefaults(){
+  const fd = brandKit?.format_defaults || {};
+  const sd = { ...FMT_FALLBACK.shorts, ...(fd.shorts || {}) };
+  const ld = { ...FMT_FALLBACK.long,   ...(fd.long   || {}) };
+  renderFormatPlatformPicker('bkShortsPlatforms', sd.platforms);
+  renderFormatPlatformPicker('bkLongPlatforms', ld.platforms);
+  $('bkShortsDescription').value = sd.description || '';
+  $('bkLongDescription').value = ld.description || '';
+  $('bkShortsEditorFilesUrl').value = sd.editor_files_url || '';
+  $('bkLongEditorFilesUrl').value = ld.editor_files_url || '';
+}
+
+function readBkFormatDefaults(){
+  return {
+    shorts: {
+      platforms: readFormatPlatformPicker('bkShortsPlatforms'),
+      description: ($('bkShortsDescription').value || '').trim(),
+      editor_files_url: ($('bkShortsEditorFilesUrl').value || '').trim()
+    },
+    long: {
+      platforms: readFormatPlatformPicker('bkLongPlatforms'),
+      description: ($('bkLongDescription').value || '').trim(),
+      editor_files_url: ($('bkLongEditorFilesUrl').value || '').trim()
+    }
+  };
+}
+
+// Dedicated Templates modal — same data, separate inputs
+async function openTemplatesModal(){
+  await loadBrandKit();
+  const fd = brandKit?.format_defaults || {};
+  const sd = { ...FMT_FALLBACK.shorts, ...(fd.shorts || {}) };
+  const ld = { ...FMT_FALLBACK.long,   ...(fd.long   || {}) };
+  renderFormatPlatformPicker('tplShortsPlatforms', sd.platforms);
+  renderFormatPlatformPicker('tplLongPlatforms', ld.platforms);
+  $('tplShortsDescription').value = sd.description || '';
+  $('tplLongDescription').value = ld.description || '';
+  $('tplShortsEditorFilesUrl').value = sd.editor_files_url || '';
+  $('tplLongEditorFilesUrl').value = ld.editor_files_url || '';
+  $('templatesModal').classList.add('open');
+}
+
+function closeTemplatesModal(){
+  $('templatesModal').classList.remove('open');
+}
+
+async function saveTemplates(){
+  if(!sb || !currentUser){ alert('Sign in first.'); return; }
+  const fmtDefaults = {
+    shorts: {
+      platforms: readFormatPlatformPicker('tplShortsPlatforms'),
+      description: ($('tplShortsDescription').value || '').trim(),
+      editor_files_url: ($('tplShortsEditorFilesUrl').value || '').trim()
+    },
+    long: {
+      platforms: readFormatPlatformPicker('tplLongPlatforms'),
+      description: ($('tplLongDescription').value || '').trim(),
+      editor_files_url: ($('tplLongEditorFilesUrl').value || '').trim()
+    }
+  };
+  const btn = $('tplSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const payload = {
+    owner_id: currentOwnerId,
+    format_defaults: fmtDefaults,
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('planner_brand_kit').upsert(payload);
+  btn.disabled = false; btn.innerHTML = '💾 Save templates';
+  if(error){
+    if(/format_defaults|column.*does not exist/i.test(error.message || '')){
+      alert('Per-format defaults column missing. Run the updated planner-supabase-v2.sql in Supabase first.');
+    } else if(/relation.*does not exist/i.test(error.message || '')){
+      alert('Brand kit table missing. Run planner-supabase-v2.sql in Supabase first.');
+    } else {
+      alert('Save failed: ' + error.message);
+    }
+    return;
+  }
+  brandKit = { ...(brandKit || {}), format_defaults: fmtDefaults };
+  btn.innerHTML = '✓ Saved!';
+  setTimeout(() => { btn.innerHTML = '💾 Save templates'; closeTemplatesModal(); }, 1000);
 }
 
 // Refresh signed URLs for attachments when opening an item
@@ -5890,7 +6212,44 @@ async function saveStreamSchedule(){
 // ============================================================
 function wireApp(){
   $('addItemBtn').addEventListener('click', () => openModal());
+  // V2.20 — + Short / + Long open the modal with that format's defaults pre-filled
+  const addShort = $('addShortBtn');
+  if(addShort) addShort.addEventListener('click', () => openModal(null, null, 'shorts'));
+  const addLong = $('addLongBtn');
+  if(addLong) addLong.addEventListener('click', () => openModal(null, null, 'long'));
   $('searchInput').addEventListener('input', e => { searchQuery = e.target.value; render(); });
+
+  // V2.20 — In-modal format toggle: switching applies that format's defaults to empty fields only.
+  document.querySelectorAll('#fFormatToggle .ft-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fmt = btn.dataset.format || '';
+      setFormatToggleState(fmt);
+      if(fmt) applyFormatDefaults(fmt, { onlyEmpty: true });
+    });
+  });
+  const editTplLink = $('fEditTemplatesLink');
+  if(editTplLink) editTplLink.addEventListener('click', e => {
+    e.preventDefault();
+    closeModal();
+    openTemplatesModal();
+  });
+
+  // V2.20 — Inline "Save as Short/Long default" buttons (delegated, since they live in the item modal)
+  document.querySelectorAll('.set-default-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.target;
+      const fmt = btn.dataset.format;
+      if(target && fmt) setFieldAsDefault(target, fmt);
+    });
+  });
+
+  // V2.20 — Dedicated Templates modal
+  const tplBtn = $('templatesBtn');
+  if(tplBtn) tplBtn.addEventListener('click', openTemplatesModal);
+  const tplCancel = $('tplCancelBtn');
+  if(tplCancel) tplCancel.addEventListener('click', closeTemplatesModal);
+  const tplSave = $('tplSaveBtn');
+  if(tplSave) tplSave.addEventListener('click', saveTemplates);
 
   // V2.18 — Mode toggle (Content ↔ Tweets)
   document.querySelectorAll('.mode-toggle button[data-mode]').forEach(btn => {
@@ -6152,6 +6511,7 @@ function wireApp(){
     else if($('editorsModal').classList.contains('open')) closeEditorsModal();
     else if($('editorPreviewModal').classList.contains('open')) closeEditorPreview();
     else if($('brandKitModal').classList.contains('open')) closeBrandKitModal();
+    else if($('templatesModal') && $('templatesModal').classList.contains('open')) closeTemplatesModal();
     else if($('streamScheduleModal').classList.contains('open')) closeStreamScheduleModal();
     else if($('managersModal') && $('managersModal').classList.contains('open')) closeManagersModal();
     else if($('tweetModal') && $('tweetModal').classList.contains('open')) closeTweetModal();
@@ -6162,10 +6522,12 @@ function wireApp(){
 // ============================================================
 //  MODAL — open / save / delete
 // ============================================================
-function openModal(item, defaultStatus){
+function openModal(item, defaultStatus, defaultFormat){
   editingItemId = item?.id || null;
   $('modalTitle').textContent = item ? 'Edit item' : 'New item';
   $('deleteItemBtn').classList.toggle('hidden', !item);
+  // V2.20 — Reset the format-defaults toggle each time the modal opens; only auto-apply for NEW items
+  setFormatToggleState(item ? '' : (defaultFormat || ''));
   $('fTitle').value = item?.title || '';
   $('fStatus').value = item?.status || defaultStatus || 'idea';
   // V2.12 — Star/priority checkbox
@@ -6215,6 +6577,11 @@ function openModal(item, defaultStatus){
 
   // V3.2 — Load comment thread for this item
   loadItemComments(item?.id);
+
+  // V2.20 — If this is a new item with a chosen format, fill in empty fields from saved defaults
+  if(!item && defaultFormat){
+    applyFormatDefaults(defaultFormat, { onlyEmpty: true });
+  }
 
   $('itemModal').classList.add('open');
   $('fTitle').focus();

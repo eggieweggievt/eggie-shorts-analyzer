@@ -206,6 +206,17 @@ DO $$ BEGIN
   END IF;
 END$$;
 
+-- V2.20 — Per-format defaults ("editor dump" templates) live on the brand kit row too.
+-- Shape: { shorts: {platforms:[...], description:'', editor_files_url:''},
+--          long:   {platforms:[...], description:'', editor_files_url:''} }
+-- Used by planner.html to auto-fill the New Item modal when the creator picks
+-- + Short or + Long, and re-applied when toggling format inside the modal.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_brand_kit' AND column_name='format_defaults') THEN
+    ALTER TABLE planner_brand_kit ADD COLUMN format_defaults jsonb DEFAULT '{}'::jsonb;
+  END IF;
+END$$;
+
 ALTER TABLE planner_brand_kit ENABLE ROW LEVEL SECURITY;
 
 -- Owners (creators) manage their own brand kit
