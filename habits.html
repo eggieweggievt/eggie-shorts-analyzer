@@ -1662,10 +1662,28 @@ function applyStreamDayUI(){
 }
 
 function render(){
+  // V2.20 — Record the day we just rendered for so maybeRefreshForNewDay()
+  // can detect when midnight has passed and trigger a clean-slate re-render.
+  lastRenderedDayKey = todayKey();
   const v = state.settings.currentView || 'today';
   if(v === 'today') renderToday();
   else if(v === 'library') renderLibrary();
   else if(v === 'stats') renderStats();
+}
+
+// V2.20 — Auto-refresh when the day rolls over. Habits are date-keyed in
+// state.logs[YYYY-MM-DD], so the storage layer already treats each day as a
+// clean slate; this just makes sure the UI catches up without a manual reload
+// when the page has been sitting open past midnight or backgrounded overnight.
+// Weekly habits piggyback on this for free — when the week boundary (Sunday)
+// flips, the new dayKey triggers the same re-render and the weekly tally
+// re-counts against the new week's logs automatically.
+let lastRenderedDayKey = null;
+function maybeRefreshForNewDay(){
+  const today = todayKey();
+  if(lastRenderedDayKey && today !== lastRenderedDayKey){
+    render();
+  }
 }
 
 // ============================================================
@@ -1756,6 +1774,16 @@ function boot(){
   document.querySelectorAll('.view-tabs [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === (state.settings.currentView || 'today')));
   applyStreamDayUI();  // V2.15 — Reflect saved stream-day state in the toggle
   setView(state.settings.currentView || 'today');
+  // V2.20 — Day-rollover auto-refresh. Three triggers, belt-and-suspenders:
+  //   1. Polling every 60s catches the case where the tab is open + foregrounded
+  //      across midnight (the most common "left it running overnight" scenario).
+  //   2. visibilitychange fires when the user returns to a backgrounded tab.
+  //   3. focus fires when the window regains focus from another app.
+  // Together these guarantee a clean-slate dashboard the moment the user looks
+  // at the page on a new day, without needing them to hit refresh.
+  setInterval(maybeRefreshForNewDay, 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) maybeRefreshForNewDay(); });
+  window.addEventListener('focus', maybeRefreshForNewDay);
   // Init auth silently to restore session if present
   initAuth();
 }
