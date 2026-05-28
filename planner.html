@@ -3324,7 +3324,7 @@ function openTweetView(t){
       if(isImage && m.url){
         actionBtns.push(`<button type="button" class="btn" data-tw-copy-media="${i}" title="Copy the image to your clipboard — paste into Discord, Photoshop, etc.">📋 Copy</button>`);
       } else if((isVideo || isGif) && m.url){
-        actionBtns.push(`<button type="button" class="btn secondary" data-tw-copy-url="${i}" title="${isGif ? 'GIFs lose animation when copied as image data — use Download to keep it, or Copy URL.' : 'Clipboard can\\'t hold video data — copy the URL instead.'}">🔗 Copy URL</button>`);
+        actionBtns.push(`<button type="button" class="btn secondary" data-tw-copy-url="${i}" title="${isGif ? 'GIFs lose animation when copied as image data — use Download to keep it, or Copy URL.' : "Clipboard can't hold video data — copy the URL instead."}">🔗 Copy URL</button>`);
       }
       return `
         <div class="tw-media-tile" data-media-idx="${i}">
