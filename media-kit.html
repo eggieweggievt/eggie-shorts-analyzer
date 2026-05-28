@@ -434,6 +434,14 @@
     .auth-pill,.back-row,.edit-bar,#editorActions,#previewBanner,.cta-card .btn{display:none !important}
     .card,.kit-identity{box-shadow:none;border:1px solid #ddd}
   }
+
+  /* Public sponsor mode — strip ALL Creator Hub branding so the page
+     feels like it belongs to the creator, not to Eggie. Owner & manager
+     views (including the owner's own preview tab) keep the nav + footer. */
+  body.public-mode .back-row,
+  body.public-mode .auth-pill,
+  body.public-mode > div.wrap > footer,
+  body.public-mode footer.hub-footer{display:none !important}
 </style>
 </head>
 <body>
@@ -990,7 +998,7 @@
 
   </div>
 
-  <footer>
+  <footer class="hub-footer">
     Built into <a href="index.html">Eggie's Creator Hub</a> · brand by
     <a href="https://twitter.com/nyxgothica" target="_blank" rel="noopener">@nyxgothica</a>
   </footer>
@@ -1268,13 +1276,70 @@ async function loadPublicKitBySlug(slug){
     setMode('preview');
   } else {
     mode = 'public';
+    document.body.classList.add('public-mode');
     document.getElementById('publicView').classList.remove('hidden');
     document.getElementById('editorView').classList.add('hidden');
     document.getElementById('editorActions').classList.add('hidden');
     document.getElementById('modeToggleWrap').classList.add('hidden');
     renderPublic();
+    applyPublicBranding(kit);
   }
   document.getElementById('authView').classList.add('hidden');
+}
+
+// ============================================================
+//  PUBLIC-MODE BRANDING
+//  When a non-owner sponsor lands on ?u=<slug>, the tab title, favicon,
+//  and OG share card should reflect the CREATOR — not "Eggie's Creator
+//  Hub". This keeps the public link feeling like the creator's own page.
+//
+//  Owner editing / owner preview keep the original hub branding so they
+//  can still navigate. We only flip these when public-mode is active.
+// ============================================================
+function applyPublicBranding(k){
+  const name = (k.display_name || '').trim();
+  const tagline = (k.tagline || '').trim();
+  const niche = (k.niche_primary || '').trim();
+
+  // Tab title
+  document.title = name
+    ? `${name} — Media Kit`
+    : 'Media Kit';
+
+  // Favicon — prefer uploaded avatar; fall back to a neutral sparkle
+  const favHref = k.avatar_url && /^https?:\/\//i.test(k.avatar_url)
+    ? k.avatar_url
+    : emojiToDataURL('✨');
+  let fav = document.querySelector('link[rel="icon"]');
+  if(!fav){ fav = document.createElement('link'); fav.rel='icon'; document.head.appendChild(fav); }
+  fav.type = k.avatar_url ? '' : 'image/svg+xml';
+  fav.href = favHref;
+
+  // Open Graph + Twitter cards
+  setMeta('property','og:title', name ? `${name} — Media Kit` : 'Media Kit');
+  setMeta('property','og:description', tagline || (niche ? `${niche} creator — sponsor-facing media kit.` : 'A sponsor-facing media kit.'));
+  setMeta('property','og:url', window.location.href);
+  if(k.banner_url) setMeta('property','og:image', k.banner_url);
+  else if(k.avatar_url) setMeta('property','og:image', k.avatar_url);
+  setMeta('name','twitter:title', name ? `${name} — Media Kit` : 'Media Kit');
+  setMeta('name','twitter:description', tagline || 'A sponsor-facing media kit.');
+  setMeta('name','description', tagline || (name ? `${name}'s sponsor-facing media kit.` : 'A sponsor-facing media kit.'));
+}
+
+function setMeta(attr, key, val){
+  if(!val) return;
+  let el = document.querySelector(`meta[${attr}="${key}"]`);
+  if(!el){
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', val);
+}
+
+function emojiToDataURL(emoji){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="56%" font-size="52" text-anchor="middle" dominant-baseline="middle">${emoji}</text></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
 async function loadAsManager(managerId){
@@ -1376,6 +1441,10 @@ function renderNotFound(slug){
 // ============================================================
 function setMode(m){
   mode = m;
+  // Owner modes (edit + preview) always show hub chrome so the owner can
+  // navigate back to the rest of the hub. Only the true public sponsor
+  // view (set in loadPublicKitBySlug) gets the stripped-down branding.
+  document.body.classList.remove('public-mode');
   document.querySelectorAll('#modeToggle button').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === m);
   });
