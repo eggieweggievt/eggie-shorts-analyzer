@@ -765,33 +765,33 @@
       <div class="field-row" style="margin-top:14px">
         <div>
           <label>Body font</label>
-          <select id="ed_theme_font_body">
-            <option value="Quicksand">Quicksand (rounded sans)</option>
-            <option value="Inter">Inter (clean sans)</option>
-            <option value="Poppins">Poppins (geometric sans)</option>
-            <option value="Nunito">Nunito (soft sans)</option>
-            <option value="DM Sans">DM Sans (modern sans)</option>
-            <option value="Lato">Lato (humanist sans)</option>
-            <option value="Manrope">Manrope (techy sans)</option>
-            <option value="Work Sans">Work Sans (utility sans)</option>
-            <option value="Outfit">Outfit (display-ish sans)</option>
+          <select id="ed_theme_font_body" onchange="this.style.fontFamily=`'${this.value}',sans-serif`">
+            <option value="Quicksand"   style="font-family:'Quicksand',sans-serif">Quicksand (rounded sans)</option>
+            <option value="Inter"       style="font-family:'Inter',sans-serif">Inter (clean sans)</option>
+            <option value="Poppins"     style="font-family:'Poppins',sans-serif">Poppins (geometric sans)</option>
+            <option value="Nunito"      style="font-family:'Nunito',sans-serif">Nunito (soft sans)</option>
+            <option value="DM Sans"     style="font-family:'DM Sans',sans-serif">DM Sans (modern sans)</option>
+            <option value="Lato"        style="font-family:'Lato',sans-serif">Lato (humanist sans)</option>
+            <option value="Manrope"     style="font-family:'Manrope',sans-serif">Manrope (techy sans)</option>
+            <option value="Work Sans"   style="font-family:'Work Sans',sans-serif">Work Sans (utility sans)</option>
+            <option value="Outfit"      style="font-family:'Outfit',sans-serif">Outfit (display-ish sans)</option>
           </select>
         </div>
         <div>
           <label>Display / heading font</label>
-          <select id="ed_theme_font_display">
-            <option value="Pacifico">Pacifico (cursive, playful)</option>
-            <option value="Caveat">Caveat (handwritten)</option>
-            <option value="Dancing Script">Dancing Script (flowy)</option>
-            <option value="Sacramento">Sacramento (script)</option>
-            <option value="Lobster">Lobster (bold script)</option>
-            <option value="Satisfy">Satisfy (casual script)</option>
-            <option value="Playfair Display">Playfair Display (elegant serif)</option>
-            <option value="Abril Fatface">Abril Fatface (chunky serif)</option>
-            <option value="Permanent Marker">Permanent Marker (graffiti)</option>
-            <option value="Bebas Neue">Bebas Neue (tall caps)</option>
-            <option value="Righteous">Righteous (retro)</option>
-            <option value="Press Start 2P">Press Start 2P (pixel)</option>
+          <select id="ed_theme_font_display" onchange="this.style.fontFamily=`'${this.value}',cursive,serif`">
+            <option value="Pacifico"          style="font-family:'Pacifico',cursive">Pacifico (cursive, playful)</option>
+            <option value="Caveat"            style="font-family:'Caveat',cursive">Caveat (handwritten)</option>
+            <option value="Dancing Script"    style="font-family:'Dancing Script',cursive">Dancing Script (flowy)</option>
+            <option value="Sacramento"        style="font-family:'Sacramento',cursive">Sacramento (script)</option>
+            <option value="Lobster"           style="font-family:'Lobster',cursive">Lobster (bold script)</option>
+            <option value="Satisfy"           style="font-family:'Satisfy',cursive">Satisfy (casual script)</option>
+            <option value="Playfair Display"  style="font-family:'Playfair Display',serif">Playfair Display (elegant serif)</option>
+            <option value="Abril Fatface"     style="font-family:'Abril Fatface',serif">Abril Fatface (chunky serif)</option>
+            <option value="Permanent Marker"  style="font-family:'Permanent Marker',cursive">Permanent Marker (graffiti)</option>
+            <option value="Bebas Neue"        style="font-family:'Bebas Neue',sans-serif">Bebas Neue (tall caps)</option>
+            <option value="Righteous"         style="font-family:'Righteous',cursive">Righteous (retro)</option>
+            <option value="Press Start 2P"    style="font-family:'Press Start 2P',monospace">Press Start 2P (pixel)</option>
           </select>
         </div>
       </div>
@@ -1531,6 +1531,18 @@ function resetThemeDefaults(){
   flashToast('Theme reset — hit save to keep it 💾');
 }
 
+// --- font preloading for the dropdown previews ---
+// Walks both font dropdowns and loads every option's font, so when the
+// user opens the dropdown each line is rendered in its own typeface
+// instead of all falling back to the browser default.
+function preloadThemeFonts(){
+  ['ed_theme_font_body','ed_theme_font_display'].forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    Array.from(sel.options).forEach(opt => loadGoogleFont(opt.value));
+  });
+}
+
 // --- font loading ---
 const _loadedFonts = new Set();
 function loadGoogleFont(family){
@@ -1812,6 +1824,15 @@ function renderEditor(){
   $('ed_theme_font_body').value = th.font_body;
   $('ed_theme_font_display').value = th.font_display;
   $('ed_theme_mascot').value = th.mascot;
+
+  // Preload every font in the dropdowns so the in-dropdown previews
+  // actually render in the right typeface (otherwise they'd all fall
+  // back to the system default until you picked one). Reflect the saved
+  // value into the select trigger so the CLOSED dropdown shows the
+  // chosen font too, not just the option list.
+  preloadThemeFonts();
+  $('ed_theme_font_body').style.fontFamily    = `'${th.font_body}',sans-serif`;
+  $('ed_theme_font_display').style.fontFamily = `'${th.font_display}',cursive,serif`;
 
   // V4.1 fields
   $('ed_total_views_all_platforms').value = kit.total_views_all_platforms || '';
