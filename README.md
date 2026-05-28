@@ -45,6 +45,8 @@ Sign-in is by **magic link** (email-based, no passwords). Most of the tools work
 - **…look up "what's actually the rule for X?"** → [growth.html](./growth.html), then pick a chapter.
 - **…track my habits sustainably** → [habits.html](./habits.html). Set your energy mode for the day; only habits that fit show up.
 - **…manage tasks separately from the planner** → [todo.html](./todo.html). Linked to planner items via a search picker.
+- **…build a sponsor-facing media kit I can share** → [media-kit.html](./media-kit.html). Public shareable URL, manual stats with paste-URL helpers, rate card, audience demographics. ([deep-dive](./HUB-FEATURES.md#media-kithtml--sponsor-facing-media-kit))
+- **…draft a pitch to a brand without staring at a blank page** → [sponsor-pitch.html](./sponsor-pitch.html). Step-by-step wizard generates an email, DMs for Twitter/Discord/IG, a printable pitch doc, and a rate card snapshot — all editable. ([deep-dive](./HUB-FEATURES.md#sponsor-pitchhtml--sponsor-pitch-builder))
 
 ---
 
@@ -62,6 +64,7 @@ Twelve pages (eleven HTML + one set of SQL migrations). Each one has a one-liner
 | [`growth.html`](./growth.html) | Long-form growth playbook. 18 chapters of VTuber/streamer growth rules. No sign-in. |
 | [`habits.html`](./habits.html) | Spoon-theory habit tracker. Works locally; sign-in syncs across devices. |
 | [`about.html`](./about.html) | What the analyzer knows about (game/genre/identity database) + contact form. |
+| [`media-kit.html?u=<slug>`](./media-kit.html) | A creator's public sponsor-facing media kit. Anonymous read when the owner has toggled it public. |
 
 ### Tools that need sign-in
 
@@ -72,6 +75,8 @@ Twelve pages (eleven HTML + one set of SQL migrations). Each one has a one-liner
 | [`manager-hub.html`](./manager-hub.html) | Universal manager dashboard. Lists every creator who's delegated to you, with status counts + per-client notes. | Anyone with an active manager delegation. |
 | [`manager-claim.html`](./manager-claim.html) | Invite-claim landing page. Reads `?token=…`, prompts sign-in, claims the invite. | Anyone with the link. |
 | [`todo.html`](./todo.html) | Customizable todo list with recurring tasks, focus timer, daily review, planner-item linking. | Creator. Managers too. |
+| [`media-kit.html`](./media-kit.html) | Edit mode for the public media kit (no `?u=` param). Identity, niche, stats, audience, content, past collabs, services + pricing. Visibility toggle + custom slug. | Creator. Managers too. |
+| [`sponsor-pitch.html`](./sponsor-pitch.html) | Resume-builder-style pitch composer. 5-step wizard → email + 3 DM variants + printable pitch doc + rate-card snapshot. Pipeline-tracked. | Creator. Managers too. |
 
 ### Database migrations (SQL files — run in Supabase)
 
@@ -82,6 +87,7 @@ Twelve pages (eleven HTML + one set of SQL migrations). Each one has a one-liner
 | [`planner-managers.sql`](./planner-managers.sql) | Manager delegation: roster, RPCs, RLS helper. | 3rd |
 | [`planner-managers-open-invites.sql`](./planner-managers-open-invites.sql) | Lets manager invites be "open" (any email can claim). | 4th |
 | [`planner-manager-hub-v2.sql`](./planner-manager-hub-v2.sql) | Per-manager client profiles + polymorphic comments. | 5th |
+| [`planner-sponsor-kit.sql`](./planner-sponsor-kit.sql) | Media kit (public-readable) + sponsor pitches + slug RPCs. | 6th |
 | [`habits-supabase.sql`](./habits-supabase.sql) | Habit-state sync table (standalone). | any time |
 | [`analyzer-supabase.sql`](./analyzer-supabase.sql) | Analyzer preferences, saved runs, ratings, trends cache. | any time |
 

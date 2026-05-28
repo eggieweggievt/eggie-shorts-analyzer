@@ -23,6 +23,8 @@ This doc walks through every page, every modal, every button, every database tab
    - [`habits.html`](#habitshtml--sustainable-habits-tracker)
    - [`thumbnail.html`](#thumbnailhtml--thumbnail-checker)
    - [`about.html`](#abouthtml--about--niche-list)
+   - [`media-kit.html`](#media-kithtml--sponsor-facing-media-kit)
+   - [`sponsor-pitch.html`](#sponsor-pitchhtml--sponsor-pitch-builder)
 4. [**Cross-cutting patterns**](#cross-cutting-patterns) — the gotchas that span multiple files.
 5. [**Brand & visual system**](#brand--visual-system) — colors, fonts, motifs, voice.
 6. [**Template: "add a new feature here"**](#template--add-a-new-feature-here) — copy this whenever you ship something new.
@@ -135,6 +137,39 @@ Key columns: `id`, `parent_type` (`item` / `todo`), `parent_id`, `author_user_id
 - Insert role tagging is enforced server-side — you can only post as a role you actually hold.
 - Authors can update/delete their own; owners/managers can delete any (moderation).
 
+### `planner_media_kit` — sponsor-facing media kit
+
+One row per creator. Powers `media-kit.html`. Read-allowed for anon when `is_public = true` (this is the only `planner_*` table with a public read policy).
+
+Key columns: `user_id` (PK), `slug` (unique, friendly URL), `is_public` (bool — gates the public read policy), `display_name`, `tagline`, `bio`, `avatar_url`, `banner_url`, `location`, `languages[]`, `pronouns`, `niche_primary`, `niche_secondary`, `vibe_tags[]`, `content_pillars` (JSONB array of `{title,description}`), `platforms` (JSONB array of per-platform stat rows — see below), `audience_demographics` (JSONB — age brackets, gender split, top countries, interests, plus a soft `_blurb` field for the contact CTA), `top_content` (JSONB), `past_sponsorships` (JSONB), `services_offered[]`, `pricing` (JSONB — each entry has `hidden` so a price can be saved without exposing it), `brand_colors[]`, `contact_email`, `booking_link`, `social_handles` (JSONB), `last_stats_update_at`, `theme`.
+
+**`platforms` row shape:** `{ platform, label, url, handle, subscribers, avg_views, avg_live_viewers, engagement_rate, last_updated, notes }`. The editor's "paste channel URL" helper extracts handle from the URL but stats stay manual.
+
+**RLS:**
+- Owner: full access.
+- Manager: full access via `planner_is_manager_of(user_id)`.
+- Anon + authenticated: SELECT-only, only when `is_public = true`.
+- Editors: no access (sponsor stuff is not editor business).
+
+**Why two read paths?** The direct table read (`select('*').eq('user_id',…)`) is what the editor uses. The `planner_media_kit_peek(slug)` RPC is what the public page calls — it's `SECURITY DEFINER` so anon can look a kit up by friendly slug without needing the UUID, and it returns only when `is_public = true`.
+
+### `planner_sponsor_pitches` — per-brand pitch drafts
+
+Powers `sponsor-pitch.html`. Owner / manager only — no public, no editor.
+
+Key columns: `id`, `user_id`, `name` (creator-set label), `brand_name`, `brand_url`, `brand_description`, `sponsorship_type` (`product_seeding` / `paid_integration` / `affiliate` / `long_term_ambassador` / `stream_sponsor` / `gifted_collab` / `event` / `other`), `tone` (`warm` / `professional` / `playful` / `casual`), `goals[]`, `audience_fit_notes`, `personal_angle`, `deliverables` (JSONB array), `proposed_pricing`, `email_subject`, `email_body`, `twitter_dm`, `discord_dm`, `instagram_dm`, `pitch_doc_html` (the printable one-page doc HTML), `rate_card_snapshot` (frozen at save time so the pitch records the rates that were proposed, even if you update your rate card later), `status` (`draft` / `sent` / `responded` / `signed` / `passed` / `archived`), `sent_at`, `responded_at`, `outcome_notes`.
+
+**RLS:** owner + manager (additive) — no public, no editor.
+
+**Generation pattern.** The text outputs are generated client-side by the page from the form + the creator's `planner_media_kit` row. Once generated, every output is editable in place (`contenteditable`) and re-saved to the row. The "↻ Regenerate" button overwrites edits — confirmation prompt before doing so.
+
+### SECURITY DEFINER RPCs for media kit
+
+| RPC | Caller | Purpose |
+|---|---|---|
+| `planner_media_kit_peek(slug)` | anon + auth | Looks up a kit by friendly slug OR UUID. Returns public-safe columns only. Filters `is_public = true`. |
+| `planner_media_kit_claim_slug(new_slug)` | auth | Atomically claims a slug for the caller. Returns `null` on collision. Validates lowercase + dashes + reserved-word denylist. Upserts the row if it doesn't exist yet. |
+
 ### `planner_habits_state` — habits sync
 
 One row per user; the entire habits state is a single JSONB blob mirrored from localStorage.
@@ -192,14 +227,16 @@ The only analyzer table that's NOT owner-only. Readable by anyone signed in; wri
 - Hero: brand logotype PNG + `hero-chibi.png` mascot (with `gentle-bob` animation) + Pacifico gradient headline.
 - Welcome card (`#welcomeCard`, hidden until signed in) with "Sign out" button.
 - Habits widget (`#habitsWidget`): today's done / week total / longest streak / progress bar, "Open tracker →" link. Reads `localStorage.eggie.habits.v1`; allows 1 missed day before breaking a streak.
-- 6 tool tiles with hover translate-Y + CTA pills:
+- 8 tool tiles with hover translate-Y + CTA pills:
   1. **Shorts Analyzer** → `analyzer.html`
   2. **Growth Playbook** → `growth.html`
   3. **Thumbnail Checker** → `thumbnail.html`
   4. **Content Planner** → `planner.html`
   5. **Sustainable Habits** → `habits.html`
   6. **To-Do List** → `todo.html`
-- "More tools coming" section listing 5 future ideas (sustainable schedule quiz, bio/branding workshop, sponsor pitch builder, debut prep checklist, niche discovery quiz).
+  7. **Media Kit** → `media-kit.html`
+  8. **Pitch Builder** → `sponsor-pitch.html`
+- "More tools coming" section listing 4 future ideas (sustainable schedule quiz, bio/branding workshop, debut prep checklist, niche discovery quiz). Sponsor pitch builder shipped 2026-05-28.
 - About-Eggie strip + Twitter link.
 - Support row: Ko-fi button + `@EggieWeggieVT` Twitter pill.
 
@@ -697,6 +734,111 @@ BlazeFace doesn't reliably detect 2D VTuber model faces. Explicit design decisio
 
 ---
 
+## `media-kit.html` — sponsor-facing media kit
+
+**Shipped:** 2026-05-28
+**Lives in:** `media-kit.html` (single file, ~1,400 lines)
+**Migration:** `planner-sponsor-kit.sql`
+
+**Purpose.** A one-page sponsor-facing snapshot of the creator's channel — stats, audience, niche, deliverables, rate card, past collabs — that doubles as the editor for that same kit when the creator is signed in. Edit once, share the link forever.
+
+**Who can use it.**
+- **Anyone** with the public URL (`?u=<slug>`) — provided the owner has toggled `is_public` on.
+- **Owner** — full edit, visibility toggle, custom slug.
+- **Manager** — full edit (RLS allows via `planner_is_manager_of`). Page detects `?manage=<delegation_id>` and switches `currentOwnerId` to the delegating creator. Mirrors the planner's [currentOwnerId pattern](#the-currentownerid-pattern).
+- **Editors** — no access. (Sponsor stuff is not editor business.)
+
+**How it works.**
+
+UI modes (resolved from URL + session in `resolveOwnerAndLoad()`):
+
+| URL state | Session | Result |
+|---|---|---|
+| `?u=<slug>` | anyone | Public view via `planner_media_kit_peek` RPC. Owner gets a "👀 Preview ↔ ✏️ Edit" toggle on top. |
+| `?manage=<id>` | signed in | Manager impersonation — same edit UI but writes go to the creator's row. |
+| (no params) | signed out | Welcome / magic-link sign-in card. |
+| (no params) | signed in | Owner edit mode on their own kit. Bootstraps a row + slug from the user's email handle if no row exists. |
+
+Edit-mode sections (one card per concern): Identity & branding (display name, tagline, bio, avatar/banner URLs, pronouns, location, languages) · Niche & vibe (primary/secondary niche, vibe tags, content pillars) · Channels & stats (per-platform rows with paste-URL helpers that extract handles; stats are manual; "Mark all updated now" stamps `last_stats_update_at` + every platform's `last_updated`) · Audience demographics (range sliders for age brackets + gender split, country list with code+pct, free-text top interests) · Standout content (title/url/thumbnail/views/platform/posted_at/note) · Past sponsorships (brand/type/year/results/testimonial/link) · Services & rate card (each item has a `hidden` toggle to stage a price without exposing it publicly) · Contact (email + booking link + CTA blurb).
+
+The public view renders the same data in a sponsor-friendly layout: hero banner → identity card → about → pillars → stats grid → demographics with bar charts → top content cards → past collab list → services grid → CTA card with email + booking buttons.
+
+Data flow: every edit writes to the in-memory `kit` object via input listeners. `saveAll()` upserts the whole row to `planner_media_kit`. `toggleVisibility()` writes only `is_public`. `saveSlug()` calls the `planner_media_kit_claim_slug` RPC (which validates + claims atomically + denies reserved slugs like `admin`, `api`, `planner`, etc.).
+
+Storage: none — uses external URLs for images. (Future: add image upload to a public folder in `planner-files`.)
+
+Realtime: none. Stats are manual, and the public view doesn't need to live-update.
+
+**Gotchas / things future-you needs to remember.**
+- **`is_public` controls anon read.** Until the owner toggles it on, `?u=<slug>` returns 404 even for the slug they just claimed. The edit bar shows a 🔒 Private / 🟢 Public pill so it's obvious.
+- **Slug uniqueness.** The `planner_media_kit_claim_slug` RPC validates the regex + reserved list AND fails atomically on collision. The page handles a `null` return by showing "that slug is taken". Don't bypass the RPC and write to `slug` directly — the regex + reserved list won't run.
+- **The `_blurb` hack.** `contact_blurb` isn't a DB column — it's stashed inside `audience_demographics._blurb` to avoid a schema migration. If you later add a column for it, update both the editor pull/push and the public renderer in `media-kit.html` AND the pitch doc template in `sponsor-pitch.html`.
+- **No email normalization writes here yet.** `contact_email` is the sponsor-facing email, not used for auth — it's lowercased in `saveAll()` but doesn't flow through the editor/manager auth pipeline. If you ever wire it into RLS, mirror the [email-normalization rule](#the-email-normalization-rule).
+- **Manager impersonation:** uses the same `currentOwnerId` pattern as the planner. If you add a new write path, make sure it targets `currentOwnerId` (not `currentUser.id`).
+- **Print stylesheet:** `@media print` hides the auth pill, edit bar, mode toggle, and preview banner so the public view prints clean as a sponsor-ready PDF.
+
+**Cross-references.**
+- [The currentOwnerId pattern](#the-currentownerid-pattern) — manager impersonation rule.
+- [Email normalization](#the-email-normalization-rule) — if you add an email field that flows into RLS.
+- `planner_media_kit` data model above.
+
+**Also update:**
+- [ ] README.md "Map of the site" if URL conventions change
+- [ ] `planner-sponsor-kit.sql` if you add or change columns
+- [ ] The pitch doc template in `sponsor-pitch.html`'s `buildPitchDoc()` if you add new media-kit fields it should pull from
+
+---
+
+## `sponsor-pitch.html` — sponsor pitch builder
+
+**Shipped:** 2026-05-28
+**Lives in:** `sponsor-pitch.html` (single file, ~1,200 lines)
+**Migration:** `planner-sponsor-kit.sql` (adds `planner_sponsor_pitches`)
+
+**Purpose.** A resume-builder-style wizard that takes the creator's media kit + a few brand-specific inputs and generates a tailored pitch in five formats: cold email, Twitter DM, Discord DM, Instagram DM, one-page printable pitch doc, and a rate-card snapshot. Drafts persist; pitches are pipeline-tracked (`draft` → `sent` → `responded` → `signed` / `passed`).
+
+**Who can use it.** Signed-in creators on their own pitches. Managers via `?manage=<id>` (same `currentOwnerId` pattern as planner).
+
+**How it works.**
+
+Two-column layout: **sidebar** (pitch pipeline — sticky list of all your saved pitches with status pill + brand + updated date) and **main** (the wizard).
+
+The wizard is a 5-step `<section class="step">` flow:
+
+1. **Brand** — pitch name, brand name, brand URL, what they sell, why they fit your audience, personal angle.
+2. **Type** — pill picker over 8 sponsorship types (`product_seeding`, `paid_integration`, `affiliate`, `long_term_ambassador`, `stream_sponsor`, `gifted_collab`, `event`, `other`). Each has a one-line description that explains when to pick it.
+3. **Offer** — deliverables (button-row to add common shapes: integrated short, dedicated video, stream segment, full stream, IG Reel, TikTok, tweet, affiliate, custom; each row has quantity + notes) + free-form pricing + goals (paid / free product / long-term / experience).
+4. **Voice** — tone pill picker (warm / professional / playful / casual). This drives both opening greetings and closer phrasing.
+5. **Send** — tabbed output panel (📧 email, 🐦 Twitter, 💬 Discord, 📸 Instagram, 📄 pitch doc, 💰 rate card) + per-channel character counters (with warn class when over) + pipeline tracker (status select + outcome notes).
+
+Every output is `contenteditable` so the creator can rewrite anything that doesn't sound like them. The "↻ Regenerate" button at the top of step 5 overwrites edits — with a confirmation.
+
+**Template engine.** Pure JS string interpolation in `buildEmail` / `buildTwitter` / `buildDiscord` / `buildInstagram` / `buildPitchDoc` / `buildRateCard`. Each builder calls `ctx()` which composes a "context" object from the loaded media kit + the active pitch form, with helpers like `audienceLine` (joins per-platform reach into one human-readable string), `demoLine` (writes "audience skews femme, 18-24" from the top age/gender brackets), `nicheLine`, `delivLines` (bullet-point version) / `delivInline` (comma version), and `tFrame` (sponsorship-type framing — `ask` line + `short` label used everywhere).
+
+**Save shape.** `savePitch()` snapshots the creator's visible rate card (`mediaKit.pricing.filter(p => !p.hidden)`) into `rate_card_snapshot` so the pitch records the rates that were actually proposed — even if the creator updates their rate card later. Initial save with `status='sent'` stamps `sent_at`.
+
+Data: reads `planner_media_kit` once at sign-in to populate template context, then CRUDs `planner_sponsor_pitches`. Realtime: none.
+
+**Gotchas / things future-you needs to remember.**
+- **Templates depend on media-kit shape.** If you rename or remove a field in `planner_media_kit` (e.g. `display_name`, `tagline`, `niche_primary`, `platforms[].platform`, `audience_demographics.age_brackets`, `pricing[].hidden`), the pitch generators will silently produce worse copy. Grep `ctx()` and the builders before refactoring the media kit shape.
+- **`_blurb` again.** The pitch doc template pulls `k.contact_blurb || k.audience_demographics._blurb` for the "Next step" line, same hack as the media kit page.
+- **The download-html button** writes a self-contained file with inline fonts + styles so it opens cleanly without the hub's CSS. If you change the pitch doc HTML shape, mirror the inline styles in `downloadPitchHtml()`.
+- **Character counts** are updated by a global input listener filtered by element id. If you rename the output divs, update the `map` array in `updateCharCounts()` and the listener filter.
+- **No editor access.** RLS denies editors entirely — there's no editor pattern to mirror.
+- **Manager impersonation:** mirrors planner. All writes go through `currentOwnerId`.
+
+**Cross-references.**
+- [`media-kit.html`](#media-kithtml--sponsor-facing-media-kit) — the data source for template context.
+- [The currentOwnerId pattern](#the-currentownerid-pattern) — manager impersonation.
+- `planner_sponsor_pitches` data model above.
+
+**Also update:**
+- [ ] README.md "Map of the site" + jump-links if scope changes
+- [ ] `planner-sponsor-kit.sql` if you add or change columns
+- [ ] `media-kit.html` if you change which media-kit fields the pitch templates rely on
+
+---
+
 ## Cross-cutting patterns
 
 These are the rules that span multiple files. They're not in one place in the code — they're enforced by convention everywhere. Get one wrong and things break silently.
@@ -869,6 +1011,7 @@ Copy this whenever you ship a new feature, modal, page, or table. Paste it under
 
 Append to this when something big ships. Keep it short — date + one-liner + which migration if any.
 
+- **2026-05-28** — V4 Sponsor kit + pitch builder. `planner-sponsor-kit.sql`. Adds `planner_media_kit` (public-readable when toggled on) + `planner_sponsor_pitches` (owner/manager only) + two RPCs (`planner_media_kit_peek`, `planner_media_kit_claim_slug`). Two new pages: `media-kit.html` (public sponsor view + editor) and `sponsor-pitch.html` (5-step resume-builder-style wizard producing email + 3 DM variants + printable pitch doc + rate card snapshot).
 - **2026-05-27** — V3.3 Open invites. `planner-managers-open-invites.sql`. Manager invite emails are now optional; blank email = any-email-can-claim link.
 - **2026-05-27** — V3.2 Manager hub redux. `planner-manager-hub-v2.sql`. Per-client profiles + private notes + polymorphic comments on items/todos. Homepage now has a `👑 Manager Hub` pill button.
 - **2026-05-27** — V3 Manager delegation. `planner-managers.sql`. Full co-owner delegation via email-locked invite links with the `planner_is_manager_of()` RLS helper.

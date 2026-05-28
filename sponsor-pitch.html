@@ -1,0 +1,1486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sponsor Pitch Builder ✉️ — Eggie's Creator Hub</title>
+<meta name="description" content="A resume-builder-style pitch composer: tell me about the brand, I'll tailor your email, DMs, pitch doc, and rate card." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/sponsor-pitch.html" />
+<meta property="og:title" content="Sponsor Pitch Builder ✉️" />
+<meta property="og:description" content="Tell me about the brand, I'll tailor every channel for you." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  /* Nav */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;color:var(--deep);
+    font-weight:700;font-size:14px;transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+  .back-link.active{background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));border-color:transparent}
+
+  /* Hero */
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(30px, 5vw, 44px);line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:8px auto 4px;padding:10px 12px 18px;display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15px;
+    margin:0 auto;max-width:680px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 24px;margin:16px 0;
+  }
+  .card h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;margin:0 0 10px;color:var(--deep);padding:2px 0 8px}
+  .card h3{font-family:'Quicksand';font-weight:800;font-size:15px;color:var(--deep);margin:14px 0 6px;letter-spacing:.02em}
+  .muted{color:var(--ink-soft);font-size:13.5px;font-weight:600}
+
+  /* Buttons */
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    transition:transform .12s ease, filter .15s ease;
+    text-decoration:none;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn.danger{background:rgba(255,180,180,0.85);color:#9c2a4c;border:none;box-shadow:none}
+  .btn.small{padding:6px 12px;font-size:12.5px}
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+
+  input[type=text],input[type=number],input[type=email],input[type=url],input[type=date],select,textarea{
+    width:100%;padding:9px 13px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14px;color:var(--ink);box-sizing:border-box;
+  }
+  textarea{resize:vertical;min-height:80px;line-height:1.5}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:var(--ink)}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.field-row{grid-template-columns:1fr}}
+  .hidden{display:none !important}
+
+  /* Auth pill */
+  .auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);transition:transform .15s, filter .15s;
+  }
+  .auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .auth-pill.signed-in{background:rgba(255,255,255,0.95);color:var(--deep);border:2px solid rgba(144,165,255,0.45);font-weight:700}
+
+  /* Sign-in card */
+  .auth-card{background:rgba(255,255,255,0.9);border-radius:var(--radius);padding:30px 28px;margin:24px 0;box-shadow:var(--shadow);text-align:center}
+  .auth-card h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;color:var(--deep);margin:0 0 10px}
+  .auth-card .row{display:flex;gap:8px;max-width:420px;margin:14px auto 6px;flex-wrap:wrap}
+  .auth-card .row input{flex:1;min-width:200px}
+  .status-banner{display:none;margin:12px auto 0;padding:9px 14px;border-radius:12px;font-weight:700;font-size:13px;max-width:480px}
+  .status-banner.success{display:block;background:rgba(168,230,190,0.35);color:#1f6580}
+  .status-banner.error{display:block;background:rgba(255,180,180,0.4);color:#9c2a4c}
+
+  /* Impersonation banner */
+  .impersonation-banner{
+    background:linear-gradient(135deg,rgba(255,213,138,0.5),rgba(255,178,240,0.4));
+    border:2px solid rgba(255,180,100,0.45);border-radius:16px;padding:12px 18px;margin:12px 0;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-weight:700;color:#7a4a00;
+  }
+
+  /* Two-column layout */
+  .layout{display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:14px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+  /* Sidebar: pipeline */
+  .sidebar{
+    background:rgba(255,255,255,0.85);border-radius:var(--radius);
+    border:1px solid rgba(255,255,255,0.9);box-shadow:var(--shadow);
+    padding:16px 14px;position:sticky;top:14px;
+    max-height:calc(100vh - 28px);overflow-y:auto;
+  }
+  .sidebar h3{font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep);margin:0 0 8px;padding:2px 0 4px}
+  .sidebar .new-btn{width:100%;margin-bottom:10px}
+  .pitch-row{
+    background:rgba(255,255,255,0.95);
+    border:1.5px solid rgba(144,165,255,0.2);
+    border-radius:12px;padding:10px 12px;margin-bottom:7px;cursor:pointer;
+    transition:background .12s, border-color .12s, transform .08s;
+  }
+  .pitch-row:hover{background:#fff;border-color:rgba(144,165,255,0.45);transform:translateY(-1px)}
+  .pitch-row.active{background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.25));border-color:transparent}
+  .pitch-row .pr-name{font-weight:800;color:var(--deep);font-size:13.5px;line-height:1.3}
+  .pitch-row .pr-meta{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+  .pitch-row .pr-status{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(144,165,255,0.2);color:var(--deep);text-transform:uppercase;letter-spacing:.04em}
+  .pitch-row .pr-status.sent{background:linear-gradient(135deg,rgba(107,228,234,0.5),rgba(144,165,255,0.4));color:#1c4a5f}
+  .pitch-row .pr-status.responded{background:linear-gradient(135deg,rgba(255,213,138,0.55),rgba(255,178,240,0.4));color:#7a4a00}
+  .pitch-row .pr-status.signed{background:linear-gradient(135deg,rgba(168,230,190,0.6),rgba(107,228,234,0.45));color:#1f6580}
+  .pitch-row .pr-status.passed{background:rgba(180,180,180,0.4);color:#555}
+
+  /* Wizard */
+  .wizard{display:flex;flex-direction:column;gap:14px}
+  .stepper{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+  .stepper .stp{
+    flex:1;min-width:80px;text-align:center;padding:8px 6px;border-radius:12px;
+    background:rgba(255,255,255,0.6);border:1.5px solid rgba(144,165,255,0.2);
+    font-size:12px;font-weight:800;color:var(--ink-soft);cursor:pointer;transition:all .12s;
+  }
+  .stepper .stp.active{background:linear-gradient(135deg,rgba(255,178,240,0.5),rgba(144,165,255,0.4));color:var(--deep);border-color:transparent;box-shadow:0 4px 12px rgba(144,165,255,0.2)}
+  .stepper .stp.done{background:rgba(168,230,190,0.3);color:#1f6580;border-color:rgba(168,230,190,0.5)}
+
+  /* Sponsorship type pills */
+  .type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:8px 0}
+  .type-pill{
+    background:rgba(255,255,255,0.92);border:2px solid rgba(144,165,255,0.3);
+    border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;
+    font-family:inherit;color:var(--ink);transition:all .12s;
+  }
+  .type-pill:hover{border-color:rgba(144,165,255,0.6);background:#fff;transform:translateY(-1px)}
+  .type-pill.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));
+    border-color:transparent;box-shadow:0 6px 16px rgba(144,165,255,0.22);
+  }
+  .type-pill .tp-name{font-weight:800;color:var(--deep);font-size:14px;margin-bottom:3px}
+  .type-pill .tp-desc{font-size:12px;color:var(--ink-soft);font-weight:600;line-height:1.4}
+
+  /* Tone pills (smaller) */
+  .tone-row{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+  .tone-pill{
+    background:rgba(255,255,255,0.85);border:2px solid rgba(144,165,255,0.3);
+    border-radius:999px;padding:7px 16px;font-family:inherit;cursor:pointer;
+    font-size:13px;font-weight:700;color:var(--ink-soft);transition:all .12s;
+  }
+  .tone-pill:hover{background:#fff;color:var(--deep)}
+  .tone-pill.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.5),rgba(144,165,255,0.4));
+    color:var(--deep);border-color:transparent;
+  }
+
+  /* Deliverable rows */
+  .deliv-row{
+    display:grid;grid-template-columns:1fr 90px 1.4fr auto;gap:8px;
+    background:rgba(255,255,255,0.95);border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:12px;padding:10px 12px;margin-bottom:6px;align-items:center;
+  }
+  @media(max-width:680px){.deliv-row{grid-template-columns:1fr}}
+
+  /* Output panel */
+  .out-tabs{
+    display:flex;gap:4px;flex-wrap:wrap;background:rgba(144,165,255,0.12);
+    border-radius:14px;padding:4px;margin-bottom:10px;
+  }
+  .out-tabs button{
+    background:transparent;border:none;padding:8px 14px;border-radius:10px;
+    font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .out-tabs button.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.55),rgba(144,165,255,0.4));
+    color:var(--deep);
+  }
+  .out-pane{display:none}
+  .out-pane.active{display:block}
+  .out-output{
+    background:#fff;border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:16px 18px;
+    font-family:'Quicksand';font-size:14px;color:var(--ink);
+    white-space:pre-wrap;line-height:1.55;
+  }
+  .out-output[contenteditable=true]{outline:none}
+  .out-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .char-count{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-top:4px}
+  .char-count.warn{color:#a23556}
+
+  /* Rate card preview */
+  .rate-preview{
+    background:#fff;border:1.5px solid rgba(144,165,255,0.25);border-radius:14px;
+    padding:18px 20px;
+  }
+  .rate-preview h3{margin:0 0 10px;font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);padding:2px 0 6px}
+  .rate-preview .rate-row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dashed rgba(144,165,255,0.25)}
+  .rate-preview .rate-row:last-child{border-bottom:none}
+  .rate-preview .rate-name{font-weight:700;color:var(--ink)}
+  .rate-preview .rate-name .rn-notes{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:2px}
+  .rate-preview .rate-price{font-weight:800;color:var(--deep);white-space:nowrap}
+
+  /* Pitch doc preview (one-page) */
+  .pdoc{
+    background:#fff;border:1.5px solid rgba(144,165,255,0.25);border-radius:14px;
+    padding:24px 28px;font-family:'Quicksand';color:var(--ink);
+    line-height:1.55;
+  }
+  .pdoc h1{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:30px;color:var(--deep);
+    margin:0 0 4px;padding:4px 0 12px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle),var(--mint));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .pdoc h2{font-family:'Quicksand';font-weight:800;color:var(--deep);font-size:15px;letter-spacing:.04em;text-transform:uppercase;margin:18px 0 8px}
+  .pdoc p{margin:0 0 10px}
+  .pdoc ul{margin:6px 0 12px;padding-left:20px}
+  .pdoc .pdoc-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:6px 0 4px}
+  .pdoc .pdoc-stat{background:rgba(144,165,255,0.08);border-radius:10px;padding:8px 12px;text-align:center}
+  .pdoc .pdoc-stat .pn{font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);line-height:1.1;padding:2px 0 4px}
+  .pdoc .pdoc-stat .pl{font-size:10.5px;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+  /* Modal */
+  .modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;background:rgba(60,40,90,0.45);
+    backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .modal-bg.open{display:flex}
+  .modal{background:rgba(255,255,255,0.97);border-radius:22px;padding:24px 26px;max-width:520px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto}
+  .modal h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;color:var(--deep);margin:0 0 10px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap}
+
+  /* Empty state */
+  .empty-state{text-align:center;padding:40px 20px;color:var(--ink-soft)}
+  .empty-state .es-emoji{font-size:48px;line-height:1;margin-bottom:10px}
+  .empty-state h3{font-family:'Pacifico',cursive;font-weight:400;font-size:24px;color:var(--deep);margin:0 0 6px}
+
+  @media print{
+    body{background:#fff !important}body::before{display:none}
+    .auth-pill,.back-row,.sidebar,.stepper,.wizard,.out-tabs,.out-actions,header.hero{display:none !important}
+    .layout{grid-template-columns:1fr}
+    .card{box-shadow:none;border:1px solid #ddd}
+    .out-pane{display:block !important;page-break-after:always}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <button class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</button>
+
+  <div class="back-row">
+    <a class="back-link" href="index.html">← Hub</a>
+    <a class="back-link" href="planner.html">📋 Planner</a>
+    <a class="back-link" href="media-kit.html">💌 Media Kit</a>
+    <a class="back-link active" href="sponsor-pitch.html">✉️ Pitch builder</a>
+    <a class="back-link" href="growth.html#monetize">💰 Monetization playbook</a>
+  </div>
+
+  <header class="hero">
+    <div class="logo">Sponsor Pitch Builder ✉️</div>
+    <p class="tag">Tell me about the brand once — I'll <em>tailor every channel</em> (email, DMs, pitch doc, rate card) using everything you've already saved in your media kit. Like a resume builder, but for collabs.</p>
+  </header>
+
+  <!-- Impersonation banner -->
+  <div id="impersonationBanner" class="impersonation-banner hidden">
+    <span>👑 You're in <strong id="impName"></strong>'s pitch builder as a manager.</span>
+    <button class="btn small secondary" onclick="exitImpersonation()">Exit manager mode</button>
+  </div>
+
+  <!-- Sign-in (when signed out) -->
+  <div id="authView" class="auth-card hidden">
+    <h2>Sign in to build pitches ✨</h2>
+    <p class="muted">Your draft pitches are saved to your account so you can come back and refine them.</p>
+    <div class="row">
+      <input type="email" id="emailInput" placeholder="you@email.com" />
+      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    </div>
+    <div id="authStatus" class="status-banner"></div>
+  </div>
+
+  <!-- Main layout (signed in) -->
+  <div id="appView" class="layout hidden">
+
+    <!-- Sidebar: pitch pipeline -->
+    <aside class="sidebar">
+      <h3>📁 Your pitches</h3>
+      <button class="btn new-btn" onclick="newPitch()">✨ New pitch</button>
+      <div id="pitchList"></div>
+    </aside>
+
+    <!-- Main column: wizard + outputs -->
+    <main>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="card empty-state">
+        <div class="es-emoji">✉️</div>
+        <h3>No pitch open yet</h3>
+        <p class="muted">Click <strong>✨ New pitch</strong> in the sidebar, or pick one to keep editing.</p>
+      </div>
+
+      <!-- Active pitch UI -->
+      <div id="pitchView" class="hidden">
+
+        <!-- Stepper -->
+        <div class="card">
+          <div class="stepper" id="stepper">
+            <div class="stp active" data-step="1">1. Brand</div>
+            <div class="stp" data-step="2">2. Type</div>
+            <div class="stp" data-step="3">3. Offer</div>
+            <div class="stp" data-step="4">4. Voice</div>
+            <div class="stp" data-step="5">5. Send</div>
+          </div>
+        </div>
+
+        <!-- STEP 1: Brand -->
+        <section class="card step" data-step="1">
+          <h2>1️⃣ Tell me about the brand</h2>
+          <p class="muted">The more specific you are about <em>why this brand fits your audience</em>, the better the generated pitch.</p>
+
+          <label>Pitch name (just for you)</label>
+          <input type="text" id="pf_name" placeholder="Pitch to Nerdy By Nature — fall plushie drop" />
+
+          <div class="field-row">
+            <div>
+              <label>Brand name</label>
+              <input type="text" id="pf_brand_name" placeholder="Nerdy By Nature" />
+            </div>
+            <div>
+              <label>Brand URL</label>
+              <input type="url" id="pf_brand_url" placeholder="https://nerdybynature.com" />
+            </div>
+          </div>
+
+          <label>What does this brand sell? (in your words, 1–2 sentences)</label>
+          <textarea id="pf_brand_desc" rows="2" placeholder="Independent plushie studio — soft, gender-neutral designs, ships worldwide."></textarea>
+
+          <label>Why are they a fit for <em>your</em> audience?</label>
+          <textarea id="pf_audience_fit" rows="3" placeholder="My audience leans queer cozy gamers in their mid-20s — exactly the kind of people who buy a $40 plushie as a comfort object. I've already had 3 unprompted plushie hauls on stream this year."></textarea>
+
+          <label>Your personal angle (optional, but powerful)</label>
+          <textarea id="pf_personal_angle" rows="2" placeholder="I've owned your fox plushie for 2 years and it lives on my stream desk — viewers have asked about it 4 times this month alone."></textarea>
+
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn" onclick="goStep(2)">Next: Type →</button>
+          </div>
+        </section>
+
+        <!-- STEP 2: Sponsorship type -->
+        <section class="card step hidden" data-step="2">
+          <h2>2️⃣ What kind of collab?</h2>
+          <p class="muted">Pick the closest match — the email, DMs, and pitch doc are all rewritten to fit.</p>
+
+          <div class="type-grid" id="typeGrid"></div>
+
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn secondary" onclick="goStep(1)">← Back</button>
+            <button class="btn" onclick="goStep(3)">Next: Offer →</button>
+          </div>
+        </section>
+
+        <!-- STEP 3: Offer -->
+        <section class="card step hidden" data-step="3">
+          <h2>3️⃣ Your offer</h2>
+          <p class="muted">What you're proposing to make for them, and your asking pricing.</p>
+
+          <h3>Deliverables</h3>
+          <p class="muted" style="font-size:12.5px">Pick from your menu or add custom. Each row becomes a bullet in the pitch.</p>
+          <div id="ed_deliverables"></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+            <button class="btn small secondary" onclick="addDeliverable('integrated_short','60–90s integrated short')">+ Integrated short</button>
+            <button class="btn small secondary" onclick="addDeliverable('dedicated_video','Dedicated long-form video')">+ Dedicated video</button>
+            <button class="btn small secondary" onclick="addDeliverable('stream_segment','Sponsored stream segment')">+ Stream segment</button>
+            <button class="btn small secondary" onclick="addDeliverable('full_stream','Full sponsored stream')">+ Full stream</button>
+            <button class="btn small secondary" onclick="addDeliverable('ig_reel','Instagram Reel')">+ IG Reel</button>
+            <button class="btn small secondary" onclick="addDeliverable('tiktok','TikTok')">+ TikTok</button>
+            <button class="btn small secondary" onclick="addDeliverable('tweet','Tweet / X post')">+ Tweet</button>
+            <button class="btn small secondary" onclick="addDeliverable('affiliate','Affiliate link in description')">+ Affiliate</button>
+            <button class="btn small secondary" onclick="addDeliverable('custom','Custom')">+ Custom</button>
+          </div>
+
+          <h3 style="margin-top:14px">Proposed pricing</h3>
+          <label>Free-form (e.g. "$450 integrated short + $150 affiliate cut")</label>
+          <input type="text" id="pf_pricing" placeholder="$450 integrated short, $150 dedicated affiliate cross-post" />
+          <p class="muted" style="font-size:12px">💡 Tip: open your <a href="media-kit.html" style="color:var(--deep);font-weight:700">media kit</a> to see your full rate card.</p>
+
+          <h3 style="margin-top:14px">What you want out of this</h3>
+          <div class="tone-row" id="goalsRow"></div>
+
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn secondary" onclick="goStep(2)">← Back</button>
+            <button class="btn" onclick="goStep(4)">Next: Voice →</button>
+          </div>
+        </section>
+
+        <!-- STEP 4: Voice -->
+        <section class="card step hidden" data-step="4">
+          <h2>4️⃣ Tone of voice</h2>
+          <p class="muted">Matches the rewrite to how <em>you</em> talk — and how the brand probably talks back.</p>
+
+          <h3>Tone</h3>
+          <div class="tone-row" id="toneRow">
+            <button class="tone-pill" data-tone="warm">💗 Warm</button>
+            <button class="tone-pill" data-tone="professional">💼 Professional</button>
+            <button class="tone-pill" data-tone="playful">🎉 Playful</button>
+            <button class="tone-pill" data-tone="casual">☕ Casual</button>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn secondary" onclick="goStep(3)">← Back</button>
+            <button class="btn" onclick="generateAndGo()">✨ Generate & review →</button>
+          </div>
+        </section>
+
+        <!-- STEP 5: Outputs -->
+        <section class="card step hidden" data-step="5">
+          <h2>5️⃣ Your pitch, ready to send</h2>
+          <p class="muted">Every output is editable — click into the text and rewrite anything that doesn't sound like you. <button class="btn small secondary" onclick="regenerateAll()" style="margin-left:6px">↻ Regenerate from form</button></p>
+
+          <div class="out-tabs" id="outTabs">
+            <button class="active" data-out="email">📧 Cold email</button>
+            <button data-out="twitter">🐦 Twitter DM</button>
+            <button data-out="discord">💬 Discord DM</button>
+            <button data-out="instagram">📸 Instagram DM</button>
+            <button data-out="pdoc">📄 Pitch doc</button>
+            <button data-out="rate">💰 Rate card</button>
+          </div>
+
+          <!-- Email -->
+          <div class="out-pane active" data-out="email">
+            <label>Subject line</label>
+            <input type="text" id="out_email_subject" />
+            <label style="margin-top:10px">Email body</label>
+            <div class="out-output" id="out_email_body" contenteditable="true"></div>
+            <div class="out-actions">
+              <button class="btn small" onclick="copyOutput('email')">📋 Copy email</button>
+              <button class="btn small secondary" onclick="copyOutput('email_subject')">Copy subject only</button>
+              <button class="btn small secondary" onclick="openMailto()">📬 Open in mail app</button>
+            </div>
+          </div>
+
+          <!-- Twitter -->
+          <div class="out-pane" data-out="twitter">
+            <div class="out-output" id="out_twitter" contenteditable="true"></div>
+            <div class="char-count" id="cc_twitter">0 / 280</div>
+            <div class="out-actions">
+              <button class="btn small" onclick="copyOutput('twitter')">📋 Copy</button>
+            </div>
+          </div>
+
+          <!-- Discord -->
+          <div class="out-pane" data-out="discord">
+            <div class="out-output" id="out_discord" contenteditable="true"></div>
+            <div class="char-count" id="cc_discord">0 / 2000</div>
+            <div class="out-actions">
+              <button class="btn small" onclick="copyOutput('discord')">📋 Copy</button>
+            </div>
+          </div>
+
+          <!-- Instagram -->
+          <div class="out-pane" data-out="instagram">
+            <div class="out-output" id="out_instagram" contenteditable="true"></div>
+            <div class="char-count" id="cc_instagram">0 / 1000</div>
+            <div class="out-actions">
+              <button class="btn small" onclick="copyOutput('instagram')">📋 Copy</button>
+            </div>
+          </div>
+
+          <!-- Pitch doc -->
+          <div class="out-pane" data-out="pdoc">
+            <div class="pdoc" id="out_pdoc"></div>
+            <div class="out-actions">
+              <button class="btn small" onclick="window.print()">🖨️ Print / save as PDF</button>
+              <button class="btn small secondary" onclick="copyOutput('pdoc')">📋 Copy as text</button>
+              <button class="btn small secondary" onclick="downloadPitchHtml()">⬇ Download .html</button>
+            </div>
+          </div>
+
+          <!-- Rate card -->
+          <div class="out-pane" data-out="rate">
+            <div class="rate-preview" id="out_rate"></div>
+            <div class="out-actions">
+              <button class="btn small secondary" onclick="window.print()">🖨️ Print / save as PDF</button>
+              <a class="btn small secondary" href="media-kit.html">✏️ Edit rates in media kit</a>
+            </div>
+          </div>
+
+          <!-- Pipeline tracking -->
+          <div class="card" style="margin-top:14px">
+            <h3>📍 Track this pitch</h3>
+            <div class="field-row">
+              <div>
+                <label>Status</label>
+                <select id="pf_status">
+                  <option value="draft">📝 Draft</option>
+                  <option value="sent">✉️ Sent</option>
+                  <option value="responded">💬 Responded</option>
+                  <option value="signed">✅ Signed</option>
+                  <option value="passed">🙈 Passed</option>
+                  <option value="archived">📦 Archived</option>
+                </select>
+              </div>
+              <div>
+                <label>Outcome notes</label>
+                <input type="text" id="pf_outcome_notes" placeholder="e.g. 'They want to talk in Q3'" />
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn secondary" onclick="goStep(4)">← Back to voice</button>
+            <button class="btn" onclick="savePitch()">💾 Save pitch</button>
+            <button class="btn danger" onclick="deletePitch()" style="margin-left:auto">Delete pitch</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <footer style="text-align:center;margin-top:36px;padding-top:24px;border-top:1.5px dashed rgba(144,165,255,0.3);color:var(--ink-soft);font-size:13px;font-weight:600">
+    Built into <a href="index.html" style="color:var(--deep);font-weight:700;text-decoration:none">Eggie's Creator Hub</a>
+  </footer>
+</div>
+
+<!-- Auth modal -->
+<div class="modal-bg" id="authModal">
+  <div class="modal">
+    <h2>Sign in ✨</h2>
+    <p class="muted">Passwordless magic link.</p>
+    <input type="email" id="modalEmail" placeholder="you@email.com" style="margin-top:12px" />
+    <div id="modalStatus" class="status-banner"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeAuthModal()" style="margin-right:auto">Cancel</button>
+      <button class="btn" onclick="modalSendMagicLink()">📬 Send link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+let sb = null;
+let currentUser = null;
+let currentOwnerId = null;
+let impersonating = false;
+let pitches = [];           // sidebar list
+let activePitch = null;     // currently editing
+let mediaKit = null;        // creator's media kit (for templates)
+
+// ============================================================
+//  SPONSORSHIP TYPES
+// ============================================================
+const TYPE_DEFS = {
+  product_seeding:     { label:'🎁 Product seeding',      desc:'Free product in exchange for content. Best for boutique brands building awareness.' },
+  paid_integration:    { label:'💵 Paid integration',     desc:'Cash for a video segment or stream slot — most common shape.' },
+  affiliate:           { label:'🔗 Affiliate',            desc:'Tracked link / code, paid per sale. Pairs well with other formats.' },
+  long_term_ambassador:{ label:'🌟 Long-term ambassador', desc:'Retainer-style multi-month partnership. Best fit for brands you already love.' },
+  stream_sponsor:      { label:'🎙️ Stream sponsor',       desc:'On-stream overlay, segment, or full-stream sponsor.' },
+  gifted_collab:       { label:'💌 Gifted collab',        desc:'Free product, no posting requirement. Casual, no pressure.' },
+  event:               { label:'🎪 Event / appearance',   desc:'Showing up to a launch, panel, or stream-along.' },
+  other:               { label:'✨ Other',                desc:'Something custom — describe it in the brand fit notes.' }
+};
+
+const GOAL_DEFS = [
+  ['paid','💵 Paid'],
+  ['free_product','🎁 Free product'],
+  ['long_term','🌱 Long-term relationship'],
+  ['experience','✨ Experience / portfolio']
+];
+
+// ============================================================
+//  SUPABASE INIT
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user){ await onSignIn(session.user); }
+    else { showAuthView(); }
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user);
+      else onSignOut();
+    });
+  }catch(e){ console.warn('Supabase init failed', e); showAuthView(); }
+}
+
+async function sendMagicLink(){ await doMagicLink('emailInput','authStatus','authSend'); }
+async function modalSendMagicLink(){ await doMagicLink('modalEmail','modalStatus',null); }
+async function doMagicLink(inputId, statusId, btnId){
+  const email = (document.getElementById(inputId).value || '').trim().toLowerCase();
+  const status = document.getElementById(statusId);
+  if(!email || !email.includes('@')){
+    status.textContent = 'Please enter a valid email.'; status.className = 'status-banner error'; return;
+  }
+  if(window.location.protocol === 'file:'){
+    status.textContent = '⚠️ Magic links require http(s).'; status.className = 'status-banner error'; return;
+  }
+  if(!sb) await initAuth();
+  const btn = btnId ? document.getElementById(btnId) : null;
+  if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+  const redirectTo = window.location.origin + window.location.pathname;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  if(btn){ btn.disabled = false; btn.innerHTML = '📬 Send magic link'; }
+  if(error){
+    status.textContent = 'Sign-in failed: ' + error.message; status.className = 'status-banner error';
+  } else {
+    status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`; status.className = 'status-banner success';
+  }
+}
+
+async function onSignIn(user){
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.onclick = () => { if(confirm('Sign out?')) sb.auth.signOut(); };
+  closeAuthModal();
+
+  // Resolve owner (manager impersonation)
+  const manageId = getQuery('manage');
+  if(manageId){
+    // RPC returns manager_id (not id) — match the planner.html pattern.
+    const { data:dels } = await sb.rpc('planner_list_my_delegations');
+    const d = (dels||[]).find(x => x.manager_id === manageId);
+    if(d){
+      currentOwnerId = d.owner_id;
+      impersonating = true;
+      document.getElementById('impersonationBanner').classList.remove('hidden');
+      document.getElementById('impName').textContent = d.owner_email || 'creator';
+    } else {
+      currentOwnerId = user.id;
+    }
+  } else {
+    currentOwnerId = user.id;
+  }
+
+  showAppView();
+  await loadMediaKit();
+  await loadPitches();
+  renderTypeGrid();
+  renderGoals();
+  renderToneRow();
+  renderDeliverables();
+}
+
+function onSignOut(){
+  currentUser = null; currentOwnerId = null; impersonating = false;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in';
+  pill.onclick = openAuthModal;
+  showAuthView();
+}
+
+function showAuthView(){
+  document.getElementById('authView').classList.remove('hidden');
+  document.getElementById('appView').classList.add('hidden');
+}
+function showAppView(){
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+}
+
+function openAuthModal(){ if(!sb) initAuth(); document.getElementById('authModal').classList.add('open'); }
+function closeAuthModal(){ document.getElementById('authModal').classList.remove('open'); }
+
+// ============================================================
+//  DATA LOADERS
+// ============================================================
+async function loadMediaKit(){
+  const { data } = await sb.from('planner_media_kit')
+    .select('*').eq('user_id', currentOwnerId).maybeSingle();
+  mediaKit = data || null;
+}
+
+async function loadPitches(){
+  const { data, error } = await sb.from('planner_sponsor_pitches')
+    .select('*').eq('user_id', currentOwnerId).order('updated_at', { ascending:false });
+  if(error){ console.warn('load pitches', error); return; }
+  pitches = data || [];
+  renderPitchList();
+}
+
+function renderPitchList(){
+  const host = document.getElementById('pitchList');
+  if(!pitches.length){
+    host.innerHTML = '<div class="muted" style="font-size:12.5px;padding:8px 4px">No pitches yet. Click ✨ New pitch to start your first.</div>';
+    return;
+  }
+  host.innerHTML = pitches.map(p => {
+    const isActive = activePitch && activePitch.id === p.id;
+    return `
+      <div class="pitch-row ${isActive?'active':''}" data-id="${p.id}">
+        <div class="pr-name">${escapeHtml(p.name || p.brand_name || 'Untitled pitch')}</div>
+        <div class="pr-meta">
+          <span class="pr-status ${p.status||'draft'}">${(p.status||'draft').toUpperCase()}</span>
+          ${p.brand_name ? `<span>${escapeHtml(p.brand_name)}</span>` : ''}
+          <span>${niceDate(p.updated_at, true)}</span>
+        </div>
+      </div>`;
+  }).join('');
+  host.querySelectorAll('.pitch-row').forEach(row => {
+    row.addEventListener('click', () => openPitch(row.dataset.id));
+  });
+}
+
+// ============================================================
+//  PITCH CRUD
+// ============================================================
+function blankPitch(){
+  return {
+    id:null,
+    name:'', brand_name:'', brand_url:'', brand_description:'',
+    sponsorship_type:'paid_integration',
+    tone:'warm',
+    goals:['paid'],
+    audience_fit_notes:'', personal_angle:'',
+    deliverables:[], proposed_pricing:'',
+    email_subject:'', email_body:'',
+    twitter_dm:'', discord_dm:'', instagram_dm:'',
+    pitch_doc_html:'', rate_card_snapshot:null,
+    status:'draft', sent_at:null, responded_at:null, outcome_notes:''
+  };
+}
+
+function newPitch(){
+  activePitch = blankPitch();
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('pitchView').classList.remove('hidden');
+  fillForm();
+  renderPitchList();
+  goStep(1);
+}
+
+async function openPitch(id){
+  const found = pitches.find(p => p.id === id);
+  if(!found) return;
+  activePitch = JSON.parse(JSON.stringify(found));
+  if(!activePitch.deliverables) activePitch.deliverables = [];
+  if(!activePitch.goals) activePitch.goals = [];
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('pitchView').classList.remove('hidden');
+  fillForm();
+  renderDeliverables();
+  renderPitchList();
+  // If they already have generated outputs, jump to step 5
+  if(activePitch.email_body) {
+    goStep(5);
+    renderAllOutputs(true);
+  } else {
+    goStep(1);
+  }
+}
+
+async function savePitch(){
+  if(!activePitch) return;
+  pullForm();
+  // Snapshot rate card from media kit at time of save
+  if(mediaKit && mediaKit.pricing){
+    activePitch.rate_card_snapshot = mediaKit.pricing.filter(p => !p.hidden);
+  }
+  const payload = {
+    user_id: currentOwnerId,
+    name: activePitch.name || activePitch.brand_name || 'Untitled pitch',
+    brand_name: activePitch.brand_name || null,
+    brand_url: activePitch.brand_url || null,
+    brand_description: activePitch.brand_description || null,
+    sponsorship_type: activePitch.sponsorship_type,
+    tone: activePitch.tone,
+    goals: activePitch.goals,
+    audience_fit_notes: activePitch.audience_fit_notes || null,
+    personal_angle: activePitch.personal_angle || null,
+    deliverables: activePitch.deliverables,
+    proposed_pricing: activePitch.proposed_pricing || null,
+    email_subject: activePitch.email_subject || null,
+    email_body: activePitch.email_body || null,
+    twitter_dm: activePitch.twitter_dm || null,
+    discord_dm: activePitch.discord_dm || null,
+    instagram_dm: activePitch.instagram_dm || null,
+    pitch_doc_html: activePitch.pitch_doc_html || null,
+    rate_card_snapshot: activePitch.rate_card_snapshot,
+    status: activePitch.status || 'draft',
+    sent_at: activePitch.status === 'sent' && !activePitch.sent_at ? new Date().toISOString() : activePitch.sent_at,
+    outcome_notes: activePitch.outcome_notes || null
+  };
+  let res;
+  if(activePitch.id){
+    res = await sb.from('planner_sponsor_pitches').update(payload).eq('id', activePitch.id).select().maybeSingle();
+  } else {
+    res = await sb.from('planner_sponsor_pitches').insert(payload).select().maybeSingle();
+  }
+  if(res.error){ alert('Save failed: '+res.error.message); return; }
+  activePitch = mergePitch(res.data);
+  await loadPitches();
+  flashToast('Pitch saved 💾');
+}
+
+async function deletePitch(){
+  if(!activePitch || !activePitch.id){ activePitch = null; document.getElementById('pitchView').classList.add('hidden'); document.getElementById('emptyState').classList.remove('hidden'); return; }
+  if(!confirm('Delete this pitch? It can\'t be undone.')) return;
+  const { error } = await sb.from('planner_sponsor_pitches').delete().eq('id', activePitch.id);
+  if(error){ alert('Delete failed: '+error.message); return; }
+  activePitch = null;
+  document.getElementById('pitchView').classList.add('hidden');
+  document.getElementById('emptyState').classList.remove('hidden');
+  await loadPitches();
+}
+
+function mergePitch(row){
+  const base = blankPitch();
+  Object.keys(row||{}).forEach(k => { if(row[k] !== null && row[k] !== undefined) base[k] = row[k]; });
+  return base;
+}
+
+// ============================================================
+//  FORM
+// ============================================================
+function fillForm(){
+  $('pf_name').value = activePitch.name || '';
+  $('pf_brand_name').value = activePitch.brand_name || '';
+  $('pf_brand_url').value = activePitch.brand_url || '';
+  $('pf_brand_desc').value = activePitch.brand_description || '';
+  $('pf_audience_fit').value = activePitch.audience_fit_notes || '';
+  $('pf_personal_angle').value = activePitch.personal_angle || '';
+  $('pf_pricing').value = activePitch.proposed_pricing || '';
+  $('pf_status').value = activePitch.status || 'draft';
+  $('pf_outcome_notes').value = activePitch.outcome_notes || '';
+  renderTypeGrid();
+  renderGoals();
+  renderToneRow();
+  renderDeliverables();
+}
+function pullForm(){
+  activePitch.name = $('pf_name').value.trim();
+  activePitch.brand_name = $('pf_brand_name').value.trim();
+  activePitch.brand_url = $('pf_brand_url').value.trim();
+  activePitch.brand_description = $('pf_brand_desc').value.trim();
+  activePitch.audience_fit_notes = $('pf_audience_fit').value.trim();
+  activePitch.personal_angle = $('pf_personal_angle').value.trim();
+  activePitch.proposed_pricing = $('pf_pricing').value.trim();
+  activePitch.status = $('pf_status').value;
+  activePitch.outcome_notes = $('pf_outcome_notes').value.trim();
+  // outputs (if user edited them)
+  activePitch.email_subject = $('out_email_subject').value || activePitch.email_subject;
+  activePitch.email_body = $('out_email_body').innerText || activePitch.email_body;
+  activePitch.twitter_dm = $('out_twitter').innerText || activePitch.twitter_dm;
+  activePitch.discord_dm = $('out_discord').innerText || activePitch.discord_dm;
+  activePitch.instagram_dm = $('out_instagram').innerText || activePitch.instagram_dm;
+}
+
+function renderTypeGrid(){
+  const host = document.getElementById('typeGrid'); host.innerHTML = '';
+  Object.entries(TYPE_DEFS).forEach(([k, def]) => {
+    const b = document.createElement('button');
+    b.className = 'type-pill' + (activePitch && activePitch.sponsorship_type === k ? ' active' : '');
+    b.innerHTML = `<div class="tp-name">${def.label}</div><div class="tp-desc">${def.desc}</div>`;
+    b.onclick = () => {
+      activePitch.sponsorship_type = k;
+      renderTypeGrid();
+    };
+    host.appendChild(b);
+  });
+}
+
+function renderGoals(){
+  const host = document.getElementById('goalsRow'); host.innerHTML = '';
+  GOAL_DEFS.forEach(([k,label]) => {
+    const b = document.createElement('button');
+    b.className = 'tone-pill' + ((activePitch.goals||[]).includes(k) ? ' active' : '');
+    b.textContent = label;
+    b.onclick = () => {
+      if(!activePitch.goals) activePitch.goals = [];
+      const i = activePitch.goals.indexOf(k);
+      if(i >= 0) activePitch.goals.splice(i,1); else activePitch.goals.push(k);
+      renderGoals();
+    };
+    host.appendChild(b);
+  });
+}
+
+function renderToneRow(){
+  document.querySelectorAll('#toneRow .tone-pill').forEach(b => {
+    b.classList.toggle('active', activePitch.tone === b.dataset.tone);
+    b.onclick = () => { activePitch.tone = b.dataset.tone; renderToneRow(); };
+  });
+}
+
+function renderDeliverables(){
+  const host = $('ed_deliverables'); host.innerHTML = '';
+  (activePitch.deliverables||[]).forEach((d,i) => {
+    const row = document.createElement('div');
+    row.className = 'deliv-row';
+    row.innerHTML = `
+      <input type="text" placeholder="What" value="${escapeAttr(d.kind_label||d.kind||'')}" data-i="${i}" data-k="kind_label" />
+      <input type="number" placeholder="Qty" value="${d.quantity||1}" min="1" data-i="${i}" data-k="quantity" />
+      <input type="text" placeholder="Notes (e.g. 'cross-post to IG')" value="${escapeAttr(d.notes||'')}" data-i="${i}" data-k="notes" />
+      <button class="btn small danger" data-rm="${i}">×</button>`;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = +e.target.dataset.i, k = e.target.dataset.k;
+        let v = e.target.value;
+        if(k === 'quantity') v = Number(v) || 1;
+        activePitch.deliverables[idx][k] = v;
+      });
+    });
+    row.querySelector('[data-rm]').onclick = () => { activePitch.deliverables.splice(i,1); renderDeliverables(); };
+    host.appendChild(row);
+  });
+  if(!activePitch.deliverables?.length){
+    host.innerHTML = '<div class="muted" style="font-size:13px;padding:6px 0">No deliverables yet — add one from the buttons below.</div>';
+  }
+}
+function addDeliverable(kind, label){
+  if(!activePitch.deliverables) activePitch.deliverables = [];
+  activePitch.deliverables.push({ kind, kind_label:label, quantity:1, notes:'' });
+  renderDeliverables();
+}
+
+// ============================================================
+//  STEPPER
+// ============================================================
+function goStep(n){
+  pullForm();
+  document.querySelectorAll('.step').forEach(s => s.classList.toggle('hidden', +s.dataset.step !== n));
+  document.querySelectorAll('.stepper .stp').forEach(s => {
+    const sn = +s.dataset.step;
+    s.classList.toggle('active', sn === n);
+    s.classList.toggle('done', sn < n);
+  });
+  // allow click on stepper
+  document.querySelectorAll('.stepper .stp').forEach(s => s.onclick = () => goStep(+s.dataset.step));
+  if(n === 5) renderAllOutputs(false);
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function generateAndGo(){
+  pullForm();
+  // Force fresh generation, ignore stored values
+  activePitch.email_subject = '';
+  activePitch.email_body = '';
+  activePitch.twitter_dm = '';
+  activePitch.discord_dm = '';
+  activePitch.instagram_dm = '';
+  goStep(5);
+  renderAllOutputs(true);
+}
+
+function regenerateAll(){
+  if(!confirm('Regenerate all outputs from the form? This will overwrite any edits you\'ve made to the generated text.')) return;
+  activePitch.email_subject = '';
+  activePitch.email_body = '';
+  activePitch.twitter_dm = '';
+  activePitch.discord_dm = '';
+  activePitch.instagram_dm = '';
+  renderAllOutputs(true);
+}
+
+// ============================================================
+//  TEMPLATE ENGINE — context-aware string building
+// ============================================================
+function ctx(){
+  const k = mediaKit || {};
+  const p = activePitch;
+  const greetingByTone = {
+    warm:'Hi there!',
+    professional:'Hello,',
+    playful:'Heya!',
+    casual:'Hey!'
+  };
+  const closerByTone = {
+    warm:'Either way — sending good vibes 💗',
+    professional:'Thank you for considering.',
+    playful:'Either way, you\'ve got a fan over here 🐙',
+    casual:'Either way, no stress!'
+  };
+  const signoff = (k.display_name || (currentUser?.email?.split('@')[0]) || 'Me').trim();
+
+  // Audience snapshot from media kit
+  const platforms = (k.platforms || []).filter(p => p.url || p.handle);
+  const audienceLine = platforms.length
+    ? platforms.map(pl => {
+        const num = (pl.platform==='twitch'||pl.platform==='kick') ? pl.subscribers : pl.subscribers;
+        const nice = num ? fmtNum(num) : null;
+        const label = ({youtube:'YouTube',twitch:'Twitch',tiktok:'TikTok',instagram:'Instagram',x:'X',kick:'Kick',other:'channel'}[pl.platform]||'channel');
+        return nice ? `${nice} on ${label}` : label;
+      }).join(' · ')
+    : null;
+
+  // Demo line
+  const ad = k.audience_demographics || {};
+  const topAge = topKey(ad.age_brackets || {});
+  const topGender = topKey(ad.gender_split || {});
+  const genderMap = { f:'femme', m:'masc', nb:'non-binary', other:'mixed' };
+  const demoLine = (topAge || topGender) ? `My audience skews ${topGender ? genderMap[topGender]+', ' : ''}${topAge || ''}`.trim() : null;
+
+  // Niche
+  const nicheLine = k.niche_primary
+    ? `I make ${k.niche_primary.toLowerCase()}${k.niche_secondary ? ' and '+k.niche_secondary.toLowerCase():''} content.`
+    : null;
+
+  // Deliverables
+  const delivList = (p.deliverables||[]).filter(d => d.kind_label || d.kind);
+  const delivLines = delivList.map(d => `• ${d.quantity > 1 ? d.quantity + '× ' : ''}${d.kind_label || d.kind}${d.notes ? ' — '+d.notes : ''}`);
+  const delivInline = delivList.map(d => `${d.quantity > 1 ? d.quantity+'× ' : ''}${d.kind_label || d.kind}`).join(', ');
+
+  // Sponsorship type framing
+  const typeFrames = {
+    product_seeding:    { ask:'I\'d love to feature your product in an upcoming piece — in exchange for sending one over, you\'d get organic placement in front of my audience.', short:'product seeding' },
+    paid_integration:   { ask:'I\'d love to put together a paid integration that gets your product in front of my audience — proposed pricing below.', short:'paid integration' },
+    affiliate:          { ask:'I\'d love to add you to my affiliate roster so my audience has a frictionless way to check you out.', short:'affiliate partnership' },
+    long_term_ambassador:{ ask:'I\'d be interested in exploring a longer-term ambassador relationship — repeat exposure works better than one-offs for what you sell.', short:'ambassador partnership' },
+    stream_sponsor:     { ask:'I\'d love to make you the sponsor of an upcoming stream — overlay placement + dedicated talk segment.', short:'stream sponsorship' },
+    gifted_collab:      { ask:'No formal posting requirement — if a product happens to land in the channel naturally because I genuinely love it, even better.', short:'gifted collab' },
+    event:              { ask:'I\'d love to be part of your event — happy to talk about the right shape.', short:'event partnership' },
+    other:              { ask:'I have an idea I\'d love to run by you — happy to jump on a call if it\'s interesting.', short:'partnership' }
+  };
+  const tFrame = typeFrames[p.sponsorship_type] || typeFrames.other;
+
+  return { k, p, greetingByTone, closerByTone, signoff, audienceLine, demoLine, nicheLine, delivLines, delivInline, tFrame };
+}
+
+function topKey(obj){
+  const entries = Object.entries(obj||{}).filter(([k,v]) => v > 0).sort((a,b) => b[1]-a[1]);
+  return entries.length ? entries[0][0] : null;
+}
+
+// ----- EMAIL -----
+function buildEmail(){
+  const c = ctx();
+  const subject = c.tFrame.short === 'ambassador partnership'
+    ? `${c.signoff} × ${c.p.brand_name || 'your brand'} — long-term collab idea`
+    : `${c.signoff} × ${c.p.brand_name || 'your brand'} — ${c.tFrame.short} idea`;
+
+  const lines = [];
+  lines.push(`${c.greetingByTone[c.p.tone] || 'Hi!'}`);
+  lines.push('');
+  // Personal angle is the opener if present — most engaging
+  if(c.p.personal_angle){
+    lines.push(c.p.personal_angle);
+  } else if(c.p.brand_description){
+    lines.push(`I've been following ${c.p.brand_name || 'your work'} — ${c.p.brand_description.toLowerCase().replace(/\.$/,'')}. It's something my audience would genuinely respond to.`);
+  } else {
+    lines.push(`I've been following ${c.p.brand_name || 'your work'} for a while now and have been looking for an excuse to reach out.`);
+  }
+  lines.push('');
+  // Who am I
+  const introBits = [];
+  if(c.k && c.k.display_name) introBits.push(`I'm ${c.k.display_name}`);
+  if(c.k && c.k.tagline) introBits.push(c.k.tagline.toLowerCase().replace(/\.$/,''));
+  if(c.nicheLine) introBits.push(c.nicheLine.replace(/^I /,'and I '));
+  const intro = introBits.length ? introBits.join(' — ') + '.' : null;
+  if(intro) lines.push(intro);
+  if(c.audienceLine || c.demoLine){
+    const parts = [];
+    if(c.audienceLine) parts.push(c.audienceLine);
+    if(c.demoLine) parts.push(c.demoLine.toLowerCase());
+    lines.push('Reach: ' + parts.join(' · ') + '.');
+  }
+  lines.push('');
+  // Why them
+  if(c.p.audience_fit_notes){
+    lines.push(c.p.audience_fit_notes);
+    lines.push('');
+  }
+  // The ask
+  lines.push(c.tFrame.ask);
+  if(c.delivLines.length){
+    lines.push('');
+    lines.push('What I\'d propose:');
+    c.delivLines.forEach(l => lines.push(l));
+  }
+  if(c.p.proposed_pricing){
+    lines.push('');
+    lines.push('Pricing: ' + c.p.proposed_pricing);
+  }
+  // Media kit link
+  if(c.k && c.k.is_public && c.k.slug){
+    const url = `https://creatorhub.eggieweggie.ca/media-kit.html?u=${c.k.slug}`;
+    lines.push('');
+    lines.push(`Full media kit (stats, audience, past collabs): ${url}`);
+  }
+  lines.push('');
+  lines.push(c.closerByTone[c.p.tone] || 'Thanks for reading.');
+  lines.push('');
+  lines.push('— ' + c.signoff);
+  if(c.k && c.k.contact_email && c.k.contact_email !== (currentUser?.email||'')){
+    lines.push(c.k.contact_email);
+  }
+  if(c.k && c.k.booking_link){
+    lines.push('Book a chat: ' + c.k.booking_link);
+  }
+  return { subject, body: lines.join('\n') };
+}
+
+// ----- TWITTER DM -----
+function buildTwitter(){
+  const c = ctx();
+  const lead = c.p.personal_angle
+    ? c.p.personal_angle.split(/[.!?]/)[0]
+    : `${c.greetingByTone[c.p.tone]||'Hi!'} I'm ${c.signoff} — ${c.k && c.k.tagline ? c.k.tagline.toLowerCase() : 'a creator'}`;
+  const ask = `Would love to chat about a ${c.tFrame.short} with ${c.p.brand_name || 'you'}.`;
+  const audience = c.audienceLine ? `Reach: ${c.audienceLine}.` : '';
+  const cta = (c.k && c.k.is_public && c.k.slug)
+    ? `Media kit: creatorhub.eggieweggie.ca/media-kit.html?u=${c.k.slug}`
+    : 'Happy to share my media kit if interesting.';
+  // Build short version that fits 280
+  let body = [lead, ask, audience, cta].filter(Boolean).join(' ');
+  if(body.length > 278){
+    // Trim audience if too long
+    body = [lead, ask, cta].filter(Boolean).join(' ');
+  }
+  if(body.length > 278){
+    body = body.slice(0,277) + '…';
+  }
+  return body;
+}
+
+// ----- DISCORD DM (markdown, 2000 char) -----
+function buildDiscord(){
+  const c = ctx();
+  const lines = [];
+  lines.push(`${c.greetingByTone[c.p.tone]||'Hi!'} 👋`);
+  lines.push('');
+  if(c.p.personal_angle){ lines.push(c.p.personal_angle); }
+  else { lines.push(`I've been following **${c.p.brand_name||'your brand'}** for a while and wanted to reach out.`); }
+  lines.push('');
+  // Who
+  const intro = `I'm **${c.signoff}**${c.k && c.k.tagline ? ' — '+c.k.tagline.toLowerCase().replace(/\.$/,'') : ''}.`;
+  lines.push(intro);
+  if(c.audienceLine) lines.push(`Reach: ${c.audienceLine}.`);
+  lines.push('');
+  // Ask
+  lines.push(`**The ask:** ${c.tFrame.ask}`);
+  if(c.delivLines.length){
+    lines.push('');
+    lines.push('**What I\'d make:**');
+    c.delivLines.forEach(l => lines.push(l));
+  }
+  if(c.p.proposed_pricing){
+    lines.push('');
+    lines.push(`**Pricing:** ${c.p.proposed_pricing}`);
+  }
+  if(c.k && c.k.is_public && c.k.slug){
+    lines.push('');
+    lines.push(`Full media kit → creatorhub.eggieweggie.ca/media-kit.html?u=${c.k.slug}`);
+  }
+  lines.push('');
+  lines.push(c.closerByTone[c.p.tone]||'Thanks for reading.');
+  return lines.join('\n');
+}
+
+// ----- INSTAGRAM DM (1000 char-ish, lighter, no markdown) -----
+function buildInstagram(){
+  const c = ctx();
+  const lines = [];
+  const opener = c.p.personal_angle ? c.p.personal_angle.split(/[.!?]/)[0] + '.'
+    : `Heya — I've been following ${c.p.brand_name||'you'} for a while ✨`;
+  lines.push(opener);
+  lines.push('');
+  const intro = `I'm ${c.signoff}${c.k && c.k.tagline ? ', '+c.k.tagline.toLowerCase().replace(/\.$/,'') : ''}.`;
+  lines.push(intro);
+  if(c.audienceLine) lines.push(c.audienceLine + '.');
+  lines.push('');
+  lines.push(`Would love to talk about a ${c.tFrame.short}${c.delivInline ? ' — thinking '+c.delivInline : ''}.`);
+  if(c.p.proposed_pricing) lines.push('Pricing: ' + c.p.proposed_pricing);
+  if(c.k && c.k.is_public && c.k.slug){
+    lines.push('');
+    lines.push(`Media kit: creatorhub.eggieweggie.ca/media-kit.html?u=${c.k.slug}`);
+  }
+  let body = lines.join('\n');
+  if(body.length > 990) body = body.slice(0, 985) + '…';
+  return body;
+}
+
+// ----- PITCH DOC (one-page HTML) -----
+function buildPitchDoc(){
+  const c = ctx();
+  const k = mediaKit || {};
+  const platforms = (k.platforms || []).filter(p => p.subscribers || p.avg_views || p.avg_live_viewers);
+  const statsHtml = platforms.length ? `
+    <div class="pdoc-stats">
+      ${platforms.map(p => {
+        const meta = ({youtube:'YouTube',twitch:'Twitch',tiktok:'TikTok',instagram:'IG',x:'X',kick:'Kick',other:'Channel'}[p.platform]||'');
+        const num = (p.platform==='twitch'||p.platform==='kick') ? p.subscribers : p.subscribers;
+        return `<div class="pdoc-stat"><div class="pn">${fmtNum(num)}</div><div class="pl">${meta}</div></div>`;
+      }).join('')}
+    </div>` : '';
+
+  const delivList = (c.p.deliverables||[]).filter(d => d.kind_label || d.kind);
+
+  const html = `
+    <h1>${escapeHtml(k.display_name || c.signoff)} × ${escapeHtml(c.p.brand_name || 'Your brand')}</h1>
+    <p style="color:var(--ink-soft);font-weight:700;margin:0 0 4px">${escapeHtml(k.tagline || '')}</p>
+
+    <h2>The opportunity</h2>
+    <p>${escapeHtml(c.p.audience_fit_notes || c.p.brand_description || 'A collaboration that gets the right product in front of the right audience.')}</p>
+    ${c.p.personal_angle ? `<p><em>${escapeHtml(c.p.personal_angle)}</em></p>` : ''}
+
+    <h2>About me</h2>
+    <p>${escapeHtml(k.bio || c.nicheLine || 'I make content for an engaged audience that trusts what I bring to them.')}</p>
+    ${statsHtml}
+    ${c.demoLine ? `<p style="margin-top:8px;color:var(--ink-soft);font-weight:600">${escapeHtml(c.demoLine)}.</p>` : ''}
+
+    <h2>What I'd make</h2>
+    ${delivList.length ? `<ul>${delivList.map(d => `<li><strong>${d.quantity>1?d.quantity+'× ':''}${escapeHtml(d.kind_label||d.kind)}</strong>${d.notes ? ' — '+escapeHtml(d.notes) : ''}</li>`).join('')}</ul>` : '<p class="muted">To be defined.</p>'}
+
+    <h2>Investment</h2>
+    <p>${escapeHtml(c.p.proposed_pricing || 'Open to a conversation about scope and budget.')}</p>
+
+    ${(k.past_sponsorships||[]).length ? `
+      <h2>Past collaborations</h2>
+      <ul>${k.past_sponsorships.slice(0,5).map(s => `<li><strong>${escapeHtml(s.brand||'')}</strong>${s.type?' · '+escapeHtml(s.type):''}${s.year?' · '+escapeHtml(s.year):''}${s.results?' — '+escapeHtml(s.results):''}</li>`).join('')}</ul>
+    ` : ''}
+
+    <h2>Next step</h2>
+    <p>${escapeHtml(k.contact_blurb || (k.audience_demographics && k.audience_demographics._blurb) || 'Reply to this email or message — happy to jump on a quick call if it\'s a fit.')}</p>
+    ${k.contact_email ? `<p><strong>📧</strong> <a href="mailto:${escapeAttr(k.contact_email)}" style="color:var(--deep);font-weight:700">${escapeHtml(k.contact_email)}</a></p>` : ''}
+    ${k.booking_link ? `<p><strong>📅</strong> <a href="${escapeAttr(k.booking_link)}" style="color:var(--deep);font-weight:700">${escapeHtml(k.booking_link)}</a></p>` : ''}
+  `;
+  return html;
+}
+
+// ----- RATE CARD (HTML preview) -----
+function buildRateCard(){
+  const k = mediaKit || {};
+  const items = (k.pricing || []).filter(p => !p.hidden);
+  if(!items.length){
+    return `<h3>${escapeHtml(k.display_name || 'Rate card')}</h3>
+      <div class="muted" style="padding:14px 0;text-align:center">No rates published yet — <a href="media-kit.html" style="color:var(--deep);font-weight:700">add some in your media kit</a>.</div>`;
+  }
+  return `<h3>${escapeHtml(k.display_name || 'Rate card')}</h3>
+    ${items.map(p => `
+      <div class="rate-row">
+        <div class="rate-name">
+          ${escapeHtml(p.service || '—')}
+          ${p.notes ? `<span class="rn-notes">${escapeHtml(p.notes)}</span>` : ''}
+        </div>
+        <div class="rate-price">${escapeHtml(p.price || 'Let\'s talk')}${p.currency && p.price ? ' '+escapeHtml(p.currency) : ''}</div>
+      </div>`).join('')}
+    <p class="muted" style="margin-top:14px;font-size:12px;text-align:center">Every collab is custom — these are starting rates.</p>`;
+}
+
+// ============================================================
+//  RENDER OUTPUTS
+// ============================================================
+function renderAllOutputs(force){
+  if(force || !activePitch.email_body){
+    const e = buildEmail();
+    activePitch.email_subject = e.subject;
+    activePitch.email_body = e.body;
+  }
+  if(force || !activePitch.twitter_dm) activePitch.twitter_dm = buildTwitter();
+  if(force || !activePitch.discord_dm) activePitch.discord_dm = buildDiscord();
+  if(force || !activePitch.instagram_dm) activePitch.instagram_dm = buildInstagram();
+  activePitch.pitch_doc_html = buildPitchDoc();
+
+  $('out_email_subject').value = activePitch.email_subject;
+  $('out_email_body').innerText = activePitch.email_body;
+  $('out_twitter').innerText = activePitch.twitter_dm;
+  $('out_discord').innerText = activePitch.discord_dm;
+  $('out_instagram').innerText = activePitch.instagram_dm;
+  $('out_pdoc').innerHTML = activePitch.pitch_doc_html;
+  $('out_rate').innerHTML = buildRateCard();
+  updateCharCounts();
+}
+
+function updateCharCounts(){
+  const map = [
+    ['twitter', 280],
+    ['discord', 2000],
+    ['instagram', 1000]
+  ];
+  map.forEach(([k, max]) => {
+    const el = $('out_'+k);
+    const cc = $('cc_'+k);
+    if(el && cc){
+      const len = (el.innerText || '').length;
+      cc.textContent = `${len} / ${max}`;
+      cc.classList.toggle('warn', len > max);
+    }
+  });
+}
+['out_twitter','out_discord','out_instagram'].forEach(id => {
+  document.addEventListener('input', e => {
+    if(e.target && e.target.id === id) updateCharCounts();
+  });
+});
+
+// Tab switching
+document.addEventListener('click', e => {
+  const t = e.target.closest('#outTabs button');
+  if(!t) return;
+  const which = t.dataset.out;
+  document.querySelectorAll('#outTabs button').forEach(b => b.classList.toggle('active', b === t));
+  document.querySelectorAll('.out-pane').forEach(p => p.classList.toggle('active', p.dataset.out === which));
+});
+
+// ============================================================
+//  COPY / EXPORT
+// ============================================================
+function copyOutput(which){
+  let text = '';
+  if(which === 'email'){
+    text = `Subject: ${$('out_email_subject').value}\n\n${$('out_email_body').innerText}`;
+  } else if(which === 'email_subject'){
+    text = $('out_email_subject').value;
+  } else if(which === 'pdoc'){
+    text = $('out_pdoc').innerText;
+  } else {
+    text = $('out_'+which).innerText;
+  }
+  navigator.clipboard.writeText(text).then(() => flashToast('Copied 📋'))
+    .catch(() => alert(text));
+}
+
+function openMailto(){
+  const subject = $('out_email_subject').value;
+  const body = $('out_email_body').innerText;
+  const to = activePitch.brand_name
+    ? '' : '';  // we don't auto-fill a 'to' — let the user enter the brand contact
+  const url = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = url;
+}
+
+function downloadPitchHtml(){
+  const k = mediaKit || {};
+  const styles = `
+    body{font-family:'Quicksand',system-ui,sans-serif;color:#3a2a5a;line-height:1.55;max-width:760px;margin:40px auto;padding:0 24px}
+    h1{font-family:'Pacifico',cursive;font-weight:400;font-size:34px;color:#4D5BC0;margin:0 0 4px}
+    h2{font-weight:800;color:#4D5BC0;font-size:15px;letter-spacing:.04em;text-transform:uppercase;margin:24px 0 8px}
+    .pdoc-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:6px 0}
+    .pdoc-stat{background:#f3f5ff;border-radius:10px;padding:8px 12px;text-align:center}
+    .pdoc-stat .pn{font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:#4D5BC0;line-height:1.1;padding:2px 0 4px}
+    .pdoc-stat .pl{font-size:10.5px;color:#6b5f8a;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    a{color:#4D5BC0}
+  `;
+  const doc = `<!doctype html><html><head><meta charset="utf-8" /><title>${escapeHtml(k.display_name||'Pitch')} × ${escapeHtml(activePitch.brand_name||'Brand')}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>${styles}</style></head><body>${activePitch.pitch_doc_html}</body></html>`;
+  const blob = new Blob([doc], { type:'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `pitch-${(activePitch.brand_name||'untitled').toLowerCase().replace(/[^a-z0-9-]/g,'-')}.html`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function getQuery(name){
+  const m = new RegExp('[?&]'+name+'=([^&#]*)').exec(window.location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function $(id){ return document.getElementById(id); }
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s); }
+function fmtNum(n){
+  if(n == null || n === '') return '—';
+  n = Number(n);
+  if(n >= 1_000_000) return (n/1_000_000).toFixed(n >= 10_000_000 ? 0 : 1) + 'M';
+  if(n >= 1_000) return (n/1_000).toFixed(n >= 10_000 ? 0 : 1) + 'K';
+  return String(n);
+}
+function niceDate(iso, short){
+  try{
+    const d = new Date(iso);
+    if(short) return d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+    return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  }catch(e){ return iso||''; }
+}
+let toastTimer = null;
+function flashToast(msg){
+  let t = document.getElementById('flashToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'flashToast';
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:rgba(60,40,90,0.92);color:#fff;font-weight:700;font-size:14px;
+      padding:10px 22px;border-radius:999px;z-index:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);
+      opacity:0;transition:opacity .2s`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
+}
+
+function exitImpersonation(){
+  const u = new URL(window.location.href);
+  u.searchParams.delete('manage');
+  window.location.href = u.toString();
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+initAuth();
+</script>
+</body>
+</html>

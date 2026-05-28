@@ -1,0 +1,1904 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Media Kit 💌 — Eggie's Creator Hub</title>
+<meta name="description" content="A sponsor-facing media kit: stats, audience, niche, deliverables — easy to share, easy to keep up to date." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/media-kit.html" />
+<meta property="og:title" content="Media Kit 💌" />
+<meta property="og:description" content="The shareable sponsor-facing snapshot of your channel." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  /* Nav */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+  .back-link.active{background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));border-color:transparent}
+
+  /* Hero / banner */
+  .kit-banner{
+    position:relative;border-radius:var(--radius);overflow:hidden;
+    margin:14px 0 0;min-height:140px;
+    background:linear-gradient(135deg,var(--pink-light),var(--periwinkle),var(--mint));
+    box-shadow:var(--shadow);
+  }
+  .kit-banner img.banner-img{
+    width:100%;height:200px;object-fit:cover;display:block;
+  }
+  .kit-banner.has-image{min-height:auto}
+  .kit-banner .banner-empty{
+    display:flex;align-items:center;justify-content:center;
+    height:140px;color:rgba(255,255,255,0.85);font-weight:700;font-size:14px;
+    text-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Identity card overlapping the banner */
+  .kit-identity{
+    margin:-60px 18px 0;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-radius:var(--radius);
+    border:1px solid rgba(255,255,255,0.9);
+    box-shadow:var(--shadow);
+    padding:22px 26px;
+    position:relative;z-index:2;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:18px;align-items:center;
+  }
+  @media(max-width:720px){
+    .kit-identity{grid-template-columns:1fr;text-align:center}
+    .kit-identity .id-avatar{margin:0 auto}
+  }
+  .kit-identity .id-avatar{
+    width:96px;height:96px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle),var(--mint));
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    border:3px solid #fff;box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    font-size:42px;line-height:1;
+  }
+  .kit-identity .id-avatar img{width:100%;height:100%;object-fit:cover}
+  .kit-identity .id-text h1{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:clamp(28px,4vw,38px);
+    line-height:1.3;margin:0 0 4px;padding:6px 0 10px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .kit-identity .id-text .id-tag{color:var(--ink-soft);font-weight:600;font-size:15px;margin:0 0 8px}
+  .kit-identity .id-text .id-meta{
+    display:flex;flex-wrap:wrap;gap:6px;
+    font-size:12.5px;color:var(--ink-soft);
+  }
+  .kit-identity .id-text .id-meta span{
+    background:rgba(144,165,255,0.14);padding:3px 10px;border-radius:999px;font-weight:700;color:var(--deep);
+  }
+  .kit-identity .id-cta{display:flex;flex-direction:column;gap:8px}
+  @media(max-width:720px){.kit-identity .id-cta{flex-direction:row;justify-content:center;flex-wrap:wrap}}
+
+  /* Generic card */
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 24px;margin:16px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 14px;color:var(--deep);padding:2px 0 8px;
+  }
+  .card h2 .h-emoji{font-family:'Quicksand'}
+  .card h3{font-family:'Quicksand';font-weight:800;font-size:15px;color:var(--deep);margin:14px 0 6px;letter-spacing:.02em}
+  .muted{color:var(--ink-soft);font-size:13.5px;font-weight:600}
+
+  /* Buttons + inputs */
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    transition:transform .12s ease, filter .15s ease;
+    text-decoration:none;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn.danger{
+    background:rgba(255,180,180,0.85);color:#9c2a4c;border:none;
+    box-shadow:none;
+  }
+  .btn.small{padding:6px 12px;font-size:12.5px}
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+
+  input[type=text],input[type=number],input[type=email],input[type=url],input[type=date],select,textarea{
+    width:100%;padding:9px 13px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14px;color:var(--ink);
+    box-sizing:border-box;
+  }
+  textarea{resize:vertical;min-height:80px;line-height:1.5}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:var(--ink)}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.field-row{grid-template-columns:1fr}}
+
+  .hidden{display:none !important}
+
+  /* Auth pill */
+  .auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;
+    border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .15s, filter .15s;
+  }
+  .auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .auth-pill.signed-in{
+    background:rgba(255,255,255,0.95);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);font-weight:700;
+  }
+
+  /* Mode toggle (edit / preview) */
+  .mode-toggle{
+    display:inline-flex;background:rgba(144,165,255,0.15);
+    border-radius:999px;padding:3px;gap:2px;
+  }
+  .mode-toggle button{
+    background:transparent;border:none;padding:7px 14px;border-radius:999px;
+    font-family:inherit;font-weight:700;font-size:12.5px;color:var(--ink-soft);
+    cursor:pointer;transition:background .15s, color .15s;
+  }
+  .mode-toggle button.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.55),rgba(144,165,255,0.4));
+    color:var(--deep);
+  }
+
+  /* Edit bar */
+  .edit-bar{
+    display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+    padding:14px 18px;margin:14px 0;
+    background:rgba(255,255,255,0.85);
+    border-radius:18px;border:1.5px dashed rgba(144,165,255,0.4);
+  }
+  .edit-bar .slug-block{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    font-size:13px;color:var(--ink-soft);font-weight:700;
+  }
+  .edit-bar .slug-block code{
+    background:rgba(144,165,255,0.18);padding:3px 8px;border-radius:8px;
+    color:var(--deep);font-family:inherit;font-weight:800;
+  }
+  .edit-bar .vis-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;
+  }
+  .edit-bar .vis-pill.on{background:linear-gradient(135deg,rgba(168,230,190,0.55),rgba(107,228,234,0.45));color:#1f6580}
+  .edit-bar .vis-pill.off{background:rgba(255,180,180,0.5);color:#9c2a4c}
+
+  /* Impersonation banner — re-used pattern from planner.html */
+  .impersonation-banner{
+    background:linear-gradient(135deg,rgba(255,213,138,0.5),rgba(255,178,240,0.4));
+    border:2px solid rgba(255,180,100,0.45);
+    border-radius:16px;padding:12px 18px;margin:12px 0;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    font-weight:700;color:#7a4a00;
+  }
+
+  /* Sign-in card */
+  .auth-card{
+    background:rgba(255,255,255,0.9);
+    border-radius:var(--radius);padding:30px 28px;margin:24px 0;
+    box-shadow:var(--shadow);text-align:center;
+  }
+  .auth-card h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;color:var(--deep);margin:0 0 10px}
+  .auth-card .row{display:flex;gap:8px;max-width:420px;margin:14px auto 6px;flex-wrap:wrap}
+  .auth-card .row input{flex:1;min-width:200px}
+  .status-banner{
+    display:none;margin:12px auto 0;padding:9px 14px;border-radius:12px;font-weight:700;font-size:13px;max-width:480px;
+  }
+  .status-banner.success{display:block;background:rgba(168,230,190,0.35);color:#1f6580}
+  .status-banner.error{display:block;background:rgba(255,180,180,0.4);color:#9c2a4c}
+
+  /* Stats grid */
+  .stats-grid{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  }
+  .platform-card{
+    background:rgba(255,255,255,0.95);
+    border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:18px;padding:16px 18px;
+    display:flex;flex-direction:column;gap:6px;
+    position:relative;
+  }
+  .platform-card .pc-head{
+    display:flex;align-items:center;gap:8px;
+    font-weight:800;color:var(--deep);font-size:15px;
+  }
+  .platform-card .pc-icon{font-size:22px;line-height:1}
+  .platform-card .pc-handle{color:var(--ink-soft);font-size:12.5px;font-weight:700}
+  .platform-card .pc-stats{
+    display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;
+  }
+  .platform-card .pc-stat{flex:1;min-width:80px}
+  .platform-card .pc-stat .stat-num{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:24px;color:var(--deep);line-height:1;padding:4px 0 6px;
+  }
+  .platform-card .pc-stat .stat-label{font-size:11px;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .platform-card .pc-link{
+    display:inline-block;font-size:12px;color:var(--deep);font-weight:700;
+    text-decoration:none;border-bottom:1.5px dotted rgba(144,165,255,0.5);
+    align-self:flex-start;margin-top:4px;
+  }
+  .platform-card .pc-updated{
+    position:absolute;top:10px;right:12px;
+    font-size:10.5px;color:var(--ink-soft);font-weight:700;opacity:.85;
+  }
+  .platform-card .pc-edit-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+  /* Vibe tags */
+  .tag-cloud{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+  .tag-cloud .tag{
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));
+    color:var(--deep);font-weight:700;font-size:13px;
+    padding:5px 14px;border-radius:999px;
+  }
+  .tag-cloud .tag.removable{position:relative;padding-right:30px;cursor:default}
+  .tag-cloud .tag.removable .tag-x{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    cursor:pointer;font-weight:800;font-size:14px;color:var(--deep);opacity:.6;
+  }
+  .tag-cloud .tag.removable .tag-x:hover{opacity:1}
+
+  /* Pillars + lists */
+  .pillar-list{display:flex;flex-direction:column;gap:10px}
+  .pillar-row{
+    background:rgba(255,255,255,0.9);border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:12px 14px;
+  }
+  .pillar-row .p-title{font-weight:800;color:var(--deep);font-size:14.5px;margin-bottom:2px}
+  .pillar-row .p-desc{color:var(--ink-soft);font-size:13.5px;font-weight:600}
+
+  /* Demographics */
+  .demo-grid{display:grid;gap:14px;grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:720px){.demo-grid{grid-template-columns:1fr}}
+  .demo-box{
+    background:rgba(255,255,255,0.9);border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:12px 14px;
+  }
+  .demo-box h4{margin:0 0 8px;font-size:13px;color:var(--deep);font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+  .demo-bar-row{display:grid;grid-template-columns:50px 1fr 40px;gap:8px;align-items:center;margin-bottom:5px;font-size:12.5px}
+  .demo-bar-row .label{font-weight:700;color:var(--ink-soft)}
+  .demo-bar-row .val{font-weight:800;color:var(--deep);text-align:right}
+  .demo-bar{height:8px;border-radius:999px;background:rgba(144,165,255,0.18);overflow:hidden}
+  .demo-bar .fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle));
+  }
+
+  /* Top content */
+  .content-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .content-card{
+    background:rgba(255,255,255,0.95);border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .content-card .thumb{
+    aspect-ratio:16/9;background:linear-gradient(135deg,var(--pink-light),var(--periwinkle));
+    background-size:cover;background-position:center;
+  }
+  .content-card .body{padding:10px 12px;flex:1;display:flex;flex-direction:column;gap:4px}
+  .content-card .body .title{font-weight:800;color:var(--deep);font-size:13.5px;line-height:1.35}
+  .content-card .body .meta{font-size:11.5px;color:var(--ink-soft);font-weight:700;display:flex;gap:8px;flex-wrap:wrap}
+  .content-card a.open{font-size:12px;color:var(--deep);font-weight:700;text-decoration:none;margin-top:2px;align-self:flex-start;border-bottom:1.5px dotted}
+
+  /* Past sponsorships */
+  .sponsor-list{display:flex;flex-direction:column;gap:10px}
+  .sponsor-row{
+    background:rgba(255,255,255,0.95);border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:14px 16px;
+  }
+  .sponsor-row .sr-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .sponsor-row .sr-brand{font-weight:800;color:var(--deep);font-size:15px}
+  .sponsor-row .sr-type{font-size:11.5px;font-weight:800;background:rgba(144,165,255,0.18);color:var(--deep);padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+  .sponsor-row .sr-year{font-size:12px;color:var(--ink-soft);font-weight:700;margin-left:auto}
+  .sponsor-row .sr-results{color:var(--ink);font-size:13.5px;font-weight:600;margin-bottom:6px}
+  .sponsor-row .sr-quote{
+    font-style:italic;color:var(--ink-soft);font-size:13px;
+    border-left:3px solid var(--periwinkle);padding:4px 0 4px 12px;
+  }
+
+  /* Services + pricing */
+  .service-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .service-card{
+    background:rgba(255,255,255,0.95);border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;
+  }
+  .service-card .svc-name{font-weight:800;color:var(--deep);font-size:14.5px}
+  .service-card .svc-price{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);line-height:1.1;padding:6px 0 8px;
+  }
+  .service-card .svc-notes{color:var(--ink-soft);font-size:12.5px;font-weight:600}
+  .service-card.hidden-price{opacity:.55;font-style:italic}
+
+  /* CTA section */
+  .cta-card{
+    background:linear-gradient(135deg,rgba(255,178,240,0.55),rgba(144,165,255,0.5),rgba(107,228,234,0.45));
+    border-radius:var(--radius);padding:28px 28px;margin:18px 0;
+    text-align:center;color:#fff;
+    box-shadow:0 12px 32px rgba(144,165,255,0.3);
+  }
+  .cta-card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:30px;
+    color:#fff;text-shadow:0 2px 8px rgba(99,170,244,0.4);
+    margin:0 0 8px;padding:6px 0 12px;
+  }
+  .cta-card p{color:rgba(255,255,255,0.95);font-weight:600;margin:0 0 14px}
+  .cta-card .btn{background:#fff;color:var(--deep);box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+
+  /* Empty / placeholder */
+  .empty{
+    color:var(--ink-soft);font-style:italic;font-size:13.5px;
+    background:rgba(144,165,255,0.08);border:1.5px dashed rgba(144,165,255,0.3);
+    padding:14px 16px;border-radius:14px;text-align:center;
+  }
+
+  /* Footer */
+  footer{
+    text-align:center;margin-top:36px;padding-top:24px;
+    border-top:1.5px dashed rgba(144,165,255,0.3);
+    color:var(--ink-soft);font-size:13px;font-weight:600;
+  }
+  footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  /* Modal */
+  .modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .modal-bg.open{display:flex}
+  .modal{
+    background:rgba(255,255,255,0.97);border-radius:22px;
+    padding:24px 26px;max-width:560px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+  }
+  .modal h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;color:var(--deep);margin:0 0 10px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap}
+  .modal-actions .pull-left{margin-right:auto}
+
+  /* Print — for "save the public kit as PDF" */
+  @media print{
+    body{background:#fff !important}
+    body::before{display:none}
+    .auth-pill,.back-row,.edit-bar,#editorActions,#previewBanner,.cta-card .btn{display:none !important}
+    .card,.kit-identity{box-shadow:none;border:1px solid #ddd}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Top auth pill (always present) -->
+  <button class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</button>
+
+  <div class="back-row">
+    <a class="back-link" href="index.html">← Hub</a>
+    <a class="back-link" href="planner.html">📋 Planner</a>
+    <a class="back-link active" href="media-kit.html">💌 Media Kit</a>
+    <a class="back-link" href="sponsor-pitch.html">✉️ Pitch builder</a>
+    <a class="back-link" href="growth.html#monetize">💰 Monetization playbook</a>
+  </div>
+
+  <!-- Impersonation banner (when ?manage=...) -->
+  <div id="impersonationBanner" class="impersonation-banner hidden">
+    <span>👑 You're viewing <strong id="impName"></strong>'s media kit as a manager.</span>
+    <button class="btn small secondary" onclick="exitImpersonation()">Exit manager mode</button>
+  </div>
+
+  <!-- Mode toggle: only shown when signed in AND viewing your own kit -->
+  <div id="modeToggleWrap" class="hidden" style="margin:14px 0;display:flex;justify-content:flex-end">
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="edit" class="active">✏️ Edit</button>
+      <button data-mode="preview">👀 Public preview</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SIGN-IN VIEW  (only when no slug in URL + no session)
+       ============================================================ -->
+  <div id="authView" class="auth-card hidden">
+    <h2>Build your media kit 💌</h2>
+    <p class="muted">A one-page sponsor-facing snapshot: your stats, your audience, your rates. Edit once, share the link forever.</p>
+    <div class="row">
+      <input type="email" id="emailInput" placeholder="you@email.com" />
+      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    </div>
+    <div id="authStatus" class="status-banner"></div>
+    <p class="muted" style="margin-top:18px;font-size:12.5px">Magic links require <em>http(s)</em>. If you're opening this file directly, sign in from the deployed site.</p>
+  </div>
+
+  <!-- ============================================================
+       EDITOR ACTIONS (signed-in owner/manager bar)
+       ============================================================ -->
+  <div id="editorActions" class="edit-bar hidden">
+    <div class="slug-block">
+      <span>Your sponsor link:</span>
+      <code id="publicSlug">—</code>
+      <button class="btn small secondary" onclick="copyPublicLink()" title="Copy the public URL">📋 Copy link</button>
+      <button class="btn small secondary" onclick="openSlugModal()" title="Customize your slug">✏️ Edit slug</button>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span class="vis-pill" id="visPill">…</span>
+      <button class="btn small" onclick="toggleVisibility()">Toggle visibility</button>
+    </div>
+  </div>
+
+  <!-- Preview banner -->
+  <div id="previewBanner" class="impersonation-banner hidden" style="background:linear-gradient(135deg,rgba(107,228,234,0.4),rgba(144,165,255,0.35));border-color:rgba(99,170,244,0.4);color:#1c4a5f">
+    <span>👀 Public preview — this is exactly what sponsors will see.</span>
+    <button class="btn small secondary" onclick="setMode('edit')">Back to edit ↩</button>
+  </div>
+
+  <!-- ============================================================
+       PUBLIC / PREVIEW VIEW
+       ============================================================ -->
+  <div id="publicView" class="hidden">
+    <!-- Banner -->
+    <div class="kit-banner" id="kitBanner">
+      <div class="banner-empty">✨ Add a banner image to make a first impression</div>
+    </div>
+
+    <!-- Identity card -->
+    <div class="kit-identity">
+      <div class="id-avatar" id="idAvatar">🐙</div>
+      <div class="id-text">
+        <h1 id="idName">—</h1>
+        <p class="id-tag" id="idTag">—</p>
+        <div class="id-meta" id="idMeta"></div>
+      </div>
+      <div class="id-cta">
+        <a class="btn" id="ctaTopBtn" href="#contact">💌 Work with me</a>
+      </div>
+    </div>
+
+    <!-- About + niche -->
+    <section class="card" id="aboutCard">
+      <h2>🌸 About</h2>
+      <p id="bioText" style="font-size:14.5px;line-height:1.6">—</p>
+      <div class="field-row" style="margin-top:14px">
+        <div>
+          <h3>Primary niche</h3>
+          <p class="muted" id="nichePrimaryText">—</p>
+        </div>
+        <div>
+          <h3>Secondary niche</h3>
+          <p class="muted" id="nicheSecondaryText">—</p>
+        </div>
+      </div>
+      <h3 style="margin-top:14px">Vibe</h3>
+      <div class="tag-cloud" id="vibeCloud"><span class="muted">—</span></div>
+    </section>
+
+    <!-- Content pillars -->
+    <section class="card" id="pillarsCard">
+      <h2>📌 Content pillars</h2>
+      <p class="muted">The recurring shapes my content takes — useful for spotting brand fit at a glance.</p>
+      <div class="pillar-list" id="pillarList">
+        <div class="empty">No pillars set yet.</div>
+      </div>
+    </section>
+
+    <!-- Platform stats -->
+    <section class="card" id="statsCard">
+      <h2>📊 Channels & stats</h2>
+      <p class="muted" id="statsLastUpdated">Last updated —</p>
+      <div class="stats-grid" id="statsGrid">
+        <div class="empty">No platforms added yet.</div>
+      </div>
+    </section>
+
+    <!-- Demographics -->
+    <section class="card" id="demoCard">
+      <h2>👥 Audience</h2>
+      <p class="muted">Who's actually watching. Demographics are self-reported from platform analytics; rounded to the nearest 5%.</p>
+      <div class="demo-grid" id="demoGrid">
+        <div class="empty" style="grid-column:1 / -1">No demographic data yet.</div>
+      </div>
+    </section>
+
+    <!-- Top content -->
+    <section class="card" id="topContentCard">
+      <h2>🌟 Standout work</h2>
+      <p class="muted">Content I'm proud of, in case it helps sponsors picture how their thing might land.</p>
+      <div class="content-grid" id="contentGrid">
+        <div class="empty" style="grid-column:1 / -1">No featured content yet.</div>
+      </div>
+    </section>
+
+    <!-- Past sponsorships -->
+    <section class="card" id="sponsorshipsCard">
+      <h2>🤝 Past collaborations</h2>
+      <p class="muted">Brands I've worked with before, and what came of it.</p>
+      <div class="sponsor-list" id="sponsorList">
+        <div class="empty">No past sponsorships listed.</div>
+      </div>
+    </section>
+
+    <!-- Services + pricing -->
+    <section class="card" id="servicesCard">
+      <h2>🎁 What I offer</h2>
+      <p class="muted">A starting menu — every collab is custom, so think of these as a baseline.</p>
+      <div class="service-grid" id="serviceGrid">
+        <div class="empty" style="grid-column:1 / -1">No deliverables listed yet.</div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-card" id="contact">
+      <h2>Let's make something cozy together 💖</h2>
+      <p id="contactBlurb">Tell me a bit about your brand and what you're hoping to do — I read everything that comes in.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a class="btn" id="ctaEmailBtn" href="#">💌 Email me</a>
+        <a class="btn secondary" id="ctaBookBtn" href="#" style="background:rgba(255,255,255,0.9);border:none">📅 Book a chat</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================
+       EDITOR VIEW (when signed in + in edit mode)
+       ============================================================ -->
+  <div id="editorView" class="hidden">
+
+    <!-- Identity / branding -->
+    <section class="card">
+      <h2>🌸 Identity & branding</h2>
+      <p class="muted">This is the top of your page. Be warm but specific — "cozy VTuber, big chat energy" beats "content creator".</p>
+
+      <div class="field-row">
+        <div>
+          <label>Display name</label>
+          <input type="text" id="ed_display_name" placeholder="Eggie Weggie" />
+        </div>
+        <div>
+          <label>Tagline / one-liner</label>
+          <input type="text" id="ed_tagline" placeholder="Cozy VTuber, big chat energy" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <label>Pronouns</label>
+          <input type="text" id="ed_pronouns" placeholder="she/her" />
+        </div>
+        <div>
+          <label>Location (optional)</label>
+          <input type="text" id="ed_location" placeholder="PST · Canada" />
+        </div>
+      </div>
+
+      <label>Languages (comma-separated)</label>
+      <input type="text" id="ed_languages" placeholder="English, French" />
+
+      <label>Bio (1–3 short paragraphs)</label>
+      <textarea id="ed_bio" rows="4" placeholder="A short story about you and your audience. What's it like to spend time with you on stream?"></textarea>
+
+      <div class="field-row">
+        <div>
+          <label>Avatar URL</label>
+          <input type="url" id="ed_avatar_url" placeholder="https://… png/jpg of you" />
+        </div>
+        <div>
+          <label>Banner URL (1500×500 ish)</label>
+          <input type="url" id="ed_banner_url" placeholder="https://… a wide hero image" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Niche + vibe -->
+    <section class="card">
+      <h2>🎯 Niche & vibe</h2>
+      <div class="field-row">
+        <div>
+          <label>Primary niche</label>
+          <input type="text" id="ed_niche_primary" placeholder="Cozy gaming" />
+        </div>
+        <div>
+          <label>Secondary niche</label>
+          <input type="text" id="ed_niche_secondary" placeholder="Storytime / ASMR" />
+        </div>
+      </div>
+      <label>Vibe tags (comma-separated — short, evocative)</label>
+      <input type="text" id="ed_vibe_tags" placeholder="cozy, queer-friendly, comfort-food, lo-fi" />
+
+      <h3 style="margin-top:16px">Content pillars</h3>
+      <p class="muted">The 2–5 recurring shapes your content takes. Sponsors skim this looking for fit.</p>
+      <div id="ed_pillars"></div>
+      <button class="btn small secondary" onclick="addPillar()">+ Add pillar</button>
+    </section>
+
+    <!-- Platforms -->
+    <section class="card">
+      <h2>📊 Channels & stats</h2>
+      <p class="muted">Stats are manual — quick-paste a channel URL and I'll prefill what I can; you fill in subs / views from your dashboard.</p>
+
+      <div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn small secondary" onclick="addPlatform('youtube')">+ YouTube</button>
+        <button class="btn small secondary" onclick="addPlatform('twitch')">+ Twitch</button>
+        <button class="btn small secondary" onclick="addPlatform('tiktok')">+ TikTok</button>
+        <button class="btn small secondary" onclick="addPlatform('instagram')">+ Instagram</button>
+        <button class="btn small secondary" onclick="addPlatform('x')">+ X / Twitter</button>
+        <button class="btn small secondary" onclick="addPlatform('kick')">+ Kick</button>
+        <button class="btn small secondary" onclick="addPlatform('other')">+ Other</button>
+      </div>
+
+      <div id="ed_platforms"></div>
+
+      <p class="muted" style="margin-top:10px;font-size:12px">
+        <em>Last bulk update:</em> <span id="ed_last_stats_label">—</span>
+        <button class="btn small secondary" onclick="markStatsUpdated()" style="margin-left:8px">Mark all updated now</button>
+      </p>
+    </section>
+
+    <!-- Demographics -->
+    <section class="card">
+      <h2>👥 Audience demographics</h2>
+      <p class="muted">Round to the nearest 5%. Sponsors care more about shape than precision.</p>
+
+      <h3>Age brackets</h3>
+      <div id="ed_age_brackets"></div>
+
+      <h3 style="margin-top:14px">Gender split</h3>
+      <div id="ed_gender_split"></div>
+
+      <h3 style="margin-top:14px">Top countries</h3>
+      <p class="muted" style="font-size:12.5px">Country code + percentage. Add the top 3–5.</p>
+      <div id="ed_top_countries"></div>
+      <button class="btn small secondary" onclick="addCountry()">+ Add country</button>
+
+      <h3 style="margin-top:14px">Top interests (optional)</h3>
+      <input type="text" id="ed_top_interests" placeholder="cozy games, anime, indie music, plushies" />
+    </section>
+
+    <!-- Top content -->
+    <section class="card">
+      <h2>🌟 Standout content</h2>
+      <p class="muted">Pin 3–6 pieces. Pick variety — your biggest hit, your warmest one, your weirdest one that worked.</p>
+      <div id="ed_top_content"></div>
+      <button class="btn small secondary" onclick="addTopContent()">+ Add content</button>
+    </section>
+
+    <!-- Past sponsorships -->
+    <section class="card">
+      <h2>🤝 Past sponsorships</h2>
+      <p class="muted">Even unpaid / gifted collabs count — they prove you can show up on time and on-brand.</p>
+      <div id="ed_sponsors"></div>
+      <button class="btn small secondary" onclick="addSponsor()">+ Add collaboration</button>
+    </section>
+
+    <!-- Services + pricing -->
+    <section class="card">
+      <h2>🎁 Services & rate card</h2>
+      <p class="muted">A starting menu. The "hidden" toggle lets you stage a price you don't want to show publicly yet (it stays saved, just hidden from the public view).</p>
+      <div id="ed_services"></div>
+      <button class="btn small secondary" onclick="addService()">+ Add service</button>
+    </section>
+
+    <!-- Contact -->
+    <section class="card">
+      <h2>💌 Contact</h2>
+      <div class="field-row">
+        <div>
+          <label>Contact email</label>
+          <input type="email" id="ed_contact_email" placeholder="you@email.com" />
+        </div>
+        <div>
+          <label>Booking link (optional)</label>
+          <input type="url" id="ed_booking_link" placeholder="https://cal.com/you" />
+        </div>
+      </div>
+      <label>CTA blurb</label>
+      <textarea id="ed_contact_blurb" rows="2" placeholder="Tell me a bit about your brand and what you're hoping to do — I read everything that comes in."></textarea>
+    </section>
+
+    <!-- Save bar -->
+    <div class="card" style="text-align:center;padding:18px">
+      <button class="btn" onclick="saveAll()">💾 Save changes</button>
+      <button class="btn secondary" onclick="setMode('preview')">👀 Preview as sponsor</button>
+      <button class="btn secondary" onclick="window.print()">🖨️ Print / save PDF</button>
+    </div>
+
+  </div>
+
+  <footer>
+    Built into <a href="index.html">Eggie's Creator Hub</a> · brand by
+    <a href="https://twitter.com/nyxgothica" target="_blank" rel="noopener">@nyxgothica</a>
+  </footer>
+</div>
+
+<!-- Auth modal -->
+<div class="modal-bg" id="authModal">
+  <div class="modal">
+    <h2>Sign in to edit your kit ✨</h2>
+    <p class="muted">Passwordless magic link — no password gymnastics.</p>
+    <input type="email" id="modalEmail" placeholder="you@email.com" style="margin-top:12px" />
+    <div id="modalStatus" class="status-banner"></div>
+    <div class="modal-actions">
+      <button class="btn secondary pull-left" onclick="closeAuthModal()">Cancel</button>
+      <button class="btn" onclick="modalSendMagicLink()">📬 Send link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Slug modal -->
+<div class="modal-bg" id="slugModal">
+  <div class="modal">
+    <h2>Customize your sponsor link 🔗</h2>
+    <p class="muted">2+ lowercase letters, numbers, and dashes. This becomes the end of your media kit URL.</p>
+    <label>New slug</label>
+    <input type="text" id="newSlug" placeholder="eggie" />
+    <div id="slugStatus" class="status-banner"></div>
+    <div class="modal-actions">
+      <button class="btn secondary pull-left" onclick="closeSlugModal()">Cancel</button>
+      <button class="btn" onclick="saveSlug()">Save slug</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+let sb = null;
+let currentUser = null;
+let currentOwnerId = null;         // mirrors the planner.html pattern (manager impersonation)
+let impersonating = false;
+let currentManagerDelegationId = null;
+let kit = blankKit();              // working copy of the current media kit
+let mode = 'edit';                 // 'edit' | 'preview' | 'public'
+let publicSlugInUrl = null;        // if ?u=… set, we're in public mode
+
+// ============================================================
+//  BLANK KIT — every field defaults safely
+// ============================================================
+function blankKit(){
+  return {
+    user_id:null, slug:'',
+    is_public:false,
+    display_name:'', tagline:'', bio:'',
+    avatar_url:'', banner_url:'',
+    location:'', languages:[], pronouns:'',
+    niche_primary:'', niche_secondary:'',
+    vibe_tags:[],
+    content_pillars:[],     // [{title, description}]
+    platforms:[],           // [{platform,label,url,handle,subscribers,avg_views,avg_live_viewers,engagement_rate,last_updated,notes}]
+    audience_demographics:{
+      age_brackets:{ '13-17':0,'18-24':0,'25-34':0,'35-44':0,'45+':0 },
+      gender_split:{ f:0, m:0, nb:0, other:0 },
+      top_countries:[],     // [{code,pct}]
+      top_interests:[]
+    },
+    top_content:[],         // [{title,url,thumbnail,views,platform,posted_at,note}]
+    past_sponsorships:[],   // [{brand,type,year,results,testimonial,logo_url,link}]
+    services_offered:[],
+    pricing:[],             // [{service,price,currency,notes,hidden}]
+    brand_colors:[],
+    contact_email:'',
+    booking_link:'',
+    social_handles:{},
+    contact_blurb:'',
+    last_stats_update_at:null,
+    theme:'default'
+  };
+}
+
+// ============================================================
+//  PLATFORM META
+// ============================================================
+const PLATFORM_META = {
+  youtube:   { icon:'▶️', label:'YouTube',    handlePrefix:'@' },
+  twitch:    { icon:'🟣', label:'Twitch',     handlePrefix:'' },
+  tiktok:    { icon:'🎵', label:'TikTok',     handlePrefix:'@' },
+  instagram: { icon:'📸', label:'Instagram',  handlePrefix:'@' },
+  x:         { icon:'🐦', label:'X / Twitter',handlePrefix:'@' },
+  kick:      { icon:'🟢', label:'Kick',       handlePrefix:'' },
+  other:     { icon:'🌐', label:'Other',      handlePrefix:'' }
+};
+
+// ============================================================
+//  SUPABASE INIT + AUTH
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user){ await onSignIn(session.user); }
+    else { await resolveOwnerAndLoad(); }   // signed out — could still be a public ?u= view
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user);
+      else onSignOut();
+    });
+  }catch(e){
+    console.warn('Supabase init failed', e);
+    // Even if Supabase fails to load, show the welcome view so the page isn't blank
+    if(!publicSlugInUrl) showAuthView();
+  }
+}
+
+async function sendMagicLink(){
+  await doMagicLink('emailInput','authStatus','authSend');
+}
+async function modalSendMagicLink(){
+  await doMagicLink('modalEmail','modalStatus',null);
+}
+async function doMagicLink(inputId, statusId, btnId){
+  const email = (document.getElementById(inputId).value || '').trim().toLowerCase();
+  const status = document.getElementById(statusId);
+  if(!email || !email.includes('@')){
+    status.textContent = 'Please enter a valid email.'; status.className = 'status-banner error';
+    return;
+  }
+  if(window.location.protocol === 'file:'){
+    status.textContent = '⚠️ Magic links require http(s). Open from your deployed site.';
+    status.className = 'status-banner error';
+    return;
+  }
+  if(!sb) await initAuth();
+  const btn = btnId ? document.getElementById(btnId) : null;
+  if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+  const redirectTo = window.location.origin + window.location.pathname + window.location.search;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  if(btn){ btn.disabled = false; btn.innerHTML = '📬 Send magic link'; }
+  if(error){
+    status.textContent = 'Sign-in failed: ' + error.message;
+    status.className = 'status-banner error';
+  } else {
+    status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`;
+    status.className = 'status-banner success';
+  }
+}
+
+async function onSignIn(user){
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.onclick = () => { if(confirm('Sign out?')) sb.auth.signOut(); };
+  closeAuthModal();
+
+  // Decide what to load
+  await resolveOwnerAndLoad();
+}
+
+function onSignOut(){
+  currentUser = null;
+  currentOwnerId = null;
+  impersonating = false;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in';
+  pill.onclick = openAuthModal;
+  // If they were viewing a public kit, keep showing it. Otherwise show sign-in.
+  if(!publicSlugInUrl){
+    showAuthView();
+  }
+}
+
+// ============================================================
+//  URL RESOLUTION + MODE
+// ============================================================
+function getQuery(name){
+  const m = new RegExp('[?&]'+name+'=([^&#]*)').exec(window.location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+async function resolveOwnerAndLoad(){
+  publicSlugInUrl = getQuery('u');
+  const manageId = getQuery('manage');
+
+  // Case 1: ?u=… — public viewer (or owner previewing their own)
+  if(publicSlugInUrl){
+    await loadPublicKitBySlug(publicSlugInUrl);
+    return;
+  }
+
+  // Case 2: ?manage=… signed-in user impersonating a creator
+  if(manageId && currentUser){
+    await loadAsManager(manageId);
+    return;
+  }
+
+  // Case 3: signed-in user, no params — load THEIR own kit in edit mode
+  if(currentUser){
+    currentOwnerId = currentUser.id;
+    impersonating = false;
+    await loadOwnKit();
+    return;
+  }
+
+  // Case 4: signed out, no slug — show the welcome / sign-in view
+  showAuthView();
+}
+
+function showAuthView(){
+  document.getElementById('authView').classList.remove('hidden');
+  document.getElementById('publicView').classList.add('hidden');
+  document.getElementById('editorView').classList.add('hidden');
+  document.getElementById('editorActions').classList.add('hidden');
+  document.getElementById('modeToggleWrap').classList.add('hidden');
+  document.getElementById('previewBanner').classList.add('hidden');
+}
+
+// ============================================================
+//  LOAD PATHS
+// ============================================================
+async function loadPublicKitBySlug(slug){
+  if(!sb) await initAuth();
+  const { data, error } = await sb.rpc('planner_media_kit_peek', { p_slug: slug });
+  if(error){ console.warn('peek failed', error); }
+  if(!data || !data.length){
+    renderNotFound(slug);
+    return;
+  }
+  const row = data[0];
+  kit = mergeIntoBlank(row);
+  // If signed-in user IS the owner, allow them to flip into edit mode
+  const isOwner = currentUser && currentUser.id === row.user_id;
+  if(isOwner){
+    currentOwnerId = currentUser.id;
+    document.getElementById('modeToggleWrap').classList.remove('hidden');
+    refreshEditorActions();   // populate slug + visibility pill before showing the bar
+    setMode('preview');
+  } else {
+    mode = 'public';
+    document.getElementById('publicView').classList.remove('hidden');
+    document.getElementById('editorView').classList.add('hidden');
+    document.getElementById('editorActions').classList.add('hidden');
+    document.getElementById('modeToggleWrap').classList.add('hidden');
+    renderPublic();
+  }
+  document.getElementById('authView').classList.add('hidden');
+}
+
+async function loadAsManager(managerId){
+  if(!sb) await initAuth();
+  // Look up the delegation to find owner_id. RPC returns manager_id (not id).
+  const { data:delegations } = await sb.rpc('planner_list_my_delegations');
+  const d = (delegations||[]).find(x => x.manager_id === managerId);
+  if(!d){
+    renderNotFound('(unknown manager delegation)');
+    return;
+  }
+  currentOwnerId = d.owner_id;
+  currentManagerDelegationId = managerId;
+  impersonating = true;
+  document.getElementById('impersonationBanner').classList.remove('hidden');
+  document.getElementById('impName').textContent = d.owner_email || 'creator';
+  await loadOwnKit();   // RLS allows it via planner_is_manager_of
+}
+
+async function loadOwnKit(){
+  if(!sb) await initAuth();
+  const { data, error } = await sb
+    .from('planner_media_kit')
+    .select('*')
+    .eq('user_id', currentOwnerId)
+    .maybeSingle();
+  if(error && error.code !== 'PGRST116'){
+    console.warn('load own failed', error);
+  }
+  if(!data){
+    // Bootstrap a row so we have a slug.
+    // IMPORTANT: claim_slug RPC uses auth.uid() — so we only bootstrap when the
+    // caller is the actual owner. In manager-impersonation mode, the creator
+    // needs to set up their own kit first (we show them what we have, blank).
+    kit = blankKit();
+    kit.user_id = currentOwnerId;
+    if(!impersonating){
+      kit.slug = (currentUser?.email?.split('@')[0] || currentOwnerId.slice(0,8))
+                   .toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,32) || currentOwnerId;
+      try{
+        const claimed = await sb.rpc('planner_media_kit_claim_slug', { p_new_slug: kit.slug });
+        if(claimed.data){ kit.slug = claimed.data; }
+        else { kit.slug = currentOwnerId; }
+      }catch(e){ kit.slug = currentOwnerId; }
+    } else {
+      // Manager view of an empty kit — slug stays as the creator's UUID until
+      // the creator themselves bootstraps via media-kit.html on their own.
+      kit.slug = currentOwnerId;
+    }
+  } else {
+    kit = mergeIntoBlank(data);
+  }
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('modeToggleWrap').classList.remove('hidden');
+  document.getElementById('editorActions').classList.remove('hidden');
+  refreshEditorActions();
+  setMode('edit');
+}
+
+function mergeIntoBlank(row){
+  const b = blankKit();
+  Object.keys(row).forEach(k => { if(row[k] !== null && row[k] !== undefined) b[k] = row[k]; });
+  // Ensure nested defaults
+  b.audience_demographics = Object.assign(blankKit().audience_demographics, row.audience_demographics || {});
+  b.audience_demographics.age_brackets = Object.assign(
+    {'13-17':0,'18-24':0,'25-34':0,'35-44':0,'45+':0},
+    (row.audience_demographics && row.audience_demographics.age_brackets) || {}
+  );
+  b.audience_demographics.gender_split = Object.assign(
+    { f:0,m:0,nb:0,other:0 },
+    (row.audience_demographics && row.audience_demographics.gender_split) || {}
+  );
+  // The contact_blurb isn't a DB column — store in audience_demographics as a soft extra
+  // (kept here as a separate field for templates, persists via audience_demographics._blurb)
+  if(row.audience_demographics && row.audience_demographics._blurb){
+    b.contact_blurb = row.audience_demographics._blurb;
+  }
+  return b;
+}
+
+function renderNotFound(slug){
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('publicView').classList.remove('hidden');
+  document.getElementById('publicView').innerHTML = `
+    <div class="card" style="text-align:center;padding:40px 24px">
+      <h2 style="font-family:'Pacifico',cursive;font-weight:400;font-size:30px;color:var(--deep);margin:0 0 10px;padding:6px 0 14px">No kit here yet 🐙</h2>
+      <p class="muted">We couldn't find a public media kit at <code style="background:rgba(144,165,255,0.18);padding:3px 8px;border-radius:8px;color:var(--deep)">${escapeHtml(slug)}</code>.</p>
+      <p class="muted" style="margin-top:14px">If this is your kit, sign in and toggle visibility on.</p>
+      <a class="btn" href="index.html" style="margin-top:14px">← Back to hub</a>
+    </div>`;
+}
+
+// ============================================================
+//  MODE SWITCHING
+// ============================================================
+function setMode(m){
+  mode = m;
+  document.querySelectorAll('#modeToggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === m);
+  });
+  if(m === 'edit'){
+    document.getElementById('editorView').classList.remove('hidden');
+    document.getElementById('publicView').classList.add('hidden');
+    document.getElementById('previewBanner').classList.add('hidden');
+    document.getElementById('editorActions').classList.remove('hidden');
+    renderEditor();
+  } else if(m === 'preview'){
+    document.getElementById('editorView').classList.add('hidden');
+    document.getElementById('publicView').classList.remove('hidden');
+    document.getElementById('previewBanner').classList.remove('hidden');
+    document.getElementById('editorActions').classList.remove('hidden');
+    renderPublic();
+  }
+}
+document.addEventListener('click', e => {
+  if(e.target.closest('#modeToggle button')){
+    setMode(e.target.closest('button').dataset.mode);
+  }
+});
+
+// ============================================================
+//  EDITOR ACTIONS / VISIBILITY
+// ============================================================
+function refreshEditorActions(){
+  document.getElementById('publicSlug').textContent =
+    `creatorhub.eggieweggie.ca/media-kit.html?u=${kit.slug || '—'}`;
+  const vis = document.getElementById('visPill');
+  if(kit.is_public){ vis.className = 'vis-pill on'; vis.textContent = '🟢 Public'; }
+  else              { vis.className = 'vis-pill off'; vis.textContent = '🔒 Private'; }
+}
+
+function copyPublicLink(){
+  const url = window.location.origin + window.location.pathname + '?u=' + encodeURIComponent(kit.slug);
+  navigator.clipboard.writeText(url).then(() => {
+    flashToast('Link copied! 📋');
+  }).catch(() => alert(url));
+}
+
+async function toggleVisibility(){
+  if(!sb || !currentOwnerId) return;
+  const newVal = !kit.is_public;
+  const { error } = await sb
+    .from('planner_media_kit')
+    .update({ is_public: newVal })
+    .eq('user_id', currentOwnerId);
+  if(error){ alert('Update failed: '+error.message); return; }
+  kit.is_public = newVal;
+  refreshEditorActions();
+  flashToast(newVal ? 'Public ✨' : 'Hidden 🔒');
+}
+
+// ============================================================
+//  SLUG MODAL
+// ============================================================
+function openSlugModal(){
+  document.getElementById('newSlug').value = kit.slug || '';
+  document.getElementById('slugStatus').className = 'status-banner';
+  document.getElementById('slugStatus').textContent = '';
+  document.getElementById('slugModal').classList.add('open');
+}
+function closeSlugModal(){ document.getElementById('slugModal').classList.remove('open'); }
+async function saveSlug(){
+  const val = (document.getElementById('newSlug').value || '').trim().toLowerCase();
+  const status = document.getElementById('slugStatus');
+  if(!val){ status.className='status-banner error'; status.textContent='Slug required'; return; }
+  try{
+    const { data, error } = await sb.rpc('planner_media_kit_claim_slug', { p_new_slug: val });
+    if(error){ status.className='status-banner error'; status.textContent=error.message; return; }
+    if(!data){ status.className='status-banner error'; status.textContent='That slug is taken — try another.'; return; }
+    kit.slug = data;
+    refreshEditorActions();
+    closeSlugModal();
+    flashToast('Slug saved ✨');
+  }catch(e){
+    status.className='status-banner error'; status.textContent='Save failed';
+  }
+}
+
+// ============================================================
+//  AUTH MODAL
+// ============================================================
+function openAuthModal(){
+  if(!sb){ initAuth(); }
+  document.getElementById('authModal').classList.add('open');
+}
+function closeAuthModal(){ document.getElementById('authModal').classList.remove('open'); }
+
+// ============================================================
+//  EDITOR RENDER
+// ============================================================
+function renderEditor(){
+  // Identity
+  $('ed_display_name').value = kit.display_name || '';
+  $('ed_tagline').value = kit.tagline || '';
+  $('ed_pronouns').value = kit.pronouns || '';
+  $('ed_location').value = kit.location || '';
+  $('ed_languages').value = (kit.languages||[]).join(', ');
+  $('ed_bio').value = kit.bio || '';
+  $('ed_avatar_url').value = kit.avatar_url || '';
+  $('ed_banner_url').value = kit.banner_url || '';
+  $('ed_niche_primary').value = kit.niche_primary || '';
+  $('ed_niche_secondary').value = kit.niche_secondary || '';
+  $('ed_vibe_tags').value = (kit.vibe_tags||[]).join(', ');
+  $('ed_contact_email').value = kit.contact_email || '';
+  $('ed_booking_link').value = kit.booking_link || '';
+  $('ed_contact_blurb').value = kit.contact_blurb || '';
+  $('ed_top_interests').value = (kit.audience_demographics?.top_interests||[]).join(', ');
+  $('ed_last_stats_label').textContent = kit.last_stats_update_at
+    ? niceDate(kit.last_stats_update_at) : '—';
+
+  renderPillarsEditor();
+  renderPlatformsEditor();
+  renderAgeBracketsEditor();
+  renderGenderEditor();
+  renderCountriesEditor();
+  renderTopContentEditor();
+  renderSponsorsEditor();
+  renderServicesEditor();
+}
+
+function renderPillarsEditor(){
+  const host = $('ed_pillars'); host.innerHTML = '';
+  (kit.content_pillars||[]).forEach((p,i) => {
+    const row = document.createElement('div');
+    row.className = 'pillar-row';
+    row.innerHTML = `
+      <div class="field-row">
+        <input type="text" placeholder="Pillar title (e.g. Cozy gaming sessions)" value="${escapeAttr(p.title||'')}" data-i="${i}" data-k="title" />
+        <input type="text" placeholder="One-line description" value="${escapeAttr(p.description||'')}" data-i="${i}" data-k="description" />
+      </div>
+      <div style="margin-top:6px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const i = +e.target.dataset.i, k = e.target.dataset.k;
+        kit.content_pillars[i][k] = e.target.value;
+      });
+    });
+    row.querySelector('[data-rm]').addEventListener('click', () => {
+      kit.content_pillars.splice(i,1); renderPillarsEditor();
+    });
+    host.appendChild(row);
+  });
+}
+function addPillar(){
+  kit.content_pillars.push({title:'',description:''});
+  renderPillarsEditor();
+}
+
+function renderPlatformsEditor(){
+  const host = $('ed_platforms'); host.innerHTML = '';
+  (kit.platforms||[]).forEach((p,i) => {
+    const meta = PLATFORM_META[p.platform] || PLATFORM_META.other;
+    const row = document.createElement('div');
+    row.className = 'platform-card';
+    row.style.marginBottom = '10px';
+    row.innerHTML = `
+      <div class="pc-head">
+        <span class="pc-icon">${meta.icon}</span>
+        <span>${meta.label}</span>
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn small secondary" data-act="paste" data-i="${i}" title="Paste channel URL to prefill">📋 Paste URL</button>
+          <button class="btn small danger" data-act="rm" data-i="${i}">Remove</button>
+        </span>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Channel URL</label>
+          <input type="url" data-i="${i}" data-k="url" value="${escapeAttr(p.url||'')}" placeholder="https://…" />
+        </div>
+        <div>
+          <label>Handle / channel name</label>
+          <input type="text" data-i="${i}" data-k="handle" value="${escapeAttr(p.handle||'')}" placeholder="${meta.handlePrefix}yourname" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>${p.platform==='twitch' || p.platform==='kick' ? 'Followers' : 'Subscribers'}</label>
+          <input type="number" data-i="${i}" data-k="subscribers" value="${p.subscribers||''}" min="0" />
+        </div>
+        <div>
+          <label>${p.platform==='twitch'||p.platform==='kick' ? 'Avg live viewers' : 'Avg views per post'}</label>
+          <input type="number" data-i="${i}" data-k="${p.platform==='twitch'||p.platform==='kick'?'avg_live_viewers':'avg_views'}" value="${(p.platform==='twitch'||p.platform==='kick'?p.avg_live_viewers:p.avg_views)||''}" min="0" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Engagement rate (%) — optional</label>
+          <input type="number" step="0.1" data-i="${i}" data-k="engagement_rate" value="${p.engagement_rate||''}" />
+        </div>
+        <div>
+          <label>Custom label (optional)</label>
+          <input type="text" data-i="${i}" data-k="label" value="${escapeAttr(p.label||'')}" placeholder="e.g. 'Main YouTube'" />
+        </div>
+      </div>
+      <label>Notes (e.g. "growing 8%/mo")</label>
+      <input type="text" data-i="${i}" data-k="notes" value="${escapeAttr(p.notes||'')}" />
+    `;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = +e.target.dataset.i, k = e.target.dataset.k;
+        let v = e.target.value;
+        if(e.target.type === 'number') v = v === '' ? null : Number(v);
+        kit.platforms[idx][k] = v;
+      });
+    });
+    row.querySelector('[data-act="rm"]').addEventListener('click', () => {
+      kit.platforms.splice(i,1); renderPlatformsEditor();
+    });
+    row.querySelector('[data-act="paste"]').addEventListener('click', () => pastePlatformUrl(i));
+    host.appendChild(row);
+  });
+  if(!kit.platforms.length){
+    host.innerHTML = '<div class="empty">Add at least one platform — sponsors want to know where to find you.</div>';
+  }
+}
+
+function addPlatform(kind){
+  kit.platforms.push({
+    platform:kind, label:'', url:'', handle:'',
+    subscribers:null, avg_views:null, avg_live_viewers:null,
+    engagement_rate:null, last_updated:null, notes:''
+  });
+  renderPlatformsEditor();
+}
+
+async function pastePlatformUrl(i){
+  const url = prompt('Paste your channel / profile URL — I\'ll prefill what I can:');
+  if(!url) return;
+  const p = kit.platforms[i];
+  p.url = url.trim();
+  // Best-effort handle extraction
+  try{
+    const u = new URL(p.url);
+    const seg = u.pathname.split('/').filter(Boolean);
+    if(p.platform === 'youtube'){
+      // /@handle  or  /c/Name  or  /channel/UC…
+      if(seg[0] && seg[0].startsWith('@')) p.handle = seg[0];
+      else if(seg[0] === 'c' && seg[1]) p.handle = seg[1];
+      else if(seg[0] === 'channel' && seg[1]) p.handle = seg[1];
+    } else if(p.platform === 'twitch' || p.platform === 'kick'){
+      if(seg[0]) p.handle = seg[0];
+    } else if(p.platform === 'tiktok'){
+      if(seg[0] && seg[0].startsWith('@')) p.handle = seg[0];
+    } else if(p.platform === 'instagram' || p.platform === 'x'){
+      if(seg[0]) p.handle = '@' + seg[0].replace(/^@/, '');
+    }
+  }catch(e){ /* ignore */ }
+  renderPlatformsEditor();
+}
+
+function markStatsUpdated(){
+  const now = new Date().toISOString();
+  kit.last_stats_update_at = now;
+  (kit.platforms||[]).forEach(p => p.last_updated = now);
+  $('ed_last_stats_label').textContent = niceDate(now);
+  flashToast('Marked all stats updated 🌸');
+}
+
+function renderAgeBracketsEditor(){
+  const host = $('ed_age_brackets'); host.innerHTML = '';
+  const brackets = ['13-17','18-24','25-34','35-44','45+'];
+  brackets.forEach(b => {
+    const v = (kit.audience_demographics?.age_brackets||{})[b] || 0;
+    const row = document.createElement('div');
+    row.className = 'demo-bar-row';
+    row.innerHTML = `
+      <span class="label">${b}</span>
+      <input type="range" min="0" max="100" step="5" value="${v}" data-b="${b}" style="width:100%" />
+      <span class="val" data-out="${b}">${v}%</span>`;
+    const inp = row.querySelector('input');
+    inp.addEventListener('input', e => {
+      const val = +e.target.value;
+      kit.audience_demographics.age_brackets[b] = val;
+      row.querySelector(`[data-out="${b}"]`).textContent = val + '%';
+    });
+    host.appendChild(row);
+  });
+}
+function renderGenderEditor(){
+  const host = $('ed_gender_split'); host.innerHTML = '';
+  const groups = [['f','♀ Femme'], ['m','♂ Masc'], ['nb','⚧ Non-binary'], ['other','✨ Other']];
+  groups.forEach(([k,label]) => {
+    const v = (kit.audience_demographics?.gender_split||{})[k] || 0;
+    const row = document.createElement('div');
+    row.className = 'demo-bar-row';
+    row.innerHTML = `
+      <span class="label">${label}</span>
+      <input type="range" min="0" max="100" step="5" value="${v}" data-k="${k}" style="width:100%" />
+      <span class="val" data-out="${k}">${v}%</span>`;
+    row.querySelector('input').addEventListener('input', e => {
+      const val = +e.target.value;
+      kit.audience_demographics.gender_split[k] = val;
+      row.querySelector(`[data-out="${k}"]`).textContent = val + '%';
+    });
+    host.appendChild(row);
+  });
+}
+function renderCountriesEditor(){
+  const host = $('ed_top_countries'); host.innerHTML = '';
+  (kit.audience_demographics?.top_countries||[]).forEach((c,i) => {
+    const row = document.createElement('div');
+    row.className = 'demo-bar-row';
+    row.innerHTML = `
+      <input type="text" placeholder="US" value="${escapeAttr(c.code||'')}" maxlength="3" data-i="${i}" data-k="code" />
+      <input type="number" placeholder="35" min="0" max="100" value="${c.pct||''}" data-i="${i}" data-k="pct" />
+      <button class="btn small danger" data-rm="${i}">×</button>`;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = +e.target.dataset.i, k = e.target.dataset.k;
+        let v = e.target.value;
+        if(k === 'pct') v = v === '' ? null : Number(v);
+        else v = (v||'').toUpperCase().slice(0,3);
+        kit.audience_demographics.top_countries[idx][k] = v;
+      });
+    });
+    row.querySelector('[data-rm]').addEventListener('click', () => {
+      kit.audience_demographics.top_countries.splice(i,1); renderCountriesEditor();
+    });
+    host.appendChild(row);
+  });
+}
+function addCountry(){
+  if(!kit.audience_demographics) kit.audience_demographics = blankKit().audience_demographics;
+  if(!kit.audience_demographics.top_countries) kit.audience_demographics.top_countries = [];
+  kit.audience_demographics.top_countries.push({code:'',pct:null});
+  renderCountriesEditor();
+}
+
+function renderTopContentEditor(){
+  const host = $('ed_top_content'); host.innerHTML = '';
+  (kit.top_content||[]).forEach((c,i) => {
+    const row = document.createElement('div');
+    row.className = 'content-card';
+    row.style.padding = '14px 16px';
+    row.style.flexDirection = 'column';
+    row.innerHTML = `
+      <div class="field-row">
+        <div>
+          <label>Title</label>
+          <input type="text" data-i="${i}" data-k="title" value="${escapeAttr(c.title||'')}" />
+        </div>
+        <div>
+          <label>Platform</label>
+          <select data-i="${i}" data-k="platform">
+            ${Object.keys(PLATFORM_META).map(k =>
+              `<option value="${k}" ${c.platform===k?'selected':''}>${PLATFORM_META[k].label}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>URL</label>
+          <input type="url" data-i="${i}" data-k="url" value="${escapeAttr(c.url||'')}" />
+        </div>
+        <div>
+          <label>Thumbnail URL</label>
+          <input type="url" data-i="${i}" data-k="thumbnail" value="${escapeAttr(c.thumbnail||'')}" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Views</label>
+          <input type="number" data-i="${i}" data-k="views" value="${c.views||''}" />
+        </div>
+        <div>
+          <label>Posted (YYYY-MM-DD)</label>
+          <input type="text" data-i="${i}" data-k="posted_at" value="${escapeAttr(c.posted_at||'')}" />
+        </div>
+      </div>
+      <label>Note (why this one matters)</label>
+      <input type="text" data-i="${i}" data-k="note" value="${escapeAttr(c.note||'')}" placeholder="e.g. Brand fit example for cozy lifestyle sponsors" />
+      <div style="margin-top:8px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    row.querySelectorAll('input,select').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = +e.target.dataset.i, k = e.target.dataset.k;
+        let v = e.target.value;
+        if(k === 'views') v = v === '' ? null : Number(v);
+        kit.top_content[idx][k] = v;
+      });
+    });
+    row.querySelector('[data-rm]').addEventListener('click', () => {
+      kit.top_content.splice(i,1); renderTopContentEditor();
+    });
+    host.appendChild(row);
+  });
+}
+function addTopContent(){
+  kit.top_content.push({title:'',url:'',thumbnail:'',views:null,platform:'youtube',posted_at:'',note:''});
+  renderTopContentEditor();
+}
+
+function renderSponsorsEditor(){
+  const host = $('ed_sponsors'); host.innerHTML = '';
+  (kit.past_sponsorships||[]).forEach((s,i) => {
+    const row = document.createElement('div');
+    row.className = 'sponsor-row';
+    row.style.padding = '14px 16px';
+    row.innerHTML = `
+      <div class="field-row">
+        <div><label>Brand</label><input type="text" data-i="${i}" data-k="brand" value="${escapeAttr(s.brand||'')}" /></div>
+        <div><label>Type</label><input type="text" data-i="${i}" data-k="type" value="${escapeAttr(s.type||'')}" placeholder="Integrated short / Stream sponsor / etc." /></div>
+      </div>
+      <div class="field-row">
+        <div><label>Year</label><input type="text" data-i="${i}" data-k="year" value="${escapeAttr(s.year||'')}" placeholder="2025" /></div>
+        <div><label>Link (optional)</label><input type="url" data-i="${i}" data-k="link" value="${escapeAttr(s.link||'')}" /></div>
+      </div>
+      <label>Results / what came of it</label>
+      <input type="text" data-i="${i}" data-k="results" value="${escapeAttr(s.results||'')}" placeholder="e.g. 42k views, 11% CTR on affiliate link" />
+      <label>Testimonial (optional)</label>
+      <textarea rows="2" data-i="${i}" data-k="testimonial">${escapeHtml(s.testimonial||'')}</textarea>
+      <div style="margin-top:8px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    row.querySelectorAll('input,textarea').forEach(inp => {
+      inp.addEventListener('input', e => {
+        kit.past_sponsorships[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+      });
+    });
+    row.querySelector('[data-rm]').addEventListener('click', () => {
+      kit.past_sponsorships.splice(i,1); renderSponsorsEditor();
+    });
+    host.appendChild(row);
+  });
+}
+function addSponsor(){
+  kit.past_sponsorships.push({brand:'',type:'',year:'',results:'',testimonial:'',link:'',logo_url:''});
+  renderSponsorsEditor();
+}
+
+function renderServicesEditor(){
+  const host = $('ed_services'); host.innerHTML = '';
+  (kit.pricing||[]).forEach((s,i) => {
+    const row = document.createElement('div');
+    row.className = 'service-card';
+    row.style.padding = '14px 16px';
+    row.innerHTML = `
+      <div class="field-row">
+        <div><label>Service name</label><input type="text" data-i="${i}" data-k="service" value="${escapeAttr(s.service||'')}" placeholder="Integrated short (60s)" /></div>
+        <div><label>Price</label><input type="text" data-i="${i}" data-k="price" value="${escapeAttr(s.price||'')}" placeholder="$450" /></div>
+      </div>
+      <div class="field-row">
+        <div><label>Currency</label><input type="text" data-i="${i}" data-k="currency" value="${escapeAttr(s.currency||'USD')}" maxlength="6" /></div>
+        <div><label>Notes</label><input type="text" data-i="${i}" data-k="notes" value="${escapeAttr(s.notes||'')}" placeholder="Includes 2 rounds of revisions" /></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:700">
+        <input type="checkbox" data-i="${i}" data-k="hidden" ${s.hidden ? 'checked':''} style="width:auto" />
+        Hide this price from the public kit (still saved for your reference)
+      </label>
+      <div style="margin-top:8px"><button class="btn small danger" data-rm="${i}">Remove</button></div>`;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = +e.target.dataset.i, k = e.target.dataset.k;
+        kit.pricing[idx][k] = (e.target.type === 'checkbox') ? e.target.checked : e.target.value;
+      });
+    });
+    row.querySelector('[data-rm]').addEventListener('click', () => {
+      kit.pricing.splice(i,1); renderServicesEditor();
+    });
+    host.appendChild(row);
+  });
+}
+function addService(){
+  kit.pricing.push({service:'',price:'',currency:'USD',notes:'',hidden:false});
+  renderServicesEditor();
+}
+
+// ============================================================
+//  SAVE
+// ============================================================
+async function saveAll(){
+  // Pull editor fields back into the kit
+  kit.display_name = $('ed_display_name').value.trim();
+  kit.tagline = $('ed_tagline').value.trim();
+  kit.pronouns = $('ed_pronouns').value.trim();
+  kit.location = $('ed_location').value.trim();
+  kit.languages = parseCommas($('ed_languages').value);
+  kit.bio = $('ed_bio').value.trim();
+  kit.avatar_url = $('ed_avatar_url').value.trim();
+  kit.banner_url = $('ed_banner_url').value.trim();
+  kit.niche_primary = $('ed_niche_primary').value.trim();
+  kit.niche_secondary = $('ed_niche_secondary').value.trim();
+  kit.vibe_tags = parseCommas($('ed_vibe_tags').value);
+  kit.contact_email = $('ed_contact_email').value.trim().toLowerCase();
+  kit.booking_link = $('ed_booking_link').value.trim();
+  kit.contact_blurb = $('ed_contact_blurb').value.trim();
+  if(!kit.audience_demographics) kit.audience_demographics = blankKit().audience_demographics;
+  kit.audience_demographics.top_interests = parseCommas($('ed_top_interests').value);
+  kit.audience_demographics._blurb = kit.contact_blurb;  // persist contact_blurb inside JSONB
+
+  // Compose payload
+  const payload = {
+    user_id: currentOwnerId,
+    slug: kit.slug || currentOwnerId,
+    is_public: kit.is_public,
+    display_name: kit.display_name || null,
+    tagline: kit.tagline || null,
+    bio: kit.bio || null,
+    avatar_url: kit.avatar_url || null,
+    banner_url: kit.banner_url || null,
+    location: kit.location || null,
+    languages: kit.languages,
+    pronouns: kit.pronouns || null,
+    niche_primary: kit.niche_primary || null,
+    niche_secondary: kit.niche_secondary || null,
+    vibe_tags: kit.vibe_tags,
+    content_pillars: kit.content_pillars,
+    platforms: kit.platforms,
+    audience_demographics: kit.audience_demographics,
+    top_content: kit.top_content,
+    past_sponsorships: kit.past_sponsorships,
+    services_offered: kit.services_offered,
+    pricing: kit.pricing,
+    brand_colors: kit.brand_colors,
+    contact_email: kit.contact_email || null,
+    booking_link: kit.booking_link || null,
+    social_handles: kit.social_handles,
+    last_stats_update_at: kit.last_stats_update_at,
+    theme: kit.theme || 'default'
+  };
+
+  const { error } = await sb
+    .from('planner_media_kit')
+    .upsert(payload, { onConflict: 'user_id' });
+
+  if(error){
+    alert('Save failed: ' + error.message);
+    return;
+  }
+  flashToast('Saved! 💌');
+}
+
+// ============================================================
+//  PUBLIC RENDER
+// ============================================================
+function renderPublic(){
+  // Banner
+  const banner = document.getElementById('kitBanner');
+  if(kit.banner_url){
+    banner.classList.add('has-image');
+    banner.innerHTML = `<img class="banner-img" src="${escapeAttr(kit.banner_url)}" alt="" onerror="this.parentNode.classList.remove('has-image');this.parentNode.innerHTML='<div class=banner-empty>✨ Banner</div>'" />`;
+  } else {
+    banner.classList.remove('has-image');
+    banner.innerHTML = `<div class="banner-empty">✨ Banner image goes here</div>`;
+  }
+
+  // Identity
+  const av = document.getElementById('idAvatar');
+  if(kit.avatar_url){
+    av.innerHTML = `<img src="${escapeAttr(kit.avatar_url)}" alt="" onerror="this.parentNode.innerHTML='🐙'" />`;
+  } else av.innerHTML = '🐙';
+
+  document.getElementById('idName').textContent = kit.display_name || 'Your name here';
+  document.getElementById('idTag').textContent = kit.tagline || 'A one-liner that says exactly who you are.';
+
+  const meta = document.getElementById('idMeta'); meta.innerHTML = '';
+  if(kit.pronouns) meta.insertAdjacentHTML('beforeend', `<span>${escapeHtml(kit.pronouns)}</span>`);
+  if(kit.location) meta.insertAdjacentHTML('beforeend', `<span>📍 ${escapeHtml(kit.location)}</span>`);
+  if(kit.languages?.length) meta.insertAdjacentHTML('beforeend', `<span>🗣 ${kit.languages.map(escapeHtml).join(' · ')}</span>`);
+
+  // About
+  document.getElementById('bioText').textContent = kit.bio || 'A short story about you and your audience.';
+  document.getElementById('nichePrimaryText').textContent = kit.niche_primary || '—';
+  document.getElementById('nicheSecondaryText').textContent = kit.niche_secondary || '—';
+  const vibe = document.getElementById('vibeCloud');
+  if(kit.vibe_tags?.length){
+    vibe.innerHTML = kit.vibe_tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+  } else vibe.innerHTML = '<span class="muted">—</span>';
+
+  // Pillars
+  const pl = document.getElementById('pillarList');
+  if(kit.content_pillars?.length){
+    pl.innerHTML = kit.content_pillars.map(p => `
+      <div class="pillar-row">
+        <div class="p-title">${escapeHtml(p.title || '—')}</div>
+        <div class="p-desc">${escapeHtml(p.description || '')}</div>
+      </div>`).join('');
+  } else pl.innerHTML = '<div class="empty">No pillars set yet.</div>';
+
+  // Stats
+  document.getElementById('statsLastUpdated').textContent = kit.last_stats_update_at
+    ? `Last updated ${niceDate(kit.last_stats_update_at)}` : 'Stats are entered manually and refreshed by hand.';
+  const sg = document.getElementById('statsGrid');
+  if(kit.platforms?.length){
+    sg.innerHTML = kit.platforms.map(p => {
+      const meta = PLATFORM_META[p.platform] || PLATFORM_META.other;
+      const main = (p.platform==='twitch'||p.platform==='kick')
+        ? [['Followers', fmtNum(p.subscribers)], ['Avg live', fmtNum(p.avg_live_viewers)]]
+        : [['Subscribers', fmtNum(p.subscribers)], ['Avg views', fmtNum(p.avg_views)]];
+      const eng = p.engagement_rate ? `<div class="pc-stat"><div class="stat-num">${p.engagement_rate}%</div><div class="stat-label">Engagement</div></div>` : '';
+      const upd = p.last_updated ? `<span class="pc-updated">↻ ${niceDate(p.last_updated, true)}</span>` : '';
+      const link = p.url ? `<a class="pc-link" href="${escapeAttr(p.url)}" target="_blank" rel="noopener">Open →</a>` : '';
+      return `
+        <div class="platform-card">
+          ${upd}
+          <div class="pc-head">
+            <span class="pc-icon">${meta.icon}</span>
+            <span>${escapeHtml(p.label || meta.label)}</span>
+          </div>
+          <div class="pc-handle">${escapeHtml(p.handle || '')}</div>
+          <div class="pc-stats">
+            ${main.map(m => `<div class="pc-stat"><div class="stat-num">${m[1]}</div><div class="stat-label">${m[0]}</div></div>`).join('')}
+            ${eng}
+          </div>
+          ${p.notes ? `<div class="muted" style="font-size:12px;margin-top:6px">${escapeHtml(p.notes)}</div>` : ''}
+          ${link}
+        </div>`;
+    }).join('');
+  } else sg.innerHTML = '<div class="empty" style="grid-column:1 / -1">No platforms added yet.</div>';
+
+  // Demographics
+  const dg = document.getElementById('demoGrid');
+  const ad = kit.audience_demographics || {};
+  const ageEntries = Object.entries(ad.age_brackets || {}).filter(([k,v]) => v > 0);
+  const genderEntries = Object.entries(ad.gender_split || {})
+    .filter(([k,v]) => v > 0)
+    .map(([k,v]) => [{f:'♀ Femme',m:'♂ Masc',nb:'⚧ NB',other:'✨ Other'}[k] || k, v]);
+  const countries = (ad.top_countries||[]).filter(c => c.code && c.pct);
+  const interests = ad.top_interests || [];
+  if(ageEntries.length || genderEntries.length || countries.length){
+    dg.innerHTML = `
+      ${ageEntries.length ? `<div class="demo-box"><h4>Age</h4>${
+        ageEntries.map(([k,v]) => bar(k,v)).join('')
+      }</div>` : ''}
+      ${genderEntries.length ? `<div class="demo-box"><h4>Gender</h4>${
+        genderEntries.map(([k,v]) => bar(k,v)).join('')
+      }</div>` : ''}
+      ${countries.length ? `<div class="demo-box"><h4>Top countries</h4>${
+        countries.map(c => bar(c.code, c.pct)).join('')
+      }</div>` : ''}
+    `;
+    if(interests.length){
+      dg.insertAdjacentHTML('beforeend', `<div class="demo-box" style="grid-column:1 / -1">
+        <h4>Top interests</h4>
+        <div class="tag-cloud">${interests.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+      </div>`);
+    }
+  } else dg.innerHTML = '<div class="empty" style="grid-column:1 / -1">No demographic data yet.</div>';
+
+  // Top content
+  const cg = document.getElementById('contentGrid');
+  if(kit.top_content?.length){
+    cg.innerHTML = kit.top_content.map(c => `
+      <div class="content-card">
+        <div class="thumb" style="${c.thumbnail ? `background-image:url('${escapeAttr(c.thumbnail)}')`:''}"></div>
+        <div class="body">
+          <div class="title">${escapeHtml(c.title || '—')}</div>
+          <div class="meta">
+            ${c.views ? `<span>${fmtNum(c.views)} views</span>` : ''}
+            ${c.platform ? `<span>${(PLATFORM_META[c.platform]||{}).label || c.platform}</span>` : ''}
+            ${c.posted_at ? `<span>${escapeHtml(c.posted_at)}</span>` : ''}
+          </div>
+          ${c.note ? `<div class="muted" style="font-size:12px">${escapeHtml(c.note)}</div>` : ''}
+          ${c.url ? `<a class="open" href="${escapeAttr(c.url)}" target="_blank" rel="noopener">Watch →</a>` : ''}
+        </div>
+      </div>`).join('');
+  } else cg.innerHTML = '<div class="empty" style="grid-column:1 / -1">No featured content yet.</div>';
+
+  // Sponsorships
+  const sl = document.getElementById('sponsorList');
+  if(kit.past_sponsorships?.length){
+    sl.innerHTML = kit.past_sponsorships.map(s => `
+      <div class="sponsor-row">
+        <div class="sr-head">
+          <span class="sr-brand">${escapeHtml(s.brand || '—')}</span>
+          ${s.type ? `<span class="sr-type">${escapeHtml(s.type)}</span>` : ''}
+          ${s.year ? `<span class="sr-year">${escapeHtml(s.year)}</span>` : ''}
+        </div>
+        ${s.results ? `<div class="sr-results">${escapeHtml(s.results)}</div>` : ''}
+        ${s.testimonial ? `<div class="sr-quote">"${escapeHtml(s.testimonial)}"</div>` : ''}
+        ${s.link ? `<div style="margin-top:6px"><a class="open" href="${escapeAttr(s.link)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dotted">See the work →</a></div>` : ''}
+      </div>`).join('');
+  } else sl.innerHTML = '<div class="empty">No past sponsorships listed.</div>';
+
+  // Services / pricing
+  const svc = document.getElementById('serviceGrid');
+  const visiblePricing = (kit.pricing||[]).filter(p => !p.hidden);
+  if(visiblePricing.length){
+    svc.innerHTML = visiblePricing.map(p => `
+      <div class="service-card">
+        <div class="svc-name">${escapeHtml(p.service || '—')}</div>
+        <div class="svc-price">${escapeHtml(p.price || 'Let\'s talk')}${p.currency && p.price ? ` <span style="font-size:13px;color:var(--ink-soft);font-family:inherit">${escapeHtml(p.currency)}</span>` : ''}</div>
+        ${p.notes ? `<div class="svc-notes">${escapeHtml(p.notes)}</div>` : ''}
+      </div>`).join('');
+  } else svc.innerHTML = '<div class="empty" style="grid-column:1 / -1">No deliverables listed yet.</div>';
+
+  // CTA
+  if(kit.contact_blurb) document.getElementById('contactBlurb').textContent = kit.contact_blurb;
+  const ema = document.getElementById('ctaEmailBtn');
+  if(kit.contact_email){
+    ema.href = `mailto:${kit.contact_email}?subject=${encodeURIComponent('Collab inquiry — ' + (kit.display_name||''))}`;
+  } else ema.style.display = 'none';
+  const book = document.getElementById('ctaBookBtn');
+  if(kit.booking_link){ book.href = kit.booking_link; book.target = '_blank'; }
+  else book.style.display = 'none';
+}
+
+function bar(label, val){
+  const pct = Math.max(0, Math.min(100, +val || 0));
+  return `<div class="demo-bar-row">
+    <span class="label">${escapeHtml(label)}</span>
+    <div class="demo-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <span class="val">${pct}%</span>
+  </div>`;
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function $(id){ return document.getElementById(id); }
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+function parseCommas(s){
+  return (s||'').split(',').map(x => x.trim()).filter(Boolean);
+}
+function fmtNum(n){
+  if(n == null || n === '') return '—';
+  n = Number(n);
+  if(n >= 1_000_000) return (n/1_000_000).toFixed(n >= 10_000_000 ? 0 : 1) + 'M';
+  if(n >= 1_000) return (n/1_000).toFixed(n >= 10_000 ? 0 : 1) + 'K';
+  return String(n);
+}
+function niceDate(iso, short){
+  try{
+    const d = new Date(iso);
+    if(short){
+      return d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+    }
+    return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  }catch(e){ return iso; }
+}
+
+let toastTimer = null;
+function flashToast(msg){
+  let t = document.getElementById('flashToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'flashToast';
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:rgba(60,40,90,0.92);color:#fff;font-weight:700;font-size:14px;
+      padding:10px 22px;border-radius:999px;z-index:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);
+      opacity:0;transition:opacity .2s`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
+}
+
+function exitImpersonation(){
+  // Strip ?manage= from URL
+  const u = new URL(window.location.href);
+  u.searchParams.delete('manage');
+  window.location.href = u.toString();
+}
+
+// ============================================================
+//  BOOT
+//  initAuth() handles every state:
+//    - signed in → onSignIn → resolveOwnerAndLoad (own kit / manager / public preview)
+//    - signed out + ?u=<slug> → resolveOwnerAndLoad → loadPublicKitBySlug
+//    - signed out + no slug → showAuthView (welcome card)
+// ============================================================
+initAuth();
+</script>
+</body>
+</html>
