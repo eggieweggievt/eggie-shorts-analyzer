@@ -409,14 +409,27 @@
     min-width:0;overflow:hidden;
   }
   .tw-media-tile .tw-media-preview{
-    width:100%;aspect-ratio:1/1;border-radius:8px;overflow:hidden;
+    width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;
     background:rgba(29,161,242,0.06);
     display:flex;align-items:center;justify-content:center;position:relative;
   }
-  .tw-media-tile .tw-media-preview img,
-  .tw-media-tile .tw-media-preview video{
+  .tw-media-tile .tw-media-preview img{
     width:100%;height:100%;object-fit:cover;display:block;
   }
+  .tw-media-tile .tw-media-preview video{
+    /* V2.19 — videos preserve aspect (contain) so the whole frame is visible while playing,
+       and `controls` make the tile itself the playback surface */
+    width:100%;height:100%;object-fit:contain;display:block;background:#000;
+  }
+  /* V2.19 — Hint banner above the media gallery */
+  .tw-media-hint{
+    font-size:11.5px;color:var(--ink-soft);line-height:1.5;
+    margin:0 0 8px;padding:8px 12px;
+    background:rgba(29,161,242,0.08);
+    border:1px dashed rgba(29,161,242,0.3);
+    border-radius:10px;
+  }
+  .tw-media-hint strong{color:var(--deep);font-weight:700}
   .tw-media-tile .tw-media-preview .tw-media-fallback{
     font-size:32px;color:var(--ink-soft);
   }
@@ -3274,30 +3287,76 @@ function openTweetView(t){
   const media = Array.isArray(t.media_urls) ? t.media_urls : [];
   $('tvMediaSection').classList.toggle('hidden', media.length === 0);
   if(media.length){
-    $('tvMediaGallery').innerHTML = media.map((m, i) => {
-      const isVideo = /\.(mp4|mov|webm)$/i.test(m.name || '') || /\.(mp4|mov|webm)$/i.test(m.url || '');
-      const preview = m.url
-        ? (isVideo
-          ? `<video src="${escape(m.url)}" preload="metadata" muted></video>`
-          : `<img src="${escape(m.url)}" alt="${escape(m.name || '')}" onerror="this.parentElement.innerHTML='<span class=\\'tw-media-fallback\\'>📎</span>'" />`)
-        : '<span class="tw-media-fallback">📎</span>';
+    // V2.19 — File-type classifier for each media item
+    const classify = (m) => {
+      const name = String(m.name || '');
+      const url = String(m.url || '');
+      const isGif   = /\.gif(\?|$)/i.test(name) || /\.gif(\?|$)/i.test(url);
+      const isVideo = /\.(mp4|mov|webm)(\?|$)/i.test(name) || /\.(mp4|mov|webm)(\?|$)/i.test(url);
+      const isImage = !isVideo && !isGif && (/\.(png|jpe?g|webp|avif)(\?|$)/i.test(name) || /\.(png|jpe?g|webp|avif)(\?|$)/i.test(url));
+      return { isGif, isVideo, isImage };
+    };
+    // Hint banner above the gallery — explains which file types can be copied vs downloaded
+    const anyVideo = media.some(m => classify(m).isVideo);
+    const anyGif   = media.some(m => classify(m).isGif);
+    const hintBits = ['<strong>📋 Copy</strong> works for static images (PNG, JPG, WebP) — pastes into Discord, Photoshop, etc.'];
+    if(anyGif) hintBits.push('<strong>🎞️ GIFs:</strong> use <strong>⬇ Download</strong> and re-upload to keep the animation.');
+    if(anyVideo) hintBits.push('<strong>🎬 Videos:</strong> use <strong>⬇ Download</strong> or <strong>🔗 Copy URL</strong> — clipboard can\'t hold video data.');
+    $('tvMediaGallery').innerHTML = `<div class="tw-media-hint">${hintBits.join(' ')}</div>` + media.map((m, i) => {
+      const { isGif, isVideo, isImage } = classify(m);
+      // Preview element: <video controls> for videos so you can play them inline; <img> for everything
+      // else (GIFs autoplay in img tags by browser default)
+      let preview;
+      if(!m.url){
+        preview = '<span class="tw-media-fallback">📎</span>';
+      } else if(isVideo){
+        preview = `<video src="${escape(m.url)}" preload="metadata" controls playsinline></video>`;
+      } else {
+        preview = `<img src="${escape(m.url)}" alt="${escape(m.name || '')}" onerror="this.parentElement.innerHTML='<span class=&quot;tw-media-fallback&quot;>📎</span>'" />`;
+      }
+      // Build the action buttons. Copy-image button only renders for static images.
+      const actionBtns = [];
+      if(m.url){
+        actionBtns.push(`<a href="${escape(m.url)}" target="_blank" rel="noreferrer" class="btn secondary" style="text-decoration:none">View ↗</a>`);
+        // Download — works for everything via the download attribute
+        actionBtns.push(`<a href="${escape(m.url)}" download="${escape(m.name || 'media')}" class="btn secondary" style="text-decoration:none" title="Download the original file so you can re-upload it elsewhere">⬇ Download</a>`);
+      }
+      if(isImage && m.url){
+        actionBtns.push(`<button type="button" class="btn" data-tw-copy-media="${i}" title="Copy the image to your clipboard — paste into Discord, Photoshop, etc.">📋 Copy</button>`);
+      } else if((isVideo || isGif) && m.url){
+        actionBtns.push(`<button type="button" class="btn secondary" data-tw-copy-url="${i}" title="${isGif ? 'GIFs lose animation when copied as image data — use Download to keep it, or Copy URL.' : 'Clipboard can\\'t hold video data — copy the URL instead.'}">🔗 Copy URL</button>`);
+      }
       return `
         <div class="tw-media-tile" data-media-idx="${i}">
           <div class="tw-media-preview">${preview}</div>
-          <div class="tw-media-meta"><strong>${escape(m.name || 'file')}</strong>${m.size ? ' · ' + formatFileSize(m.size) : ''}</div>
-          <div class="tw-media-actions">
-            ${m.url ? `<a href="${escape(m.url)}" target="_blank" rel="noreferrer" class="btn secondary" style="text-decoration:none">View ↗</a>` : ''}
-            <button type="button" class="btn" data-tw-copy-media="${i}" title="${isVideo ? 'Copy the URL — paste into a media app' : 'Copy the image to your clipboard so you can paste it into Discord, Photoshop, etc.'}">${isVideo ? '🔗 Copy URL' : '📋 Copy'}</button>
-          </div>
+          <div class="tw-media-meta"><strong>${escape(m.name || 'file')}</strong>${m.size ? ' · ' + formatFileSize(m.size) : ''}${isGif ? ' · <em>GIF</em>' : (isVideo ? ' · <em>video</em>' : '')}</div>
+          <div class="tw-media-actions">${actionBtns.join('')}</div>
           <span class="tw-copy-status">✓ Copied!</span>
         </div>
       `;
     }).join('');
-    // Wire per-media copy buttons (they can't conflict across re-renders since wireApp ran once)
+    // Copy-image buttons (real clipboard copy of image data)
     $('tvMediaGallery').querySelectorAll('button[data-tw-copy-media]').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.twCopyMedia, 10);
         copyTweetMediaToClipboard(media[idx], btn);
+      });
+    });
+    // Copy-URL buttons (for video / GIF where image-data copy is wrong or unsupported)
+    $('tvMediaGallery').querySelectorAll('button[data-tw-copy-url]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.twCopyUrl, 10);
+        const m = media[idx];
+        if(!m || !m.url) return;
+        try {
+          await navigator.clipboard.writeText(m.url);
+          const status = btn.closest('.tw-media-tile')?.querySelector('.tw-copy-status');
+          if(status){
+            status.textContent = '✓ URL copied!';
+            status.classList.add('show');
+            setTimeout(() => status.classList.remove('show'), 1500);
+          }
+        } catch(e){ alert('Copy failed: ' + e.message); }
       });
     });
   }
@@ -5893,7 +5952,8 @@ function wireApp(){
   $('cancelEditorBtn').addEventListener('click', closeEditorsModal);
   $('saveEditorBtn').addEventListener('click', handleSaveEditor);
   $('deleteEditorBtn').addEventListener('click', handleDeleteEditor);
-  $('editorsModal').addEventListener('click', e => { if(e.target === $('editorsModal')) closeEditorsModal(); });
+  // V2.19 — Editor profile modal is an EDITING modal. Backdrop-click-to-close removed
+  //          to prevent accidental loss of unsaved edits. Use Esc or the Close button.
 
   // V3 — Managers modal wiring (button itself is already wired earlier in wireApp())
   const mgCancel = $('mgCancelBtn'); if(mgCancel) mgCancel.addEventListener('click', closeManagersModal);
@@ -5901,7 +5961,7 @@ function wireApp(){
   const mgCopy = $('mgCopyInviteBtn'); if(mgCopy) mgCopy.addEventListener('click', handleCopyManagerInvite);
   const mgRefresh = $('mgRefreshBtn'); if(mgRefresh) mgRefresh.addEventListener('click', async () => { await loadManagers(); renderManagersList(); });
   const mgInviteUrl = $('mgInviteLinkUrl'); if(mgInviteUrl) mgInviteUrl.addEventListener('click', e => e.target.select());
-  const mgModal = $('managersModal'); if(mgModal) mgModal.addEventListener('click', e => { if(e.target === mgModal) closeManagersModal(); });
+  // V2.19 — Managers modal is editing. Backdrop close removed.
 
   // V3.2 — Comment composer wiring
   const postBtn = $('postCommentBtn'); if(postBtn) postBtn.addEventListener('click', postComment);
@@ -5946,7 +6006,7 @@ function wireApp(){
   $('saveItemBtn').addEventListener('click', handleSave);
   $('cancelItemBtn').addEventListener('click', closeModal);
   $('deleteItemBtn').addEventListener('click', handleDelete);
-  $('itemModal').addEventListener('click', e => { if(e.target === $('itemModal')) closeModal(); });
+  // V2.19 — Item editor is the BIG one. Backdrop close removed to prevent losing a draft.
 
   // Platform pill multi-select
   document.querySelectorAll('#fPlatforms .platform-pick').forEach(btn => {
@@ -6007,7 +6067,7 @@ function wireApp(){
   $('brandKitBtn').addEventListener('click', openBrandKitModal);
   $('bkCancelBtn').addEventListener('click', closeBrandKitModal);
   $('bkSaveBtn').addEventListener('click', saveBrandKit);
-  $('brandKitModal').addEventListener('click', e => { if(e.target === $('brandKitModal')) closeBrandKitModal(); });
+  // V2.19 — Brand kit is editing (long form with notes). Backdrop close removed.
   $('bkAddBrandingBtn').addEventListener('click', () => { bkBranding.push({ url:'', label:'' }); renderBkBranding(); });
   $('bkAddVideoBtn').addEventListener('click', () => { bkVideos.push({ url:'', label:'' }); renderBkVideos(); });
   $('bkAddAssetBtn').addEventListener('click', () => { bkAssets.push({ url:'', label:'' }); renderBkAssets(); });
@@ -6020,14 +6080,14 @@ function wireApp(){
   $('streamScheduleBtn').addEventListener('click', openStreamScheduleModal);
   $('ssCancelBtn').addEventListener('click', closeStreamScheduleModal);
   $('ssSaveBtn').addEventListener('click', saveStreamSchedule);
-  $('streamScheduleModal').addEventListener('click', e => { if(e.target === $('streamScheduleModal')) closeStreamScheduleModal(); });
+  // V2.19 — Stream schedule modal is editing. Backdrop close removed.
 
   // V2.18 — Tweet editor modal wiring
   $('twCancelBtn').addEventListener('click', closeTweetModal);
   $('twSaveBtn').addEventListener('click', handleTweetSave);
   $('twDeleteBtn').addEventListener('click', handleTweetDelete);
   $('twCopyBtn').addEventListener('click', handleTweetCopy);
-  $('tweetModal').addEventListener('click', e => { if(e.target === $('tweetModal')) closeTweetModal(); });
+  // V2.19 — Tweet editor is editing. Backdrop close removed (Esc + Cancel still work).
 
   // V2.18 — Tweet read-only view modal wiring
   const tvEditFromView = () => {

@@ -1687,7 +1687,7 @@ function wire(){
   document.getElementById('hCancelBtn').addEventListener('click', closeHabitModal);
   document.getElementById('hSaveBtn').addEventListener('click', saveHabitEdit);
   document.getElementById('hDeleteBtn').addEventListener('click', deleteCustomHabit);
-  document.getElementById('habitModal').addEventListener('click', e => { if(e.target.id === 'habitModal') closeHabitModal(); });
+  // V2.19 — Habit editor is EDITING. Backdrop close removed (Esc + Cancel still work).
   // Auth pill
   document.getElementById('authPill').addEventListener('click', () => {
     if(currentUser){

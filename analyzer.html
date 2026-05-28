@@ -6777,8 +6777,11 @@ function renderVideoVerdict(v){
     $byId('ebProfCandidateInput').addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); addCandidateTagFromInput(); } });
     $byId('ebProfSynonymAdd').addEventListener('click', () => { addSynonymRow('', ''); });
 
-    // Close modals by clicking the backdrop
-    [auth, menu, perf, profile].forEach(m => {
+    // V2.19 — Backdrop-click-to-close stays on auth (just sign-in) + menu (navigation).
+    //          Editing modals (perf logging, V3.1 creator profile) have it removed so you
+    //          can't accidentally lose typed analytics numbers or onboarding answers.
+    //          Esc + explicit Close / Cancel buttons still work on every modal.
+    [auth, menu].forEach(m => {
       m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
     });
   }
