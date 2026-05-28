@@ -334,15 +334,17 @@
     <button class="btn small secondary" onclick="exitImpersonation()">Exit manager mode</button>
   </div>
 
-  <!-- Sign-in (when signed out) -->
+  <!-- Sign-in (when signed out). No in-page form — uses the same site-wide
+       auth pill / modal as the rest of the hub. If the user is already signed
+       in anywhere (index.html, planner.html, etc.) Supabase persists the
+       session in localStorage and this whole view is skipped automatically. -->
   <div id="authView" class="auth-card hidden">
     <h2>Sign in to build pitches ✨</h2>
-    <p class="muted">Your draft pitches are saved to your account so you can come back and refine them.</p>
-    <div class="row">
-      <input type="email" id="emailInput" placeholder="you@email.com" />
-      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    <p class="muted">The pitch builder uses the same hub-wide login — <em>one sign-in covers every tool</em>. If you already signed in from the homepage, you should never see this card.</p>
+    <div style="margin:18px 0 6px">
+      <button class="btn" onclick="openAuthModal()">🔓 Sign in via magic link</button>
     </div>
-    <div id="authStatus" class="status-banner"></div>
+    <p class="muted" style="font-size:12.5px;margin-top:14px">Already signed in elsewhere? <a href="#" onclick="window.location.reload();return false" style="color:var(--deep);font-weight:800;text-decoration:none;border-bottom:1.5px dotted">Reload this page</a> — Supabase should pick up your session.</p>
   </div>
 
   <!-- Main layout (signed in) -->

@@ -466,16 +466,18 @@
 
   <!-- ============================================================
        SIGN-IN VIEW  (only when no slug in URL + no session)
+       Uses the same site-wide auth pill / modal as the rest of the hub.
+       Supabase persists the session in localStorage, so a sign-in from
+       index.html, planner.html, etc. flows straight through to this page.
        ============================================================ -->
   <div id="authView" class="auth-card hidden">
     <h2>Build your media kit 💌</h2>
     <p class="muted">A one-page sponsor-facing snapshot: your stats, your audience, your rates. Edit once, share the link forever.</p>
-    <div class="row">
-      <input type="email" id="emailInput" placeholder="you@email.com" />
-      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    <p class="muted" style="margin-top:6px">The media kit uses the same hub-wide login — <em>one sign-in covers every tool</em>. If you signed in from the homepage already, you should never see this card.</p>
+    <div style="margin:18px 0 6px">
+      <button class="btn" onclick="openAuthModal()">🔓 Sign in via magic link</button>
     </div>
-    <div id="authStatus" class="status-banner"></div>
-    <p class="muted" style="margin-top:18px;font-size:12.5px">Magic links require <em>http(s)</em>. If you're opening this file directly, sign in from the deployed site.</p>
+    <p class="muted" style="font-size:12.5px;margin-top:14px">Already signed in elsewhere? <a href="#" onclick="window.location.reload();return false" style="color:var(--deep);font-weight:800;text-decoration:none;border-bottom:1.5px dotted">Reload this page</a> — Supabase should pick up your session.</p>
   </div>
 
   <!-- ============================================================
