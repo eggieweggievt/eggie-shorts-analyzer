@@ -1567,6 +1567,78 @@
     background:rgba(255,255,255,0.7);padding:1px 6px;border-radius:5px;font-size:12px;
     color:var(--deep);
   }
+
+  /* ===== V2.17 — Post copy section (Title + Description + Hashtags, copy-pasteable) ===== */
+  .post-copy{
+    background:linear-gradient(135deg,rgba(255,219,247,0.32),rgba(199,222,253,0.32));
+    border:1.5px solid rgba(144,165,255,0.35);
+    border-radius:14px;padding:14px 16px;margin-top:6px;
+  }
+  .post-copy .pc-intro{
+    margin:0 0 10px;font-size:12.5px;color:var(--ink-soft);line-height:1.5;
+  }
+  .post-copy .pc-intro strong{color:var(--deep)}
+  .post-copy .pc-field{margin:10px 0 0}
+  .post-copy .pc-field-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    margin:0 0 4px;
+  }
+  .post-copy .pc-field-head label{
+    margin:0;font-weight:800;font-size:12.5px;color:var(--deep);
+    letter-spacing:.02em;
+  }
+  .post-copy .pc-copy-btn{
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.45);
+    color:var(--deep);font-weight:700;font-size:11.5px;font-family:inherit;
+    padding:4px 11px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:5px;
+    transition:background .15s ease,border-color .15s ease;
+  }
+  .post-copy .pc-copy-btn:hover{background:#fff;border-color:var(--periwinkle)}
+  .post-copy .pc-copy-btn.copied{
+    background:rgba(168,230,190,0.55);border-color:rgba(120,200,150,0.7);color:#1f6b35;
+  }
+  .post-copy input.pc-input,
+  .post-copy textarea.pc-input{
+    width:100%;padding:10px 12px;
+    border:1.5px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.95);
+    border-radius:10px;font-family:inherit;font-size:14px;color:var(--ink);
+    transition:border-color .15s ease;box-sizing:border-box;
+  }
+  .post-copy input.pc-input:focus,
+  .post-copy textarea.pc-input:focus{
+    outline:none;border-color:var(--periwinkle);background:#fff;
+  }
+  .post-copy textarea.pc-input{min-height:84px;resize:vertical;line-height:1.5}
+  /* Read-only "title preview" — mirrors the title field at the top of the modal */
+  .post-copy .pc-readonly{
+    width:100%;padding:10px 12px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:10px;font-size:14px;color:var(--ink);
+    min-height:40px;line-height:1.4;
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .post-copy .pc-readonly.empty{color:var(--ink-soft);font-style:italic}
+  .post-copy .pc-hint{
+    font-size:11.5px;color:var(--ink-soft);margin:3px 0 0;line-height:1.45;
+  }
+  .post-copy .pc-actions{
+    margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;
+  }
+  .post-copy .pc-copy-all{
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 100%);
+    color:#fff;border:none;font-family:inherit;font-weight:800;font-size:13px;
+    padding:9px 18px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    box-shadow:0 4px 14px rgba(144,165,255,0.35);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  .post-copy .pc-copy-all:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(144,165,255,0.45)}
+  .post-copy .pc-copy-all.copied{
+    background:linear-gradient(135deg,#9be0b2 0%,#6bd6c6 100%);
+  }
 </style>
 </head>
 <body>
@@ -1772,16 +1844,51 @@
       </div>
       <textarea id="fScript" rows="5" placeholder="Beats, lines, shot list — whatever helps you record it."></textarea>
 
-      <div class="modal-row cols-2">
-        <div>
-          <label for="fHashtags">Hashtags <span class="opt">(comma / space separated)</span></label>
-          <input id="fHashtags" type="text" placeholder="#vtuber, #vtuberclips, #eldenring" />
+      <!-- ===== V2.17 — POST COPY (title, description, hashtags — copy-pasteable) ===== -->
+      <div class="section-title">📋 Post copy <span class="badge">title • description • hashtags</span></div>
+      <div class="post-copy" id="postCopy">
+        <p class="pc-intro">
+          Fill these out and hit <strong>📋 Copy</strong> next to each line (or <strong>Copy all</strong>) when you go to publish.
+          Same shape as the analyzer — so you can <strong>Open full analyzer with this title</strong> below and have everything ready.
+        </p>
+
+        <!-- Title preview — fTitle at the top is the source of truth; this mirrors it for one-click copy -->
+        <div class="pc-field">
+          <div class="pc-field-head">
+            <label>Title</label>
+            <button type="button" class="pc-copy-btn" id="pcCopyTitle" title="Copy title to clipboard">📋 Copy</button>
+          </div>
+          <div class="pc-readonly empty" id="pcTitlePreview">— add a title at the top of this form —</div>
+          <p class="pc-hint">Mirrors the Title field at the top. Edit it up there.</p>
         </div>
-        <div>
-          <label for="fThumbnailUrl">Thumbnail URL <span class="opt">(image link)</span></label>
-          <input id="fThumbnailUrl" type="url" placeholder="https://…" />
+
+        <!-- Description — NEW field, the source of truth lives right here -->
+        <div class="pc-field">
+          <div class="pc-field-head">
+            <label for="fDescription">Description / caption</label>
+            <button type="button" class="pc-copy-btn" id="pcCopyDescription" title="Copy description to clipboard">📋 Copy</button>
+          </div>
+          <textarea id="fDescription" class="pc-input" rows="4" placeholder="One strong hook sentence, a few keywords, a CTA — whatever you want to paste into YouTube / TikTok / IG when it's time to publish."></textarea>
+          <p class="pc-hint">Save your sign-off / socials block here too — it lives on the project, so you don't have to retype it every upload.</p>
+        </div>
+
+        <!-- Hashtags — moved here from below (used to be paired with Thumbnail URL) -->
+        <div class="pc-field">
+          <div class="pc-field-head">
+            <label for="fHashtags">Hashtags <span class="opt" style="font-weight:600;color:var(--ink-soft);font-size:11.5px;margin-left:6px">(comma / space separated)</span></label>
+            <button type="button" class="pc-copy-btn" id="pcCopyHashtags" title="Copy hashtags to clipboard">📋 Copy</button>
+          </div>
+          <input id="fHashtags" class="pc-input" type="text" placeholder="#vtuber, #vtuberclips, #eldenring" />
+          <p class="pc-hint">Pasted into your post as <code style="background:rgba(255,255,255,0.7);padding:1px 5px;border-radius:4px;font-size:11.5px">#vtuber #vtuberclips #eldenring</code> — leading <code style="background:rgba(255,255,255,0.7);padding:1px 5px;border-radius:4px;font-size:11.5px">#</code> optional.</p>
+        </div>
+
+        <div class="pc-actions">
+          <button type="button" class="pc-copy-all" id="pcCopyAll" title="Copy title, description, and hashtags as one block">📋 Copy all (title + description + hashtags)</button>
         </div>
       </div>
+
+      <label for="fThumbnailUrl" style="margin-top:16px">Thumbnail URL <span class="opt">(image link)</span></label>
+      <input id="fThumbnailUrl" type="url" placeholder="https://…" />
 
       <!-- ===== V2: FOOTAGE + EDITOR FILE LINKS ===== -->
       <div class="section-title">📁 Footage &amp; editor files <span class="badge">for collab</span></div>
@@ -2605,7 +2712,7 @@ async function saveItem(item){
     // Graceful degradation if user hasn't run V2 migration yet — drop new fields and retry once
     if(/column.*does not exist/i.test(error.message || '')){
       console.warn('[Planner] V2 columns missing — saving without them. Run planner-supabase-v2.sql to enable Editors / Footage / Attachments.');
-      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets','is_priority'].forEach(k => delete payload[k]);
+      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets','is_priority','description'].forEach(k => delete payload[k]);
       const retry = await sb.from('planner_items').upsert(payload).select().single();
       if(!retry.error){ setConn(true, 'Live (V2 migration pending)'); return retry.data; }
     }
@@ -3989,6 +4096,95 @@ function quickScoreTitle(title){
   return { score, reasons, tips, templateHit };
 }
 
+// ============================================================
+//  V2.17 — Post-copy helpers (Title + Description + Hashtags grouped section)
+// ============================================================
+
+// Mirror the Title input at the top of the modal into the read-only preview
+// inside the Post Copy section. Runs on every keystroke in fTitle + on modal open.
+function syncPostCopyTitlePreview(){
+  const t = ($('fTitle').value || '').trim();
+  const el = $('pcTitlePreview');
+  if(!el) return;
+  if(t){
+    el.textContent = t;
+    el.classList.remove('empty');
+  } else {
+    el.textContent = '— add a title at the top of this form —';
+    el.classList.add('empty');
+  }
+}
+
+// Build the cleaned hashtag string the way it would actually paste into a post:
+// "#vtuber #vtuberclips #eldenring" — leading # added back, separated by spaces.
+function buildHashtagPasteString(){
+  const raw = ($('fHashtags').value || '').trim();
+  if(!raw) return '';
+  return raw
+    .split(/[,\s]+/)
+    .map(t => t.trim().replace(/^#+/, ''))
+    .filter(Boolean)
+    .map(t => '#' + t)
+    .join(' ');
+}
+
+// Generic clipboard write with a "✓ Copied!" flash on the button. Falls back
+// to window.prompt() on file:// or in browsers without the Clipboard API
+// (mirrors the pattern used by copyInviteLink elsewhere in this file).
+async function pcCopyToClipboard(text, btn){
+  if(!text){
+    if(btn){
+      const orig = btn.innerHTML;
+      btn.innerHTML = '— empty —';
+      setTimeout(() => { btn.innerHTML = orig; }, 1200);
+    }
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    if(btn){
+      const orig = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML = '✓ Copied!';
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 1500);
+    }
+  } catch(_){
+    // Fallback for file:// or older browsers
+    window.prompt('Copy this to your clipboard:', text);
+  }
+}
+
+// One handler for the three per-field Copy buttons. `which` is title / description / hashtags.
+function copyPostCopyField(which){
+  let text = '';
+  let btn = null;
+  if(which === 'title'){
+    text = ($('fTitle').value || '').trim();
+    btn = $('pcCopyTitle');
+  } else if(which === 'description'){
+    text = ($('fDescription').value || '').trim();
+    btn = $('pcCopyDescription');
+  } else if(which === 'hashtags'){
+    text = buildHashtagPasteString();
+    btn = $('pcCopyHashtags');
+  }
+  pcCopyToClipboard(text, btn);
+}
+
+// "Copy all" — title, description, hashtags joined by blank lines so it's a single
+// paste into a YouTube/TikTok description box. Skips any empty sections so you don't
+// paste in stray blank lines.
+function copyPostCopyAll(){
+  const parts = [];
+  const title = ($('fTitle').value || '').trim();
+  const desc  = ($('fDescription').value || '').trim();
+  const tags  = buildHashtagPasteString();
+  if(title) parts.push(title);
+  if(desc)  parts.push(desc);
+  if(tags)  parts.push(tags);
+  pcCopyToClipboard(parts.join('\n\n'), $('pcCopyAll'));
+}
+
 function renderQuickScore(){
   const title = $('fTitle').value || '';
   const result = quickScoreTitle(title);
@@ -4020,12 +4216,16 @@ function renderQuickScore(){
   sugEl.innerHTML = html;
 }
 
-// Open analyzer with current title/hashtags pre-loaded
+// Open analyzer with current title/description/hashtags pre-loaded
+// V2.17 — also passes the new description field so the analyzer's Step 2 collapsible
+// arrives fully populated (matches the analyzer's title/description/hashtags shape).
 function openFullAnalyzer(){
   const title = $('fTitle').value.trim();
+  const description = ($('fDescription') ? $('fDescription').value.trim() : '');
   const hashtags = $('fHashtags').value.trim();
   const params = new URLSearchParams();
   if(title) params.set('title', title);
+  if(description) params.set('description', description);
   if(hashtags) params.set('hashtags', hashtags);
   window.open('analyzer.html#' + params.toString(), '_blank', 'noopener');
 }
@@ -4067,7 +4267,7 @@ function render(){
   // Apply search filter
   const q = searchQuery.toLowerCase().trim();
   const filtered = q ? pool.filter(item => {
-    const hay = [item.title, item.assignee, item.assignee_email, item.hook, item.notes, (item.platforms||[]).join(' '), (item.hashtags||[]).join(' ')]
+    const hay = [item.title, item.assignee, item.assignee_email, item.hook, item.description, item.notes, (item.platforms||[]).join(' '), (item.hashtags||[]).join(' ')]
       .filter(Boolean).join(' ').toLowerCase();
     return hay.includes(q);
   }) : pool;
@@ -4166,7 +4366,7 @@ function renderKanban(filtered){
         platforms: item.platforms, assignee: item.assignee,
         scheduled_at: item.scheduled_at, posted_at: item.posted_at,
         notes: item.notes, hook: item.hook, script: item.script,
-        hashtags: item.hashtags, thumbnail_url: item.thumbnail_url,
+        hashtags: item.hashtags, description: item.description, thumbnail_url: item.thumbnail_url,
         analyzer_score: item.analyzer_score, analyzer_link: item.analyzer_link
       });
       if(!saved){
@@ -4700,6 +4900,13 @@ function wireApp(){
   $('fTitle').addEventListener('input', renderQuickScore);
   $('openFullAnalyzerBtn').addEventListener('click', openFullAnalyzer);
 
+  // V2.17 — Post copy section: live title preview + per-field copy buttons + copy-all
+  $('fTitle').addEventListener('input', syncPostCopyTitlePreview);
+  $('pcCopyTitle').addEventListener('click', () => copyPostCopyField('title'));
+  $('pcCopyDescription').addEventListener('click', () => copyPostCopyField('description'));
+  $('pcCopyHashtags').addEventListener('click', () => copyPostCopyField('hashtags'));
+  $('pcCopyAll').addEventListener('click', copyPostCopyAll);
+
   // V2: editor select — sync hidden assignee/email fields
   $('fEditor').addEventListener('change', () => {
     const id = $('fEditor').value;
@@ -4812,6 +5019,9 @@ function openModal(item, defaultStatus){
   $('fHook').value = item?.hook || '';
   $('fScript').value = item?.script || '';
   $('fHashtags').value = (item?.hashtags || []).join(', ');
+  // V2.17 — Post copy: description is a new persisted field; title preview mirrors fTitle.
+  $('fDescription').value = item?.description || '';
+  syncPostCopyTitlePreview();
   $('fThumbnailUrl').value = item?.thumbnail_url || '';
   $('fAnalyzerScore').value = item?.analyzer_score || '';
   $('fAnalyzerLink').value = item?.analyzer_link || '';
@@ -4966,10 +5176,23 @@ function openViewModal(item){
       </a>
     </div>`);
   }
+  // V2.17 — Description / caption (paste-ready post copy)
+  if(item.description && item.description.trim()){
+    body.push(`<div class="view-section">
+      <h4 style="display:flex;align-items:center;gap:8px">📋 Description
+        <button type="button" class="vc-copy-btn" data-vc-copy="description" title="Copy description"
+                style="background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.45);color:var(--deep);font-weight:700;font-size:11px;font-family:inherit;padding:3px 10px;border-radius:999px;cursor:pointer">📋 Copy</button>
+      </h4>
+      <div class="view-notes" style="white-space:pre-wrap">${escape(item.description)}</div>
+    </div>`);
+  }
   // Hashtags
   if(Array.isArray(item.hashtags) && item.hashtags.length){
     body.push(`<div class="view-section">
-      <h4>🏷️ Hashtags</h4>
+      <h4 style="display:flex;align-items:center;gap:8px">🏷️ Hashtags
+        <button type="button" class="vc-copy-btn" data-vc-copy="hashtags" title="Copy hashtags"
+                style="background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.45);color:var(--deep);font-weight:700;font-size:11px;font-family:inherit;padding:3px 10px;border-radius:999px;cursor:pointer">📋 Copy</button>
+      </h4>
       <div class="view-hashtags">
         ${item.hashtags.map(h => `<span class="v-tag">#${escape(h)}</span>`).join('')}
       </div>
@@ -5010,6 +5233,25 @@ function openViewModal(item){
     el.addEventListener('click', ev => {
       ev.preventDefault();
       alert('That file link has expired. Open the item in Edit mode to refresh the download URL.');
+    });
+  });
+
+  // V2.17 — Wire the per-section "Copy" buttons inside the read-only view modal.
+  // Each button has data-vc-copy="description" | "hashtags" — pull the right text off the item.
+  $('viewBody').querySelectorAll('button[data-vc-copy]').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const which = btn.dataset.vcCopy;
+      let text = '';
+      if(which === 'description'){
+        text = (item.description || '').trim();
+      } else if(which === 'hashtags'){
+        text = (Array.isArray(item.hashtags) ? item.hashtags : [])
+          .map(h => '#' + String(h).replace(/^#+/, ''))
+          .join(' ');
+      }
+      pcCopyToClipboard(text, btn);
     });
   });
 
@@ -5138,6 +5380,8 @@ async function handleSave(){
     hook: $('fHook').value.trim(),
     script: $('fScript').value.trim(),
     hashtags,
+    // V2.17 — Post-copy description / caption (paste-ready text for the upload)
+    description: $('fDescription').value.trim() || null,
     thumbnail_url: $('fThumbnailUrl').value.trim(),
     analyzer_score: $('fAnalyzerScore').value,
     analyzer_link: $('fAnalyzerLink').value.trim(),

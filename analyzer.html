@@ -5074,10 +5074,16 @@ function applyPlannerParams(){
   const params = new URLSearchParams(window.location.hash.slice(1));
   const t = params.get('title');
   const h = params.get('hashtags');
+  // V2.17 — Planner now also sends `description` (the new post-copy field).
+  const d = params.get('description');
   let didFill = false;
   if(t){
     const titleField = document.getElementById('title');
     if(titleField){ titleField.value = t; didFill = true; }
+  }
+  if(d){
+    const descField = document.getElementById('description');
+    if(descField){ descField.value = d; didFill = true; }
   }
   if(h){
     const hashField = document.getElementById('hashtags');

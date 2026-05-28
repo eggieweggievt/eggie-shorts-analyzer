@@ -73,6 +73,13 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='editor_notes_updated_at') THEN
     ALTER TABLE planner_items ADD COLUMN editor_notes_updated_at timestamptz;
   END IF;
+  -- V2.17 — Free-text post-copy description / caption. Lives next to title + hashtags
+  -- in the content planner so creators can paste a finished post directly into
+  -- YouTube / TikTok / Instagram from the item modal (mirrors the analyzer's
+  -- title / description / hashtags section).
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='planner_items' AND column_name='description') THEN
+    ALTER TABLE planner_items ADD COLUMN description text;
+  END IF;
 END$$;
 
 -- 2. New table: planner_editors
