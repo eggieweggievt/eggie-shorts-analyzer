@@ -347,7 +347,8 @@
       <p class="acp-help">
         Paste an invite link a creator sent you (the <code>manager-claim.html?token=...</code> URL) — OR just the raw token. We'll claim it for the email you're signed in with: <strong id="acpYourEmail">—</strong>.
         <br/>
-        Don't have an invite yet? Ask the creator you want to manage to open their planner's 👑 Managers panel and generate one for your email.
+        🔓 If it's an <strong>open invite</strong>, any email works — yours will be bound to it.<br/>
+        🔐 If it's a <strong>locked invite</strong>, you'll need to sign in with the exact email the creator specified.
       </p>
       <div class="acp-row">
         <input id="acpInput" type="text" placeholder="https://creatorhub.eggieweggie.ca/manager-claim.html?token=… (or just the token)" />
@@ -464,7 +465,7 @@ $('acpClaimBtn').addEventListener('click', async () => {
   setStatus('acpStatus', 'Looking up the invite…', 'info');
 
   try{
-    // Peek first so we can show a helpful error if the email doesn't match
+    // Peek first so we can give helpful errors before attempting the claim
     const { data: peekData, error: peekErr } = await sb.rpc('planner_manager_peek_invite', { p_token: token });
     if(peekErr) throw peekErr;
     if(!peekData || !peekData.length){
@@ -473,7 +474,10 @@ $('acpClaimBtn').addEventListener('click', async () => {
     }
     const peek = peekData[0];
     if(peek.revoked){ setStatus('acpStatus', 'That invite has been revoked. Ask the creator for a new one.', 'error'); return; }
-    if((peek.email || '').toLowerCase() !== (currentUser.email || '').toLowerCase()){
+
+    // V3.3 — Open invites accept any email. Locked invites must match.
+    const isOpen = !!peek.is_open || !peek.email;
+    if(!isOpen && (peek.email || '').toLowerCase() !== (currentUser.email || '').toLowerCase()){
       setStatus('acpStatus',
         `This invite is locked to ${peek.email}, but you're signed in as ${currentUser.email}. Sign out and sign in with the correct email — or ask the creator to re-issue the invite for ${currentUser.email}.`,
         'error');
@@ -483,7 +487,8 @@ $('acpClaimBtn').addEventListener('click', async () => {
     const { error: claimErr } = await sb.rpc('planner_manager_claim_invite', { p_token: token });
     if(claimErr) throw claimErr;
 
-    setStatus('acpStatus', `🎉 Claimed! ${peek.creator_email}'s hub is now in your dashboard.`, 'success');
+    const claimedFor = isOpen ? currentUser.email : peek.email;
+    setStatus('acpStatus', `🎉 Claimed for ${claimedFor}! ${peek.creator_email}'s hub is now in your dashboard.`, 'success');
     $('acpInput').value = '';
     await loadDashboard();
   }catch(e){

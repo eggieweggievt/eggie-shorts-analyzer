@@ -1939,7 +1939,7 @@
     <div class="modal-content">
       <h2>👑 Managers</h2>
       <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 6px">
-        Delegate <strong style="color:var(--deep)">full co-owner</strong> access to your hub via an email-locked link. Managers can edit projects, manage editors, edit the brand kit, and upload files — same as you. They <em>cannot</em> add or remove other managers.
+        Delegate <strong style="color:var(--deep)">full co-owner</strong> access to your hub via a private invite link. Managers can edit projects, manage editors, edit the brand kit, and upload files — same as you. They <em>cannot</em> add or remove other managers.
       </p>
 
       <div class="managers-list" id="managersList" style="margin:14px 0 4px"></div>
@@ -1951,12 +1951,13 @@
           <input id="mgName" type="text" placeholder="e.g. Casey" maxlength="60" />
         </div>
         <div>
-          <label for="mgEmail">Email <span class="opt">(the invite is locked to this address)</span></label>
-          <input id="mgEmail" type="email" placeholder="manager@example.com" />
+          <label for="mgEmail">Email <span class="opt">(optional — leave blank for an open link)</span></label>
+          <input id="mgEmail" type="email" placeholder="manager@example.com (optional)" />
         </div>
       </div>
-      <p style="font-size:12px;color:var(--ink-soft);margin:6px 2px 0">
-        The email gets locked when you create the invite. The person you send it to must sign in with this exact address. If you make a typo, just delete the row and create a new one.
+      <p style="font-size:12px;color:var(--ink-soft);margin:6px 2px 0;line-height:1.55">
+        🔐 <strong>With email:</strong> link is locked — only that exact address can claim.<br/>
+        🔓 <strong>Without email:</strong> open link — whoever clicks it can claim with any email they sign in as. Use this when you don't know their email yet, or want them to choose. Treat open links like passwords.
       </p>
 
       <!-- Invite link block — shown after a manager row is saved -->
@@ -3379,25 +3380,31 @@ async function saveManager({ name, email }){
   const cleanName = (name || '').trim();
   const cleanEmail = (email || '').trim().toLowerCase();
   if(!cleanName){ alert('Give them a name first.'); return null; }
-  if(!cleanEmail || !cleanEmail.includes('@')){ alert("That email doesn't look right."); return null; }
 
-  // If a row already exists for (owner, email), reuse it (the unique index would otherwise error)
-  const existing = managers.find(m => (m.email || '').toLowerCase() === cleanEmail);
-  if(existing){
-    // Update the name + un-revoke (in case it was revoked previously) and reuse the existing token
-    const { data, error } = await sb.from('planner_managers')
-      .update({ name: cleanName, revoked_at: null })
-      .eq('id', existing.id)
-      .select()
-      .single();
-    if(error){ alert('Update failed: ' + error.message); return null; }
-    return data;
+  // Email is OPTIONAL — blank = open invite. If provided, validate it.
+  let emailToStore = null;
+  if(cleanEmail){
+    if(!cleanEmail.includes('@')){ alert("That email doesn't look right. Leave it blank for an open invite link."); return null; }
+    emailToStore = cleanEmail;
+
+    // If a row already exists for (owner, email), reuse it (the unique index would otherwise error)
+    const existing = managers.find(m => (m.email || '').toLowerCase() === cleanEmail);
+    if(existing){
+      // Update the name + un-revoke (in case it was revoked previously) and reuse the existing token
+      const { data, error } = await sb.from('planner_managers')
+        .update({ name: cleanName, revoked_at: null })
+        .eq('id', existing.id)
+        .select()
+        .single();
+      if(error){ alert('Update failed: ' + error.message); return null; }
+      return data;
+    }
   }
 
   const payload = {
     owner_id: currentUser.id,
     name: cleanName,
-    email: cleanEmail,
+    email: emailToStore,                    // null = open invite
     invite_token: makeInviteToken()
   };
   const { data, error } = await sb.from('planner_managers').insert(payload).select().single();
@@ -3406,6 +3413,8 @@ async function saveManager({ name, email }){
       alert("The planner_managers table doesn't exist yet. Run planner-managers.sql in Supabase first.");
     } else if(/duplicate key|unique/i.test(error.message || '')){
       alert("There's already an invite for that email — scroll up to find it.");
+    } else if(/null value in column "email"/i.test(error.message || '')){
+      alert("Open invites need the latest SQL migration. Run planner-managers-open-invites.sql in Supabase, then try again.");
     } else {
       alert('Save manager failed: ' + error.message);
     }
@@ -3471,20 +3480,28 @@ function renderManagersList(){
   wrap.innerHTML = managers.map(m => {
     const revoked = !!m.revoked_at;
     const claimed = !!m.claimed_at;
-    const statusLabel = revoked ? 'revoked' : (claimed ? 'active' : 'pending');
+    const isOpen = !m.email;                      // V3.3 — open invite when email is null
+    let statusLabel;
+    if(revoked) statusLabel = 'revoked';
+    else if(claimed) statusLabel = 'active';
+    else if(isOpen) statusLabel = 'open link';
+    else statusLabel = 'pending';
     const rowClass = revoked ? 'revoked' : (claimed ? '' : 'pending');
+    const emailDisplay = m.email
+      ? escape(m.email)
+      : '<em style="color:var(--ink-soft)">🔓 open link — any email can claim</em>';
     const meta = revoked
       ? `revoked ${fmtLastSeen(m.revoked_at)}`
       : (claimed
           ? `claimed ${fmtLastSeen(m.claimed_at)} · last seen ${fmtLastSeen(m.last_seen_at)}`
-          : 'invite link not yet claimed');
+          : (isOpen ? 'waiting for someone to claim the link' : 'invite link not yet claimed'));
     return `
       <div class="manager-row ${rowClass}" data-id="${escape(m.id)}">
         <div class="mg-info">
           <div class="name">${escape(m.name)}</div>
-          <div class="meta">${escape(m.email)} · ${escape(meta)}</div>
+          <div class="meta">${emailDisplay} · ${escape(meta)}</div>
         </div>
-        <span class="mg-status ${statusLabel}">${statusLabel}</span>
+        <span class="mg-status ${claimed && !revoked ? 'active' : (revoked ? 'revoked' : 'pending')}">${escape(statusLabel)}</span>
         <div class="mg-actions">
           <button class="mg-copy" data-id="${escape(m.id)}" title="Copy their invite link">🔗 Copy link</button>
           <button class="mg-revoke" data-id="${escape(m.id)}" data-revoked="${revoked ? '1' : '0'}">${revoked ? 'Restore' : 'Revoke'}</button>

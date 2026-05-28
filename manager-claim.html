@@ -165,7 +165,8 @@
         </ul>
       </div>
 
-      <div class="email-locked">
+      <!-- LOCKED invite display (email pre-set by the creator) -->
+      <div class="email-locked" id="lockedBlock">
         <span class="lock">🔒</span>
         <div>
           <div class="small" style="margin-bottom:2px">This invite is locked to:</div>
@@ -173,9 +174,18 @@
         </div>
       </div>
 
+      <!-- OPEN invite notice (any email can claim) -->
+      <div class="email-locked hidden" id="openBlock" style="background:rgba(168,230,190,0.3);border-style:solid;border-color:rgba(168,230,190,0.6)">
+        <span class="lock">🔓</span>
+        <div>
+          <div class="small" style="margin-bottom:2px">This is an <strong>open invite</strong>:</div>
+          <span>Sign in with whatever email you want — it becomes your bound email for this hub.</span>
+        </div>
+      </div>
+
       <div class="form-row">
-        <label for="emailInput">Sign in with that email to claim</label>
-        <input id="emailInput" type="email" readonly />
+        <label for="emailInput" id="emailInputLabel">Sign in with that email to claim</label>
+        <input id="emailInput" type="email" readonly placeholder="you@example.com" autocomplete="email" />
       </div>
 
       <button class="btn" id="signInBtn">📬 Send magic link</button>
@@ -286,16 +296,33 @@ function showError(message){
   $('creatorName').textContent = invite.creator_email || 'the creator';
   $('claimCreatorName').textContent = invite.creator_email || 'the creator';
   $('successCreatorName').textContent = invite.creator_email || 'the creator';
-  $('lockedEmail').textContent = invite.email;
-  $('emailInput').value = invite.email;
+
+  // V3.3 — Handle open vs. locked invite UI
+  const isOpen = !!invite.is_open || !invite.email;
+  if(isOpen){
+    // Open invite: hide locked block, show open notice, make email editable
+    $('lockedBlock').classList.add('hidden');
+    $('openBlock').classList.remove('hidden');
+    $('emailInputLabel').textContent = 'Email to claim with';
+    $('emailInput').removeAttribute('readonly');
+    $('emailInput').value = '';
+  } else {
+    // Locked invite: original behavior
+    $('lockedBlock').classList.remove('hidden');
+    $('openBlock').classList.add('hidden');
+    $('emailInputLabel').textContent = 'Sign in with that email to claim';
+    $('emailInput').setAttribute('readonly', '');
+    $('lockedEmail').textContent = invite.email;
+    $('emailInput').value = invite.email;
+  }
 
   // 2. Check for existing session
   const { data:{ session:s } } = await sb.auth.getSession();
   session = s;
   if(session?.user){
     const userEmail = (session.user.email || '').toLowerCase();
-    if(userEmail !== (invite.email || '').toLowerCase()){
-      // Wrong account — show the invite view + a hint
+    if(!isOpen && userEmail !== (invite.email || '').toLowerCase()){
+      // Wrong account for a locked invite — show the invite view + a hint
       $('signedInAs').textContent = session.user.email;
       showView('inviteView');
       setStatus('statusBox',
@@ -304,7 +331,7 @@ function showError(message){
         'info');
       return;
     }
-    // Right account — go straight to claim
+    // Right account (or open invite) — go straight to claim
     $('signedInAs').textContent = session.user.email;
     showView('claimView');
     // Auto-claim if invite is fresh (not yet claimed) — feels magical
@@ -319,11 +346,23 @@ function showError(message){
 })();
 
 // ============================================================
-//  Magic-link sign-in (email is locked to the invite)
+//  Magic-link sign-in (email is locked for locked invites, user-chosen for open)
 // ============================================================
 $('signInBtn').addEventListener('click', async () => {
-  const email = (invite.email || '').toLowerCase();
-  if(!email){ return; }
+  // For locked invites, use the invite's email. For open invites, read whatever
+  // the user typed into the email field.
+  const isOpen = !!invite?.is_open || !invite?.email;
+  const email = isOpen
+    ? ($('emailInput').value || '').trim().toLowerCase()
+    : (invite.email || '').toLowerCase();
+
+  if(!email || !email.includes('@')){
+    setStatus('statusBox', isOpen
+      ? 'Enter the email you want to claim this invite with.'
+      : 'This invite has no email on file — ask the creator to re-send it.',
+      'error');
+    return;
+  }
 
   if(window.location.protocol === 'file:'){
     setStatus('statusBox',
@@ -417,7 +456,9 @@ sb.auth.onAuthStateChange(async (_event, newSession) => {
   if(newSession?.user && !session){
     session = newSession;
     const userEmail = (session.user.email || '').toLowerCase();
-    if(userEmail === (invite?.email || '').toLowerCase()){
+    const isOpen = !!invite?.is_open || !invite?.email;
+    if(isOpen || userEmail === (invite?.email || '').toLowerCase()){
+      // Open invite (any email) OR locked invite with matching email — proceed
       $('signedInAs').textContent = session.user.email;
       showView('claimView');
       doClaim();
@@ -425,7 +466,7 @@ sb.auth.onAuthStateChange(async (_event, newSession) => {
       $('signedInAs').textContent = session.user.email;
       showView('inviteView');
       setStatus('statusBox',
-        `Signed in as ${session.user.email} — but this invite is for ${invite?.email}. Sign out below to use the correct account.`,
+        `Signed in as ${session.user.email} — but this invite is locked to ${invite?.email}. Sign out below to use the correct account.`,
         'info');
     }
   }
