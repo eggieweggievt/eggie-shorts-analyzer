@@ -543,6 +543,30 @@
   }
   .heatmap-legend .sq{width:14px;height:14px;border-radius:3px;display:inline-block}
 
+  /* V2.20 — Clear today's checks button. Soft pink-on-cream so it reads as
+     reset-y / destructive-ish without screaming. Sits above the category pills
+     and hides itself when there's nothing to clear, so a fresh morning stays
+     visually quiet. */
+  .today-actions{
+    display:flex;justify-content:flex-end;align-items:center;
+    gap:8px;margin:-4px 0 8px;
+  }
+  .clear-today-btn{
+    background:rgba(255,255,255,0.75);
+    border:1.5px solid rgba(255,178,240,0.35);
+    color:var(--ink-soft);
+    font-family:inherit;font-weight:700;font-size:12px;
+    padding:6px 13px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:5px;
+    transition:background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .clear-today-btn:hover{
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(255,138,168,0.22));
+    border-color:rgba(255,138,168,0.45);
+    color:#a23556;
+    transform:translateY(-1px);
+  }
+
   /* Empty state */
   .empty{
     text-align:center;padding:30px 18px;color:var(--ink-soft);
@@ -620,6 +644,12 @@
 
   <!-- TODAY VIEW -->
   <section id="todayView" class="card">
+    <!-- V2.20 — Manual reset for today's checks. Only appears when at least one
+         habit has been checked off today; pairs with the day-rollover auto-refresh
+         for "start over right now" without waiting for midnight. -->
+    <div class="today-actions hidden" id="todayActions">
+      <button class="clear-today-btn" id="clearTodayBtn" title="Uncheck every habit for today. Your streaks, history, and stats stay safe.">↺ Clear today's checks</button>
+    </div>
     <div id="todayCategories"></div>
     <div id="todayEmpty" class="empty hidden">
       <h3>No habits enabled yet 🌸</h3>
@@ -1077,6 +1107,20 @@ function bumpCount(id, delta){
   setLog(t, id, next || null);
   render();
 }
+// V2.20 — Manual "clean slate" for today. Deletes every log entry keyed to
+// today's date. Streaks pause-not-reset (computeStreak walks back across miss
+// days), so the gentle-streak philosophy stays intact. Weekly habits lose
+// today's contribution to the tally but other days this week stay checked.
+function clearToday(){
+  const t = todayKey();
+  const todayLog = state.logs[t];
+  if(!todayLog || Object.keys(todayLog).length === 0) return;
+  if(!confirm('Uncheck every habit for today? Your streaks, history, and stats stay safe — this only resets today.')) return;
+  delete state.logs[t];
+  persist();
+  render();
+}
+
 function toggleWeeklyDay(id, dayIdx){
   const d = new Date();
   d.setDate(d.getDate() - d.getDay() + dayIdx);
@@ -1115,13 +1159,21 @@ function computeStreak(id, tracking){
 function renderToday(){
   const wrap = document.getElementById('todayCategories');
   const empty = document.getElementById('todayEmpty');
+  const actions = document.getElementById('todayActions');
   const enabled = getEnabledHabits();
   if(enabled.length === 0){
     wrap.innerHTML = '';
     empty.classList.remove('hidden');
+    if(actions) actions.classList.add('hidden');  // V2.20 — no habits, no reset
     return;
   }
   empty.classList.add('hidden');
+  // V2.20 — Show the "clear today" button only when at least one log entry
+  // exists for today (across any tracking type — daily check, count, weekly tap).
+  if(actions){
+    const todayLog = state.logs[todayKey()] || {};
+    actions.classList.toggle('hidden', Object.keys(todayLog).length === 0);
+  }
   // Energy filter
   let filtered = filterByEnergy(enabled, state.settings.energyMode);
   // V2.15 — Stream-day filter: drop pre/on/post-stream categories on off days
@@ -1701,6 +1753,9 @@ function wire(){
     renderLibrary();
   }));
   document.getElementById('emptyGoToLibrary').addEventListener('click', () => setView('library'));
+  // V2.20 — Clear today's checks (only visible when there's something to clear)
+  const clearBtn = document.getElementById('clearTodayBtn');
+  if(clearBtn) clearBtn.addEventListener('click', clearToday);
   document.getElementById('addCustomBtn').addEventListener('click', openAddCustom);
   document.getElementById('hCancelBtn').addEventListener('click', closeHabitModal);
   document.getElementById('hSaveBtn').addEventListener('click', saveHabitEdit);
