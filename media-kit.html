@@ -436,12 +436,18 @@
   }
 
   /* Public sponsor mode — strip ALL Creator Hub branding so the page
-     feels like it belongs to the creator, not to Eggie. Owner & manager
-     views (including the owner's own preview tab) keep the nav + footer. */
-  body.public-mode .back-row,
-  body.public-mode .auth-pill,
-  body.public-mode > div.wrap > footer,
-  body.public-mode footer.hub-footer{display:none !important}
+     feels like it belongs to the creator, not to Eggie. Applies in both
+     the true public view AND owner preview ("exactly what sponsors see"). */
+  html body.public-mode .back-row,
+  html body.public-mode .back-row .back-link,
+  html body.public-mode #authPill,
+  html body.public-mode .auth-pill,
+  html body.public-mode .hub-footer,
+  html body.public-mode footer.hub-footer,
+  html body.public-mode > div.wrap > footer{
+    display:none !important;
+    visibility:hidden !important;
+  }
 </style>
 </head>
 <body>
@@ -1674,22 +1680,24 @@ function renderNotFound(slug){
 // ============================================================
 function setMode(m){
   mode = m;
-  // Owner modes (edit + preview) always show hub chrome so the owner can
-  // navigate back to the rest of the hub. Only the true public sponsor
-  // view (set in loadPublicKitBySlug) gets the stripped-down branding.
-  document.body.classList.remove('public-mode');
   document.querySelectorAll('#modeToggle button').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === m);
   });
   if(m === 'edit'){
+    // Editor view: full hub chrome + hub theme so the owner can navigate.
+    document.body.classList.remove('public-mode');
     document.getElementById('editorView').classList.remove('hidden');
     document.getElementById('publicView').classList.add('hidden');
     document.getElementById('previewBanner').classList.add('hidden');
     document.getElementById('editorActions').classList.remove('hidden');
-    // Editor stays in the hub theme so the owner has a consistent UI.
     resetTheme();
     renderEditor();
   } else if(m === 'preview'){
+    // Preview = "exactly what sponsors see". So strip hub chrome (nav,
+    // footer, auth pill) just like the true public view. The owner still
+    // gets the previewBanner ("Back to edit ↩") and editorActions bar to
+    // navigate out — those aren't hub branding, they're owner controls.
+    document.body.classList.add('public-mode');
     document.getElementById('editorView').classList.add('hidden');
     document.getElementById('publicView').classList.remove('hidden');
     document.getElementById('previewBanner').classList.remove('hidden');
