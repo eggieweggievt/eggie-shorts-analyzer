@@ -1372,6 +1372,15 @@ async function signIn(){
     );
     return;
   }
+  // V2.19 — Shared 30-sec cooldown across pages
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    setAuthStatus(`⏳ Wait ${wait}s before sending another link — rapid retries trigger Supabase's hourly rate limit.`, 'error');
+    return;
+  }
   $('signInBtn').disabled = true;
   $('signInBtn').textContent = 'Sending…';
   try{
@@ -1381,8 +1390,14 @@ async function signIn(){
     });
     if(error){
       console.error('signInWithOtp failed:', error);
-      setAuthStatus('Sign-in failed: ' + (error.message || 'unknown'), 'error');
+      const msg = String(error.message || '').toLowerCase();
+      if(/rate limit|too many|429/.test(msg)){
+        setAuthStatus('🚦 Email rate limit hit. Supabase\'s built-in mailer caps magic links at ~30/hour. Wait ~1 hour, use a tab where you\'re already signed in, or set up custom SMTP (Resend free tier).', 'error');
+      } else {
+        setAuthStatus('Sign-in failed: ' + (error.message || 'unknown'), 'error');
+      }
     } else {
+      localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
       setAuthStatus(`✨ Magic link sent to ${email}! Check your inbox + spam folder.`, 'success');
     }
   }catch(e){

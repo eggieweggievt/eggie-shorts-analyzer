@@ -908,20 +908,55 @@
     if(!sb){ await init(); }
     if(!sb){ setStatus('Supabase unavailable. Check network and retry.', 'error'); return; }
     const btn = $('siteAuthSend');
+    // V2.19 — Client-side cooldown. Supabase's built-in SMTP allows ~30 emails/hour on Pro
+    // and even less on free. Prevent spamming the button while a previous send is settling.
+    const lastSendKey = 'eggie:authLastSendTs';
+    const COOLDOWN_MS = 30 * 1000;   // 30 s between attempts
+    const lastTs = parseInt(localStorage.getItem(lastSendKey) || '0', 10);
+    const sinceLast = Date.now() - lastTs;
+    if(sinceLast < COOLDOWN_MS){
+      const wait = Math.ceil((COOLDOWN_MS - sinceLast) / 1000);
+      setStatus(`⏳ Hold on — wait ${wait}s before sending another link. Magic-link emails have a per-account rate limit, and rapid retries trigger it.`, 'error');
+      return;
+    }
     btn.disabled = true; btn.textContent = 'Sending…';
     try{
       const redirectTo = window.location.origin + window.location.pathname;
       const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
       if(error){
-        setStatus('Sign-in failed: ' + error.message + '. Make sure ' + redirectTo + ' is allowlisted in Supabase → Auth → URL Configuration.', 'error');
+        const msg = String(error.message || '').toLowerCase();
+        // V2.19 — Detect the specific rate-limit error and explain it usefully
+        if(/rate limit|too many|429/.test(msg)){
+          setStatus(
+            '🚦 <strong>Email rate limit hit.</strong> Supabase\'s built-in mailer caps magic links at ~30/hour, and you\'ve burned through them. ' +
+            'A few ways out:<br>' +
+            '&nbsp;&nbsp;1. <strong>Wait ~1 hour</strong> and try again (the simplest fix).<br>' +
+            '&nbsp;&nbsp;2. If you\'re still signed in on another tab / device, use that — no new magic link needed.<br>' +
+            '&nbsp;&nbsp;3. To remove the cap for good, configure custom SMTP in Supabase → Auth → Email Templates → SMTP (Resend has a free tier and takes ~5 min to set up).',
+            'error'
+          );
+        } else if(/url|redirect|allowed|allow.?list|invalid.*url/.test(msg)){
+          setStatus('Sign-in failed: ' + escapeMsg(error.message) + '<br><br>Make sure <code>' + escapeMsg(redirectTo) + '</code> is allowlisted in Supabase → Auth → URL Configuration → Redirect URLs.', 'error');
+        } else if(/invalid.*email|email.*invalid/.test(msg)){
+          setStatus('That email address looks off. Double-check the spelling and try again.', 'error');
+        } else {
+          setStatus('Sign-in failed: ' + escapeMsg(error.message), 'error');
+        }
       } else {
-        setStatus(`✨ Magic link sent to ${email}! Check inbox + spam. Click the link from any device.`, 'success');
+        localStorage.setItem(lastSendKey, String(Date.now()));
+        setStatus(`✨ Magic link sent to ${escapeMsg(email)}! Check inbox + spam. Click the link from any device.`, 'success');
       }
     }catch(e){
-      setStatus('Network error: ' + (e.message || e), 'error');
+      setStatus('Network error: ' + escapeMsg(e.message || e), 'error');
     }finally{
       btn.disabled = false; btn.innerHTML = '📬 Send magic link';
     }
+  }
+  // V2.19 — Light HTML-escape so dynamic error text can't break the status panel
+  function escapeMsg(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
   function openModal(){

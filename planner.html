@@ -2891,6 +2891,17 @@ async function signIn(){
     return;
   }
 
+  // V2.19 — Shared 30-sec cooldown across pages (key persisted in localStorage)
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  const sinceLast = Date.now() - lastTs;
+  if(sinceLast < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - sinceLast) / 1000);
+    setAuthStatus(`⏳ Hold on — wait ${wait}s before sending another link. Rapid retries trigger Supabase's hourly rate limit.`, 'error');
+    return;
+  }
+
   $('signInBtn').disabled = true;
   $('signInBtn').textContent = 'Sending…';
   try{
@@ -2906,14 +2917,34 @@ async function signIn(){
     if(error){
       // Surface the FULL error to console so we can debug what Supabase didn't like
       console.error('[Planner] signInWithOtp failed:', error);
-      setAuthStatus(
-        'Sign-in failed: ' + (error.message || 'unknown error') +
-        '. Open browser console (F12) to see full details. Common fixes: enable Email auth in Supabase ' +
-        'Dashboard → Authentication → Providers, and add ' + redirectTo + ' to Authentication → URL Configuration → Redirect URLs.',
-        'error'
-      );
+      const msg = String(error.message || '').toLowerCase();
+      // V2.19 — Detect specific failure modes and give actionable advice
+      if(/rate limit|too many|429/.test(msg)){
+        setAuthStatus(
+          '🚦 Email rate limit hit. Supabase\'s built-in mailer caps magic links at ~30/hour. ' +
+          'Easiest fix: wait ~1 hour and try again. If you\'re still signed in on another tab / device, ' +
+          'use that instead — no new magic link needed. To remove the cap permanently, configure custom SMTP ' +
+          'in Supabase → Auth → Email Templates → SMTP (Resend has a free tier and takes ~5 min).',
+          'error'
+        );
+      } else if(/url|redirect|allowed|allow.?list|invalid.*url/.test(msg)){
+        setAuthStatus(
+          'Sign-in failed: ' + (error.message || 'unknown error') +
+          '. Add ' + redirectTo + ' to Supabase → Authentication → URL Configuration → Redirect URLs.',
+          'error'
+        );
+      } else if(/invalid.*email|email.*invalid/.test(msg)){
+        setAuthStatus('That email address looks off. Double-check the spelling.', 'error');
+      } else {
+        setAuthStatus(
+          'Sign-in failed: ' + (error.message || 'unknown error') +
+          '. Open browser console (F12) for details.',
+          'error'
+        );
+      }
     } else {
       console.log('[Planner] signInWithOtp succeeded:', data);
+      localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
       setAuthStatus(
         `✨ Magic link sent to ${email}! Check your inbox AND spam folder — click the link to sign in. ` +
         `If it doesn't arrive in 2 min, check Supabase Dashboard → Authentication → Logs to see why.`,

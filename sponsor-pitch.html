@@ -706,14 +706,31 @@ async function doMagicLink(inputId, statusId, btnId){
     status.textContent = '⚠️ Magic links require http(s).'; status.className = 'status-banner error'; return;
   }
   if(!sb) await initAuth();
+  // V2.19 — Shared 30-sec cooldown across pages
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    status.textContent = `⏳ Wait ${wait}s before sending another link — rapid retries trigger Supabase's hourly rate limit.`;
+    status.className = 'status-banner error';
+    return;
+  }
   const btn = btnId ? document.getElementById(btnId) : null;
   if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
   const redirectTo = window.location.origin + window.location.pathname;
   const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
   if(btn){ btn.disabled = false; btn.innerHTML = '📬 Send magic link'; }
   if(error){
-    status.textContent = 'Sign-in failed: ' + error.message; status.className = 'status-banner error';
+    const msg = String(error.message || '').toLowerCase();
+    if(/rate limit|too many|429/.test(msg)){
+      status.textContent = '🚦 Email rate limit hit (~30/hour on the built-in mailer). Wait ~1 hour or set up custom SMTP (Resend free tier) in Supabase → Auth → SMTP.';
+    } else {
+      status.textContent = 'Sign-in failed: ' + error.message;
+    }
+    status.className = 'status-banner error';
   } else {
+    localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
     status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`; status.className = 'status-banner success';
   }
 }

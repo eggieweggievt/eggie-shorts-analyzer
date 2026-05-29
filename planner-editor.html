@@ -870,6 +870,15 @@ async function signIn(){
     setAuthStatus('⚠️ Magic links don\'t work via file:// — serve the folder with a local server or deploy to your live site first.', 'error');
     return;
   }
+  // V2.19 — Shared 30-sec cooldown across pages
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    setAuthStatus(`⏳ Wait ${wait}s before sending another link — rapid retries trigger Supabase's hourly rate limit.`, 'error');
+    return;
+  }
   $('signInBtn').disabled = true;
   $('signInBtn').textContent = 'Sending…';
   try{
@@ -877,8 +886,16 @@ async function signIn(){
     const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
     if(error){
       console.error(error);
-      setAuthStatus('Sign-in failed: ' + (error.message || 'unknown error') + '. Make sure ' + redirectTo + ' is allowlisted in Supabase → Auth → URL Configuration.', 'error');
+      const msg = String(error.message || '').toLowerCase();
+      if(/rate limit|too many|429/.test(msg)){
+        setAuthStatus('🚦 Email rate limit hit. Supabase\'s built-in mailer caps magic links at ~30/hour. Wait ~1 hour, use a tab where you\'re already signed in, or ask the creator to set up custom SMTP (Resend free tier).', 'error');
+      } else if(/url|redirect|allowed|allow.?list/.test(msg)){
+        setAuthStatus('Sign-in failed: ' + (error.message || 'unknown') + '. Make sure ' + redirectTo + ' is allowlisted in Supabase → Auth → URL Configuration.', 'error');
+      } else {
+        setAuthStatus('Sign-in failed: ' + (error.message || 'unknown error'), 'error');
+      }
     } else {
+      localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
       setAuthStatus(`✨ Magic link sent to ${email}. Check your inbox + spam.`, 'success');
     }
   }catch(e){
