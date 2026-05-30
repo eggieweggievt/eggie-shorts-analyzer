@@ -1128,7 +1128,6 @@ let sb = null;
 let currentUser = null;
 let currentOwnerId = null;         // mirrors the planner.html pattern (manager impersonation)
 let impersonating = false;
-let currentManagerDelegationId = null;
 let kit = blankKit();              // working copy of the current media kit
 let mode = 'edit';                 // 'edit' | 'preview' | 'public'
 let publicSlugInUrl = null;        // if ?u=… set, we're in public mode
@@ -1302,7 +1301,7 @@ async function onSignIn(user){
   currentUser = user;
   const pill = document.getElementById('authPill');
   pill.classList.add('signed-in');
-  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.textContent = `🐙 ${user.email.split('@')[0]} · signed in`;
   pill.onclick = () => { if(confirm('Sign out?')) sb.auth.signOut(); };
   closeAuthModal();
 
@@ -1613,7 +1612,6 @@ async function loadAsManager(managerId){
     return;
   }
   currentOwnerId = d.owner_id;
-  currentManagerDelegationId = managerId;
   impersonating = true;
   document.getElementById('impersonationBanner').classList.remove('hidden');
   document.getElementById('impName').textContent = d.owner_email || 'creator';

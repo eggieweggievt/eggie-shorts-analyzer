@@ -3138,7 +3138,6 @@ async function signIn(){
     // Supabase dashboard must allowlist this exact origin (e.g. http://localhost:8000 or
     // https://shortsanalyzer.eggieweggie.ca).
     const redirectTo = window.location.origin + window.location.pathname;
-    console.log('[Planner] Sending magic link with redirectTo:', redirectTo);
     const { data, error } = await sb.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: redirectTo }
@@ -3172,7 +3171,6 @@ async function signIn(){
         );
       }
     } else {
-      console.log('[Planner] signInWithOtp succeeded:', data);
       localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
       setAuthStatus(
         `✨ Magic link sent to ${email}! Check your inbox AND spam folder — click the link to sign in. ` +
@@ -4442,10 +4440,10 @@ async function handleDeleteEditor(){
 // ============================================================
 //  V2: ATTACHMENTS (Supabase Storage)
 // ============================================================
-// V2.2 — Upload limit bumped to 500MB. We also show clearer progress UI for big files
-// (Supabase JS doesn't expose per-chunk progress on the standard upload, so we use a
-// pulsing "uploading" indicator with file size + warn early on >500MB files.)
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // V2.18 — 5 GB (Supabase Pro per-file cap)
+// V2.18 — Upload limit is the Supabase Pro per-file cap (5 GB). We show a pulsing
+// "uploading" indicator with the file size since the standard upload doesn't expose
+// per-chunk progress, and warn early when a file is larger than the cap.
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // 5 GB
 
 async function uploadAttachments(files){
   if(!files || files.length === 0) return;
@@ -4453,9 +4451,9 @@ async function uploadAttachments(files){
   const progressEl = $('fAttachHint');
   const originalHint = progressEl.innerHTML;
   for(const file of files){
-    // V2.2 — Reject anything over the 500MB cap with a clear message instead of an opaque server error
+    // Reject anything over the 5 GB cap with a clear message instead of an opaque server error
     if(file.size > MAX_UPLOAD_BYTES){
-      alert(`"${file.name}" is ${formatFileSize(file.size)} — over the 500 MB cap. Drop it in a Drive folder and paste the link into "Additional assets" instead.`);
+      alert(`"${file.name}" is ${formatFileSize(file.size)} — over the 5 GB cap. Drop it in a Drive folder and paste the link into "Additional assets" instead.`);
       continue;
     }
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');

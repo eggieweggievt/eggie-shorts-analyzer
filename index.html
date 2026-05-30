@@ -864,7 +864,7 @@
     const pill = $('siteAuthPill');
     if(pill){
       pill.classList.add('signed-in');
-      pill.innerHTML = `🐙 ${user.email.split('@')[0]}`;
+      pill.textContent = `🐙 ${user.email.split('@')[0]}`;
       pill.title = 'Signed in everywhere on the hub — click to sign out';
     }
     const welcome = $('welcomeCard');

@@ -738,19 +738,6 @@
         <div id="profileSummary" style="font-size:13.5px;color:var(--ink);line-height:1.55">
           <p>Loading…</p>
         </div>
-        <div id="profileForm" class="hidden">
-          <p style="font-size:13px;color:var(--ink-soft);line-height:1.55;margin:6px 0 12px">
-            Your creator manages your name, email, and color from their side. Brand assets (asset folders, reference videos, brand notes) live in the <strong style="color:var(--deep)">🎨 Branding &amp; assets</strong> card above — those are creator-wide and shared with all editors.
-          </p>
-          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn secondary" id="cancelProfileBtn">Close</button>
-          </div>
-          <!-- Hidden inputs preserved so the legacy saveProfile() call doesn't error if triggered. -->
-          <input id="pAssetFolder" type="hidden" />
-          <textarea id="pReferences" style="display:none"></textarea>
-          <textarea id="pNotes" style="display:none"></textarea>
-          <button id="saveProfileBtn" style="display:none"></button>
-        </div>
       </div>
 
       <!-- Tasks column -->
@@ -816,8 +803,6 @@ async function init(){
   $('signInBtn').addEventListener('click', signIn);
   $('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') signIn(); });
   $('signOutBtn').addEventListener('click', signOut);
-  $('saveProfileBtn').addEventListener('click', saveProfile);
-  $('cancelProfileBtn').addEventListener('click', () => { renderProfile(); });
 
   // V2.1 — Read invite link params: ?email=...&ed=...&name=...
   // Pre-fill the email field + show a personalized welcome banner.
@@ -1116,7 +1101,6 @@ async function loadProfile(){
 }
 
 function renderProfile(){
-  $('profileForm').classList.add('hidden');
   const sum = $('profileSummary');
   if(!myProfile){
     sum.innerHTML = `
@@ -1125,7 +1109,7 @@ function renderProfile(){
       </p>`;
     return;
   }
-  // V2.6 — Profile card now shows just identity. Brand assets live in the brand kit card.
+  // V2.6 — Profile card shows just identity. Brand assets live in the brand kit card.
   sum.innerHTML = `
     <p style="margin:0 0 8px"><span class="swatch-display" style="background:${escape(myProfile.color || '#90A5FF')}"></span><strong>${escape(myProfile.name)}</strong></p>
     <p style="font-size:13px;color:var(--ink-soft);margin:0 0 4px">${escape(myProfile.email || currentUser.email)}</p>
@@ -1135,39 +1119,10 @@ function renderProfile(){
   `;
 }
 
-function openProfileForm(){
-  $('profileSummary').innerHTML = '';
-  $('profileForm').classList.remove('hidden');
-  $('pAssetFolder').value = myProfile?.asset_folder_url || '';
-  $('pReferences').value = (myProfile?.reference_links || []).join('\n');
-  $('pNotes').value = myProfile?.notes || '';
-}
-
-async function saveProfile(){
-  if(!myProfile){ alert('Your creator needs to add you to their editor list first.'); return; }
-  const refs = $('pReferences').value.split('\n').map(s => s.trim()).filter(Boolean);
-  $('saveProfileBtn').disabled = true;
-  $('saveProfileBtn').textContent = 'Saving…';
-  const { error } = await sb.from('planner_editors')
-    .update({
-      asset_folder_url: $('pAssetFolder').value.trim() || null,
-      reference_links: refs,
-      notes: $('pNotes').value.trim() || null
-    })
-    .eq('id', myProfile.id);
-  $('saveProfileBtn').disabled = false;
-  $('saveProfileBtn').innerHTML = '💾 Save profile';
-  if(error){
-    alert('Save failed: ' + error.message);
-    return;
-  }
-  await loadProfile();
-}
-
 async function loadProjects(){
   setConn(true, 'Loading…');
   // Case-insensitive match so legacy rows where the creator typed the email with
-  // different casing (e.g. "Extremelyearly@gmail.com") still show up. Trim too,
+  // different casing (e.g. "Mixed.Case@example.com") still show up. Trim too,
   // in case a stray space snuck in on either side.
   const emailForQuery = (currentUser.email || '').trim().toLowerCase();
   const { data, error } = await sb.from('planner_items')
@@ -1508,18 +1463,6 @@ function renderProjectCard(p){
   `;
 }
 
-function renderDue(iso){
-  if(!iso) return '';
-  const d = new Date(iso);
-  const now = new Date();
-  const diff = (d - now) / (1000 * 60 * 60 * 24);
-  const fmt = d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
-  let cls = '';
-  if(diff < 0) cls = 'due-overdue';
-  else if(diff < 3) cls = 'due-soon';
-  return `<span class="${cls}">📅 Due ${fmt}</span>`;
-}
-
 async function updateStatus(itemId, nextStatus){
   if(!confirm(`Move this project to ${STATUS_LABELS[nextStatus]}?`)) return;
   const { error } = await sb.from('planner_items').update({ status: nextStatus }).eq('id', itemId);
@@ -1527,8 +1470,8 @@ async function updateStatus(itemId, nextStatus){
   await loadProjects();
 }
 
-// V2.2 — Upload limit bumped to 500MB on the editor side too.
-const EDITOR_MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // V2.18 — 5 GB (Supabase Pro per-file cap)
+// V2.18 — Upload limit matches the Supabase Pro per-file cap (5 GB).
+const EDITOR_MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // 5 GB
 
 async function uploadEditorFile(itemId, files){
   if(!files || files.length === 0) return;
@@ -1537,7 +1480,7 @@ async function uploadEditorFile(itemId, files){
   setConn(true, 'Uploading…');
   for(const file of files){
     if(file.size > EDITOR_MAX_UPLOAD_BYTES){
-      alert(`"${file.name}" is over the 500 MB cap. Drop it in a Drive folder and ask the creator to add it to the project as an asset link instead.`);
+      alert(`"${file.name}" is over the 5 GB cap. Drop it in a Drive folder and ask the creator to add it to the project as an asset link instead.`);
       continue;
     }
     setConn(true, `Uploading ${file.name} (${(file.size/1024/1024).toFixed(1)} MB)…`);

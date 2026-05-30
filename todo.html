@@ -2650,10 +2650,11 @@ function closeReview(){
   $('reviewBanner').classList.add('hidden');
 }
 async function rolloverPending(){
+  // Stays in the "today" bucket (so they appear tomorrow morning), but if a task
+  // didn't have a due_at we stamp it with tomorrow so it doesn't sit there undated.
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
   const pending = todos.filter(t => !t.is_done && t.bucket === 'today');
   for(const t of pending){
-    t.bucket = 'today';   // Stays "today" — but if you want them stamped with tomorrow, set due_at:
     if(!t.due_at) t.due_at = tomorrow.toISOString();
     const saved = await saveTodo(t);
     if(saved) upsertLocalTodo(saved);

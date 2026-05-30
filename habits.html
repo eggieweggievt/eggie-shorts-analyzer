@@ -1843,7 +1843,7 @@ function boot(){
   if(typeof state.settings.streamDay !== 'boolean') state.settings.streamDay = true;
   wire();
   // Set energy + view from saved settings
-  document.querySelectorAll('.energy-picker [data-energy]').forEach(b => b.classList.toggle('active', b.dataset.energy === (state.settings.energyMode || 'full')));
+  document.querySelectorAll('.energy-picker [data-energy]').forEach(b => b.classList.toggle('active', b.dataset.energy === (state.settings.energyMode || 'medium')));
   document.querySelectorAll('.view-tabs [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === (state.settings.currentView || 'today')));
   applyStreamDayUI();  // V2.15 — Reflect saved stream-day state in the toggle
   setView(state.settings.currentView || 'today');

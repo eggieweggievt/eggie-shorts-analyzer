@@ -114,7 +114,9 @@ CREATE POLICY "editors read todos for assigned items" ON planner_todos
       AND EXISTS (
         SELECT 1 FROM planner_items
         WHERE planner_items.id = planner_todos.linked_item_id
-          AND planner_items.assignee_email = auth.email()
+          -- Defense-in-depth lowercasing — matches the email-normalization rule used by the planner UI
+          -- so a mis-cased auth.email() or assignee_email still resolves correctly.
+          AND lower(planner_items.assignee_email) = lower(auth.email())
       )
     )
   );

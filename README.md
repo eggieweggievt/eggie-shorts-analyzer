@@ -40,7 +40,7 @@ Sign-in is by **magic link** (email-based, no passwords). Most of the tools work
 - **…hand my whole hub over to someone** → in planner.html, click `👑 Managers` → generate a locked or open invite → send the link. ([deep-dive](./HUB-FEATURES.md#inviting-a-manager))
 - **…claim an invite link someone sent me** → click the link. It lands on [manager-claim.html](./manager-claim.html), prompts a magic-link sign-in, and drops you into the hub. ([deep-dive](./HUB-FEATURES.md#manager-claim-flow))
 - **…check what I'm running for other people** → [manager-hub.html](./manager-hub.html). Lists every creator who's delegated to you, with status counts and "what needs attention" cards.
-- **…score a short** → [analyzer.html](./analyzer.html). Drop the file in. Wait once (~310 MB of models download the first time, then cached). Done.
+- **…score a short** → [analyzer.html](./analyzer.html). Drop the file in. Wait once (~1.2 GB of models download the first time, then cached). Done.
 - **…grade a thumbnail** → [thumbnail.html](./thumbnail.html). Drop it in, tick the character checklist, read the score.
 - **…look up "what's actually the rule for X?"** → [growth.html](./growth.html), then pick a chapter.
 - **…track my habits sustainably** → [habits.html](./habits.html). Set your energy mode for the day; only habits that fit show up.
@@ -125,7 +125,7 @@ When you're away and someone needs to run the whole show:
 ### D. Score a short before posting
 
 1. Open [analyzer.html](./analyzer.html).
-2. Drop the video file in. First run downloads the ML models (~310 MB, cached after).
+2. Drop the video file in. First run downloads the ML models (~1.2 GB, cached after).
 3. Pick the short-type pills that fit; optionally paste your title/description/hashtags.
 4. Click `🐙 Analyze my short`.
 5. Read the score, copy the post pack, ship.

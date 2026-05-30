@@ -102,10 +102,11 @@ CREATE TABLE IF NOT EXISTS analyzer_trends (
 CREATE INDEX IF NOT EXISTS trends_kind_idx ON analyzer_trends(kind, niche, refreshed_at DESC);
 
 ALTER TABLE analyzer_trends ENABLE ROW LEVEL SECURITY;
--- Anyone signed in can read trends
+-- Anyone signed in can read trends (trend data is non-sensitive but should not be anon-readable).
 DROP POLICY IF EXISTS "anyone reads trends" ON analyzer_trends;
 CREATE POLICY "anyone reads trends" ON analyzer_trends
   FOR SELECT
+  TO authenticated
   USING (true);
 -- Only the admin can write — uses a custom claim or just disable writes from anon entirely.
 -- For now the scheduled task pushes via service-role key, which bypasses RLS.

@@ -1517,7 +1517,6 @@ let EGGIE_TRENDS = {keywordVolumes:{}, highVolumeTitleKeywords:[], lowCompetitio
     if(res.ok){
       const data = await res.json();
       EGGIE_TRENDS = Object.assign(EGGIE_TRENDS, data);
-      console.log('[Eggie] Loaded VidIQ-derived trends — last refreshed', data.lastRefreshed);
     }
   }catch(e){ /* offline / file missing — keep defaults */ }
 })();
@@ -1533,7 +1532,6 @@ let EGGIE_TITLES = {templates:{}, high_performers:[]};
     if(res.ok){
       const data = await res.json();
       EGGIE_TITLES = Object.assign(EGGIE_TITLES, data);
-      console.log('[Eggie] Loaded VidIQ-derived titles — last refreshed', data.lastRefreshed, '— pattern categories:', Object.keys(EGGIE_TITLES.templates).length);
     }
   }catch(e){ /* offline / file missing — keep defaults */ }
 })();
@@ -2940,7 +2938,6 @@ let TAG_DB = {
       const data = await res.json();
       if(data && typeof data === 'object' && Object.keys(data).length){
         TAG_DB = data;
-        console.log('[Eggie] Loaded external tags.json — overrode inline TAG_DB.');
       }
     }
   }catch(e){ console.warn('[Eggie] tags.json fetch failed, using inline TAG_DB:', e.message); }
@@ -5976,7 +5973,6 @@ async function handleVideoFile(file){
           const yamnetResults = await classifyAudioYAMNet(audioBuffer);
           if(yamnetResults && yamnetResults.length){
             audioKind.yamnet = yamnetResults;
-            console.log('[Eggie] YAMNet top:', yamnetResults.slice(0, 3).map(r => `${r.label} (${(r.score*100).toFixed(0)}%)`).join(', '));
           }
         }catch(e){ console.warn('YAMNet pass skipped:', e.message); }
         audioCtx.close();
@@ -6127,9 +6123,6 @@ async function handleVideoFile(file){
         'horror or jump scare', 'sad emotional moment', 'funny fail or accident'
       ];
       clipResults = await clipClassifyFrame(midFrame, candidateLabels);
-      if(clipResults.length){
-        console.log('[Eggie] CLIP top matches:', clipResults.slice(0, 5).map(r => `${r.label} (${(r.score*100).toFixed(0)}%)`).join(', '));
-      }
     }catch(e){ console.warn('CLIP pass skipped:', e.message); }
 
     // BURNED-CAPTION DETECTION — same OCR text in 2+ frames → likely hard-burned subtitles
@@ -7030,7 +7023,7 @@ function renderVideoVerdict(v){
     if(!ok){
       const s = $byId('ebProfStatus');
       s.className = 'eb-status error';
-      s.textContent = 'Save failed — check that you ran the latest analyzer-supabase.sql in Supabase (V3.1 added new columns).';
+      s.textContent = "Save failed — your profile couldn't be saved. Try again in a moment, or sign out and back in.";
       s.style.display = '';
       return;
     }
@@ -7259,7 +7252,6 @@ function renderVideoVerdict(v){
         });
       });
       window.__eggieWinnerTags = winners;
-      console.log('[Eggie V3.2] Winner tags loaded:', Object.keys(winners).length, 'unique tags from', data.length, 'posted runs');
     } catch(e){
       console.warn('[Eggie V3.2] loadWinnerTags failed', e);
       window.__eggieWinnerTags = {};
@@ -7334,7 +7326,7 @@ function renderVideoVerdict(v){
     const { data: saved, error } = await sb.from('analyzer_runs').insert(payload).select().single();
     if(error){
       if(/relation.*does not exist/i.test(error.message || '')){
-        alert('Run analyzer-supabase.sql in Supabase first to enable saving runs.');
+        alert("Saving runs isn't enabled on this deployment yet.");
       } else {
         alert('Save failed: ' + error.message);
       }
@@ -7353,7 +7345,7 @@ function renderVideoVerdict(v){
       .limit(50);
     if(error){
       if(/relation.*does not exist/i.test(error.message || '')){
-        wrap.innerHTML = '<p style="color:var(--ink-soft,#6b5f8a);font-size:13px">Run <code>analyzer-supabase.sql</code> in Supabase to enable saved runs.</p>';
+        wrap.innerHTML = '<p style="color:var(--ink-soft,#6b5f8a);font-size:13px">Saved runs aren\'t enabled on this deployment yet.</p>';
       } else {
         wrap.innerHTML = `<p style="color:#a23556">Load failed: ${escapeHTML(error.message)}</p>`;
       }

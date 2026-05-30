@@ -739,7 +739,7 @@ async function onSignIn(user){
   currentUser = user;
   const pill = document.getElementById('authPill');
   pill.classList.add('signed-in');
-  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.textContent = `🐙 ${user.email.split('@')[0]} · signed in`;
   pill.onclick = () => { if(confirm('Sign out?')) sb.auth.signOut(); };
   closeAuthModal();
 
@@ -1122,7 +1122,8 @@ function ctx(){
   const platforms = (k.platforms || []).filter(p => p.url || p.handle);
   const audienceLine = platforms.length
     ? platforms.map(pl => {
-        const num = (pl.platform==='twitch'||pl.platform==='kick') ? pl.subscribers : pl.subscribers;
+        // TODO: confirm whether twitch/kick should pull avg_live_viewers instead of subscribers
+        const num = pl.subscribers;
         const nice = num ? fmtNum(num) : null;
         const label = ({youtube:'YouTube',twitch:'Twitch',tiktok:'TikTok',instagram:'Instagram',x:'X',kick:'Kick',other:'channel'}[pl.platform]||'channel');
         return nice ? `${nice} on ${label}` : label;
@@ -1395,7 +1396,8 @@ function buildPitchDoc(){
     <div class="pdoc-stats">
       ${platforms.map(p => {
         const meta = ({youtube:'YouTube',twitch:'Twitch',tiktok:'TikTok',instagram:'IG',x:'X',kick:'Kick',other:'Channel'}[p.platform]||'');
-        const num = (p.platform==='twitch'||p.platform==='kick') ? p.subscribers : p.subscribers;
+        // TODO: confirm whether twitch/kick should pull avg_live_viewers instead of subscribers
+        const num = p.subscribers;
         return `<div class="pdoc-stat"><div class="pn">${fmtNum(num)}</div><div class="pl">${meta}</div></div>`;
       }).join('')}
     </div>` : '';
@@ -1588,9 +1590,8 @@ function copyOutput(which){
 function openMailto(){
   const subject = $('out_email_subject').value;
   const body = $('out_email_body').innerText;
-  const to = activePitch.brand_name
-    ? '' : '';  // we don't auto-fill a 'to' — let the user enter the brand contact
-  const url = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // We don't auto-fill a 'to' — let the user enter the brand contact in their mail client.
+  const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href = url;
 }
 
