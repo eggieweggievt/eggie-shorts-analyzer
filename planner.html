@@ -1849,6 +1849,153 @@
   .post-copy .pc-copy-all.copied{
     background:linear-gradient(135deg,#9be0b2 0%,#6bd6c6 100%);
   }
+
+  /* ===== V4.0 — READY-TO-POST WIZARD ===== */
+  .ready-banner{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:linear-gradient(135deg, rgba(255,219,247,0.65), rgba(199,210,255,0.55));
+    border:1.5px solid rgba(255,178,240,0.55);
+    border-radius:14px;
+    padding:12px 16px;
+    margin:18px 0 6px;
+  }
+  .ready-banner-text{flex:1;min-width:200px;font-size:13.5px;color:var(--ink);line-height:1.45}
+  .ready-banner-text strong{color:var(--deep);font-size:14.5px}
+  .ready-banner-sub{font-size:12.5px;color:var(--ink-soft)}
+  .ready-launch-btn{
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%) !important;
+    color:#fff !important;border:none !important;
+    font-family:inherit;font-weight:800;font-size:14px;letter-spacing:.02em;
+    padding:10px 22px !important;border-radius:999px;cursor:pointer;
+    box-shadow:0 6px 18px rgba(144,165,255,0.45);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .ready-launch-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(144,165,255,0.55)}
+
+  .ready-modal-content{max-width:680px}
+  .ready-head h2{margin:0 0 6px}
+  .ready-head-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 8px;line-height:1.5}
+
+  /* Format picker */
+  .ready-format-pick{margin:14px 0 8px}
+  .ready-format-q{font-size:14px;color:var(--ink);margin:0 0 10px}
+  .ready-format-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:540px){.ready-format-grid{grid-template-columns:1fr}}
+  .ready-format-btn{
+    display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+    background:rgba(255,255,255,0.85);
+    border:2px solid rgba(144,165,255,0.45);
+    border-radius:14px;padding:16px 18px;cursor:pointer;
+    font-family:inherit;text-align:left;
+    transition:border-color .12s ease, transform .12s ease, box-shadow .12s ease;
+  }
+  .ready-format-btn:hover{border-color:var(--pink-hot);transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,178,240,0.3)}
+  .ready-format-btn .rf-emoji{font-size:24px;line-height:1}
+  .ready-format-btn .rf-label{font-size:15px;font-weight:800;color:var(--deep)}
+  .ready-format-btn .rf-sub{font-size:12px;color:var(--ink-soft);font-weight:600}
+
+  /* Progress bar */
+  .ready-progress-wrap{margin:14px 0 16px;display:flex;align-items:center;gap:12px}
+  .ready-progress-bar{
+    flex:1;height:8px;background:rgba(144,165,255,0.18);
+    border-radius:999px;overflow:hidden;
+  }
+  .ready-progress-fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    border-radius:999px;
+    transition:width .25s ease;
+  }
+  .ready-progress-text{font-size:12px;color:var(--ink-soft);font-weight:700;white-space:nowrap}
+
+  /* Group chip */
+  .ready-group-chip{
+    display:inline-block;
+    background:rgba(255,219,247,0.55);
+    border:1.5px solid rgba(255,178,240,0.5);
+    color:var(--deep);
+    font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    padding:4px 12px;border-radius:999px;
+    margin-bottom:10px;
+  }
+
+  /* Step card */
+  .ready-step-card{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.35);
+    border-radius:14px;
+    padding:18px 20px;
+    margin-bottom:14px;
+    box-shadow:0 4px 14px rgba(99,170,244,0.1);
+  }
+  .ready-step-title{
+    font-size:17px;font-weight:800;color:var(--deep);line-height:1.35;
+    margin-bottom:8px;
+  }
+  .ready-step-body{font-size:14px;color:var(--ink);line-height:1.55;margin-bottom:14px}
+  .ready-step-body strong{color:var(--deep)}
+  .ready-step-body em{color:var(--ink-soft);font-style:italic}
+  .ready-confirm{
+    display:flex;align-items:center;gap:10px;
+    background:linear-gradient(135deg, rgba(199,210,255,0.35), rgba(255,219,247,0.3));
+    border:1.5px dashed rgba(144,165,255,0.5);
+    border-radius:12px;padding:10px 14px;cursor:pointer;
+    font-size:13.5px;color:var(--ink);
+  }
+  .ready-confirm:hover{background:linear-gradient(135deg, rgba(199,210,255,0.5), rgba(255,219,247,0.45))}
+  .ready-confirm input[type="checkbox"]{
+    width:18px;height:18px;cursor:pointer;accent-color:var(--pink-hot);margin:0;
+  }
+  .ready-step-card.checked .ready-confirm{
+    background:linear-gradient(135deg, rgba(155,224,178,0.4), rgba(107,214,198,0.3));
+    border-style:solid;border-color:#7ec99a;
+  }
+
+  /* Nav row */
+  .ready-nav{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin:10px 0 8px;flex-wrap:wrap;
+  }
+  .ready-jump-wrap{flex:1;text-align:center}
+  .ready-next-btn{min-width:120px}
+
+  /* Meta row (playbook link + clear button) */
+  .ready-meta{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:12.5px;color:var(--ink-soft);
+    margin-top:8px;padding-top:10px;
+    border-top:1px solid rgba(144,165,255,0.2);
+    flex-wrap:wrap;
+  }
+  .ready-meta a, .btn-link{
+    background:none;border:none;cursor:pointer;
+    color:var(--deep);font-weight:700;font-size:12.5px;
+    font-family:inherit;text-decoration:none;padding:0;
+  }
+  .ready-meta a:hover, .btn-link:hover{color:var(--pink-hot)}
+  .ready-clear-btn{color:var(--ink-soft) !important}
+  .ready-clear-btn:hover{color:#d44 !important}
+
+  /* Done screen */
+  .ready-done{text-align:center;padding:14px 6px 6px}
+  .ready-celebrate{font-size:64px;line-height:1;margin-bottom:10px}
+  .ready-done-title{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:28px;
+    color:var(--deep);margin:0 0 10px;
+  }
+  .ready-done-sub{font-size:14px;color:var(--ink);margin:0 0 14px}
+  .ready-done-note{
+    font-size:12.5px;color:var(--ink-soft);line-height:1.55;
+    background:rgba(255,255,255,0.6);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:10px;padding:10px 14px;
+    margin:0 0 8px;
+  }
+  .ready-mark-btn{
+    background:linear-gradient(135deg,#9be0b2 0%,#6bd6c6 100%) !important;
+    color:#fff !important;border:none !important;font-weight:800;
+  }
+  .ready-mark-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(107,214,198,0.4)}
 </style>
 </head>
 <body>
@@ -2223,10 +2370,92 @@
         <button type="button" class="btn" id="postCommentBtn" style="padding:7px 14px;font-size:12.5px">Post</button>
       </div>
 
+      <!-- V4.0 — Ready-to-post wizard launcher -->
+      <div class="ready-banner" id="readyBanner">
+        <div class="ready-banner-text">
+          <strong>📋 About to publish?</strong><br/>
+          <span class="ready-banner-sub">Run the step-by-step pre-post wizard to make sure nothing got skipped. Pulls straight from the Growth Playbook checklists.</span>
+        </div>
+        <button type="button" class="btn ready-launch-btn" id="openReadyWizardBtn">🚀 READY TO POST!</button>
+      </div>
+
       <div class="modal-actions">
         <button class="btn danger pull-left hidden" id="deleteItemBtn">🗑 Delete</button>
         <button class="btn secondary" id="cancelItemBtn">Cancel</button>
         <button class="btn" id="saveItemBtn">💾 Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V4.0 — READY-TO-POST WIZARD MODAL ===== -->
+  <div class="modal-backdrop" id="readyModal" role="dialog" aria-modal="true">
+    <div class="modal-content ready-modal-content">
+      <div class="ready-head">
+        <h2 id="readyHeadTitle">🚀 Ready to post?</h2>
+        <p class="ready-head-sub" id="readyHeadSub">Walk through everything that needs to be done before this video goes live. Your progress saves automatically.</p>
+      </div>
+
+      <!-- Format picker — shown when format is ambiguous -->
+      <div class="ready-format-pick" id="readyFormatPick" hidden>
+        <p class="ready-format-q"><strong>Which checklist do you want to run?</strong></p>
+        <div class="ready-format-grid">
+          <button type="button" class="ready-format-btn" data-format="long">
+            <span class="rf-emoji">📺</span>
+            <span class="rf-label">Long-form</span>
+            <span class="rf-sub">YouTube long-form / Twitch VOD</span>
+          </button>
+          <button type="button" class="ready-format-btn" data-format="short">
+            <span class="rf-emoji">📱</span>
+            <span class="rf-label">Short-form</span>
+            <span class="rf-sub">YT Shorts / TikTok / Reels</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Wizard body -->
+      <div class="ready-wizard" id="readyWizard" hidden>
+        <div class="ready-progress-wrap">
+          <div class="ready-progress-bar"><div class="ready-progress-fill" id="readyProgressFill"></div></div>
+          <div class="ready-progress-text" id="readyProgressText">Step 1 of N</div>
+        </div>
+
+        <div class="ready-group-chip" id="readyGroupChip">Group</div>
+        <div class="ready-step-card" id="readyStepCard">
+          <div class="ready-step-title" id="readyStepTitle"></div>
+          <div class="ready-step-body" id="readyStepBody"></div>
+          <label class="ready-confirm" id="readyConfirmRow">
+            <input type="checkbox" id="readyStepCheck" />
+            <span><strong>Done</strong> — this one's taken care of</span>
+          </label>
+        </div>
+
+        <div class="ready-nav">
+          <button type="button" class="btn secondary" id="readyPrevBtn">← Back</button>
+          <div class="ready-jump-wrap">
+            <button type="button" class="btn-link" id="readySkipBtn" title="Move to the next item without checking this one">Skip for now →</button>
+          </div>
+          <button type="button" class="btn ready-next-btn" id="readyNextBtn">Next →</button>
+        </div>
+
+        <div class="ready-meta">
+          <span class="ready-meta-left">
+            <a href="growth.html#prePostLong" target="_blank" rel="noreferrer" id="readyPlaybookLink">📚 Open full checklist in the Playbook ↗</a>
+          </span>
+          <button type="button" class="btn-link ready-clear-btn" id="readyClearBtn">🗑 Clear checklist</button>
+        </div>
+      </div>
+
+      <!-- Done screen -->
+      <div class="ready-done" id="readyDone" hidden>
+        <div class="ready-celebrate">🎉</div>
+        <h3 class="ready-done-title">Everything checks out — you're ready to post!</h3>
+        <p class="ready-done-sub" id="readyDoneSub"></p>
+        <p class="ready-done-note">Hit <strong>Mark as Posted</strong> to update this project's status to <strong>✅ Posted</strong> and stamp the posted-at time. You can still edit anything after.</p>
+      </div>
+
+      <div class="modal-actions" id="readyActions">
+        <button type="button" class="btn secondary" id="readyCloseBtn">Close</button>
+        <button type="button" class="btn ready-mark-btn" id="readyMarkPostedBtn" hidden>✅ Mark as Posted</button>
       </div>
     </div>
   </div>
@@ -6540,6 +6769,8 @@ function wireApp(){
   document.addEventListener('keydown', e => {
     if(e.key !== 'Escape') return;
     if($('teleprompterOverlay').classList.contains('open')) return;  // teleprompter manages Esc
+    // V4.0 — Ready-to-post wizard sits on top of itemModal; close just the wizard first
+    if($('readyModal') && $('readyModal').classList.contains('open')){ rtpClose(); return; }
     if($('itemModal').classList.contains('open')) closeModal();
     else if($('viewModal').classList.contains('open')) closeViewModal();
     else if($('editorsModal').classList.contains('open')) closeEditorsModal();
@@ -7305,6 +7536,352 @@ function twComputeNext(t){
       return null;
     default: return null;
   }
+}
+
+// ============================================================
+//  V4.0 — READY-TO-POST WIZARD
+//  Step-by-step pre-publish wizard mirrored from the Growth Playbook
+//  checklists. State persists per-item in localStorage. Final step
+//  flips the item's status to "posted" and stamps posted_at.
+// ============================================================
+const READY_CHECKLIST = {
+  long: {
+    label: 'Long-form video',
+    playbookHash: '#prePostLong',
+    groups: [
+      { title: '🎬 Recording + file', items: [
+        { id:'long-audio', label:'Audio levels between −9 and −6 dB', body:'No clipping, mic stays consistent the whole video, voice cuts through music. <em>VidIQ-verified range.</em>' },
+        { id:'long-noise', label:'Noise-reduction filter applied', body:'Strips AC hum, traffic, keyboard clicks. Distracting noises break the viewer out of the moment.' },
+        { id:'long-color', label:'Color correction done', body:'One-button auto-color or a basic LUT. Untreated footage looks flat next to your competition.' },
+        { id:'long-dox', label:'No personal info on screen', body:'Browser tabs, Discord DMs, real name on overlays, room reflections, model nameplate.' },
+        { id:'long-music', label:'Music on its own audio track', body:'No copyright strikes, VOD won&rsquo;t get muted. Use OBS Audio Application Capture.' },
+        { id:'long-frame', label:'Model framing correct', body:'Waist-up or bust-up, top of model not cut off, good model-to-game ratio.' },
+        { id:'long-quality', label:'Footage is 1080p+ at 30/60 fps', body:'Exported vertically-aware if it&rsquo;ll be re-cut for shorts later.' },
+      ]},
+      { title: '🎨 Packaging (title + thumbnail)', items: [
+        { id:'long-packaged', label:'Title + thumbnail were locked BEFORE filming', body:'Everything downstream (hook, script, B-roll) was built to deliver on that promise. If you wrote the title on the upload screen, your video will probably die.' },
+        { id:'long-title', label:'Title creates curiosity, shock, or confusion', body:'<em>Target keyword in the first 5 words</em> (VidIQ rule), no &ldquo;chill vibes&rdquo; filler.' },
+        { id:'long-thumb', label:'Thumbnail readable at small size', body:'Distinct from competitors, on-brand colors, <em>no AI images</em>.' },
+        { id:'long-thumbtest', label:'Thumbnail + title previewed side-by-side', body:'Compare against similar videos in your niche &mdash; would YOU click it over theirs?' },
+        { id:'long-payoff', label:'Video pays off the packaging', body:'If the thumbnail shows a specific thing, the video shows it in the first 30s. If the title promises an insight, the video delivers it. Mismatch = bounce.' },
+        { id:'long-abtest', label:'A/B test thumbnails (only if 200+ views/day)', body:'Below 200/day you&rsquo;re testing randomness, not patterns. Above that, test away.' },
+      ]},
+      { title: '🏷️ Description + metadata (VidIQ pass)', items: [
+        { id:'long-desc', label:'Description hook in first 2 lines', body:'Before &ldquo;show more&rdquo;. <em>Target keyword in the first 2&ndash;3 sentences</em> &mdash; VidIQ&rsquo;s rule for the search algo.' },
+        { id:'long-scorecard', label:'VidIQ SEO Scorecard run', body:'Checks title, description, tags + flags missing keywords. Takes 60 seconds, catches what you missed.' },
+        { id:'long-tags', label:'15&ndash;25 tags added via VidIQ Tag Tools', body:'Grab high-scoring tags + steal from outlier videos on the same topic. Critical while you&rsquo;re small.' },
+        { id:'long-channelkw', label:'Channel keywords set in YouTube Settings', body:'Settings &rarr; Channel &rarr; Basic info &rarr; keywords. One-time setup. Helps the algo classify you.' },
+        { id:'long-hashtags', label:'2&ndash;3 brand-relevant hashtags in description', body:'YouTube uses these for topic indexing.' },
+        { id:'long-chapters', label:'Chapters / timestamps added', body:'For any video over ~5 minutes &mdash; boosts watch time, helps the algo, helps viewers binge.' },
+        { id:'long-captions', label:'Captions enabled', body:'Auto-caps as fallback, manual is better, all audiences need them.' },
+        { id:'long-links', label:'Relevant links in description', body:'Carrd / Linktree, related playlist, Discord, sponsor codes if relevant.' },
+      ]},
+      { title: '📺 Watch-time + mobile pass', items: [
+        { id:'long-mobile', label:'On-screen text is mobile-legible', body:'Preview your final cut on your phone. If text is too small to read on a 6-inch screen, redo it. Most viewers are watching on their phone.' },
+        { id:'long-endscreen', label:'End screen hooks into your next video', body:'Pick a video that&rsquo;s relevant + currently performing. Binge-watching is the #1 thing YouTube rewards.' },
+        { id:'long-noending', label:'Never signal the video is ending', body:'No &ldquo;and that&rsquo;s a wrap&rdquo;, no two-minute self-promo outro. The second viewers think it&rsquo;s over, they leave.' },
+        { id:'long-cards', label:'Cards added at relevant moments', body:'Point to related videos or playlists at the right beats.' },
+      ]},
+      { title: '🔁 Cross-promo queue', items: [
+        { id:'long-vertical', label:'Vertical clip prepped for Shorts/TikTok/Reels', body:'Re-edited 9:16, NOT auto-converted landscape.' },
+        { id:'long-x', label:'Twitter/X announcement ready', body:'Image or clip attached &mdash; <em>never a bare link</em>, that kills reach.' },
+        { id:'long-discord', label:'Discord announcement drafted', body:'For the community.' },
+        { id:'long-pinned', label:'Pinned comment ready', body:'Hook, question, or CTA to drive replies (comments &gt; likes for the algo).' },
+      ]},
+      { title: '✅ Final pass (the one most creators skip)', items: [
+        { id:'long-sit', label:'Let it sit 24 hours, then re-watch with fresh eyes', body:'Finished-at-midnight excitement blinds you to obvious mistakes. Coming back catches the dragging sections, the unclear thumbnail, the mismatched title. <strong>Single biggest quality lift.</strong>' },
+        { id:'long-serves', label:'&ldquo;Does this video serve my audience, or is it just content?&rdquo;', body:'If the answer is &ldquo;just content&rdquo;, holding it back is better than uploading. The video has to earn its spot next to creators with full teams.' },
+        { id:'long-sponsor', label:'Sponsorship disclosed if applicable', body:'Legally required in US, Poland, and others.' },
+        { id:'long-nsfw', label:'No NSFW background, no accidental brand logo', body:'Check for sponsors not yet publicly announced too.' },
+        { id:'long-time', label:'Posting at audience-timezone-friendly time', body:'For a US audience, post earlier in the day so views accumulate before the overnight drop. Your release time also <em>trains</em> when your audience watches future videos &mdash; stay consistent.' },
+        { id:'long-backlog', label:'Bio + schedule current', body:'Carrd / Linktree updated, Twitch panels point to newest video.' },
+      ]},
+    ]
+  },
+  short: {
+    label: 'Short-form video',
+    playbookHash: '#prePostShort',
+    groups: [
+      { title: '📐 Format', items: [
+        { id:'short-ratio', label:'9:16 vertical, 1080×1920', body:'Re-edited vertical-first, NOT an auto-converted landscape clip (those die).' },
+        { id:'short-format', label:'Formatting check &mdash; everything visible + cropped correctly', body:'Preview on a phone-sized window. No text cut off the sides, no overlay hiding your face, no awkward dead space, captions inside the safe zone (UI eats the bottom 15%).' },
+        { id:'short-hook', label:'Hook in the first 1&ndash;2 seconds', body:'Visual or audio. If a stranger doesn&rsquo;t &ldquo;get it&rdquo; immediately they swipe and your view-vs-swipe stat tanks.' },
+        { id:'short-captions', label:'Captions baked into the video', body:'Every word visible, even with sound off.' },
+        { id:'short-loop', label:'Strong ending', body:'Loops cleanly or pays off the hook. No fade-to-black, no awkward cut.' },
+        { id:'short-watermark', label:'No platform watermark', body:'NEVER repost a TikTok-watermarked clip to Shorts/Reels (the algo deprioritizes it).' },
+      ]},
+      { title: '🔊 Audio', items: [
+        { id:'short-clear', label:'Voice clear over music', body:'No clipping, no copyright issues for monetization.' },
+      ]},
+      { title: '🏷️ Per-platform metadata', items: [
+        { id:'short-title', label:'Title under ~100 chars, top 2 keywords FIRST', body:'YouTube Shorts uses the title for indexing &mdash; front-load the keywords.' },
+        { id:'short-caption', label:'Caption is keyword-rich and scroll-stopping', body:'TikTok reads the caption for matching.' },
+        { id:'short-hashmix', label:'Hashtag mix matches the platform', body:'YT Shorts: 2&ndash;3 brand-relevant · TikTok: 1&ndash;3 max · IG Reels: 5&ndash;7 · <em>Twitter/X: ZERO</em> · Fansly: specific tags + #vtuber.' },
+        { id:'short-tagsize', label:'Size mix applied where supported', body:'1 small / 2 medium / 2 large.' },
+      ]},
+      { title: '🔁 Cross-post + engagement', items: [
+        { id:'short-comment', label:'First comment pinned with a hook', body:'Question or hot take that drives reply chains. The algo loves them.' },
+        { id:'short-x', label:'Posted to Twitter/X with the clip uploaded directly', body:'No bare link to YouTube/TikTok.' },
+        { id:'short-bio', label:'Bio link still works', body:'Carrd / Linktree updated so a viral viewer can find your stream.' },
+      ]},
+      { title: '🛡️ Safety pass', items: [
+        { id:'short-dox', label:'No personal info visible', body:'Real name, model nameplate, Discord DMs, browser tabs, room reflections.' },
+        { id:'short-file', label:'File name doesn&rsquo;t dox you', body:'Some platforms preserve filename metadata.' },
+        { id:'short-alt', label:'NSFW posted on alt only', body:'Never on your main &mdash; can kill reach for months.' },
+        { id:'short-time', label:'Posting at active-audience time', body:'Your audience&rsquo;s timezone, not yours.' },
+      ]},
+    ]
+  }
+};
+
+const RTP = {
+  itemId: null,
+  format: null,
+  steps: [],          // flattened [{groupTitle, ...item}]
+  cursor: 0,
+  state: {},          // {stepId: true}
+};
+
+function rtpStorageKey(itemId){ return 'planner-ready-' + (itemId || 'draft'); }
+function rtpLoadState(itemId){
+  try { return JSON.parse(localStorage.getItem(rtpStorageKey(itemId)) || '{}') || {}; }
+  catch(e){ return {}; }
+}
+function rtpSaveState(itemId, state){
+  try { localStorage.setItem(rtpStorageKey(itemId), JSON.stringify(state)); }
+  catch(e){}
+}
+function rtpClearState(itemId){
+  try { localStorage.removeItem(rtpStorageKey(itemId)); } catch(e){}
+}
+
+// Detect format from currently-picked platforms in the item modal.
+// Returns 'long', 'short', or null (ambiguous).
+function rtpDetectFormat(){
+  const longSet = new Set(['youtube_long', 'twitch']);
+  const shortSet = new Set(['youtube_shorts', 'tiktok', 'instagram', 'twitter']);
+  let hasLong = false, hasShort = false;
+  document.querySelectorAll('#fPlatforms .platform-pick[aria-pressed="true"]').forEach(btn => {
+    const p = btn.dataset.platform;
+    if(longSet.has(p)) hasLong = true;
+    if(shortSet.has(p)) hasShort = true;
+  });
+  // Also consider the format toggle if set
+  const tog = document.querySelector('#fFormatToggle .ft-pill[aria-pressed="true"]');
+  const togFormat = tog?.dataset.format;
+  if(togFormat === 'long') return 'long';
+  if(togFormat === 'shorts') return 'short';
+  if(hasLong && !hasShort) return 'long';
+  if(hasShort && !hasLong) return 'short';
+  return null;
+}
+
+function rtpFlattenSteps(format){
+  const def = READY_CHECKLIST[format];
+  if(!def) return [];
+  const out = [];
+  def.groups.forEach(g => {
+    g.items.forEach(it => out.push({ groupTitle: g.title, ...it }));
+  });
+  return out;
+}
+
+function rtpFindFirstUnchecked(){
+  for(let i = 0; i < RTP.steps.length; i++){
+    if(!RTP.state[RTP.steps[i].id]) return i;
+  }
+  return RTP.steps.length; // all done
+}
+
+function rtpRender(){
+  const total = RTP.steps.length;
+  const done = RTP.steps.filter(s => RTP.state[s.id]).length;
+  const isDone = (done === total) || RTP.cursor >= total;
+
+  // Progress bar
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  $('readyProgressFill').style.width = pct + '%';
+  $('readyProgressText').textContent = isDone
+    ? `${done}/${total} ✓`
+    : `Step ${RTP.cursor + 1} of ${total} · ${done} done`;
+
+  if(isDone){
+    $('readyWizard').hidden = true;
+    $('readyDone').hidden = false;
+    $('readyMarkPostedBtn').hidden = false;
+    $('readyDoneSub').textContent = `All ${total} items confirmed for this ${READY_CHECKLIST[RTP.format].label.toLowerCase()}.`;
+    return;
+  }
+
+  $('readyWizard').hidden = false;
+  $('readyDone').hidden = true;
+  $('readyMarkPostedBtn').hidden = true;
+
+  const step = RTP.steps[RTP.cursor];
+  $('readyGroupChip').textContent = step.groupTitle;
+  $('readyStepTitle').innerHTML = step.label;
+  $('readyStepBody').innerHTML = step.body || '';
+  const checked = !!RTP.state[step.id];
+  $('readyStepCheck').checked = checked;
+  $('readyStepCard').classList.toggle('checked', checked);
+
+  // Nav buttons
+  $('readyPrevBtn').disabled = (RTP.cursor === 0);
+  $('readyNextBtn').textContent = (RTP.cursor === total - 1) ? 'Finish →' : 'Next →';
+
+  // Playbook link
+  $('readyPlaybookLink').href = 'growth.html' + READY_CHECKLIST[RTP.format].playbookHash;
+}
+
+function rtpStart(format){
+  RTP.format = format;
+  RTP.steps = rtpFlattenSteps(format);
+  RTP.state = rtpLoadState(RTP.itemId);
+  // Resume at the first unchecked step (or 0 if fresh)
+  RTP.cursor = rtpFindFirstUnchecked();
+  if(RTP.cursor >= RTP.steps.length) RTP.cursor = 0;
+  $('readyFormatPick').hidden = true;
+  $('readyWizard').hidden = false;
+  $('readyDone').hidden = true;
+  rtpRender();
+}
+
+function rtpOpen(){
+  RTP.itemId = editingItemId || ('draft-' + (window._rtpDraftId || (window._rtpDraftId = Date.now())));
+  $('readyDone').hidden = true;
+  $('readyMarkPostedBtn').hidden = true;
+  $('readyWizard').hidden = true;
+  $('readyFormatPick').hidden = true;
+
+  const detected = rtpDetectFormat();
+  if(detected){
+    rtpStart(detected);
+  } else {
+    // Ambiguous — let the user choose
+    $('readyFormatPick').hidden = false;
+  }
+  $('readyModal').classList.add('open');
+}
+
+function rtpClose(){
+  $('readyModal').classList.remove('open');
+}
+
+function rtpStepCheckChanged(){
+  if(!RTP.steps.length) return;
+  const step = RTP.steps[RTP.cursor];
+  if(!step) return;
+  const checked = $('readyStepCheck').checked;
+  if(checked) RTP.state[step.id] = true;
+  else delete RTP.state[step.id];
+  $('readyStepCard').classList.toggle('checked', checked);
+  rtpSaveState(RTP.itemId, RTP.state);
+  // Update progress without advancing
+  const total = RTP.steps.length;
+  const done = RTP.steps.filter(s => RTP.state[s.id]).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  $('readyProgressFill').style.width = pct + '%';
+  $('readyProgressText').textContent = `Step ${RTP.cursor + 1} of ${total} · ${done} done`;
+}
+
+function rtpNext(){
+  // Treat Next as "confirm + advance" — auto-checks the current step
+  if(RTP.steps.length){
+    const step = RTP.steps[RTP.cursor];
+    if(step){
+      RTP.state[step.id] = true;
+      rtpSaveState(RTP.itemId, RTP.state);
+    }
+  }
+  RTP.cursor++;
+  if(RTP.cursor > RTP.steps.length) RTP.cursor = RTP.steps.length;
+  rtpRender();
+}
+
+function rtpPrev(){
+  if(RTP.cursor > 0){
+    RTP.cursor--;
+    rtpRender();
+  }
+}
+
+function rtpSkip(){
+  // Advance WITHOUT ticking the current step
+  RTP.cursor++;
+  if(RTP.cursor > RTP.steps.length) RTP.cursor = RTP.steps.length;
+  rtpRender();
+}
+
+function rtpClear(){
+  if(!confirm('Clear this checklist? All ticked items will be unchecked.')) return;
+  RTP.state = {};
+  rtpClearState(RTP.itemId);
+  RTP.cursor = 0;
+  rtpRender();
+}
+
+async function rtpMarkPosted(){
+  // Flip status → posted, stamp posted_at if not already, save the item.
+  // We do this via the existing save path so all the validation + sync logic runs.
+  const statusEl = $('fStatus');
+  if(statusEl) statusEl.value = 'posted';
+
+  const postedEl = $('fPostedAt');
+  if(postedEl && !postedEl.value){
+    // Set to "now" in local-datetime format
+    const d = new Date();
+    const tz = d.getTimezoneOffset() * 60000;
+    postedEl.value = new Date(d.getTime() - tz).toISOString().slice(0, 16);
+  }
+
+  // Clear the wizard's local checklist state — this run is complete
+  rtpClearState(RTP.itemId);
+
+  rtpClose();
+  // Trigger save — handleSave is the existing save handler
+  try {
+    const saveBtn = $('saveItemBtn');
+    if(saveBtn) saveBtn.click();
+  } catch(e){
+    console.error('Failed to trigger save after Ready-to-Post finish', e);
+  }
+}
+
+function rtpWire(){
+  $('openReadyWizardBtn').addEventListener('click', rtpOpen);
+  $('readyCloseBtn').addEventListener('click', rtpClose);
+  $('readyModal').addEventListener('click', e => { if(e.target === $('readyModal')) rtpClose(); });
+
+  // Format picker
+  document.querySelectorAll('.ready-format-btn').forEach(btn => {
+    btn.addEventListener('click', () => rtpStart(btn.dataset.format));
+  });
+
+  // Wizard nav
+  $('readyNextBtn').addEventListener('click', rtpNext);
+  $('readyPrevBtn').addEventListener('click', rtpPrev);
+  $('readySkipBtn').addEventListener('click', rtpSkip);
+  $('readyClearBtn').addEventListener('click', rtpClear);
+  $('readyStepCheck').addEventListener('change', rtpStepCheckChanged);
+
+  // Mark as posted
+  $('readyMarkPostedBtn').addEventListener('click', rtpMarkPosted);
+
+  // Arrow-key nav while the wizard is open (Esc is handled by the global modal Esc handler)
+  document.addEventListener('keydown', e => {
+    if(!$('readyModal').classList.contains('open')) return;
+    if($('readyWizard').hidden) return;
+    if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'BODY') return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); rtpNext(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); rtpPrev(); }
+  });
+}
+
+// Wire it up after the rest of the init pass
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', rtpWire, {once:true});
+} else {
+  rtpWire();
 }
 
 // ============================================================

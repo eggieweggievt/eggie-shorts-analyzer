@@ -344,12 +344,14 @@
         <p class="checklist-intro">Every box on this list should be ticked <strong>before</strong> a YouTube long-form, Twitch VOD upload, or any &gt;1-minute video goes live. Your progress saves automatically — checkboxes will still be ticked next time you open this page.</p>
         <div class="checklist-toolbar">
           <span class="checklist-progress" aria-live="polite"></span>
-          <button type="button" class="checklist-reset">Reset checklist</button>
+          <button type="button" class="checklist-reset">🗑 Clear checklist</button>
         </div>
 
         <div class="checklist-group">
           <h4>🎬 Recording + file</h4>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-audio" /><span class="label"><strong>Audio levels checked</strong> — no clipping, mic stays consistent the whole video, voice cuts through music</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-audio" /><span class="label"><strong>Audio levels between −9 and −6 dB</strong> — no clipping, mic stays consistent the whole video, voice cuts through music (<em>VidIQ-verified range</em>)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-noise" /><span class="label"><strong>Noise-reduction filter applied</strong> — strips AC hum, traffic, keyboard clicks. Distracting noises break the viewer out of the moment</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-color" /><span class="label"><strong>Color correction done</strong> — one-button auto-color or a basic LUT. Untreated footage looks flat next to your competition</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-dox" /><span class="label"><strong>No personal info on screen</strong> — browser tabs, Discord DMs, real name on overlays, room reflections, model nameplate</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-music" /><span class="label"><strong>Music on its own audio track</strong> — no copyright strikes, VOD won't get muted (use OBS Audio Application Capture)</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-frame" /><span class="label"><strong>Model framing correct</strong> — waist-up or bust-up, top of model not cut off, good model-to-game ratio</span></label>
@@ -357,19 +359,33 @@
         </div>
 
         <div class="checklist-group">
-          <h4>📝 Title + thumbnail</h4>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-title" /><span class="label"><strong>Title creates curiosity, shock, or confusion</strong> — top keyword first, no &ldquo;chill vibes&rdquo; type filler</span></label>
+          <h4>🎨 Packaging (title + thumbnail)</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-packaged" /><span class="label"><strong>Title + thumbnail were locked BEFORE filming</strong> — everything downstream (hook, script, B-roll) was built to deliver on that promise. If you wrote the title on the upload screen, your video will probably die</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-title" /><span class="label"><strong>Title creates curiosity, shock, or confusion</strong> — <em>target keyword in the first 5 words</em> (VidIQ rule), no &ldquo;chill vibes&rdquo; filler</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-thumb" /><span class="label"><strong>Thumbnail readable at small size</strong>, distinct from competitors, on-brand colors, <em>no AI images</em></span></label>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-thumbtest" /><span class="label"><strong>Thumbnail + title previewed side-by-side</strong> against similar videos in your niche — would YOU click it?</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-thumbtest" /><span class="label"><strong>Thumbnail + title previewed side-by-side</strong> against similar videos in your niche — would YOU click it over theirs?</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-payoff" /><span class="label"><strong>Video pays off the packaging</strong> — if the thumbnail shows a specific thing, the video shows it in the first 30s. If the title promises an insight, the video delivers it. Mismatch = bounce</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-abtest" /><span class="label"><strong>A/B test thumbnails</strong> — but only if this channel pulls 200+ views/day on average. Below that, you're testing randomness, not patterns</span></label>
         </div>
 
         <div class="checklist-group">
-          <h4>🏷️ Description + metadata</h4>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-desc" /><span class="label"><strong>Description hook in first 2 lines</strong> (before &ldquo;show more&rdquo;), keywords throughout</span></label>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-tags" /><span class="label"><strong>2–3 brand-relevant hashtags</strong> in description (YouTube indexing)</span></label>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-chapters" /><span class="label"><strong>Chapters added</strong> for any video over ~5 minutes — boosts watch time + helps the algo categorize</span></label>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-endscreen" /><span class="label"><strong>End screen + cards</strong> pointing to next video or relevant playlist</span></label>
+          <h4>🏷️ Description + metadata (VidIQ pass)</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-desc" /><span class="label"><strong>Description hook in first 2 lines</strong> (before &ldquo;show more&rdquo;), <em>target keyword in the first 2–3 sentences</em> — VidIQ's rule for the search algo</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-scorecard" /><span class="label"><strong>VidIQ SEO Scorecard run</strong> — checks title, description, tags + flags missing keywords. Takes 60 seconds, catches what you missed</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-tags" /><span class="label"><strong>15–25 tags added via VidIQ Tag Tools</strong> — grab high-scoring tags + steal from outlier videos on the same topic. Critical while you're small (algo needs help classifying you)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-channelkw" /><span class="label"><strong>Channel keywords set in YouTube Settings</strong> (one-time setup, but verify it's done) — Settings → Channel → Basic info → keywords. Helps the algo understand WHO you are</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-hashtags" /><span class="label"><strong>2–3 brand-relevant hashtags</strong> in description (YouTube indexing)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-chapters" /><span class="label"><strong>Chapters / timestamps added</strong> for any video over ~5 minutes — boosts watch time + helps the algo + helps viewers binge</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-captions" /><span class="label"><strong>Captions enabled</strong> — auto-caps as fallback, manual is better, all audiences need them</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-links" /><span class="label"><strong>Relevant links in description</strong> — Carrd / Linktree, related playlist, Discord, sponsor codes (if relevant)</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>📺 Watch-time + mobile pass</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-mobile" /><span class="label"><strong>On-screen text is mobile-legible</strong> — preview your final cut on your phone. If text is too small to read on a 6-inch screen, redo it. Most viewers are watching on their phone, not your 27&quot; monitor</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-endscreen" /><span class="label"><strong>End screen hooks into your next video</strong> — pick a video that's relevant + currently performing. Binge-watching is the #1 thing YouTube rewards</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-noending" /><span class="label"><strong>Never signal the video is ending</strong> — no &ldquo;and that's a wrap&rdquo;, no two-minute self-promo outro. The second viewers think it's over, they leave. Pitch the next video <em>before</em> they have a chance to bounce</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-cards" /><span class="label"><strong>Cards added</strong> at relevant moments pointing to related videos / playlists</span></label>
         </div>
 
         <div class="checklist-group">
@@ -381,10 +397,12 @@
         </div>
 
         <div class="checklist-group">
-          <h4>✅ Final pass</h4>
+          <h4>✅ Final pass (the one most creators skip)</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-sit" /><span class="label"><strong>Let it sit 24 hours, then re-watch with fresh eyes</strong> — finished-at-midnight excitement blinds you to obvious mistakes. Coming back catches the dragging sections, the unclear thumbnail, the mismatched title. This is the single biggest quality lift</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-serves" /><span class="label"><strong>Ask: &ldquo;does this video actually serve my audience, or is it just content?&rdquo;</strong> — if the answer is &ldquo;just content&rdquo;, holding it back is better than uploading. You're sitting next to creators with full teams; the video has to earn its spot</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-sponsor" /><span class="label"><strong>Sponsorship disclosed</strong> if applicable — legally required in US, Poland, and others</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-nsfw" /><span class="label"><strong>No NSFW background</strong>, no accidental brand logo / sponsor not yet announced</span></label>
-          <label class="checklist-item"><input type="checkbox" data-cid="long-time" /><span class="label"><strong>Posting at active-audience time</strong> — your audience's timezone, not yours</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-time" /><span class="label"><strong>Posting at audience-timezone-friendly time</strong> — for a US audience, post earlier in the day so you accumulate views before the overnight drop. Your release time also <em>trains</em> when your audience watches future videos, so be consistent</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="long-backlog" /><span class="label"><strong>Bio + schedule current</strong> — Carrd / Linktree updated, Twitch panels point to newest video</span></label>
         </div>
       </div>
@@ -396,13 +414,13 @@
         <p class="checklist-intro">Run through this every time before a short goes live on TikTok, YouTube Shorts, Instagram Reels, or Fansly. Most of these matter <em>more</em> than for long-form because shorts live or die in the first 1–2 seconds. Progress saves automatically.</p>
         <div class="checklist-toolbar">
           <span class="checklist-progress" aria-live="polite"></span>
-          <button type="button" class="checklist-reset">Reset checklist</button>
+          <button type="button" class="checklist-reset">🗑 Clear checklist</button>
         </div>
 
         <div class="checklist-group">
           <h4>📐 Format</h4>
           <label class="checklist-item"><input type="checkbox" data-cid="short-ratio" /><span class="label"><strong>9:16 vertical, 1080×1920</strong> — re-edited vertical-first, NOT an auto-converted landscape clip (those die)</span></label>
-          <label class="checklist-item"><input type="checkbox" data-cid="short-length" /><span class="label"><strong>Length is right for the platform</strong> — 45–55s for YT Shorts (85–90% retention sweet spot), 6–20s for Fansly FYP, don't go under 25s unless extremely rewatchable</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-format" /><span class="label"><strong>Formatting check — everything visible + cropped correctly</strong>. Preview on a phone-sized window. No text cut off the sides, no overlay hiding your face, no awkward dead space, captions inside the safe zone (UI eats the bottom 15%)</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="short-hook" /><span class="label"><strong>Hook in the first 1–2 seconds</strong> — visual or audio. If a stranger doesn't &ldquo;get it&rdquo; immediately they swipe and your view-vs-swipe stat tanks</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="short-captions" /><span class="label"><strong>Captions baked into the video</strong> — every word visible, even with sound off</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="short-loop" /><span class="label"><strong>Strong ending</strong> — loops cleanly or pays off the hook. No fade-to-black, no awkward cut</span></label>
@@ -411,7 +429,6 @@
 
         <div class="checklist-group">
           <h4>🔊 Audio</h4>
-          <label class="checklist-item"><input type="checkbox" data-cid="short-trending" /><span class="label"><strong>Trending native sound used</strong> on TikTok where possible — trending sound beats perfect tags</span></label>
           <label class="checklist-item"><input type="checkbox" data-cid="short-clear" /><span class="label"><strong>Voice clear over music</strong>, no clipping, no copyright issues for monetization</span></label>
         </div>
 
@@ -1163,6 +1180,12 @@
           <li><a href="https://www.youtube.com/watch?v=O-pWBN75Ymg" target="_blank" rel="noreferrer">Full-Time VTuber in 2026 — Content System Workshop</a></li>
           <li><a href="https://www.youtube.com/watch?v=dOAOKyrB40c" target="_blank" rel="noreferrer">Every Small VTuber Makes THESE Mistakes</a></li>
         </ul>
+        <p><strong>Pre-publish + YouTube optimization:</strong></p>
+        <ul class="ref-list">
+          <li><a href="https://www.youtube.com/watch?v=3HHctWZf7MM" target="_blank" rel="noreferrer">9 Things To Check Before Uploading (so your video doesn't die in 48 hours)</a> — source for the long-form checklist</li>
+          <li><a href="https://vidiq.com/blog/post/understanding-youtube-algorithm/" target="_blank" rel="noreferrer">VidIQ — How the YouTube Algorithm Works in 2026</a></li>
+          <li><a href="https://vidiq.com/blog/post/publish-youtube/" target="_blank" rel="noreferrer">VidIQ — How to Find the Right Time to Publish on YouTube</a></li>
+        </ul>
         <p><strong>Monetization + sponsors:</strong></p>
         <ul class="ref-list">
           <li><a href="https://www.youtube.com/watch?v=QOMPW1j_2rk" target="_blank" rel="noreferrer">VTubers Are Doing Sponsorships Wrong — How To Get Sponsors</a></li>
@@ -1406,7 +1429,7 @@
 
       if(resetBtn){
         resetBtn.addEventListener('click', () => {
-          if(!confirm('Reset this checklist? All ticked items will be cleared.')) return;
+          if(!confirm('Clear this checklist? All ticked items will be unchecked.')) return;
           state = {};
           try { localStorage.removeItem(key); } catch(e){}
           items.forEach(cb => {
