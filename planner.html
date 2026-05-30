@@ -7291,9 +7291,13 @@ async function todoWidgetInit(){
 }
 
 async function twLoadTodos(){
+  if(!currentOwnerId){ twTodos = []; return; }
   const today = new Date(); today.setHours(0,0,0,0);
   const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+  // V3 — scope to the active hub. Without this filter, managers see BOTH their
+  // own todos AND every client's todos merged together (RLS grants both).
   const {data, error} = await sb.from('planner_todos').select('*')
+    .eq('owner_id', currentOwnerId)
     .or(`bucket.eq.today,due_at.lt.${tomorrow.toISOString()}`)
     .order('position', {ascending:true})
     .order('due_at', {ascending:true})
@@ -7312,7 +7316,10 @@ async function twLoadTodos(){
   twTodos = data || [];
 }
 async function twLoadCats(){
-  const {data, error} = await sb.from('planner_todo_categories').select('*');
+  if(!currentOwnerId){ twCats = []; return; }
+  // V3 — scope to the active hub. Same union-of-rows risk as twLoadTodos.
+  const {data, error} = await sb.from('planner_todo_categories').select('*')
+    .eq('owner_id', currentOwnerId);
   if(error){ twCats = []; return; }
   twCats = data || [];
 }
