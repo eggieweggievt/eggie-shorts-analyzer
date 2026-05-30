@@ -181,6 +181,111 @@
   }
   footer a{color:var(--deep);text-decoration:none;font-weight:700}
   footer a:hover{color:var(--pink-hot)}
+
+  /* Playbook search */
+  .playbook-search{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.88);
+    border:2px solid rgba(144,165,255,0.45);
+    border-radius:999px;
+    padding:8px 14px;
+    margin:14px 0 6px;
+    box-shadow:0 4px 16px rgba(99,170,244,0.12);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .playbook-search:focus-within{
+    border-color:var(--pink-hot);
+    box-shadow:0 4px 20px rgba(255,178,240,0.35);
+  }
+  .playbook-search .icon{font-size:16px}
+  .playbook-search input{
+    flex:1;border:none;outline:none;background:transparent;
+    font-family:inherit;font-size:14.5px;font-weight:600;color:var(--ink);
+    padding:4px 0;min-width:0;
+  }
+  .playbook-search input::placeholder{color:var(--ink-soft);font-weight:500}
+  .playbook-search .clear-btn{
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);font-size:18px;font-weight:700;
+    padding:0 6px;line-height:1;display:none;
+    font-family:inherit;
+  }
+  .playbook-search.has-query .clear-btn{display:inline-block}
+  .playbook-search .clear-btn:hover{color:var(--pink-hot)}
+  .search-status{
+    font-size:12.5px;color:var(--ink-soft);font-weight:600;
+    margin:0 0 10px;padding:0 4px;min-height:18px;
+  }
+  .search-status .count{color:var(--deep);font-weight:800}
+  mark.search-hit{
+    background:linear-gradient(120deg, rgba(255,219,247,0.95), rgba(199,210,255,0.9));
+    color:var(--deep);
+    padding:0 3px;border-radius:4px;font-weight:800;
+  }
+  .growth-toc a.hidden,
+  .growth-section.hidden,
+  .checklist-section.hidden{display:none}
+
+  /* Pre-post checklists */
+  .checklist-section{
+    background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(199,210,255,0.4));
+    border:1.5px solid rgba(144,165,255,0.55);
+    border-radius:14px;
+    margin:10px 0;
+    overflow:hidden;
+  }
+  .checklist-section > summary{
+    cursor:pointer;list-style:none;
+    padding:14px 18px;
+    font-weight:800;font-size:15px;color:var(--deep);
+    user-select:none;
+    display:flex;align-items:center;gap:8px;
+  }
+  .checklist-section > summary::-webkit-details-marker{display:none}
+  .checklist-section > summary::before{content:"▸";color:var(--pink-hot);font-size:14px}
+  .checklist-section[open] > summary::before{content:"▾"}
+  .checklist-section > summary:hover{background:rgba(255,255,255,0.4)}
+  .checklist-body{padding:4px 20px 20px;font-size:14px;line-height:1.55;color:var(--ink)}
+  .checklist-intro{font-size:13.5px;color:var(--ink);margin:8px 0 4px}
+  .checklist-toolbar{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:8px;flex-wrap:wrap;margin:6px 0 6px;
+  }
+  .checklist-progress{
+    font-size:13px;color:var(--ink-soft);font-weight:700;
+  }
+  .checklist-progress .done{color:var(--deep);font-weight:800}
+  .checklist-reset{
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.5);
+    color:var(--deep);font-weight:700;font-size:12.5px;
+    padding:5px 12px;border-radius:999px;cursor:pointer;
+    font-family:inherit;
+  }
+  .checklist-reset:hover{background:rgba(255,255,255,1);border-color:var(--pink-hot);color:var(--pink-hot)}
+  .checklist-group{margin:14px 0 4px}
+  .checklist-group h4{
+    font-size:12.5px;font-weight:800;color:var(--deep);
+    margin:8px 0 6px;text-transform:uppercase;letter-spacing:.05em;
+  }
+  .checklist-item{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:8px 12px;border-radius:10px;
+    background:rgba(255,255,255,0.55);
+    margin:5px 0;
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .checklist-item:hover{background:rgba(255,255,255,0.88)}
+  .checklist-item input[type="checkbox"]{
+    margin-top:3px;flex-shrink:0;cursor:pointer;
+    accent-color:var(--pink-hot);width:16px;height:16px;
+  }
+  .checklist-item .label{flex:1;font-size:13.5px;line-height:1.5}
+  .checklist-item.checked{background:rgba(255,255,255,0.35)}
+  .checklist-item.checked .label{
+    color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--periwinkle);
+  }
+  .checklist-item .label strong{color:var(--deep)}
 </style>
 </head>
 <body>
@@ -201,9 +306,18 @@
 
   <section class="card" id="growth">
     <h2>Pick a chapter 🌱</h2>
-    <p>Everything I've learned about getting shorts (and your stream) actually seen. Click any section to expand.</p>
+    <p>Everything I've learned about getting shorts (and your stream) actually seen. <strong>Search a keyword</strong> below or click any chapter to expand.</p>
+
+    <div class="playbook-search" id="playbookSearch">
+      <span class="icon" aria-hidden="true">🔍</span>
+      <input type="search" id="playbookSearchInput" placeholder="Search the playbook — try 'shorts', 'sponsors', 'OBS', 'hashtags'..." autocomplete="off" />
+      <button type="button" class="clear-btn" id="playbookSearchClear" aria-label="Clear search">✕</button>
+    </div>
+    <p class="search-status" id="searchStatus" aria-live="polite"></p>
 
     <div class="growth-toc">
+      <a href="#prePostLong">📋 Before-you-post · long-form</a>
+      <a href="#prePostShort">📋 Before-you-post · shorts</a>
       <a href="#alg">📊 How the algorithm works</a>
       <a href="#metrics">🎯 3 metrics that matter</a>
       <a href="#fourCriteria">✅ The 4-criteria rule</a>
@@ -223,6 +337,108 @@
       <a href="#fansly">🌶️ Fansly for VTubers · 18+</a>
       <a href="#resources">📚 Resources</a>
     </div>
+
+    <details class="checklist-section" id="prePostLong">
+      <summary>📋 Before-you-post checklist · long-form video</summary>
+      <div class="checklist-body">
+        <p class="checklist-intro">Every box on this list should be ticked <strong>before</strong> a YouTube long-form, Twitch VOD upload, or any &gt;1-minute video goes live. Your progress saves automatically — checkboxes will still be ticked next time you open this page.</p>
+        <div class="checklist-toolbar">
+          <span class="checklist-progress" aria-live="polite"></span>
+          <button type="button" class="checklist-reset">Reset checklist</button>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🎬 Recording + file</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-audio" /><span class="label"><strong>Audio levels checked</strong> — no clipping, mic stays consistent the whole video, voice cuts through music</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-dox" /><span class="label"><strong>No personal info on screen</strong> — browser tabs, Discord DMs, real name on overlays, room reflections, model nameplate</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-music" /><span class="label"><strong>Music on its own audio track</strong> — no copyright strikes, VOD won't get muted (use OBS Audio Application Capture)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-frame" /><span class="label"><strong>Model framing correct</strong> — waist-up or bust-up, top of model not cut off, good model-to-game ratio</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-quality" /><span class="label"><strong>Footage is 1080p+ at 30/60 fps</strong>, exported vertically-aware if it'll be re-cut for shorts</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>📝 Title + thumbnail</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-title" /><span class="label"><strong>Title creates curiosity, shock, or confusion</strong> — top keyword first, no &ldquo;chill vibes&rdquo; type filler</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-thumb" /><span class="label"><strong>Thumbnail readable at small size</strong>, distinct from competitors, on-brand colors, <em>no AI images</em></span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-thumbtest" /><span class="label"><strong>Thumbnail + title previewed side-by-side</strong> against similar videos in your niche — would YOU click it?</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🏷️ Description + metadata</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-desc" /><span class="label"><strong>Description hook in first 2 lines</strong> (before &ldquo;show more&rdquo;), keywords throughout</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-tags" /><span class="label"><strong>2–3 brand-relevant hashtags</strong> in description (YouTube indexing)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-chapters" /><span class="label"><strong>Chapters added</strong> for any video over ~5 minutes — boosts watch time + helps the algo categorize</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-endscreen" /><span class="label"><strong>End screen + cards</strong> pointing to next video or relevant playlist</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-captions" /><span class="label"><strong>Captions enabled</strong> — auto-caps as fallback, manual is better, all audiences need them</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🔁 Cross-promo queue</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-vertical" /><span class="label"><strong>Vertical clip prepped</strong> for Shorts / TikTok / Reels — re-edited 9:16, NOT auto-converted landscape</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-x" /><span class="label"><strong>Twitter/X announcement ready</strong> with image or clip attached — <em>never a bare link</em>, that kills reach</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-discord" /><span class="label"><strong>Discord announcement</strong> drafted for the community</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-pinned" /><span class="label"><strong>Pinned comment ready</strong> — hook, question, or CTA to drive replies (comments &gt; likes for the algo)</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>✅ Final pass</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-sponsor" /><span class="label"><strong>Sponsorship disclosed</strong> if applicable — legally required in US, Poland, and others</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-nsfw" /><span class="label"><strong>No NSFW background</strong>, no accidental brand logo / sponsor not yet announced</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-time" /><span class="label"><strong>Posting at active-audience time</strong> — your audience's timezone, not yours</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="long-backlog" /><span class="label"><strong>Bio + schedule current</strong> — Carrd / Linktree updated, Twitch panels point to newest video</span></label>
+        </div>
+      </div>
+    </details>
+
+    <details class="checklist-section" id="prePostShort">
+      <summary>📋 Before-you-post checklist · short-form (TikTok / Reels / Shorts)</summary>
+      <div class="checklist-body">
+        <p class="checklist-intro">Run through this every time before a short goes live on TikTok, YouTube Shorts, Instagram Reels, or Fansly. Most of these matter <em>more</em> than for long-form because shorts live or die in the first 1–2 seconds. Progress saves automatically.</p>
+        <div class="checklist-toolbar">
+          <span class="checklist-progress" aria-live="polite"></span>
+          <button type="button" class="checklist-reset">Reset checklist</button>
+        </div>
+
+        <div class="checklist-group">
+          <h4>📐 Format</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-ratio" /><span class="label"><strong>9:16 vertical, 1080×1920</strong> — re-edited vertical-first, NOT an auto-converted landscape clip (those die)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-length" /><span class="label"><strong>Length is right for the platform</strong> — 45–55s for YT Shorts (85–90% retention sweet spot), 6–20s for Fansly FYP, don't go under 25s unless extremely rewatchable</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-hook" /><span class="label"><strong>Hook in the first 1–2 seconds</strong> — visual or audio. If a stranger doesn't &ldquo;get it&rdquo; immediately they swipe and your view-vs-swipe stat tanks</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-captions" /><span class="label"><strong>Captions baked into the video</strong> — every word visible, even with sound off</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-loop" /><span class="label"><strong>Strong ending</strong> — loops cleanly or pays off the hook. No fade-to-black, no awkward cut</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-watermark" /><span class="label"><strong>No platform watermark</strong> — NEVER repost a TikTok-watermarked clip to Shorts/Reels (the algo deprioritizes it)</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🔊 Audio</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-trending" /><span class="label"><strong>Trending native sound used</strong> on TikTok where possible — trending sound beats perfect tags</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-clear" /><span class="label"><strong>Voice clear over music</strong>, no clipping, no copyright issues for monetization</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🏷️ Per-platform metadata</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-title" /><span class="label"><strong>Title under ~100 chars</strong>, top 2 keywords FIRST (YT Shorts indexing)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-caption" /><span class="label"><strong>Caption is keyword-rich and scroll-stopping</strong> — TikTok reads it for matching</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-hashmix" /><span class="label"><strong>Hashtag mix matches the platform</strong>: YT Shorts 2–3 brand-relevant · TikTok 1–3 max · IG Reels 5–7 · <em>Twitter/X: ZERO</em> · Fansly: specific tags + #vtuber</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-tagsize" /><span class="label"><strong>Size mix applied</strong> where the platform supports it: 1 small / 2 medium / 2 large</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🔁 Cross-post + engagement</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-comment" /><span class="label"><strong>First comment pinned</strong> with a hook, question, or hot take — drives reply chains (algo loves them)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-x" /><span class="label"><strong>Posted to Twitter/X with the clip uploaded directly</strong> — no bare link to YouTube/TikTok</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-bio" /><span class="label"><strong>Bio link still works</strong> — Carrd / Linktree updated so a new viewer who blows up can find your stream</span></label>
+        </div>
+
+        <div class="checklist-group">
+          <h4>🛡️ Safety pass</h4>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-dox" /><span class="label"><strong>No personal info visible</strong> — real name, model nameplate, Discord DMs, browser tabs, room reflections</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-file" /><span class="label"><strong>File name doesn't dox you</strong> (some platforms preserve filename metadata)</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-alt" /><span class="label"><strong>NSFW posted on alt only</strong> — never on your main, can kill reach for months</span></label>
+          <label class="checklist-item"><input type="checkbox" data-cid="short-time" /><span class="label"><strong>Posting at active-audience time</strong> — your audience's timezone</span></label>
+        </div>
+      </div>
+    </details>
 
     <details class="growth-section" id="alg" open>
       <summary>📊 How the algorithm actually works</summary>
@@ -1024,6 +1240,190 @@
     document.addEventListener('DOMContentLoaded', expandFromHash, {once:true});
   } else {
     expandFromHash();
+  }
+})();
+
+// Playbook search — filters TOC pills + sections, auto-expands matches, highlights terms
+(function(){
+  function init(){
+    const searchInput = document.getElementById('playbookSearchInput');
+    const clearBtn = document.getElementById('playbookSearchClear');
+    const searchWrap = document.getElementById('playbookSearch');
+    const statusEl = document.getElementById('searchStatus');
+    if(!searchInput || !searchWrap || !statusEl) return;
+
+    // Index every section once. Cache lowercased text so search is fast on every keystroke.
+    const sections = [];
+    document.querySelectorAll('.growth-section, .checklist-section').forEach(sec => {
+      const id = sec.id;
+      if(!id) return;
+      const summary = sec.querySelector('summary');
+      const summaryText = (summary ? summary.textContent : '').toLowerCase();
+      const bodyText = (sec.textContent || '').toLowerCase();
+      const tocLink = document.querySelector('.growth-toc a[href="#' + id + '"]');
+      sections.push({id, sec, tocLink, summaryText, bodyText, wasOpen: sec.open});
+    });
+
+    function escRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+    function clearHighlights(){
+      document.querySelectorAll('mark.search-hit').forEach(m => {
+        const parent = m.parentNode;
+        if(!parent) return;
+        parent.replaceChild(document.createTextNode(m.textContent), m);
+        parent.normalize();
+      });
+    }
+
+    function highlightInElement(el, terms){
+      if(!terms.length) return;
+      const pattern = new RegExp('(' + terms.map(escRegex).join('|') + ')', 'gi');
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      const targets = [];
+      let n;
+      while((n = walker.nextNode())){
+        const p = n.parentNode;
+        if(!p) continue;
+        const tag = p.nodeName;
+        if(tag === 'SCRIPT' || tag === 'STYLE' || tag === 'MARK' || tag === 'INPUT' || tag === 'BUTTON') continue;
+        if(!n.nodeValue || !n.nodeValue.trim()) continue;
+        pattern.lastIndex = 0;
+        if(pattern.test(n.nodeValue)) targets.push(n);
+      }
+      targets.forEach(node => {
+        const text = node.nodeValue;
+        const frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        let m;
+        pattern.lastIndex = 0;
+        while((m = pattern.exec(text)) !== null){
+          if(m.index > lastIdx) frag.appendChild(document.createTextNode(text.slice(lastIdx, m.index)));
+          const mark = document.createElement('mark');
+          mark.className = 'search-hit';
+          mark.textContent = m[0];
+          frag.appendChild(mark);
+          lastIdx = m.index + m[0].length;
+          if(m[0].length === 0) pattern.lastIndex++;
+        }
+        if(lastIdx < text.length) frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    }
+
+    function escHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function runSearch(){
+      const q = searchInput.value.trim().toLowerCase();
+      clearHighlights();
+      if(!q){
+        searchWrap.classList.remove('has-query');
+        statusEl.textContent = '';
+        sections.forEach(s => {
+          s.sec.classList.remove('hidden');
+          if(s.tocLink) s.tocLink.classList.remove('hidden');
+          // Re-collapse anything we force-opened, except the originally-open one
+          s.sec.open = s.wasOpen;
+        });
+        return;
+      }
+      searchWrap.classList.add('has-query');
+      const terms = q.split(/\s+/).filter(Boolean);
+      let matchCount = 0;
+      sections.forEach(s => {
+        const hit = terms.every(t => s.summaryText.includes(t) || s.bodyText.includes(t));
+        if(hit){
+          s.sec.classList.remove('hidden');
+          if(s.tocLink) s.tocLink.classList.remove('hidden');
+          s.sec.open = true;
+          highlightInElement(s.sec, terms);
+          matchCount++;
+        } else {
+          s.sec.classList.add('hidden');
+          if(s.tocLink) s.tocLink.classList.add('hidden');
+        }
+      });
+      const safeQ = escHtml(q);
+      statusEl.innerHTML = matchCount
+        ? '<span class="count">' + matchCount + '</span> section' + (matchCount === 1 ? '' : 's') + ' match &ldquo;' + safeQ + '&rdquo;'
+        : 'No sections match &ldquo;' + safeQ + '&rdquo; — try a different keyword.';
+    }
+
+    let debounce;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(runSearch, 110);
+    });
+    searchInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){ searchInput.value = ''; runSearch(); }
+    });
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      runSearch();
+      searchInput.focus();
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init, {once:true});
+  } else {
+    init();
+  }
+})();
+
+// Pre-post checklists — persist state in localStorage, count progress, reset button
+(function(){
+  function init(){
+    document.querySelectorAll('.checklist-section').forEach(sec => {
+      const key = 'playbook-checklist-' + sec.id;
+      const items = sec.querySelectorAll('.checklist-item input[type="checkbox"]');
+      const progress = sec.querySelector('.checklist-progress');
+      const resetBtn = sec.querySelector('.checklist-reset');
+
+      let state = {};
+      try { state = JSON.parse(localStorage.getItem(key) || '{}') || {}; }
+      catch(e){ state = {}; }
+
+      function updateProgress(){
+        const done = Array.from(items).filter(i => i.checked).length;
+        const total = items.length;
+        if(progress){
+          progress.innerHTML = '<span class="done">' + done + '</span> of ' + total + ' done';
+        }
+      }
+
+      items.forEach((cb, i) => {
+        const id = cb.dataset.cid || ('item-' + i);
+        cb.dataset.cid = id;
+        cb.checked = !!state[id];
+        const wrap = cb.closest('.checklist-item');
+        if(wrap && cb.checked) wrap.classList.add('checked');
+        cb.addEventListener('change', () => {
+          state[id] = cb.checked;
+          if(wrap) wrap.classList.toggle('checked', cb.checked);
+          try { localStorage.setItem(key, JSON.stringify(state)); } catch(e){}
+          updateProgress();
+        });
+      });
+
+      if(resetBtn){
+        resetBtn.addEventListener('click', () => {
+          if(!confirm('Reset this checklist? All ticked items will be cleared.')) return;
+          state = {};
+          try { localStorage.removeItem(key); } catch(e){}
+          items.forEach(cb => {
+            cb.checked = false;
+            const wrap = cb.closest('.checklist-item');
+            if(wrap) wrap.classList.remove('checked');
+          });
+          updateProgress();
+        });
+      }
+      updateProgress();
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init, {once:true});
+  } else {
+    init();
   }
 })();
 </script>
