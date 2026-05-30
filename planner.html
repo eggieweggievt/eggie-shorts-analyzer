@@ -3352,8 +3352,11 @@ async function exitImpersonation(){
   if(!impersonating) return;
   if(!confirm("Stop managing " + (impersonating.owner_email || 'this hub') + " and return to your own?")) return;
   localStorage.removeItem('planner_managing_delegation');
-  // Reload — simplest way to re-init all state cleanly
-  window.location.href = window.location.pathname;
+  // Reload — simplest way to re-init all state cleanly.
+  // Clean the URL first (drop ?manage= etc.) then force a reload — assigning
+  // location.href to the current URL is a no-op, so reload() is required.
+  window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+  window.location.reload();
 }
 
 function openHubPicker(){
@@ -3383,7 +3386,11 @@ function openHubPicker(){
   } else {
     localStorage.removeItem('planner_managing_delegation');
   }
-  window.location.href = window.location.pathname;
+  // Clean the URL (drop ?manage= etc.) then force a reload — assigning
+  // location.href to the current URL is a no-op when there's no query string,
+  // which silently leaves the page on the previously-loaded hub.
+  window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+  window.location.reload();
 }
 
 // ============================================================
