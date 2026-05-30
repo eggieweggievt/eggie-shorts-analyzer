@@ -3268,6 +3268,8 @@ async function resolveOwnerContext(){
   impersonating = null;
   managerDelegations = [];
 
+  console.log('[Planner/debug] resolveOwnerContext start — currentUser:', currentUser && currentUser.email, currentUser && currentUser.id);
+
   // Try to look up delegations. RPC may not exist yet (table not migrated) — fail soft.
   let delegations = [];
   try{
@@ -3285,6 +3287,7 @@ async function resolveOwnerContext(){
     console.warn('[Planner] delegation lookup threw:', e);
   }
   managerDelegations = delegations;
+  console.log('[Planner/debug] delegations returned by RPC:', delegations);
 
   // Decide which hub to load. Priority:
   //   1. ?manage=<delegation_id> in URL  (link from claim flow OR Switch hub picker)
@@ -3294,12 +3297,15 @@ async function resolveOwnerContext(){
   const urlManage = params.get('manage');
   const stored = localStorage.getItem('planner_managing_delegation');
   const target = urlManage || stored;
+  console.log('[Planner/debug] urlManage =', urlManage, '| stored =', stored, '| target =', target);
 
   if(target){
     const match = delegations.find(d => d.manager_id === target || d.owner_id === target);
+    console.log('[Planner/debug] match for target:', match);
     if(match){
       impersonating = match;
       currentOwnerId = match.owner_id;
+      console.log('[Planner/debug] IMPERSONATING — currentOwnerId now =', currentOwnerId, '| owner_email =', match.owner_email);
       localStorage.setItem('planner_managing_delegation', match.manager_id);
       // Touch last_seen_at so the creator sees their manager is active
       sb.from('planner_managers').update({ last_seen_at: new Date().toISOString() })
@@ -3381,10 +3387,13 @@ function openHubPicker(){
   const idx = parseInt(raw.trim(), 10) - 1;
   if(isNaN(idx) || idx < 0 || idx >= options.length){ alert('Invalid choice.'); return; }
   const picked = options[idx];
+  console.log('[Planner/debug] hub picker — user picked:', picked);
   if(picked.delegationId){
     localStorage.setItem('planner_managing_delegation', picked.delegationId);
+    console.log('[Planner/debug] wrote planner_managing_delegation =', picked.delegationId);
   } else {
     localStorage.removeItem('planner_managing_delegation');
+    console.log('[Planner/debug] cleared planner_managing_delegation (own hub)');
   }
   // Clean the URL (drop ?manage= etc.) then force a reload — assigning
   // location.href to the current URL is a no-op when there's no query string,
