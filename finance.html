@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Finance &amp; Tax 💰 — Eggie's Creator Hub</title>
+<meta name="description" content="Track creator income and expenses, run tax-ready reports, and stash savings for your projects — private by default." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/finance.html" />
+<meta property="og:title" content="Finance & Tax 💰" />
+<meta property="og:description" content="Creator income, expenses, tax reports, and project savings." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;--blue:#63AAF4;--mint:#6BE4EA;--pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;--deep:#4D5BC0;--ink:#3a2a5a;--ink-soft:#6b5f8a;--white:#ffffff;
+    --green:#2f8f6a;--red:#c0557a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);--radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{content:"";position:fixed;inset:0;background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+    radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+    radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1}
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;color:var(--deep);font-weight:700;font-size:14px;transition:background .15s}
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+  .back-link.active{background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));border-color:transparent}
+  .auth-pill{position:fixed;top:14px;right:14px;z-index:50;background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(10px);border:2px solid rgba(144,165,255,0.4);border-radius:999px;
+    padding:8px 16px;font-weight:700;font-size:13px;color:var(--deep);cursor:pointer;box-shadow:var(--shadow)}
+  .auth-pill.signed-in{border-color:rgba(107,228,234,0.6)}
+  .hero{margin:14px 0 8px;text-align:center}
+  .hero h1{font-family:'Pacifico',cursive;font-weight:400;font-size:clamp(28px,5vw,44px);
+    line-height:1.3;margin:0;padding:10px 0 12px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{margin:0;color:var(--ink-soft);font-weight:600;font-size:15px}
+  .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin:14px 0}
+  .card h2{font-family:'Pacifico',cursive;font-weight:400;font-size:21px;margin:0 0 12px;padding:2px 0 6px;color:var(--deep)}
+  .card h3{margin:14px 0 8px;font-size:15px;color:var(--deep);font-weight:800}
+  .muted{color:var(--ink-soft);font-size:13px}
+  .hidden{display:none !important}
+  .btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:none;border-radius:999px;
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:14px;padding:10px 18px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));color:#fff;
+    box-shadow:0 4px 14px rgba(144,165,255,0.4);transition:transform .12s, box-shadow .12s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,0.7);color:var(--deep);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
+  .btn.small{padding:7px 13px;font-size:13px}
+  .btn.income{background:linear-gradient(135deg,#7fe0c0,#63AAF4)}
+  .btn.expense{background:linear-gradient(135deg,#FFB07A,#FF8AA8)}
+  .btn.danger{background:linear-gradient(135deg,#ff8aa8,#c0557a)}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  input,select,textarea{font-family:'Quicksand',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,0.8);border:2px solid rgba(144,165,255,0.28);border-radius:12px;padding:10px 12px;width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  textarea{resize:vertical;min-height:60px}
+  label.fld{display:block;font-weight:800;color:var(--deep);font-size:13px;margin:10px 0 4px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:640px){.row2{grid-template-columns:1fr}}
+  .status-banner{margin-top:10px;font-weight:600;font-size:13.5px;color:var(--ink-soft);min-height:18px}
+  .status-banner.error{color:#a23556}.status-banner.success{color:#2f8f6a}
+  .user-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-soft);font-weight:600}
+  .dot{width:9px;height:9px;border-radius:50%;background:#cbd2e8;display:inline-block}
+  .dot.on{background:#5fd0a8;box-shadow:0 0 0 3px rgba(95,208,168,0.22)}
+  .imp-banner{background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.28));
+    border:2px solid rgba(144,165,255,0.45);border-radius:16px;padding:10px 16px;margin:10px 0;
+    font-weight:700;color:var(--deep);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .actions .spacer{flex:1}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:linear-gradient(135deg,rgba(255,219,247,0.5),rgba(144,165,255,0.16));
+    border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:12px 12px;text-align:center}
+  .stat .n{font-size:22px;font-weight:800;color:var(--deep);line-height:1.15}
+  .stat .n.pos{color:var(--green)}.stat .n.neg{color:var(--red)}
+  .stat .l{font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:3px}
+
+  .tabs{display:inline-flex;background:rgba(144,165,255,0.12);border:1px solid rgba(144,165,255,0.3);border-radius:999px;padding:3px;gap:3px;margin:4px 0 0}
+  .tabs button{border:none;background:transparent;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;font-size:13px;color:var(--ink-soft);padding:7px 16px;border-radius:999px}
+  .tabs button.on{background:#fff;color:var(--deep);box-shadow:0 2px 8px rgba(144,165,255,0.3)}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .filters select,.filters input{width:auto;min-width:120px}
+
+  .led{display:flex;flex-direction:column;gap:6px}
+  .led-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,0.6);
+    border:1px solid rgba(144,165,255,0.22);border-radius:12px;padding:9px 13px;cursor:pointer}
+  .led-row:hover{background:#fff}
+  .led-row .d{font-size:12px;color:var(--ink-soft);font-weight:700;width:62px;flex:0 0 62px}
+  .led-row .c{font-weight:700;flex:1;min-width:120px}
+  .led-row .c small{display:block;font-weight:600;color:var(--ink-soft);font-size:11.5px}
+  .led-row .amt{font-weight:800;font-variant-numeric:tabular-nums}
+  .led-row .amt.income{color:var(--green)}.led-row .amt.expense{color:var(--red)}
+  .tag{font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(144,165,255,0.16);color:var(--deep)}
+  .lock{font-size:12px}
+  .empty{padding:14px;text-align:center;color:var(--ink-soft);font-weight:600}
+
+  .rep{background:rgba(255,255,255,0.55);border:1px solid rgba(144,165,255,0.22);border-radius:16px;padding:14px 16px;margin:10px 0}
+  .rep h3{margin:0 0 8px}
+  .barline{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
+  .barline .nm{width:160px;flex:0 0 160px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .barline .track{flex:1;height:10px;background:rgba(144,165,255,0.15);border-radius:999px;overflow:hidden}
+  .barline .fill{height:100%;background:linear-gradient(90deg,var(--periwinkle),var(--mint))}
+  .barline .v{width:96px;flex:0 0 96px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;color:var(--deep)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.twocol{grid-template-columns:1fr}}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed rgba(144,165,255,0.25);font-size:13.5px}
+  .kv b{color:var(--deep)}
+  .flag{background:rgba(255,210,122,0.3);border:1px solid rgba(233,162,59,0.5);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;margin-top:8px;color:#8a5a14}
+  .disclaim{font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:10px;font-style:italic}
+
+  .goals{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .goal{background:rgba(255,255,255,0.7);border:1px solid rgba(144,165,255,0.25);border-radius:16px;padding:14px}
+  .goal .gt{font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px}
+  .goal .gp{height:12px;background:rgba(144,165,255,0.15);border-radius:999px;overflow:hidden;margin:8px 0}
+  .goal .gp .gf{height:100%}
+  .goal .gn{font-size:12.5px;color:var(--ink-soft);font-weight:700}
+  .goal .gbtns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(60,42,90,0.35);backdrop-filter:blur(4px);z-index:70;display:none;align-items:flex-start;justify-content:center;padding:40px 14px;overflow:auto}
+  .modal-bg.show{display:flex}
+  .modal{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);max-width:560px;width:100%;padding:22px 24px}
+  .modal h2{margin:0 0 6px}
+  .modal .x{float:right;cursor:pointer;font-size:20px;color:var(--ink-soft);font-weight:800;border:none;background:none}
+  .chk{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--deep);font-size:13.5px;margin-top:10px}
+  .chk input{width:auto}
+  .cat-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed rgba(144,165,255,0.22)}
+  .cat-row .nm{flex:1;font-weight:700}
+  .eye{cursor:pointer;font-size:16px;background:none;border:none}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--deep);color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,0.2);opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:90}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  .footer{margin-top:24px;text-align:center;color:var(--ink-soft);font-size:12.5px}
+  .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</div>
+
+<div class="wrap">
+  <div class="back-row">
+    <a class="back-link" href="index.html">🏠 Hub</a>
+    <a class="back-link" href="planner.html">🗂️ Planner</a>
+    <a class="back-link" href="review.html">🌸 Review</a>
+    <a class="back-link" href="ask.html">🔮 Ask</a>
+    <a class="back-link active" href="finance.html">💰 Finance</a>
+    <a class="back-link" href="growth.html">📚 Playbook</a>
+  </div>
+
+  <div class="hero">
+    <h1>Finance &amp; Tax 💰</h1>
+    <p>Log income &amp; expenses, run tax-ready reports, and stash savings for your projects.</p>
+  </div>
+
+  <div class="imp-banner hidden" id="impersonationBanner">
+    👑 Managing <strong id="impName">creator</strong>'s finances
+    <a class="btn ghost small" href="finance.html" style="margin-left:auto">Exit manager mode</a>
+  </div>
+
+  <!-- Signed-out -->
+  <div class="card hidden" id="authView">
+    <h2>Sign in to your finances ✨</h2>
+    <p class="muted">Private to you (and any manager you allow). Passwordless magic-link sign-in.</p>
+    <div class="actions" style="margin-top:10px">
+      <input type="text" id="emailInput" placeholder="you@example.com" style="flex:1;min-width:200px" />
+      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    </div>
+    <div class="status-banner" id="authStatus"></div>
+  </div>
+
+  <!-- Signed-in -->
+  <div class="hidden" id="appView">
+    <div class="card">
+      <div class="user-bar" style="margin-bottom:12px">
+        <span class="dot" id="connDot"></span><span id="userEmail">—</span>
+        <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
+      </div>
+      <div class="actions">
+        <button class="btn income" onclick="openEntry('income')">＋ Income</button>
+        <button class="btn expense" onclick="openEntry('expense')">－ Expense</button>
+        <span class="spacer"></span>
+        <select id="yearSel" onchange="onYearChange()" style="width:auto"></select>
+        <button class="btn ghost small" onclick="openSettings()">⚙️ Settings</button>
+        <button class="btn ghost small" onclick="openCats()">🏷️ Categories</button>
+        <button class="btn ghost small" onclick="openPrivacy()">🔒 Manager access</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n pos" id="sIncome">—</div><div class="l">Income</div></div>
+        <div class="stat"><div class="n neg" id="sExpense">—</div><div class="l">Expenses</div></div>
+        <div class="stat"><div class="n" id="sNet">—</div><div class="l">Net</div></div>
+        <div class="stat"><div class="n" id="sSetaside">—</div><div class="l">Set aside (est.)</div></div>
+      </div>
+      <div style="margin-top:14px;text-align:center">
+        <div class="tabs" id="tabs">
+          <button id="tabLedger" class="on" onclick="setTab('ledger')">📒 Ledger</button>
+          <button id="tabReports" onclick="setTab('reports')">📊 Reports</button>
+          <button id="tabSavings" onclick="setTab('savings')">🎯 Savings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="card" id="ledgerCard">
+      <h2>Ledger</h2>
+      <div class="filters">
+        <select id="fType" onchange="renderLedger()">
+          <option value="all">All types</option>
+          <option value="income">Income only</option>
+          <option value="expense">Expenses only</option>
+        </select>
+        <select id="fCat" onchange="renderLedger()"><option value="">All categories</option></select>
+        <input type="text" id="fSearch" placeholder="Search…" oninput="renderLedger()" style="flex:1;min-width:140px" />
+      </div>
+      <div class="led" id="ledList"></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="card hidden" id="reportsCard">
+      <h2>Tax reports <span class="muted">· <span id="repYear"></span></span></h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn ghost small" onclick="exportCSV()">⬇️ Export CSV</button>
+      </div>
+      <div id="repBody"></div>
+      <div class="disclaim">⚠️ Estimates only. Tax rules differ by country/province/state and change often — confirm with a local accountant before filing. Please look up your local tax laws.</div>
+    </div>
+
+    <!-- SAVINGS -->
+    <div class="card hidden" id="savingsCard">
+      <h2>Project savings 🎯</h2>
+      <p class="muted" style="margin-top:-6px">Set money aside for the things you're building — a new model, a PC, a con, your tax pot.</p>
+      <div style="margin:10px 0"><button class="btn small" onclick="openGoal()">＋ New savings goal</button></div>
+      <div class="goals" id="goalsBox"></div>
+    </div>
+
+    <div class="footer">Private by default · everything saves to your own hub. <a href="growth.html#monetization">Monetization playbook →</a></div>
+  </div>
+</div>
+
+<!-- ENTRY MODAL -->
+<div class="modal-bg" id="entryModal"><div class="modal">
+  <button class="x" onclick="closeModal('entryModal')">×</button>
+  <h2 id="entryTitle">Add income</h2>
+  <div class="row2">
+    <div><label class="fld">Amount</label><input type="number" id="eAmount" step="0.01" placeholder="0.00" /></div>
+    <div><label class="fld">Date</label><input type="date" id="eDate" /></div>
+  </div>
+  <label class="fld">Category</label>
+  <select id="eCat"></select>
+  <label class="fld" id="ePartyLbl">Payer</label>
+  <input type="text" id="eParty" placeholder="e.g. brand / platform / client" />
+  <label class="fld">Description</label>
+  <input type="text" id="eDesc" placeholder="What was it?" />
+
+  <div id="expenseFields" class="hidden">
+    <div class="row2">
+      <div><label class="fld">Business-use %</label><input type="number" id="eBiz" min="0" max="100" value="100" /></div>
+      <div><label class="fld">GST/HST paid (ITC)</label><input type="number" id="eTaxPaid" step="0.01" placeholder="0.00" /></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="eDeduct" checked /> <span>Tax-deductible business expense</span></div>
+  </div>
+  <div id="incomeFields" class="hidden">
+    <div class="row2">
+      <div><label class="fld">GST/HST treatment</label>
+        <select id="eGst">
+          <option value="taxable">Taxable (Canadian client)</option>
+          <option value="zero_rated">Zero-rated (foreign / export)</option>
+          <option value="exempt">Exempt / N/A</option>
+        </select>
+      </div>
+      <div><label class="fld">GST/HST collected</label><input type="number" id="eTaxColl" step="0.01" placeholder="0.00" /></div>
+    </div>
+  </div>
+
+  <label class="fld">Notes</label>
+  <textarea id="eNotes" placeholder="Receipt #, context, anything for your accountant…"></textarea>
+  <div class="chk"><input type="checkbox" id="ePrivate" /> <span>🔒 Hide this entry from managers</span></div>
+
+  <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn" id="eSave" onclick="saveEntry()">Save</button>
+    <button class="btn ghost" onclick="closeModal('entryModal')">Cancel</button>
+    <button class="btn danger small hidden" id="eDelete" style="margin-left:auto" onclick="deleteEntry()">Delete</button>
+  </div>
+  <div class="status-banner" id="entryStatus"></div>
+</div></div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settingsModal"><div class="modal">
+  <button class="x" onclick="closeModal('settingsModal')">×</button>
+  <h2>Settings ⚙️</h2>
+  <div class="row2">
+    <div><label class="fld">Currency code</label><input type="text" id="setCur" placeholder="CAD" maxlength="3" /></div>
+    <div><label class="fld">Tax set-aside %</label><input type="number" id="setPct" min="0" max="100" /></div>
+  </div>
+  <div class="chk"><input type="checkbox" id="setGst" /> <span>I'm registered for GST/HST (Canada)</span></div>
+  <label class="fld">Business / GST number (optional)</label>
+  <input type="text" id="setBn" placeholder="123456789 RT0001" />
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn" onclick="saveSettings()">Save</button>
+    <button class="btn ghost" onclick="closeModal('settingsModal')">Cancel</button>
+  </div>
+  <div class="status-banner" id="settingsStatus"></div>
+</div></div>
+
+<!-- CATEGORIES MODAL -->
+<div class="modal-bg" id="catsModal"><div class="modal">
+  <button class="x" onclick="closeModal('catsModal')">×</button>
+  <h2>Categories 🏷️</h2>
+  <p class="muted">The 👁️ toggle controls whether a <b>manager</b> can see entries in that category. 🙈 = hidden.</p>
+  <h3>Income</h3><div id="catIncome"></div>
+  <div class="actions" style="margin-top:6px"><input type="text" id="newIncomeCat" placeholder="New income category" /><button class="btn small" onclick="addCat('income')">Add</button></div>
+  <h3>Expenses</h3><div id="catExpense"></div>
+  <div class="actions" style="margin-top:6px"><input type="text" id="newExpenseCat" placeholder="New expense category" /><button class="btn small" onclick="addCat('expense')">Add</button></div>
+  <div style="margin-top:16px"><button class="btn ghost" onclick="closeModal('catsModal')">Done</button></div>
+</div></div>
+
+<!-- PRIVACY MODAL -->
+<div class="modal-bg" id="privacyModal"><div class="modal">
+  <button class="x" onclick="closeModal('privacyModal')">×</button>
+  <h2>Manager access 🔒</h2>
+  <p class="muted">Managers are co-owners of your hub — but money is sensitive. Control exactly what they can see here.</p>
+  <div class="chk"><input type="checkbox" id="pvMaster" onchange="saveMaster()" /> <span><b>Hide all finances from managers</b> (master switch)</span></div>
+  <p class="muted" style="margin-top:8px">When on, no manager can open this section at all. When off, managers see only the categories and entries you've left visible (set per-category in 🏷️ Categories, or per-entry with the 🔒 toggle).</p>
+  <div style="margin-top:16px"><button class="btn ghost" onclick="closeModal('privacyModal')">Done</button></div>
+</div></div>
+
+<!-- GOAL MODAL -->
+<div class="modal-bg" id="goalModal"><div class="modal">
+  <button class="x" onclick="closeModal('goalModal')">×</button>
+  <h2 id="goalTitle">New savings goal</h2>
+  <label class="fld">Name</label><input type="text" id="gName" placeholder="e.g. New Live2D model" />
+  <div class="row2">
+    <div><label class="fld">Target amount</label><input type="number" id="gTarget" step="0.01" placeholder="0.00" /></div>
+    <div><label class="fld">Saved so far</label><input type="number" id="gSaved" step="0.01" placeholder="0.00" /></div>
+  </div>
+  <label class="fld">Notes</label><input type="text" id="gNotes" placeholder="optional" />
+  <div class="chk"><input type="checkbox" id="gPrivate" /> <span>🔒 Hide this goal from managers</span></div>
+  <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn" onclick="saveGoal()">Save</button>
+    <button class="btn ghost" onclick="closeModal('goalModal')">Cancel</button>
+    <button class="btn danger small hidden" id="gDelete" style="margin-left:auto" onclick="deleteGoal()">Delete</button>
+  </div>
+  <div class="status-banner" id="goalStatus"></div>
+</div></div>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="authModal"><div class="modal" style="max-width:420px">
+  <button class="x" onclick="closeModal('authModal')">×</button>
+  <h2>Sign in 🔑</h2>
+  <input type="text" id="modalEmail" placeholder="you@example.com" />
+  <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="modalSendMagicLink()">📬 Send link</button></div>
+  <div class="status-banner" id="modalStatus"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+let sb=null, currentUser=null, currentOwnerId=null, impersonating=false;
+let settings=null, cats=[], entries=[], goals=[];
+let tab='ledger', year=new Date().getFullYear(), editingEntry=null, editingGoal=null;
+
+const DEFAULT_INCOME = ['Ad / platform revenue','Sponsorships & brand deals','Memberships & subscriptions',
+  'Tips & donations','Affiliate & commissions','Merch sales','Freelance / client work','Appearance & event fees','Other income'];
+const DEFAULT_EXPENSE = ['Gear & equipment','Software & subscriptions','Home office','Internet & phone',
+  'Contractors & talent','Platform & payment fees','Marketing & ads','Props, wardrobe & art','Travel','Meals',
+  'Professional services','Education','Bank & merchant fees','Supplies & shipping','Licenses & fees','Other expense'];
+
+// ---------- helpers ----------
+function $(id){ return document.getElementById(id); }
+function money(n){
+  const cur = (settings&&settings.base_currency)||'CAD';
+  try{ return new Intl.NumberFormat(undefined,{style:'currency',currency:cur,maximumFractionDigits:0}).format(n||0); }
+  catch(e){ return (cur+' ') + Math.round(n||0).toLocaleString(); }
+}
+function money2(n){
+  const cur=(settings&&settings.base_currency)||'CAD';
+  try{ return new Intl.NumberFormat(undefined,{style:'currency',currency:cur}).format(n||0); }
+  catch(e){ return (cur+' ')+(+n||0).toFixed(2); }
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function todayKey(){ const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtDate(s){ try{return new Date(s+'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});}catch(e){return s;} }
+function qOf(s){ const m=new Date(s+'T00:00:00').getMonth(); return Math.floor(m/3)+1; }
+let toastT=null;
+function toast(m){ const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400); }
+function getQuery(n){ const m=new RegExp('[?&]'+n+'=([^&#]*)').exec(window.location.search); return m?decodeURIComponent(m[1]):null; }
+
+// ---------- supabase + auth ----------
+function loadSDK(){ return new Promise((res,rej)=>{ if(window.supabase)return res(window.supabase);
+  const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  s.onload=()=>window.supabase?res(window.supabase):rej(new Error('no sdk')); s.onerror=()=>rej(new Error('sdk fail')); document.head.appendChild(s); }); }
+
+async function initAuth(){
+  try{
+    const lib=await loadSDK();
+    sb=lib.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const {data:{session}}=await sb.auth.getSession();
+    if(session?.user){ await onSignIn(session.user); } else { showAuth(); }
+    sb.auth.onAuthStateChange((e,s)=>{ if(s?.user) onSignIn(s.user); else onSignOut(); });
+  }catch(e){ console.warn('init fail',e); showAuth(); }
+}
+async function onSignIn(user){
+  currentUser=user;
+  const pill=$('authPill'); pill.classList.add('signed-in'); pill.textContent=`🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.onclick=()=>{ if(confirm('Sign out?')) sb.auth.signOut(); };
+  closeModal('authModal'); $('userEmail').textContent=user.email; $('connDot').classList.add('on');
+  const manageId=getQuery('manage');
+  if(manageId){ await resolveManager(manageId); } else { currentOwnerId=currentUser.id; impersonating=false; }
+  $('authView').classList.add('hidden'); $('appView').classList.remove('hidden');
+  await loadAll();
+}
+function onSignOut(){ currentUser=null;currentOwnerId=null;impersonating=false;
+  const pill=$('authPill'); pill.classList.remove('signed-in'); pill.innerHTML='🔓 Sign in'; pill.onclick=openAuthModal;
+  $('connDot').classList.remove('on'); showAuth(); }
+function showAuth(){ $('authView').classList.remove('hidden'); $('appView').classList.add('hidden'); }
+
+async function resolveManager(managerId){
+  const {data:dels,error}=await sb.rpc('planner_list_my_delegations');
+  if(error){ console.warn(error); currentOwnerId=currentUser.id; return; }
+  const d=(dels||[]).find(x=>x.manager_id===managerId);
+  if(d){ currentOwnerId=d.owner_id; impersonating=true;
+    $('impersonationBanner').classList.remove('hidden'); $('impName').textContent=d.owner_email||'creator'; }
+  else { currentOwnerId=currentUser.id; }
+}
+
+// ---------- magic link ----------
+async function sendMagicLink(){ await doMagic('emailInput','authStatus','authSend'); }
+async function modalSendMagicLink(){ await doMagic('modalEmail','modalStatus',null); }
+async function doMagic(inId,stId,btnId){
+  const email=($(inId).value||'').trim().toLowerCase(); const st=$(stId);
+  if(!email||!email.includes('@')){ st.textContent='Enter a valid email.'; st.className='status-banner error'; return; }
+  if(location.protocol==='file:'){ st.textContent='⚠️ Magic links need http(s).'; st.className='status-banner error'; return; }
+  if(!sb) await initAuth();
+  const K='eggie:authLastSendTs', MS=30000, last=parseInt(localStorage.getItem(K)||'0',10);
+  if(Date.now()-last<MS){ st.textContent=`⏳ Wait ${Math.ceil((MS-(Date.now()-last))/1000)}s.`; st.className='status-banner error'; return; }
+  const btn=btnId?$(btnId):null; if(btn){btn.disabled=true;btn.textContent='Sending…';}
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname+location.search}});
+  if(btn){btn.disabled=false;btn.innerHTML='📬 Send magic link';}
+  if(error){ st.textContent=/rate limit|429/i.test(error.message)?'🚦 Rate limit — wait ~1 hour.':'Failed: '+error.message; st.className='status-banner error'; }
+  else { localStorage.setItem(K,String(Date.now())); st.textContent=`✨ Link sent to ${email}!`; st.className='status-banner success'; }
+}
+function openAuthModal(){ $('authModal').classList.add('show'); }
+function doSignOut(){ if(sb&&confirm('Sign out?')) sb.auth.signOut(); }
+
+// ---------- load ----------
+async function loadAll(){
+  await loadSettings();
+  await loadCats();
+  await Promise.all([loadEntries(), loadGoals()]);
+  buildYearOptions();
+  renderAll();
+}
+async function loadSettings(){
+  const {data}=await sb.from('planner_finance_settings').select('*').eq('owner_id',currentOwnerId).maybeSingle();
+  if(data){ settings=data; }
+  else if(!impersonating){
+    const ins={owner_id:currentOwnerId};
+    const {data:n}=await sb.from('planner_finance_settings').insert(ins).select().maybeSingle();
+    settings=n||{owner_id:currentOwnerId,base_currency:'CAD',tax_setaside_pct:25,gst_registered:false,hide_all_from_manager:false};
+  } else { settings={owner_id:currentOwnerId,base_currency:'CAD',tax_setaside_pct:25,gst_registered:false,hide_all_from_manager:false}; }
+}
+async function loadCats(){
+  let {data}=await sb.from('planner_finance_categories').select('*').eq('owner_id',currentOwnerId).order('sort');
+  cats=data||[];
+  if(!cats.length && !impersonating){
+    const rows=[];
+    DEFAULT_INCOME.forEach((n,i)=>rows.push({owner_id:currentOwnerId,kind:'income',name:n,sort:i,manager_visible:true}));
+    DEFAULT_EXPENSE.forEach((n,i)=>rows.push({owner_id:currentOwnerId,kind:'expense',name:n,sort:i,manager_visible:true}));
+    const {data:n}=await sb.from('planner_finance_categories').insert(rows).select();
+    cats=n||[];
+  }
+}
+async function loadEntries(){
+  const {data,error}=await sb.from('planner_finance_entries').select('*').eq('owner_id',currentOwnerId).order('occurred_on',{ascending:false});
+  if(error){ console.error(error); entries=[]; return; }
+  entries=data||[];
+}
+async function loadGoals(){
+  const {data}=await sb.from('planner_finance_savings').select('*').eq('owner_id',currentOwnerId).order('sort');
+  goals=data||[];
+}
+
+// ---------- year + tabs ----------
+function buildYearOptions(){
+  const yrs=new Set([new Date().getFullYear()]);
+  entries.forEach(e=>{ if(e.occurred_on) yrs.add(+e.occurred_on.slice(0,4)); });
+  const arr=[...yrs].sort((a,b)=>b-a);
+  const sel=$('yearSel'); sel.innerHTML='';
+  arr.forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; sel.appendChild(o); });
+  const allO=document.createElement('option'); allO.value='all'; allO.textContent='All time'; sel.appendChild(allO);
+  if(!arr.includes(year)) year=arr[0];
+  sel.value=String(year);
+}
+function onYearChange(){ const v=$('yearSel').value; year=(v==='all')?'all':+v; renderAll(); }
+function setTab(t){ tab=t;
+  $('tabLedger').classList.toggle('on',t==='ledger'); $('tabReports').classList.toggle('on',t==='reports'); $('tabSavings').classList.toggle('on',t==='savings');
+  $('ledgerCard').classList.toggle('hidden',t!=='ledger'); $('reportsCard').classList.toggle('hidden',t!=='reports'); $('savingsCard').classList.toggle('hidden',t!=='savings');
+  if(t==='reports') renderReports(); if(t==='savings') renderGoals();
+}
+function inYear(e){ return year==='all' || (e.occurred_on && +e.occurred_on.slice(0,4)===year); }
+function yearEntries(){ return entries.filter(inYear); }
+
+// ---------- summary + render ----------
+function renderAll(){ renderSummary(); populateCatFilter(); renderLedger(); if(tab==='reports')renderReports(); if(tab==='savings')renderGoals(); $('repYear').textContent=(year==='all'?'all time':year); }
+function totals(list){
+  let inc=0,exp=0,ded=0;
+  list.forEach(e=>{ const a=+e.amount||0;
+    if(e.kind==='income') inc+=a;
+    else { exp+=a; if(e.is_deductible) ded += a*((e.business_use_pct==null?100:e.business_use_pct)/100); }
+  });
+  return {inc,exp,ded,net:inc-exp,taxable:inc-ded};
+}
+function renderSummary(){
+  const t=totals(yearEntries());
+  $('sIncome').textContent=money(t.inc); $('sExpense').textContent=money(t.exp);
+  const net=$('sNet'); net.textContent=money(t.net); net.className='n '+(t.net>=0?'pos':'neg');
+  const pct=(settings&&+settings.tax_setaside_pct)||25;
+  $('sSetaside').textContent=money(Math.max(0,t.taxable)*pct/100);
+}
+function populateCatFilter(){
+  const sel=$('fCat'); const cur=sel.value; sel.innerHTML='<option value="">All categories</option>';
+  cats.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=(c.kind==='income'?'＋ ':'－ ')+c.name; sel.appendChild(o); });
+  sel.value=cur;
+}
+
+// ---------- ledger ----------
+function renderLedger(){
+  const ft=$('fType').value, fc=$('fCat').value, fs=($('fSearch').value||'').toLowerCase();
+  const list=yearEntries().filter(e=>{
+    if(ft!=='all' && e.kind!==ft) return false;
+    if(fc && e.category_id!==fc) return false;
+    if(fs){ const hay=`${e.category_name||''} ${e.counterparty||''} ${e.description||''} ${e.notes||''}`.toLowerCase(); if(!hay.includes(fs)) return false; }
+    return true;
+  });
+  const box=$('ledList'); box.innerHTML='';
+  if(!list.length){ box.innerHTML='<div class="empty">No entries yet — tap ＋ Income or － Expense to start. 🌱</div>'; return; }
+  list.forEach(e=>{
+    const row=document.createElement('div'); row.className='led-row'; row.onclick=()=>openEntry(e.kind,e);
+    const lock=e.manager_visible?'':'<span class="lock" title="Hidden from managers">🔒</span>';
+    const sub=[e.counterparty,e.description].filter(Boolean).map(esc).join(' · ');
+    row.innerHTML=`<span class="d">${fmtDate(e.occurred_on)}</span>`
+      +`<span class="c">${esc(e.category_name||(e.kind==='income'?'Income':'Expense'))} ${lock}<small>${sub||''}</small></span>`
+      +`<span class="tag">${e.kind==='income'?'in':'out'}</span>`
+      +`<span class="amt ${e.kind}">${e.kind==='income'?'+':'−'}${money2(e.amount)}</span>`;
+    box.appendChild(row);
+  });
+}
+
+// ---------- entry modal ----------
+function catsFor(kind){ return cats.filter(c=>c.kind===kind); }
+function openEntry(kind, e){
+  editingEntry=e||null;
+  $('entryTitle').textContent=(e?'Edit ':'Add ')+(kind==='income'?'income':'expense');
+  $('entryModal').dataset.kind=kind;
+  $('incomeFields').classList.toggle('hidden',kind!=='income');
+  $('expenseFields').classList.toggle('hidden',kind!=='expense');
+  $('ePartyLbl').textContent=kind==='income'?'Payer':'Vendor';
+  const sel=$('eCat'); sel.innerHTML=''; catsFor(kind).forEach(c=>{ const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o); });
+  $('eAmount').value=e?e.amount:''; $('eDate').value=e?e.occurred_on:todayKey();
+  if(e&&e.category_id) sel.value=e.category_id;
+  $('eParty').value=e?(e.counterparty||''):''; $('eDesc').value=e?(e.description||''):'';
+  $('eNotes').value=e?(e.notes||''):'';
+  $('eBiz').value=e?(e.business_use_pct==null?100:e.business_use_pct):100;
+  $('eDeduct').checked=e?!!e.is_deductible:true;
+  $('eTaxPaid').value=e&&e.kind==='expense'?(e.tax_amount||''):'';
+  $('eGst').value=e&&e.gst_treatment?e.gst_treatment:'taxable';
+  $('eTaxColl').value=e&&e.kind==='income'?(e.tax_amount||''):'';
+  $('ePrivate').checked=e?!e.manager_visible:false;
+  $('eDelete').classList.toggle('hidden',!e);
+  $('entryStatus').textContent='';
+  $('entryModal').classList.add('show');
+}
+async function saveEntry(){
+  const kind=$('entryModal').dataset.kind;
+  const amount=parseFloat($('eAmount').value);
+  if(!(amount>=0) || isNaN(amount)){ $('entryStatus').textContent='Enter an amount.'; $('entryStatus').className='status-banner error'; return; }
+  const catId=$('eCat').value||null;
+  const cat=cats.find(c=>c.id===catId);
+  const priv=$('ePrivate').checked;
+  // default manager visibility from category unless user marks private
+  const managerVisible = priv ? false : (cat ? cat.manager_visible : true);
+  const payload={
+    owner_id:currentOwnerId, kind,
+    category_id:catId, category_name:cat?cat.name:null,
+    amount, occurred_on:$('eDate').value||todayKey(),
+    counterparty:$('eParty').value.trim()||null, description:$('eDesc').value.trim()||null,
+    notes:$('eNotes').value.trim()||null, manager_visible:managerVisible
+  };
+  if(kind==='expense'){ payload.business_use_pct=Math.max(0,Math.min(100,parseInt($('eBiz').value||'100',10)));
+    payload.is_deductible=$('eDeduct').checked; payload.tax_amount=parseFloat($('eTaxPaid').value)||0; payload.gst_treatment=null; }
+  else { payload.gst_treatment=$('eGst').value; payload.tax_amount=parseFloat($('eTaxColl').value)||0; payload.business_use_pct=100; payload.is_deductible=false; }
+  let res;
+  if(editingEntry) res=await sb.from('planner_finance_entries').update(payload).eq('id',editingEntry.id).select().maybeSingle();
+  else res=await sb.from('planner_finance_entries').insert(payload).select().maybeSingle();
+  if(res.error){ console.error(res.error); $('entryStatus').textContent='Save failed: '+res.error.message; $('entryStatus').className='status-banner error'; return; }
+  closeModal('entryModal'); await loadEntries(); buildYearOptions(); renderAll(); toast(editingEntry?'Updated':'Saved 💰');
+}
+async function deleteEntry(){
+  if(!editingEntry||!confirm('Delete this entry?')) return;
+  const {error}=await sb.from('planner_finance_entries').delete().eq('id',editingEntry.id);
+  if(error){ toast('Delete failed'); return; }
+  closeModal('entryModal'); await loadEntries(); buildYearOptions(); renderAll(); toast('Deleted');
+}
+
+// ---------- reports ----------
+function quarterTotals(){
+  const q=[0,0,0,0], qInc=[0,0,0,0];
+  yearEntries().forEach(e=>{ if(year==='all') return; const qi=qOf(e.occurred_on)-1; const a=+e.amount||0;
+    if(e.kind==='income'){ qInc[qi]+=a; q[qi]+=a; }
+    else if(e.is_deductible){ q[qi]-= a*((e.business_use_pct==null?100:e.business_use_pct)/100); }
+  });
+  return {net:q, inc:qInc};
+}
+function groupByCat(kind){
+  const map={};
+  yearEntries().filter(e=>e.kind===kind).forEach(e=>{
+    const k=e.category_name||'Uncategorized';
+    const a = kind==='income' ? (+e.amount||0)
+            : (e.is_deductible ? (+e.amount||0)*((e.business_use_pct==null?100:e.business_use_pct)/100) : 0);
+    if(a) map[k]=(map[k]||0)+a;
+  });
+  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+}
+function bars(rows,total){
+  if(!rows.length) return '<div class="empty">Nothing here yet.</div>';
+  return rows.map(([n,v])=>{ const pct=total>0?Math.round(v/total*100):0;
+    return `<div class="barline"><span class="nm">${esc(n)}</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span class="v">${money(v)}</span></div>`; }).join('');
+}
+function renderReports(){
+  const t=totals(yearEntries());
+  const pct=(settings&&+settings.tax_setaside_pct)||25;
+  const setaside=Math.max(0,t.taxable)*pct/100;
+  const incRows=groupByCat('income'), expRows=groupByCat('expense');
+  const incTotal=incRows.reduce((s,r)=>s+r[1],0), expTotal=expRows.reduce((s,r)=>s+r[1],0);
+  // P&L
+  let html=`<div class="rep"><h3>Profit &amp; Loss</h3>
+    <div class="kv"><span>Income</span><b>${money2(t.inc)}</b></div>
+    <div class="kv"><span>Expenses (all)</span><b>${money2(t.exp)}</b></div>
+    <div class="kv"><span>Deductible expenses</span><b>${money2(t.ded)}</b></div>
+    <div class="kv"><span>Net (cash)</span><b>${money2(t.net)}</b></div>
+    <div class="kv"><span>Net taxable (income − deductible)</span><b>${money2(t.taxable)}</b></div>
+    <div class="kv"><span>Suggested set-aside (${pct}%)</span><b>${money2(setaside)}</b></div></div>`;
+  // by category
+  html+=`<div class="rep"><h3>By category</h3><div class="twocol">
+    <div><div class="muted" style="font-weight:800;color:var(--deep)">Income · ${money(incTotal)}</div>${bars(incRows,incTotal)}</div>
+    <div><div class="muted" style="font-weight:800;color:var(--deep)">Deductible expenses · ${money(expTotal)}</div>${bars(expRows,expTotal)}</div>
+  </div></div>`;
+  // quarterly
+  if(year!=='all'){
+    const qt=quarterTotals();
+    const due=['Apr 15','Jun 15','Sep 15','Jan 15 ('+(year+1)+')'];
+    let qrows='';
+    for(let i=0;i<4;i++){ const stash=Math.max(0,qt.net[i])*pct/100;
+      qrows+=`<div class="kv"><span>Q${i+1} · net ${money(qt.net[i])} <span class="muted">(US est. due ${due[i]})</span></span><b>${money2(stash)}</b></div>`; }
+    html+=`<div class="rep"><h3>Quarterly set-aside (${pct}%)</h3>${qrows}
+      <div class="muted" style="margin-top:6px">US: pay quarterly via Form 1040-ES if you'll owe $1,000+. Canada: instalments if you'll owe more than ~$3,000 — CRA bills you quarterly.</div></div>`;
+  }
+  // year-end US + CA
+  const se=t.taxable>400 ? t.taxable*0.9235*0.153 : 0;
+  html+=`<div class="rep"><h3>Year-end tax summary <span class="muted">(both countries)</span></h3><div class="twocol">
+    <div><div style="font-weight:800;color:var(--deep)">🇺🇸 United States</div>
+      <div class="kv"><span>Net taxable (Schedule C)</span><b>${money2(t.taxable)}</b></div>
+      <div class="kv"><span>Est. self-employment tax (15.3%)</span><b>${money2(se)}</b></div>
+      <div class="kv"><span>Set-aside (${pct}%)</span><b>${money2(setaside)}</b></div>
+      <div class="muted" style="margin-top:6px">Forms: Schedule C + Schedule SE. You can deduct ½ of SE tax, and may qualify for the 20% QBI deduction.</div>
+      ${t.inc>=20000?'<div class="flag">You may receive a 1099-K (over $20k &amp; 200 transactions).</div>':''}
+    </div>
+    <div><div style="font-weight:800;color:var(--deep)">🇨🇦 Canada</div>
+      <div class="kv"><span>Net taxable (T2125)</span><b>${money2(t.taxable)}</b></div>
+      <div class="kv"><span>Set-aside (${pct}%)</span><b>${money2(setaside)}</b></div>
+      <div class="muted" style="margin-top:6px">Form T2125 on your T1; pay income tax + CPP on net. File by Jun 15, balance due Apr 30. Keep records 6 years.</div>
+      ${t.inc>=30000 && !(settings&&settings.gst_registered)?'<div class="flag">Over CAD $30k — you likely must register for GST/HST.</div>':''}
+    </div></div></div>`;
+  // GST/HST
+  const taxable=yearEntries().filter(e=>e.kind==='income'&&e.gst_treatment==='taxable').reduce((s,e)=>s+(+e.amount||0),0);
+  const zero=yearEntries().filter(e=>e.kind==='income'&&e.gst_treatment==='zero_rated').reduce((s,e)=>s+(+e.amount||0),0);
+  const collected=yearEntries().filter(e=>e.kind==='income').reduce((s,e)=>s+(+e.tax_amount||0),0);
+  const itc=yearEntries().filter(e=>e.kind==='expense').reduce((s,e)=>s+(+e.tax_amount||0),0);
+  html+=`<div class="rep"><h3>GST/HST (Canada)</h3>
+    <div class="kv"><span>Taxable sales (Canadian clients)</span><b>${money2(taxable)}</b></div>
+    <div class="kv"><span>Zero-rated sales (foreign / export, e.g. AdSense)</span><b>${money2(zero)}</b></div>
+    <div class="kv"><span>GST/HST collected</span><b>${money2(collected)}</b></div>
+    <div class="kv"><span>Input tax credits (GST/HST paid on expenses)</span><b>${money2(itc)}</b></div>
+    <div class="kv"><span>Net to remit (collected − ITCs)</span><b>${money2(collected-itc)}</b></div>
+    <div class="muted" style="margin-top:6px">Foreign ad revenue is generally zero-rated (export of services); Canadian brand deals are usually taxable. Confirm with your accountant.</div></div>`;
+  $('repBody').innerHTML=html;
+}
+function exportCSV(){
+  const rows=[['date','type','category','payer_or_vendor','description','amount','business_use_pct','deductible','gst_treatment','tax_amount','manager_hidden','notes']];
+  yearEntries().slice().sort((a,b)=>a.occurred_on<b.occurred_on?-1:1).forEach(e=>{
+    rows.push([e.occurred_on,e.kind,e.category_name||'',e.counterparty||'',(e.description||'').replace(/\n/g,' '),
+      e.amount,(e.kind==='expense'?(e.business_use_pct==null?100:e.business_use_pct):''),
+      (e.kind==='expense'?(e.is_deductible?'yes':'no'):''),e.gst_treatment||'',e.tax_amount||0,
+      e.manager_visible?'':'hidden',(e.notes||'').replace(/\n/g,' ')]);
+  });
+  const csv=rows.map(r=>r.map(c=>{ const s=String(c==null?'':c); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`finance-${year}.csv`; a.click(); URL.revokeObjectURL(url);
+  toast('CSV exported');
+}
+
+// ---------- settings ----------
+function openSettings(){
+  $('setCur').value=(settings&&settings.base_currency)||'CAD';
+  $('setPct').value=(settings&&settings.tax_setaside_pct)||25;
+  $('setGst').checked=!!(settings&&settings.gst_registered);
+  $('setBn').value=(settings&&settings.business_number)||'';
+  $('settingsStatus').textContent='';
+  $('settingsModal').classList.add('show');
+}
+async function saveSettings(){
+  const payload={ owner_id:currentOwnerId,
+    base_currency:($('setCur').value.trim().toUpperCase()||'CAD').slice(0,3),
+    tax_setaside_pct:Math.max(0,Math.min(100,parseFloat($('setPct').value)||0)),
+    gst_registered:$('setGst').checked, business_number:$('setBn').value.trim()||null };
+  const {data,error}=await sb.from('planner_finance_settings').upsert(payload,{onConflict:'owner_id'}).select().maybeSingle();
+  if(error){ $('settingsStatus').textContent='Save failed: '+error.message; $('settingsStatus').className='status-banner error'; return; }
+  settings=Object.assign(settings||{},data||payload); closeModal('settingsModal'); renderAll(); toast('Settings saved');
+}
+
+// ---------- categories ----------
+function openCats(){ renderCats(); $('catsModal').classList.add('show'); }
+function renderCats(){
+  ['income','expense'].forEach(kind=>{
+    const box=$(kind==='income'?'catIncome':'catExpense'); box.innerHTML='';
+    catsFor(kind).forEach(c=>{
+      const row=document.createElement('div'); row.className='cat-row';
+      row.innerHTML=`<button class="eye" title="Toggle manager visibility">${c.manager_visible?'👁️':'🙈'}</button><span class="nm">${esc(c.name)}</span><button class="eye" title="Delete">🗑️</button>`;
+      row.children[0].onclick=()=>toggleCatVis(c);
+      row.children[2].onclick=()=>delCat(c);
+      box.appendChild(row);
+    });
+  });
+}
+async function addCat(kind){
+  const inp=$(kind==='income'?'newIncomeCat':'newExpenseCat'); const name=inp.value.trim(); if(!name) return;
+  const sort=catsFor(kind).length;
+  const {data,error}=await sb.from('planner_finance_categories').insert({owner_id:currentOwnerId,kind,name,sort,manager_visible:true}).select().maybeSingle();
+  if(error){ toast('Add failed'); return; }
+  cats.push(data); inp.value=''; renderCats(); populateCatFilter();
+}
+async function toggleCatVis(c){
+  const nv=!c.manager_visible;
+  const {error}=await sb.from('planner_finance_categories').update({manager_visible:nv}).eq('id',c.id);
+  if(error){ toast('Update failed'); return; }
+  c.manager_visible=nv;
+  // cascade to entries in this category (respect per-entry overrides? simplest: set all to match)
+  await sb.from('planner_finance_entries').update({manager_visible:nv}).eq('owner_id',currentOwnerId).eq('category_id',c.id);
+  await loadEntries(); renderCats(); renderLedger();
+  toast(nv?'Category visible to managers':'Category hidden from managers');
+}
+async function delCat(c){
+  if(!confirm(`Delete category "${c.name}"? Entries keep their saved category name.`)) return;
+  const {error}=await sb.from('planner_finance_categories').delete().eq('id',c.id);
+  if(error){ toast('Delete failed'); return; }
+  cats=cats.filter(x=>x.id!==c.id); renderCats(); populateCatFilter();
+}
+
+// ---------- privacy ----------
+function openPrivacy(){ $('pvMaster').checked=!!(settings&&settings.hide_all_from_manager); $('privacyModal').classList.add('show'); }
+async function saveMaster(){
+  const v=$('pvMaster').checked;
+  const {error}=await sb.from('planner_finance_settings').upsert({owner_id:currentOwnerId,hide_all_from_manager:v},{onConflict:'owner_id'});
+  if(error){ toast('Update failed'); $('pvMaster').checked=!v; return; }
+  settings=Object.assign(settings||{},{hide_all_from_manager:v});
+  toast(v?'Finances hidden from all managers 🔒':'Managers can see allowed items again');
+}
+
+// ---------- savings ----------
+function renderGoals(){
+  const box=$('goalsBox'); box.innerHTML='';
+  if(!goals.length){ box.innerHTML='<div class="empty">No goals yet — add one to start stashing. 🎯</div>'; return; }
+  goals.forEach(g=>{
+    const pct=g.target_amount>0?Math.min(100,Math.round(g.saved_amount/g.target_amount*100)):0;
+    const el=document.createElement('div'); el.className='goal';
+    el.innerHTML=`<div class="gt">${esc(g.name)} ${g.manager_visible?'':'<span class="lock">🔒</span>'}</div>
+      <div class="gp"><div class="gf" style="width:${pct}%;background:${esc(g.color||'#90A5FF')}"></div></div>
+      <div class="gn">${money(g.saved_amount)} of ${money(g.target_amount)} · ${pct}%</div>
+      ${g.notes?`<div class="muted">${esc(g.notes)}</div>`:''}
+      <div class="gbtns">
+        <button class="btn small" data-a="add">＋ Add</button>
+        <button class="btn ghost small" data-a="sub">－ Withdraw</button>
+        <button class="btn ghost small" data-a="edit">Edit</button>
+      </div>`;
+    const [addB,subB,editB]=el.querySelectorAll('button');
+    addB.onclick=()=>adjustGoal(g,1); subB.onclick=()=>adjustGoal(g,-1); editB.onclick=()=>openGoal(g);
+    box.appendChild(el);
+  });
+}
+async function adjustGoal(g,sign){
+  const v=parseFloat(prompt((sign>0?'Add to':'Withdraw from')+` "${g.name}":`,'')); if(isNaN(v)||v<=0) return;
+  const ns=Math.max(0, (+g.saved_amount||0) + sign*v);
+  const {error}=await sb.from('planner_finance_savings').update({saved_amount:ns}).eq('id',g.id);
+  if(error){ toast('Update failed'); return; }
+  g.saved_amount=ns; renderGoals(); toast('Updated 🎯');
+}
+function openGoal(g){
+  editingGoal=g||null;
+  $('goalTitle').textContent=g?'Edit goal':'New savings goal';
+  $('gName').value=g?g.name:''; $('gTarget').value=g?g.target_amount:''; $('gSaved').value=g?g.saved_amount:'';
+  $('gNotes').value=g?(g.notes||''):''; $('gPrivate').checked=g?!g.manager_visible:false;
+  $('gDelete').classList.toggle('hidden',!g); $('goalStatus').textContent='';
+  $('goalModal').classList.add('show');
+}
+async function saveGoal(){
+  const name=$('gName').value.trim(); if(!name){ $('goalStatus').textContent='Name it first.'; $('goalStatus').className='status-banner error'; return; }
+  const payload={ owner_id:currentOwnerId, name,
+    target_amount:parseFloat($('gTarget').value)||0, saved_amount:parseFloat($('gSaved').value)||0,
+    notes:$('gNotes').value.trim()||null, manager_visible:!$('gPrivate').checked };
+  let res;
+  if(editingGoal) res=await sb.from('planner_finance_savings').update(payload).eq('id',editingGoal.id).select().maybeSingle();
+  else { payload.sort=goals.length; res=await sb.from('planner_finance_savings').insert(payload).select().maybeSingle(); }
+  if(res.error){ $('goalStatus').textContent='Save failed: '+res.error.message; $('goalStatus').className='status-banner error'; return; }
+  closeModal('goalModal'); await loadGoals(); renderGoals(); toast(editingGoal?'Updated':'Goal added 🎯');
+}
+async function deleteGoal(){
+  if(!editingGoal||!confirm('Delete this goal?')) return;
+  const {error}=await sb.from('planner_finance_savings').delete().eq('id',editingGoal.id);
+  if(error){ toast('Delete failed'); return; }
+  closeModal('goalModal'); await loadGoals(); renderGoals(); toast('Deleted');
+}
+
+function closeModal(id){ $(id).classList.remove('show'); }
+// close modal on backdrop click
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('show'); }));
+
+initAuth();
+</script>
+</body>
+</html>
