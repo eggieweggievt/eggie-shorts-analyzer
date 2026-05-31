@@ -599,7 +599,7 @@ async function loadStats(){
   const { data:shipped, error:e1 } = await sb
     .from('planner_items')
     .select('id,title,platforms,posted_at')
-    .eq('user_id', currentOwnerId)
+    .eq('owner_id', currentOwnerId)
     .not('posted_at','is',null)
     .gte('posted_at', startISO)
     .lt('posted_at', endISO)
@@ -612,17 +612,17 @@ async function loadStats(){
   const { count:dlCount } = await sb
     .from('planner_items')
     .select('id', { count:'exact', head:true })
-    .eq('user_id', currentOwnerId)
-    .not('deadline_at','is',null)
-    .gte('deadline_at', startISO)
-    .lt('deadline_at', endISO);
+    .eq('owner_id', currentOwnerId)
+    .not('scheduled_at','is',null)
+    .gte('scheduled_at', startISO)
+    .lt('scheduled_at', endISO);
   document.getElementById('stDeadlines').textContent = dlCount || 0;
 
   // In progress (current pipeline state, not week-scoped)
   const { count:progCount } = await sb
     .from('planner_items')
     .select('id', { count:'exact', head:true })
-    .eq('user_id', currentOwnerId)
+    .eq('owner_id', currentOwnerId)
     .in('status', PROGRESS);
   document.getElementById('stProgress').textContent = progCount || 0;
 
@@ -630,7 +630,7 @@ async function loadStats(){
   const { count:schCount } = await sb
     .from('planner_items')
     .select('id', { count:'exact', head:true })
-    .eq('user_id', currentOwnerId)
+    .eq('owner_id', currentOwnerId)
     .eq('status','scheduled');
   document.getElementById('stScheduled').textContent = schCount || 0;
 }

@@ -305,10 +305,10 @@ async function resolveManager(managerId){
 async function loadItems(){
   if(!sb || !currentUser) return;
   let q = sb.from('planner_items')
-    .select('id,title,status,platforms,is_priority,deadline_at,posted_at,hook,notes')
+    .select('id,title,status,platforms,is_priority,scheduled_at,posted_at,hook,notes')
     .neq('status','archived')
     .limit(500);
-  if(manageOwnerId) q = q.eq('user_id', manageOwnerId);
+  if(manageOwnerId) q = q.eq('owner_id', manageOwnerId);
   const { data, error } = await q;
   if(error){ console.warn('items load failed', error); allItems = []; return; }
   allItems = data || [];
@@ -410,8 +410,8 @@ function renderResults(data){
 
 function whenLabel(it){
   if(it.posted_at) return 'posted ' + fmtDay(new Date(it.posted_at));
-  if(it.deadline_at){
-    const d = new Date(it.deadline_at), now = new Date();
+  if(it.scheduled_at){
+    const d = new Date(it.scheduled_at), now = new Date();
     const days = Math.round((d - now)/86400000);
     if(days < 0) return `${Math.abs(days)}d overdue`;
     if(days === 0) return 'due today';
@@ -451,8 +451,8 @@ function platMatches(platformStr, p){
 }
 
 function byDeadlineAsc(a,b){
-  const da = a.deadline_at ? +new Date(a.deadline_at) : Infinity;
-  const db = b.deadline_at ? +new Date(b.deadline_at) : Infinity;
+  const da = a.scheduled_at ? +new Date(a.scheduled_at) : Infinity;
+  const db = b.scheduled_at ? +new Date(b.scheduled_at) : Infinity;
   return da - db;
 }
 function byPriorityThenDeadline(a,b){
@@ -472,7 +472,7 @@ function answerQuestion(question){
   let pool, answer;
 
   if(has('overdue','late','past due','behind','missed')){
-    pool = active.filter(it => it.deadline_at && new Date(it.deadline_at) < now).sort(byDeadlineAsc);
+    pool = active.filter(it => it.scheduled_at && new Date(it.scheduled_at) < now).sort(byDeadlineAsc);
     answer = pool.length ? `You've got ${pool.length} item${plural(pool.length)} overdue — most overdue first. Knock the top one out first. 💪`
                          : `Nothing overdue — you're on top of it. 🎉`;
   } else if(has('stuck','stalled') || (has('editing','edit') && !has('done','finished'))){
@@ -498,7 +498,7 @@ function answerQuestion(question){
                 .sort((a,b)=> +new Date(b.posted_at) - +new Date(a.posted_at));
     answer = pool.length ? `${pool.length} thing${plural(pool.length)} shipped this week — nice work! 🚀` : `Nothing posted yet this week. Rest counts too. 🌙`;
   } else if(has('this week','week','today','soon','due')){
-    pool = active.filter(it => (it.deadline_at && new Date(it.deadline_at) >= wkStart && new Date(it.deadline_at) < wkEnd) || it.is_priority)
+    pool = active.filter(it => (it.scheduled_at && new Date(it.scheduled_at) >= wkStart && new Date(it.scheduled_at) < wkEnd) || it.is_priority)
                  .sort(byPriorityThenDeadline);
     answer = pool.length ? `${pool.length} thing${plural(pool.length)} on deck this week (deadlines + priorities).` : `Your week looks open — breathing room. 🫧`;
   } else {
