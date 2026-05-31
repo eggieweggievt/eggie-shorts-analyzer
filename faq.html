@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FAQ 🐙 — Eggie's Creator Hub</title>
+<meta name="description" content="Answers to common questions about Eggie's Creator Hub — how it works, how your data is stored and protected, whether it uses AI, and what it costs (nothing)." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/faq.html" />
+<meta property="og:title" content="FAQ — Eggie's Creator Hub 🐙" />
+<meta property="og:description" content="How it works, how your data is protected, and what it costs (nothing)." />
+<meta property="og:image" content="preview.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@EggieWeggieVT" />
+<meta name="twitter:title" content="FAQ — Eggie's Creator Hub 🐙" />
+<meta name="twitter:description" content="How it works, how your data is protected, and what it costs (nothing)." />
+<meta name="twitter:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --shadow-lift:0 16px 44px rgba(99,170,244,0.26), 0 4px 12px rgba(255,178,240,0.22);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 88%, rgba(255,255,255,0.55) 0 3px, transparent 4px),
+      radial-gradient(circle at 22% 62%, rgba(255,255,255,0.45) 0 2px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:18px 20px 56px;position:relative;z-index:1}
+
+  /* ===== back-row (hub-nav.js converts this into the hamburger) ===== */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 8px}
+  .back-row a{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.75);
+    border:1.5px solid rgba(255,178,240,0.5);color:var(--deep);font-weight:800;font-size:13px;
+  }
+
+  /* ===== HERO ===== */
+  header.hero{text-align:center;padding:14px 0 4px}
+  header.hero h1{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:clamp(28px, 5vw, 42px);
+    margin:6px auto 6px;padding:6px 12px 12px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);line-height:1.3;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15px;
+    margin:0 auto;max-width:560px;line-height:1.5;padding:0 16px;
+  }
+
+  /* ===== TL;DR card ===== */
+  .tldr{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.32));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;box-shadow:var(--shadow);
+    padding:18px 22px;margin:22px 0 30px;
+  }
+  .tldr h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:19px;color:var(--deep);
+    margin:0 0 10px;display:flex;align-items:center;gap:8px;
+  }
+  .tldr ul{list-style:none;margin:0;padding:0}
+  .tldr li{font-size:14px;padding:5px 0 5px 26px;position:relative;line-height:1.55}
+  .tldr li::before{content:'💗';position:absolute;left:2px;font-size:13px}
+  .tldr strong{color:var(--deep)}
+
+  /* ===== sections ===== */
+  .faq-section{margin:0 0 28px}
+  .faq-section .sec-title{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Pacifico',cursive;font-weight:400;font-size:23px;
+    color:var(--deep);margin:0 0 12px;padding:0 4px;line-height:1.2;
+  }
+  .faq-section .sec-title .se{
+    font-family:'Quicksand',sans-serif;font-size:20px;line-height:1;
+    width:40px;height:40px;flex-shrink:0;border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.7);box-shadow:var(--shadow);
+  }
+
+  details.faq-item{
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:16px;box-shadow:var(--shadow);
+    margin:0 0 11px;overflow:hidden;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  details.faq-item[open]{border-color:rgba(255,178,240,0.6);box-shadow:var(--shadow-lift)}
+  summary.faq-q{
+    padding:15px 18px;font-weight:800;font-size:15.5px;color:var(--deep);
+    cursor:pointer;list-style:none;display:flex;justify-content:space-between;
+    align-items:center;gap:12px;line-height:1.35;
+  }
+  summary.faq-q::-webkit-details-marker{display:none}
+  summary.faq-q::after{content:'✦';color:var(--periwinkle);flex-shrink:0;transition:transform .25s ease}
+  details.faq-item[open] summary.faq-q::after{transform:rotate(180deg);color:var(--pink-hot)}
+  .faq-a{padding:0 18px 16px;font-size:14px;color:var(--ink);line-height:1.65}
+  .faq-a p{margin:0 0 10px}
+  .faq-a p:last-child{margin:0}
+  .faq-a ul{margin:0 0 10px;padding-left:22px}
+  .faq-a li{margin:0 0 6px}
+  .faq-a strong{color:var(--deep)}
+  .faq-a a{color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dashed var(--periwinkle)}
+  .faq-a a:hover{color:var(--pink-hot);border-bottom-color:var(--pink-hot)}
+  .faq-a code{background:rgba(144,165,255,0.16);padding:2px 6px;border-radius:6px;font-size:12.5px}
+  .badge{
+    display:inline-block;background:rgba(168,230,190,0.55);color:#1f6b35;
+    font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;margin-left:8px;vertical-align:middle;
+  }
+  .badge.lav{background:rgba(144,165,255,0.22);color:var(--deep)}
+
+  /* ===== privacy / TOS cards ===== */
+  .privacy-box{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(255,178,240,0.45);
+    border-radius:16px;box-shadow:var(--shadow);
+    padding:18px 22px;margin:0 0 13px;
+  }
+  .privacy-box h3{
+    font-size:15.5px;color:var(--deep);margin:0 0 8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .privacy-box p{font-size:14px;margin:0 0 10px;line-height:1.6}
+  .privacy-box p:last-child{margin:0}
+  .privacy-box ul{font-size:14px;padding-left:22px;margin:0 0 10px;line-height:1.6}
+  .privacy-box li{margin:0 0 6px}
+  .privacy-box strong{color:var(--deep)}
+  .stamp{font-size:12.5px;color:var(--ink-soft);margin-top:12px;font-style:italic;line-height:1.5}
+
+  .sec-intro{font-size:13.5px;color:var(--ink-soft);margin:-4px 0 14px 4px;line-height:1.55}
+
+  /* ===== footer ===== */
+  footer{text-align:center;padding:24px 0 8px;color:var(--ink-soft);font-size:12.5px;line-height:1.6}
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  footer a:hover{color:var(--pink-hot)}
+  .foot-cta{
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.38);
+    border-radius:16px;padding:18px 22px;margin:8px 0 18px;text-align:center;
+  }
+  .foot-cta h3{font-family:'Pacifico',cursive;font-weight:400;font-size:19px;color:var(--deep);margin:0 0 6px}
+  .foot-cta p{font-size:14px;color:var(--ink);margin:0 0 12px;line-height:1.6}
+  .foot-links{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .foot-links a{
+    display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;color:var(--deep);font-weight:700;font-size:13px;text-decoration:none;
+    transition:background .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  .foot-links a:hover{background:#fff;border-color:var(--periwinkle);transform:translateY(-1px)}
+  .foot-links a.kofi{background:#FF5E5B;color:#fff;border-color:#FF5E5B}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html">🏠 Hub Home</a>
+    <a href="about.html">📖 About</a>
+  </div>
+
+  <header class="hero">
+    <h1>Frequently Asked Questions</h1>
+    <p class="tag">Honest answers about how the Creator Hub works, how your data is handled, and what it costs. 🐙</p>
+  </header>
+
+  <div class="tldr">
+    <h2>✨ The short version</h2>
+    <ul>
+      <li>The hub is <strong>completely free</strong>. There's no paywall, trial timer, or locked features.</li>
+      <li>It is <strong>not generative AI</strong> and is <strong>not connected to any LLM</strong> such as ChatGPT.</li>
+      <li>Your data is <strong>encrypted</strong> and stored in a <strong>private database</strong>. It is never sold or shared without your permission.</li>
+      <li>Under the hood it's a large database plus pattern recognition, with speech-to-text for transcription — essentially pre-AI technology.</li>
+    </ul>
+  </div>
+
+  <!-- ============ DATA & PRIVACY (lead with this — it's the top concern) ============ -->
+  <section class="faq-section">
+    <h2 class="sec-title"><span class="se">🔒</span> Your data &amp; privacy</h2>
+
+    <details class="faq-item" open>
+      <summary class="faq-q">Is the information I enter being stored somewhere?</summary>
+      <div class="faq-a">
+        <p>Yes. In order for your projects, plans, and settings to still be there when you return, they have to be saved. Your data is stored <strong>encrypted</strong> in a <strong>private database</strong> (hosted on <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>) with as much security applied to it as reasonably possible. It is not stored in the open or left publicly accessible.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Do you sell my data?<span class="badge">never</span></summary>
+      <div class="faq-a">
+        <p>No. Your data is never sold, rented, or traded — not to advertisers, not to anyone. This is a project built by one creator to help other creators, not a data business. If that ever changed, it would be communicated clearly and in advance, but it is not something this project does.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Who is able to see my data?</summary>
+      <div class="faq-a">
+        <p>By default, only you. Your content is tied to your own account through database access rules. The only time anything is shared is when <strong>you</strong> deliberately choose to share it — for example, inviting an editor or manager to a project, or publishing a media kit to a public link. Nothing is shared unless you opt in.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Can I delete my data?</summary>
+      <div class="faq-a">
+        <p>Yes. You can delete individual projects and content from within the hub at any time. If you would like your entire account and all associated data removed, contact me through my socials and it will be taken care of. Your data belongs to you.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Is there a Terms of Service / Privacy Policy?</summary>
+      <div class="faq-a">
+        <p>A formal Terms of Service is being written and will be linked here once it's ready. In the meantime, the plain-language summary further down this page (<a href="#privacy-summary">"How your data is handled"</a>) describes exactly what is stored, how it is protected, and what will never be done with it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="faq-section">
+    <h2 class="sec-title"><span class="se">⚙️</span> How it actually works</h2>
+
+    <details class="faq-item">
+      <summary class="faq-q">Is this generative AI? Does it use ChatGPT or an LLM?<span class="badge lav">/gen</span></summary>
+      <div class="faq-a">
+        <p>No. The hub is <strong>not connected to any LLM</strong>. It is not ChatGPT, it is not a chatbot, and it does not generate content from a language model.</p>
+        <p>While it would be technically possible to connect it to such a service, that is deliberately not how it is built. The goal is the opposite: results that are predictable, transparent, and grounded in real creator data rather than produced by a model.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">So what is it, then?</summary>
+      <div class="faq-a">
+        <p>Think of it as <strong>pre-AI technology</strong> — the kind of system that existed before the recent wave of generative AI: a large database combined with pattern recognition.</p>
+        <p>In practical terms, it is a very large database connected to Supabase, drawing on data from <strong>VidIQ</strong> and a range of other creator resources. The tools then identify patterns in that data — which kinds of titles, topics, and formats tend to perform well — and surface those patterns to you.</p>
+        <p>So when the Title Generator offers suggestions, it is drawing on proven patterns in real performance data, not inventing sentences from a language model.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">You mentioned transcription — isn't that AI?</summary>
+      <div class="faq-a">
+        <p>For converting audio into text, the hub uses a <strong>speech-to-text model</strong> (in this case <a href="https://openai.com/research/whisper" target="_blank" rel="noopener">Whisper</a>). This is a transcription tool — comparable to high-quality automatic captions. It listens and writes down what was said.</p>
+        <p>That is a different category of technology from a generative chatbot. It does not make decisions, form opinions, or write content for you; it simply turns speech into text so the other tools have something to read.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Where does the data it learns from come from?</summary>
+      <div class="faq-a">
+        <p>From creator-analytics sources such as VidIQ and other resources that measure how content performs. That is the data the pattern recognition runs on. It is <strong>not</strong> built from your private information — the public trend data and your personal account data are kept separate.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ COST & SUPPORT ============ -->
+  <section class="faq-section">
+    <h2 class="sec-title"><span class="se">💰</span> Cost &amp; support</h2>
+
+    <details class="faq-item">
+      <summary class="faq-q">Is it paid? Is there a catch?<span class="badge">free</span></summary>
+      <div class="faq-a">
+        <p>It is entirely free. Every tool and resource on the hub runs on a "support it if you'd like to" basis — there is no paywall, no locked features, and no trial timer. If something here helped you and you wish to support the project, that is genuinely appreciated, but it is never required.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">If it's free, how is it funded?</summary>
+      <div class="faq-a">
+        <p>Primarily out of pocket, because it's a project worth building. Optional tips help cover running costs such as the database and data sources, but the hub does not depend on them and will remain free regardless.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ GETTING STARTED ============ -->
+  <section class="faq-section">
+    <h2 class="sec-title"><span class="se">🌸</span> Getting started</h2>
+
+    <details class="faq-item">
+      <summary class="faq-q">What is Eggie's Creator Hub?</summary>
+      <div class="faq-a">
+        <p>A free suite of tools to help VTubers and content creators plan, write, and grow their content — built by one creator trying to make something that genuinely helps others.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Do I need to know how to code?</summary>
+      <div class="faq-a">
+        <p>Not at all. Everything runs right in your browser — just open a tool and start using it.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Can I be a beta tester?</summary>
+      <div class="faq-a">
+        <p>Yes, and that's hugely appreciated. The easiest way is to reach out on my socials and let me know, ideally with your channel links so I can find you. The more creators trying the tools, the better they become.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PLAIN-LANGUAGE PRIVACY SUMMARY ============ -->
+  <section class="faq-section" id="privacy-summary">
+    <h2 class="sec-title"><span class="se">📜</span> How your data is handled</h2>
+    <p class="sec-intro">A full Terms of Service is on the way. Until then, here is a clear, plain-language summary of how your data is treated.</p>
+
+    <div class="privacy-box">
+      <h3>📦 What is stored</h3>
+      <p>Only what is needed to run the tools for you:</p>
+      <ul>
+        <li>Your account information, so you can sign back in</li>
+        <li>The content you create here — projects, plans, titles, notes, and settings</li>
+        <li>Basic technical data needed to keep the tools functioning</li>
+      </ul>
+      <p>Public creator-trend data (from VidIQ and similar sources) is kept separate from your personal account data.</p>
+    </div>
+
+    <div class="privacy-box">
+      <h3>🔐 How it is protected</h3>
+      <p>Your data is <strong>encrypted</strong> and stored in a <strong>private database</strong> with access controls, so only your account can reach your content. As much security is applied as is reasonably possible for an independently run project.</p>
+    </div>
+
+    <div class="privacy-box">
+      <h3>🚫 What will never be done</h3>
+      <ul>
+        <li><strong>Your data will not be sold</strong> — not to advertisers, not to anyone.</li>
+        <li><strong>It will not be rented or traded.</strong></li>
+        <li><strong>It will not be shared without your permission.</strong> Sharing only happens when you choose it (for example, inviting an editor or publishing a media kit).</li>
+        <li><strong>It will not be used to train a generative AI or LLM.</strong> The tools are not built on an LLM to begin with.</li>
+      </ul>
+    </div>
+
+    <div class="privacy-box">
+      <h3>✅ Your rights</h3>
+      <p>You can view, edit, and delete your content at any time, and you can request full account deletion by contacting me. Your data belongs to you.</p>
+      <p class="stamp">This is a friendly summary, not the final legal Terms of Service — a complete TOS will be linked here once it is ready. Last updated: May 2026.</p>
+    </div>
+  </section>
+
+  <!-- ============ STILL HAVE QUESTIONS ============ -->
+  <div class="foot-cta">
+    <h3>Still have a question? 🐙</h3>
+    <p>If something isn't covered here, please ask. Recurring questions get added to this page so they're easy to find next time.</p>
+    <div class="foot-links">
+      <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">🐦 @EggieWeggieVT</a>
+      <a href="about.html">📖 About &amp; contact</a>
+      <a class="kofi" href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">☕ Ko-fi</a>
+    </div>
+  </div>
+
+  <footer>
+    Made with 💗 by Eggie &middot; <a href="index.html">Back to the Hub</a>
+  </footer>
+
+</div>
+
+<script src="hub-nav.js"></script>
+</body>
+</html>
