@@ -4,14 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Eggie's Creator Hub 🐙 — Tools + guides for VTubers + streamers</title>
-<meta name="description" content="A growing hub of free tools and guides for VTubers, streamers, and short-form creators. Score your shorts, read the growth playbook, and more coming soon." />
+<meta name="description" content="A growing hub of free tools and guides for VTubers, streamers, and short-form creators. Score your shorts, plan your content, grow your channel, and more." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <!-- Open Graph -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/" />
 <meta property="og:title" content="Eggie's Creator Hub 🐙" />
-<meta property="og:description" content="Free tools + guides for VTubers and creators. Pick research or build something." />
+<meta property="og:description" content="Free tools + guides for VTubers and creators. Find exactly what you need." />
 <meta property="og:image" content="preview.png" />
 <meta property="og:image:width" content="1100" />
 <meta property="og:image:height" content="550" />
@@ -38,11 +38,12 @@
     --ink-soft:#6b5f8a;
     --white:#ffffff;
     --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
-    --shadow-lift:0 16px 48px rgba(99,170,244,0.28), 0 4px 12px rgba(255,178,240,0.22);
+    --shadow-lift:0 16px 44px rgba(99,170,244,0.26), 0 4px 12px rgba(255,178,240,0.22);
     --radius:24px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
   body{
     font-family:'Quicksand',system-ui,-apple-system,sans-serif;
     color:var(--ink);
@@ -67,317 +68,244 @@
     pointer-events:none;
     z-index:0;
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:40px 20px 60px;position:relative;z-index:1}
+  .wrap{max-width:1000px;margin:0 auto;padding:34px 20px 56px;position:relative;z-index:1}
 
-  /* HERO */
-  header.hero{
-    text-align:center;
-    padding:24px 0 12px;
-  }
-  .brand-row{
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-    margin-bottom:20px;
-  }
+  /* ===== HERO (slimmer) ===== */
+  header.hero{text-align:center;padding:8px 0 4px}
+  .brand-row{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:6px}
   .brand-logo{
-    display:block;max-width:340px;width:75%;height:auto;
+    display:block;max-width:280px;width:64%;height:auto;
     filter:drop-shadow(0 8px 20px rgba(99,170,244,0.28));
   }
-  /* Hero character — replaces the SVG fallback once you drop a PNG named hero-chibi.png */
   .hero-char{
-    display:block;
-    width:clamp(180px, 28vw, 260px);
-    height:auto;
-    margin:0 auto 6px;
+    display:block;width:clamp(120px, 18vw, 168px);height:auto;margin:0 auto 2px;
     filter:drop-shadow(0 12px 28px rgba(255,178,240,0.35));
     animation:gentle-bob 6s ease-in-out infinite;
   }
-  @keyframes gentle-bob{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-8px)}
-  }
+  @keyframes gentle-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   header.hero h1{
     font-family:'Pacifico',cursive;font-weight:400;
-    font-size:clamp(36px, 6vw, 56px);
-    margin:6px auto 4px;
-    padding:14px 12px 22px;
+    font-size:clamp(30px, 5vw, 46px);
+    margin:2px auto 2px;padding:8px 12px 14px;
     background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:0 4px 16px rgba(99,170,244,0.18);
-    line-height:1.35;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);line-height:1.3;
   }
   header.hero p.tag{
-    font-weight:600;color:var(--ink-soft);font-size:17px;
-    margin:0 auto 4px;max-width:680px;line-height:1.55;
-    padding:0 16px;
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:600px;line-height:1.5;padding:0 16px;
   }
   header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
-  header.hero p.sub-tag{
-    font-size:14px;color:var(--ink-soft);
-    margin:8px auto 0;max-width:520px;line-height:1.5;
-    padding:0 16px;
-  }
 
-  /* CHOICE PROMPT — small section break between hero and tiles */
-  .pick-prompt{
-    text-align:center;
-    margin:34px auto 18px;
-    font-size:14px;font-weight:800;letter-spacing:.12em;
-    color:var(--ink-soft);text-transform:uppercase;
-    display:flex;align-items:center;gap:14px;justify-content:center;
+  /* ===== SEARCH + FILTER TOOLBAR ===== */
+  .toolbar{
+    position:sticky;top:0;z-index:120;
+    margin:22px auto 8px;max-width:760px;
+    padding:14px 0 12px;
   }
-  .pick-prompt::before,
-  .pick-prompt::after{
-    content:"";flex:0 0 60px;
-    height:1.5px;
-    background:linear-gradient(90deg, transparent, rgba(144,165,255,0.5), transparent);
+  .search-wrap{position:relative;max-width:560px;margin:0 auto 14px}
+  .search-wrap .search-ic{
+    position:absolute;left:18px;top:50%;transform:translateY(-50%);
+    font-size:18px;opacity:.7;pointer-events:none;
   }
-
-  /* TILE GRID — flex so 5 tiles wrap as 3+2 (centered) on desktop, 2+2+1 on medium, 1 each on mobile */
-  .tiles{
-    display:flex;flex-wrap:wrap;justify-content:center;gap:22px;
-    max-width:1100px;
-    margin:0 auto 32px;
-  }
-  .tile{flex:0 1 320px;max-width:340px;min-width:0}
-  @media(max-width:1024px){.tile{flex:0 1 calc(50% - 22px)}}
-  @media(max-width:580px){.tile{flex:0 1 100%;max-width:480px}}
-
-  .tile{
-    position:relative;
-    display:flex;flex-direction:column;
-    background:rgba(255,255,255,0.82);
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-    border:1.5px solid rgba(255,255,255,0.95);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:0;
-    text-decoration:none;color:inherit;
-    overflow:hidden;
-    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
-  }
-  .tile:hover{transform:translateY(-6px);box-shadow:var(--shadow-lift);border-color:rgba(255,178,240,0.65)}
-  .tile:active{transform:translateY(-2px)}
-
-  /* Header strip with character art */
-  .tile-art{
-    position:relative;
-    aspect-ratio: 16 / 10;
-    overflow:hidden;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .tile-art.analyzer-art{background:linear-gradient(135deg, rgba(107,228,234,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))}
-  .tile-art.playbook-art{background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.4), rgba(199,210,255,0.55))}
-  .tile-art.thumb-art{background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,178,240,0.5))}
-  .tile-art img{
-    max-height:90%;max-width:90%;
-    object-fit:contain;
-    filter:drop-shadow(0 8px 18px rgba(99,170,244,0.25));
-    transition:transform .35s ease;
-  }
-  .tile:hover .tile-art img{transform:scale(1.04) rotate(-1deg)}
-  /* Fallback emoji if image isn't there */
-  .tile-art .fallback-emoji{font-size:80px;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.1))}
-
-  .tile-body{
-    padding:22px 24px 26px;
-    display:flex;flex-direction:column;flex:1;
-  }
-  .tile-kind{
-    display:inline-block;align-self:flex-start;
-    font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-    padding:4px 11px;border-radius:999px;
-    background:rgba(144,165,255,0.18);color:var(--deep);
-    margin-bottom:10px;
-  }
-  .tile-kind.tool{background:linear-gradient(135deg, rgba(107,228,234,0.4), rgba(144,165,255,0.3));color:#1f6580}
-  .tile-kind.research{background:linear-gradient(135deg, rgba(255,178,240,0.4), rgba(255,219,247,0.6));color:#a23556}
-  .tile h2{
-    font-family:'Pacifico',cursive;font-weight:400;
-    font-size:30px;margin:0 0 8px;color:var(--deep);
-    line-height:1.15;
-  }
-  .tile p.tile-desc{
-    margin:0 0 14px;
-    font-size:14.5px;color:var(--ink);line-height:1.55;
-  }
-  .tile-bullets{
-    margin:0 0 16px;padding-left:0;list-style:none;
-    font-size:13px;color:var(--ink-soft);line-height:1.6;
-  }
-  .tile-bullets li{padding:2px 0;padding-left:18px;position:relative}
-  .tile-bullets li::before{content:"✦";position:absolute;left:0;color:var(--pink-hot);font-size:11px;top:5px}
-
-  .tile-cta{
-    margin-top:auto;
-    display:inline-flex;align-items:center;gap:8px;
-    align-self:flex-start;
-    padding:11px 22px;
-    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
-    color:#fff;font-weight:800;font-size:14.5px;
+  #toolSearch{
+    width:100%;padding:14px 44px 14px 48px;
+    font-family:inherit;font-size:16px;color:var(--ink);
+    background:rgba(255,255,255,0.92);
+    border:2px solid rgba(255,255,255,0.95);
     border-radius:999px;
-    box-shadow:0 6px 16px rgba(144,165,255,0.32);
-    transition:transform .12s ease, filter .15s ease, box-shadow .18s ease;
-  }
-  .tile:hover .tile-cta{transform:translateX(3px);filter:brightness(1.05);box-shadow:0 10px 22px rgba(144,165,255,0.42)}
-  .tile-cta::after{
-    content:"→";font-weight:800;font-size:16px;line-height:1;
-    transition:transform .18s ease;
-  }
-  .tile:hover .tile-cta::after{transform:translateX(2px)}
-
-  /* V2.5 — HABITS WIDGET (only shown if user has data in localStorage) */
-  .habits-widget{
-    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
-    border:1.5px solid rgba(255,178,240,0.5);
-    border-radius:18px;
-    padding:18px 22px;margin:0 auto 24px;
-    max-width:920px;
     box-shadow:var(--shadow);
+    transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
   }
-  .habits-widget .hw-head{
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;
+  #toolSearch::placeholder{color:var(--ink-soft);opacity:.8}
+  #toolSearch:focus{
+    outline:none;background:#fff;
+    border-color:var(--periwinkle);
+    box-shadow:0 10px 30px rgba(144,165,255,0.3), 0 0 0 4px rgba(144,165,255,0.14);
   }
-  .habits-widget .hw-icon{font-size:22px;line-height:1}
-  .habits-widget .hw-label{
-    font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep);flex:1;
+  .search-clear{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    border:none;background:rgba(144,165,255,0.16);color:var(--deep);
+    width:30px;height:30px;border-radius:50%;cursor:pointer;
+    font-size:16px;line-height:1;display:none;align-items:center;justify-content:center;
+    font-family:inherit;transition:background .15s ease;
   }
-  .habits-widget .hw-link{
-    font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
-    color:var(--deep);text-decoration:none;
-    padding:5px 12px;border-radius:999px;
-    background:rgba(255,255,255,0.7);
+  .search-clear:hover{background:rgba(144,165,255,0.3)}
+  .search-clear.show{display:inline-flex}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .chip{
     border:1.5px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.72);
+    color:var(--deep);font-weight:700;font-size:13.5px;font-family:inherit;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
-  .habits-widget .hw-link:hover{background:rgba(255,255,255,0.95)}
-  .habits-widget .hw-row{
-    display:grid;gap:14px;
-    grid-template-columns:repeat(3, auto) 1fr;
-    align-items:center;
-  }
-  @media(max-width:680px){.habits-widget .hw-row{grid-template-columns:1fr 1fr 1fr;gap:10px}.habits-widget .hw-bar-wrap{grid-column:1/-1}}
-  .habits-widget .hw-stat{text-align:center}
-  .habits-widget .hw-num{
-    font-family:'Pacifico',cursive;font-weight:400;font-size:32px;color:var(--deep);line-height:1;
-  }
-  .habits-widget .hw-sub{font-size:11px;color:var(--ink-soft);font-weight:700;line-height:1.3;margin-top:2px}
-  .habits-widget .hw-bar-wrap{min-width:0}
-  .habits-widget .hw-bar-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:5px}
-  .habits-widget .hw-bar-label span{color:var(--deep);font-weight:800}
-  .habits-widget .hw-bar{
-    height:10px;background:rgba(255,255,255,0.6);border-radius:999px;overflow:hidden;
-  }
-  .habits-widget .hw-bar-fill{
-    height:100%;border-radius:999px;width:0%;transition:width .4s;
-    background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));
+  .chip:hover{transform:translateY(-1px);background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
+  .chip.active{
+    color:#fff;border-color:transparent;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
   }
 
-  /* WHAT'S COMING — placeholder for future expansion */
-  .coming-soon{
-    background:rgba(255,255,255,0.6);
-    border:1.5px dashed rgba(144,165,255,0.4);
+  /* ===== GROUPS ===== */
+  .groups{margin:14px auto 30px;max-width:980px}
+  .group{margin:0 0 26px}
+  .group-title{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Pacifico',cursive;font-weight:400;font-size:24px;
+    color:var(--deep);margin:0 0 14px;padding:0 4px;line-height:1.2;
+  }
+  .group-title .gt-emoji{
+    font-family:'Quicksand',sans-serif;font-size:22px;line-height:1;
+    width:42px;height:42px;flex-shrink:0;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.7);box-shadow:var(--shadow);
+  }
+  .group-title .gt-count{
+    font-family:'Quicksand',sans-serif;font-size:12px;font-weight:800;
+    letter-spacing:.04em;color:var(--ink-soft);
+    background:rgba(144,165,255,0.16);padding:3px 10px;border-radius:999px;
+  }
+  .group-grid{
+    display:grid;gap:13px;
+    grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
+  }
+
+  /* ===== COMPACT TILE ===== */
+  .tile{
+    display:flex;align-items:center;gap:14px;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1.5px solid rgba(255,255,255,0.95);
     border-radius:18px;
-    padding:22px 26px;
-    margin:0 0 28px;
+    box-shadow:var(--shadow);
+    padding:15px 16px;
+    text-decoration:none;color:inherit;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    position:relative;overflow:hidden;
+  }
+  .tile:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:rgba(255,178,240,0.65)}
+  .tile:active{transform:translateY(-1px)}
+  .tile:focus-visible{outline:none;border-color:var(--periwinkle);box-shadow:0 0 0 4px rgba(144,165,255,0.22), var(--shadow-lift)}
+  .tile-icon{
+    flex-shrink:0;width:52px;height:52px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:27px;line-height:1;
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.6);
+    transition:transform .25s ease;
+  }
+  .tile:hover .tile-icon{transform:scale(1.08) rotate(-3deg)}
+  .tile-text{min-width:0;flex:1}
+  .tile-name{
+    display:block;font-weight:800;font-size:16.5px;color:var(--deep);
+    line-height:1.2;margin-bottom:2px;
+  }
+  .tile-line{
+    display:block;font-size:13px;color:var(--ink-soft);line-height:1.4;
+  }
+  .tile-arrow{
+    flex-shrink:0;font-size:18px;font-weight:800;color:var(--periwinkle);
+    opacity:.55;transition:transform .2s ease, opacity .2s ease;
+  }
+  .tile:hover .tile-arrow{transform:translateX(4px);opacity:1;color:var(--pink-hot)}
+
+  /* ===== ENTRANCE ANIMATION ===== */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .anim{opacity:0}
+  .anim.in{animation:fadeUp .5s cubic-bezier(.22,.9,.3,1) forwards}
+  @media(prefers-reduced-motion:reduce){
+    .anim{opacity:1!important;animation:none!important}
+    .hero-char{animation:none}
+    html{scroll-behavior:auto}
+  }
+
+  /* ===== NO RESULTS ===== */
+  .no-results{
+    display:none;text-align:center;padding:36px 20px;color:var(--ink-soft);
+  }
+  .no-results.show{display:block}
+  .no-results .nr-emoji{font-size:44px;display:block;margin-bottom:8px}
+  .no-results p{margin:0;font-size:15px}
+  .no-results button{
+    margin-top:14px;border:none;cursor:pointer;font-family:inherit;
+    padding:9px 20px;border-radius:999px;font-weight:800;font-size:13.5px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+  }
+
+  /* ===== SLIM COMING-SOON ===== */
+  .coming-soon{
+    background:rgba(255,255,255,0.55);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:16px;padding:16px 20px;margin:0 0 22px;
   }
   .coming-soon h3{
-    font-family:'Pacifico',cursive;font-weight:400;
-    margin:0 0 6px;font-size:22px;color:var(--deep);
+    font-family:'Pacifico',cursive;font-weight:400;margin:0 0 10px;
+    font-size:18px;color:var(--deep);display:flex;align-items:center;gap:8px;
   }
-  .coming-soon p.intro{
-    margin:0 0 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;
-  }
-  .coming-grid{
-    display:flex;flex-wrap:wrap;gap:10px;
-    justify-content:center;
-  }
-  .coming-item{
-    background:rgba(255,255,255,0.55);
-    border:1px dashed rgba(144,165,255,0.35);
-    border-radius:12px;
-    padding:10px 14px;
-    font-size:13px;color:var(--ink);
-    display:flex;align-items:center;gap:8px;
-    line-height:1.4;
-    flex:1 1 220px;
-    max-width:300px;
-  }
-  .coming-item .icon{font-size:18px;flex-shrink:0}
-  .coming-item strong{color:var(--deep);font-weight:800;display:block;font-size:13.5px;margin-bottom:1px}
-  .coming-item span{display:block;font-size:12px;color:var(--ink-soft)}
-
-  /* SECONDARY LINKS — small row */
-  .quick-links{
-    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
-    margin:0 0 24px;
-  }
-  .quick-links a{
+  .coming-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .coming-chip{
+    background:rgba(255,255,255,0.7);border:1px dashed rgba(144,165,255,0.4);
+    border-radius:999px;padding:6px 13px;font-size:12.5px;color:var(--ink);
     display:inline-flex;align-items:center;gap:6px;
-    padding:8px 18px;
-    background:rgba(255,255,255,0.7);
-    border:1.5px solid rgba(144,165,255,0.4);
-    border-radius:999px;
-    color:var(--deep);font-weight:700;font-size:13.5px;
-    text-decoration:none;
-    transition:background .15s ease, border-color .15s ease;
   }
-  .quick-links a:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
+  .coming-chip .icon{font-size:14px}
 
-  /* ABOUT EGGIE STRIP */
-  .eggie-strip{
-    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(199,210,255,0.4));
+  /* ===== SLIM ABOUT + SUPPORT ===== */
+  .footer-band{
+    background:linear-gradient(135deg, rgba(255,219,247,0.45), rgba(199,210,255,0.38));
     border:1.5px solid rgba(255,178,240,0.4);
-    border-radius:20px;
-    padding:22px 26px;
-    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
-    margin:0 0 24px;
+    border-radius:18px;padding:18px 22px;margin:0 0 18px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
   }
-  .eggie-strip-text{flex:1;min-width:240px}
-  .eggie-strip h3{
-    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;
-    color:var(--deep);margin:0 0 4px;line-height:1.2;
-  }
-  .eggie-strip p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.55}
-  .eggie-strip p a{color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dashed var(--periwinkle)}
-  .eggie-strip p a:hover{color:var(--pink-hot);border-bottom-color:var(--pink-hot)}
-  .eggie-strip-art{
-    flex-shrink:0;width:120px;height:120px;
-    border-radius:50%;
-    background:rgba(255,255,255,0.7);
+  .fb-art{
+    flex-shrink:0;width:64px;height:64px;border-radius:50%;
+    background:rgba(255,255,255,0.7);overflow:hidden;
     display:flex;align-items:center;justify-content:center;
-    overflow:hidden;
     box-shadow:inset 0 0 0 2px rgba(255,178,240,0.4), 0 6px 16px rgba(255,178,240,0.22);
   }
-  .eggie-strip-art img{width:115%;height:115%;object-fit:cover}
-  .eggie-strip-art .fallback-emoji{font-size:64px}
-
-  /* SUPPORT / SOCIAL ROW */
-  .support-row{
-    display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
-    margin:0 0 18px;
+  .fb-art img{width:115%;height:115%;object-fit:cover}
+  .fb-art .fallback-emoji{font-size:34px}
+  .fb-text{flex:1;min-width:200px}
+  .fb-text h3{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:18px;
+    color:var(--deep);margin:0 0 2px;line-height:1.2;
   }
+  .fb-text p{margin:0;font-size:13px;color:var(--ink);line-height:1.5}
+  .fb-text p a{color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dashed var(--periwinkle)}
+  .fb-text p a:hover{color:var(--pink-hot);border-bottom-color:var(--pink-hot)}
+  .fb-links{display:flex;gap:8px;flex-wrap:wrap}
   .social-pill{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:10px 20px;
-    background:rgba(255,255,255,0.78);
-    border:1.5px solid rgba(144,165,255,0.4);
-    border-radius:999px;
-    color:var(--deep);font-weight:700;font-size:14px;
+    display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+    background:rgba(255,255,255,0.82);border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;color:var(--deep);font-weight:700;font-size:13px;
     text-decoration:none;
     transition:background .15s ease, border-color .15s ease, transform .12s ease;
   }
-  .social-pill:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle);transform:translateY(-1px)}
+  .social-pill:hover{background:rgba(255,255,255,0.97);border-color:var(--periwinkle);transform:translateY(-1px)}
   .social-pill.kofi{background:#FF5E5B;color:#fff;border-color:#FF5E5B;box-shadow:0 6px 14px rgba(255,94,91,0.32)}
   .social-pill.kofi:hover{filter:brightness(1.06);transform:translateY(-2px)}
 
-  /* V2.9 — Site-wide auth pill + welcome card */
+  .mini-links{
+    display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:0 0 16px;
+  }
+  .mini-links a{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 15px;
+    background:rgba(255,255,255,0.66);border:1.5px solid rgba(144,165,255,0.38);
+    border-radius:999px;color:var(--deep);font-weight:700;font-size:12.5px;
+    text-decoration:none;transition:background .15s ease, border-color .15s ease;
+  }
+  .mini-links a:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
+
+  /* ===== AUTH PILL + WELCOME + HABITS (preserved) ===== */
   .site-auth-pill{
     position:fixed;top:14px;right:14px;z-index:300;
     display:inline-flex;align-items:center;gap:8px;
     padding:8px 16px;border-radius:999px;cursor:pointer;
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
-    color:#fff;font-weight:800;font-size:13px;
-    border:none;font-family:inherit;
+    color:#fff;font-weight:800;font-size:13px;border:none;font-family:inherit;
     box-shadow:0 6px 16px rgba(144,165,255,0.32);
     transition:transform .15s, filter .15s;
   }
@@ -388,54 +316,63 @@
   }
   .welcome-card{
     background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
-    border:1.5px solid rgba(255,178,240,0.5);
-    border-radius:18px;
-    padding:18px 22px;margin:0 auto 22px;
-    max-width:920px;
-    box-shadow:var(--shadow);
-    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    border:1.5px solid rgba(255,178,240,0.5);border-radius:16px;
+    padding:14px 18px;margin:14px auto 0;max-width:760px;box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   }
-  .welcome-card .wc-icon{font-size:36px;line-height:1;flex-shrink:0}
+  .welcome-card .wc-icon{font-size:30px;line-height:1;flex-shrink:0}
   .welcome-card .wc-text{flex:1;min-width:200px}
   .welcome-card .wc-greeting{
-    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);line-height:1.2;margin:0 0 4px;
+    font-family:'Pacifico',cursive;font-weight:400;font-size:19px;color:var(--deep);line-height:1.2;margin:0 0 2px;
   }
-  .welcome-card .wc-sub{font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0}
+  .welcome-card .wc-sub{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin:0}
   .welcome-card .wc-actions{display:flex;gap:8px;flex-wrap:wrap}
   .welcome-card .wc-actions .wc-btn{
     font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
-    color:var(--deep);text-decoration:none;
-    padding:6px 13px;border-radius:999px;
-    background:rgba(255,255,255,0.7);
-    border:1.5px solid rgba(144,165,255,0.4);
+    color:var(--deep);text-decoration:none;padding:6px 13px;border-radius:999px;
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.4);
     cursor:pointer;font-family:inherit;
   }
   .welcome-card .wc-actions .wc-btn:hover{background:rgba(255,255,255,0.95)}
 
-  /* V3 — Top utility row + manager hub button. Subtle, sits above the hero. */
-  .top-utility{
-    display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;
-    margin:0 0 8px;
+  .habits-widget{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
+    border:1.5px solid rgba(255,178,240,0.5);border-radius:16px;
+    padding:16px 20px;margin:14px auto 0;max-width:760px;box-shadow:var(--shadow);
   }
+  .habits-widget .hw-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .habits-widget .hw-icon{font-size:20px;line-height:1}
+  .habits-widget .hw-label{font-family:'Pacifico',cursive;font-weight:400;font-size:18px;color:var(--deep);flex:1}
+  .habits-widget .hw-link{
+    font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--deep);text-decoration:none;padding:5px 12px;border-radius:999px;
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.4);
+  }
+  .habits-widget .hw-link:hover{background:rgba(255,255,255,0.95)}
+  .habits-widget .hw-row{display:grid;gap:14px;grid-template-columns:repeat(3, auto) 1fr;align-items:center}
+  @media(max-width:680px){.habits-widget .hw-row{grid-template-columns:1fr 1fr 1fr;gap:10px}.habits-widget .hw-bar-wrap{grid-column:1/-1}}
+  .habits-widget .hw-stat{text-align:center}
+  .habits-widget .hw-num{font-family:'Pacifico',cursive;font-weight:400;font-size:28px;color:var(--deep);line-height:1}
+  .habits-widget .hw-sub{font-size:10.5px;color:var(--ink-soft);font-weight:700;line-height:1.3;margin-top:2px}
+  .habits-widget .hw-bar-wrap{min-width:0}
+  .habits-widget .hw-bar-label{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-bottom:5px}
+  .habits-widget .hw-bar-label span{color:var(--deep);font-weight:800}
+  .habits-widget .hw-bar{height:9px;background:rgba(255,255,255,0.6);border-radius:999px;overflow:hidden}
+  .habits-widget .hw-bar-fill{height:100%;border-radius:999px;width:0%;transition:width .4s;background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint))}
+
+  /* Top utility row + manager hub button */
+  .top-utility{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin:0 0 4px}
   .utility-btn{
     display:inline-flex;align-items:center;gap:7px;text-decoration:none;
-    padding:8px 14px;border-radius:999px;
-    background:rgba(255,255,255,0.75);
-    border:1.5px solid rgba(255,178,240,0.5);
-    color:var(--deep);font-weight:800;font-size:13px;
+    padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.75);
+    border:1.5px solid rgba(255,178,240,0.5);color:var(--deep);font-weight:800;font-size:13px;
     box-shadow:0 4px 14px rgba(255,178,240,0.15);
     transition:transform .12s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
-  .utility-btn:hover{
-    transform:translateY(-1px);
-    background:rgba(255,255,255,0.95);
-    border-color:rgba(144,165,255,0.65);
-    box-shadow:0 6px 18px rgba(144,165,255,0.25);
-  }
+  .utility-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,0.95);border-color:rgba(144,165,255,0.65);box-shadow:0 6px 18px rgba(144,165,255,0.25)}
   .utility-btn .ub-icon{font-size:16px;line-height:1}
-  .utility-btn .ub-label{letter-spacing:.02em}
 
-  /* Site-wide auth modal */
+  /* Auth modal */
   .site-modal-bg{
     display:none;position:fixed;inset:0;z-index:400;
     background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
@@ -443,62 +380,45 @@
   }
   .site-modal-bg.open{display:flex}
   .site-modal{
-    background:rgba(255,255,255,0.97);border-radius:22px;
-    padding:24px 26px;max-width:480px;width:100%;
-    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
-    font-family:'Quicksand',sans-serif;
+    background:rgba(255,255,255,0.97);border-radius:22px;padding:24px 26px;max-width:480px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;font-family:'Quicksand',sans-serif;
   }
-  .site-modal h2{
-    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
-    margin:0 0 10px;color:var(--deep);
-  }
+  .site-modal h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;margin:0 0 10px;color:var(--deep)}
   .site-modal p{margin:0 0 10px;font-size:14px;color:var(--ink);line-height:1.55}
   .site-modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:var(--ink)}
   .site-modal input[type=email]{
-    width:100%;padding:11px 14px;border-radius:10px;
-    border:2px solid rgba(144,165,255,0.35);
-    background:rgba(255,255,255,0.92);
-    font-family:inherit;font-size:14.5px;color:var(--ink);
-    box-sizing:border-box;
+    width:100%;padding:11px 14px;border-radius:10px;border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);font-family:inherit;font-size:14.5px;color:var(--ink);box-sizing:border-box;
   }
   .site-modal input:focus{outline:none;border-color:var(--periwinkle);background:#fff}
-  .site-modal-actions{
-    display:flex;gap:10px;justify-content:flex-end;
-    margin-top:18px;padding-top:14px;
-    border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap;
-  }
+  .site-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap}
   .site-modal-actions button{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
     font-family:inherit;font-weight:700;font-size:14px;color:#fff;
-    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
-    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));box-shadow:0 6px 14px rgba(144,165,255,0.3);
   }
-  .site-modal-actions button.secondary{
-    background:rgba(255,255,255,0.7);color:var(--deep);
-    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
-  }
-  .site-modal-status{
-    margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;
-  }
+  .site-modal-actions button.secondary{background:rgba(255,255,255,0.7);color:var(--deep);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
+  .site-modal-status{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
   .site-modal-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
   .site-modal-status.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
   .site-modal-status.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
   .site-modal-status.hidden{display:none}
-  /* Generic .hidden — used by welcome card + habits widget */
   .welcome-card.hidden,.habits-widget.hidden{display:none !important}
 
   /* FOOTER */
-  footer{
-    text-align:center;padding:24px 0 8px;color:var(--ink-soft);font-size:13px;line-height:1.55;
-  }
+  footer{text-align:center;padding:20px 0 8px;color:var(--ink-soft);font-size:12.5px;line-height:1.55}
   footer a{color:var(--deep);text-decoration:none;font-weight:700}
   footer a:hover{color:var(--pink-hot)}
+
+  @media(max-width:520px){
+    .group-grid{grid-template-columns:1fr}
+    .toolbar{position:static}
+  }
 </style>
 </head>
 <body>
 
-<!-- V2.9 — Site-wide auth pill (signs you in once, all tools auto-pick up the session) -->
+<!-- Site-wide auth pill -->
 <button id="siteAuthPill" class="site-auth-pill" title="Sign in once — all tools across the hub share your session">🔓 Sign in</button>
 
 <!-- Site-wide sign-in modal -->
@@ -518,9 +438,6 @@
 
 <div class="wrap">
 
-  <!-- V3 — Top utility row. Small "Manager Hub" pill button visible to everyone.
-       Routes to manager-hub.html where managers can see clients, accept new
-       invites, edit client profiles, and leave private notes. -->
   <div class="top-utility">
     <a class="utility-btn" href="manager-hub.html" title="Manager hub — see your clients, accept invites, add notes">
       <span class="ub-icon">👑</span><span class="ub-label">Manager Hub</span>
@@ -529,23 +446,14 @@
 
   <header class="hero">
     <div class="brand-row">
-      <!-- Wordmark — same brand asset as the analyzer page -->
       <img class="brand-logo" src="EGGIE LOGOTYPE - BORDER.png" alt="Eggie" onerror="this.style.display='none'" />
-      <!--
-        ┌──────────────────────────────────────────────────────────────────────┐
-        │  HERO CHARACTER SLOT — drop a PNG named  hero-chibi.png  in this    │
-        │  same folder to replace the emoji fallback. Use the cute chibi      │
-        │  full-body art (bubbles + cherry blossoms).                          │
-        └──────────────────────────────────────────────────────────────────────┘
-      -->
-      <img class="hero-char" src="hero-chibi.png" alt="" aria-hidden="true" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'hero-char',style:'font-size:96px;text-align:center;line-height:1',textContent:'🐙'}))" />
+      <img class="hero-char" src="hero-chibi.png" alt="" aria-hidden="true" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'hero-char',style:'font-size:72px;text-align:center;line-height:1',textContent:'🐙'}))" />
     </div>
     <h1>Welcome to the Creator Hub</h1>
-    <p class="tag">Free tools and guides for <em>VTubers, streamers, and short-form creators</em>. Pick research or tools below.</p>
-    <p class="sub-tag">Everything here is free to use and gets updated as I learn new things. ✨</p>
+    <p class="tag">Free tools and guides for <em>VTubers, streamers, and short-form creators</em>. Search below, or browse by what you want to do. ✨</p>
   </header>
 
-  <!-- V2.9 — Personalized welcome card (only shows once signed in) -->
+  <!-- Personalized welcome card (only shows once signed in) -->
   <div id="welcomeCard" class="welcome-card hidden">
     <div class="wc-icon">🐙</div>
     <div class="wc-text">
@@ -557,7 +465,7 @@
     </div>
   </div>
 
-  <!-- V2.5 — Weekly habits widget (only renders if user has habits data in localStorage) -->
+  <!-- Weekly habits widget (only renders if user has habits data) -->
   <div id="habitsWidget" class="habits-widget hidden">
     <div class="hw-head">
       <span class="hw-icon">🌸</span>
@@ -575,311 +483,192 @@
     </div>
   </div>
 
-  <div class="pick-prompt">Pick where to start</div>
+  <!-- ===== SEARCH + FILTER TOOLBAR ===== -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-ic" aria-hidden="true">🔍</span>
+      <input id="toolSearch" type="text" placeholder="Search tools — try “hashtags”, “thumbnail”, “taxes”…" aria-label="Search tools" autocomplete="off" />
+      <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
+    </div>
+    <div class="chips" id="filterChips" role="tablist" aria-label="Filter by category">
+      <button class="chip active" data-cat="all">✨ All tools</button>
+      <button class="chip" data-cat="make">🎬 Make &amp; Optimize</button>
+      <button class="chip" data-cat="plan">🗂️ Plan &amp; Organize</button>
+      <button class="chip" data-cat="grow">💰 Grow &amp; Earn</button>
+      <button class="chip" data-cat="learn">📚 Learn</button>
+    </div>
+  </div>
 
-  <!-- MAIN TILES -->
-  <div class="tiles">
+  <!-- ===== GROUPS ===== -->
+  <div class="groups" id="groups">
 
-    <a class="tile" href="analyzer.html">
-      <div class="tile-art analyzer-art">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-analyzer.png  in     │
-          │  this same folder. Suggested: the character holding a camera. │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-analyzer.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🎬'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Shorts Analyzer</h2>
-        <p class="tile-desc">Upload a short or fill in the details and get a score, smart hashtags, and a ready-to-copy post pack for every platform.</p>
-        <ul class="tile-bullets">
-          <li>Reads your video with Florence-2 + Whisper</li>
-          <li>1S/2M/2L hashtag mix from a curated VTuber pool</li>
-          <li>Title + caption + tweet pack for YT, TikTok, IG, X</li>
-        </ul>
-        <span class="tile-cta">Open the analyzer</span>
-      </div>
-    </a>
+    <section class="group" data-cat="make">
+      <h2 class="group-title anim"><span class="gt-emoji">🎬</span> Make &amp; Optimize <span class="gt-count"></span></h2>
+      <div class="group-grid">
 
-    <a class="tile" href="growth.html">
-      <div class="tile-art playbook-art">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-growth.png  in this │
-          │  folder. Suggested: the peeking-character / discovery art.    │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-growth.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌱'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind research">📚 The Research</span>
-        <h2>Growth Playbook</h2>
-        <p class="tile-desc">The full master reference. Every rule, threshold, and tactic the analyzer's scoring system is built on — plus everything else worth knowing.</p>
-        <ul class="tile-bullets">
-          <li>Algorithm + 1S/2M/2L hashtag formula + platform rules</li>
-          <li>Twitch + Twitter/X + OBS setup deep-dives</li>
-          <li>Monetization, sponsors, Fansly, mental health</li>
-        </ul>
-        <span class="tile-cta">Open the playbook</span>
-      </div>
-    </a>
+        <a class="tile anim" href="analyzer.html" data-name="Shorts Analyzer" data-search="shorts analyzer score scoring hashtags hashtag post pack caption title tweet platforms youtube tiktok instagram x florence whisper video optimize">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(107,228,234,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">🎬</span>
+          <span class="tile-text">
+            <span class="tile-name">Shorts Analyzer</span>
+            <span class="tile-line">Score a short, get smart hashtags + a post pack for every platform.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="thumbnail.html">
-      <div class="tile-art thumb-art">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-thumbnail.png  in   │
-          │  this folder. Suggested: the clapperboard character.          │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-thumbnail.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🖼️'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Thumbnail Checker</h2>
-        <p class="tile-desc">Drop in a YouTube or Twitch thumbnail and find out if it'll actually get the click. Reads your text, finds your faces, shows you what it looks like at every real display size.</p>
-        <ul class="tile-bullets">
-          <li>Multi-size preview from 120px mobile to 1280px full</li>
-          <li>Contrast + focal point + face detection scoring</li>
-          <li>Florence-2 OCR reads any text on the thumbnail</li>
-        </ul>
-        <span class="tile-cta">Check a thumbnail</span>
-      </div>
-    </a>
+        <a class="tile anim" href="thumbnail.html" data-name="Thumbnail Checker" data-search="thumbnail checker click ctr contrast face detection ocr text preview sizes youtube twitch optimize image">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,178,240,0.5))">🖼️</span>
+          <span class="tile-text">
+            <span class="tile-name">Thumbnail Checker</span>
+            <span class="tile-line">See if your thumbnail earns the click — previewed at every real size.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="planner.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(180,240,243,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-planner.png  in     │
-          │  this folder. Suggested: a calendar / planning character.     │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-planner.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'📅'}))" />
       </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Content Planner</h2>
-        <p class="tile-desc">Plan, draft, schedule, and ship your content. Real-time sync via Supabase — assign to editors and see their updates live. Magic-link sign-in (no password).</p>
-        <ul class="tile-bullets">
-          <li>Kanban + list views with 7 status columns</li>
-          <li>Rich per-item briefs — hook, script, hashtags, thumbnail, analyzer score</li>
-          <li>Real-time multi-device sync (private to your account)</li>
-        </ul>
-        <span class="tile-cta">Open the planner</span>
-      </div>
-    </a>
+    </section>
 
+    <section class="group" data-cat="plan">
+      <h2 class="group-title anim"><span class="gt-emoji">🗂️</span> Plan &amp; Organize <span class="gt-count"></span></h2>
+      <div class="group-grid">
 
-    <a class="tile" href="habits.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(168,230,190,0.45), rgba(199,210,255,0.55))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-habits.png  in this │
-          │  folder. Suggested: cozy / sustainable / spoon-theory art.    │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-habits.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌸'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Sustainable Habits</h2>
-        <p class="tile-desc">A gentle habit tracker built on spoon theory — pre-loaded with proven VTuber + streamer routines. Missed days pause your streak, not reset it.</p>
-        <ul class="tile-bullets">
-          <li>50+ curated creator habits (pre-stream, on-air, post-stream, health, business)</li>
-          <li>Stream Day / Recovery Day modes filter habits to your energy</li>
-          <li>Local-first, optional sign-in for cross-device sync</li>
-        </ul>
-        <span class="tile-cta">Open the tracker</span>
-      </div>
-    </a>
+        <a class="tile anim" href="planner.html" data-name="Content Planner" data-search="content planner plan draft schedule ship kanban list editor sync supabase calendar board status video project">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(180,240,243,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">📅</span>
+          <span class="tile-text">
+            <span class="tile-name">Content Planner</span>
+            <span class="tile-line">Plan, draft, and ship your content with live editor sync.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="todo.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,213,138,0.5), rgba(255,178,240,0.5), rgba(199,210,255,0.55))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-todo.png  in this   │
-          │  folder. Suggested: checklist / sticky-note / "ship it" art.  │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-todo.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'✓'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>To-Do List</h2>
-        <p class="tile-desc">A customizable task list that lives next to your planner. Recurring tasks, subtasks, focus timer, streak, daily review — all synced live so you stay shipping without losing the plot.</p>
-        <ul class="tile-bullets">
-          <li>Today / Week / Later board + list + today-only views, with drag-and-drop</li>
-          <li>Recurring tasks, subtasks, priority, tags + custom categories</li>
-          <li>Built-in pomodoro focus timer, daily review, and streak counter</li>
-          <li>Link any task to a planner item (e.g., "record b-roll for ___")</li>
-        </ul>
-        <span class="tile-cta">Open the to-do list</span>
-      </div>
-    </a>
+        <a class="tile anim" href="todo.html" data-name="To-Do List" data-search="todo to-do list tasks task recurring subtasks priority tags focus timer pomodoro streak daily review checklist">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(255,213,138,0.5), rgba(255,178,240,0.5), rgba(199,210,255,0.55))">✓</span>
+          <span class="tile-text">
+            <span class="tile-name">To-Do List</span>
+            <span class="tile-line">Tasks, recurring routines, subtasks, and a built-in focus timer.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="media-kit.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.45), rgba(199,210,255,0.55))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-mediakit.png  in    │
-          │  this folder. Suggested: a polished portfolio / kit-spread.   │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-mediakit.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'💌'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Media Kit</h2>
-        <p class="tile-desc">A sponsor-facing snapshot of your channel — stats, audience, niche, deliverables, rate card. Edit once, share the link forever. Updates in seconds.</p>
-        <ul class="tile-bullets">
-          <li>Public shareable URL (your-name.eggie-style slug)</li>
-          <li>Manual stats with paste-URL helpers + "last updated" timestamps</li>
-          <li>Audience demographics, past collabs, services + rates</li>
-          <li>Hidden-pricing toggle for rates you don't want public yet</li>
-        </ul>
-        <span class="tile-cta">Build your kit</span>
-      </div>
-    </a>
+        <a class="tile anim" href="habits.html" data-name="Sustainable Habits" data-search="sustainable habits habit tracker spoon theory routine streak stream day recovery health wellness gentle burnout">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(168,230,190,0.45), rgba(199,210,255,0.55))">🌸</span>
+          <span class="tile-text">
+            <span class="tile-name">Sustainable Habits</span>
+            <span class="tile-line">A gentle, spoon-theory habit tracker built for creators.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="sponsor-pitch.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(255,178,240,0.5), rgba(255,213,138,0.4))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-pitch.png  in this  │
-          │  folder. Suggested: letter / envelope / "send it" art.        │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-pitch.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'✉️'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Pitch Builder</h2>
-        <p class="tile-desc">Tell me about the brand once — I'll tailor every channel: cold email, DMs for Twitter / Discord / IG, a printable one-page pitch doc, and a rate-card snapshot. Like a resume builder, for collabs.</p>
-        <ul class="tile-bullets">
-          <li>5-step wizard (brand → type → offer → voice → send)</li>
-          <li>8 sponsorship types: seeding, paid integration, ambassador, stream, more</li>
-          <li>Auto-pulls from your media kit (stats, niche, rates)</li>
-          <li>Pipeline tracking — draft → sent → responded → signed</li>
-        </ul>
-        <span class="tile-cta">Build a pitch</span>
-      </div>
-    </a>
+        <a class="tile anim" href="review.html" data-name="Weekly Review" data-search="weekly review retro reflection wins slipped open loops follow ups spoons next week top 3 streak shipped recap">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(255,178,240,0.5), rgba(199,210,255,0.5), rgba(180,240,243,0.5))">🪞</span>
+          <span class="tile-text">
+            <span class="tile-name">Weekly Review</span>
+            <span class="tile-line">A cozy weekly retro that auto-pulls what you shipped.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="review.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,178,240,0.5), rgba(199,210,255,0.5), rgba(180,240,243,0.5))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-review.png  in this │
-          │  folder. Suggested: cozy journal / weekly-reset / bloom art.  │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-review.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌸'}))" />
-      </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Weekly Review</h2>
-        <p class="tile-desc">A gentle weekly retro. It auto-pulls what you shipped from your planner, then you note wins, what slipped, and the three things that matter next week. Seal the week to keep your streak.</p>
-        <ul class="tile-bullets">
-          <li>Auto "content shipped" list + at-a-glance stats from your planner</li>
-          <li>Wins, slipped, open loops, follow-ups, content notes + a spoons check</li>
-          <li>Next-week top 3 and a review streak that rewards consistency</li>
-        </ul>
-        <span class="tile-cta">Open weekly review</span>
-      </div>
-    </a>
+        <a class="tile anim" href="ask.html" data-name="Ask My Planner" data-search="ask my planner question search natural language what should i film overdue stuck ready private browser ai">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,219,247,0.55))">🔮</span>
+          <span class="tile-text">
+            <span class="tile-name">Ask My Planner</span>
+            <span class="tile-line">Ask in plain words and get the right cards back, ranked.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
 
-    <a class="tile" href="ask.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,219,247,0.55))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-ask.png  in this    │
-          │  folder. Suggested: crystal-ball / sparkle-search art.        │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-ask.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🔮'}))" />
       </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Ask My Planner</h2>
-        <p class="tile-desc">Ask in plain words — "what should I film this week?" — and get the right cards back, ranked. Runs right in your browser; nothing leaves your device.</p>
-        <ul class="tile-bullets">
-          <li>Plain-language search over all your content items</li>
-          <li>Surfaces what's overdue, stuck, ready to post, or worth filming next</li>
-          <li>Instant and private — works the moment you sign in</li>
-        </ul>
-        <span class="tile-cta">Ask a question</span>
-      </div>
-    </a>
+    </section>
 
-    <a class="tile" href="finance.html">
-      <div class="tile-art" style="background:linear-gradient(135deg, rgba(168,230,190,0.5), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">
-        <!--
-          ┌─────────────────────────────────────────────────────────────────┐
-          │  TILE IMAGE SLOT — drop a PNG named  tile-finance.png  in this │
-          │  folder. Suggested: piggy bank / coins / cozy ledger art.     │
-          └─────────────────────────────────────────────────────────────────┘
-        -->
-        <img src="tile-finance.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'💰'}))" />
+    <section class="group" data-cat="grow">
+      <h2 class="group-title anim"><span class="gt-emoji">💰</span> Grow &amp; Earn <span class="gt-count"></span></h2>
+      <div class="group-grid">
+
+        <a class="tile anim" href="media-kit.html" data-name="Media Kit" data-search="media kit sponsor brand stats audience demographics niche deliverables rate card pricing shareable link portfolio collab">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.45), rgba(199,210,255,0.55))">💌</span>
+          <span class="tile-text">
+            <span class="tile-name">Media Kit</span>
+            <span class="tile-line">A shareable sponsor snapshot — edit once, share forever.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tile anim" href="sponsor-pitch.html" data-name="Pitch Builder" data-search="pitch builder sponsor brand cold email dm twitter discord instagram one pager rate card pipeline collab sponsorship ambassador seeding">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(255,178,240,0.5), rgba(255,213,138,0.4))">✉️</span>
+          <span class="tile-text">
+            <span class="tile-name">Pitch Builder</span>
+            <span class="tile-line">Tailor a sponsor pitch for every channel in minutes.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tile anim" href="finance.html" data-name="Finance &amp; Tax" data-search="finance tax money income expense profit loss quarterly set aside gst hst csv savings goals budget us canada accounting privacy">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(168,230,190,0.5), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">💰</span>
+          <span class="tile-text">
+            <span class="tile-name">Finance &amp; Tax</span>
+            <span class="tile-line">Log income, run tax-ready reports, stash project savings.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
+
       </div>
-      <div class="tile-body">
-        <span class="tile-kind tool">🛠️ The Tool</span>
-        <h2>Finance &amp; Tax</h2>
-        <p class="tile-desc">Log income and expenses with one tap, run tax-ready reports (US &amp; Canada side by side), and stash savings for your projects. Private by default — hide any category, entry, or the whole thing from managers.</p>
-        <ul class="tile-bullets">
-          <li>＋ Income / － Expense quick-add with creator-specific categories</li>
-          <li>Profit &amp; loss, by-category, quarterly set-aside, GST/HST + CSV export</li>
-          <li>Project savings goals with progress bars</li>
-          <li>Per-category &amp; per-entry manager privacy controls</li>
-        </ul>
-        <span class="tile-cta">Open finance tracker</span>
+    </section>
+
+    <section class="group" data-cat="learn">
+      <h2 class="group-title anim"><span class="gt-emoji">📚</span> Learn <span class="gt-count"></span></h2>
+      <div class="group-grid">
+
+        <a class="tile anim" href="growth.html" data-name="Growth Playbook" data-search="growth playbook guide reference algorithm hashtag formula platform rules twitch twitter x obs setup monetization sponsors fansly mental health research">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.4), rgba(199,210,255,0.55))">📚</span>
+          <span class="tile-text">
+            <span class="tile-name">Growth Playbook</span>
+            <span class="tile-line">The full master reference behind every tool on the hub.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
+
       </div>
-    </a>
+    </section>
+
+    <!-- No results message -->
+    <div class="no-results" id="noResults">
+      <span class="nr-emoji">🐙</span>
+      <p>Hmm, nothing matches that. Try a different word!</p>
+      <button id="noResultsReset">Show all tools</button>
+    </div>
 
   </div>
 
-  <!-- COMING SOON — placeholder so the user knows this is a living site -->
+  <!-- Slim coming-soon -->
   <section class="coming-soon">
-    <h3>More tools + guides coming 🌸</h3>
-    <p class="intro">This hub will grow over time. Things I'm planning or actively building:</p>
-    <div class="coming-grid">
-      <div class="coming-item"><span class="icon">🥄</span><div><strong>Your sustainable schedule quiz</strong><span>Spoon-theory-based — find a posting cadence that fits your energy, not someone else's grind</span></div></div>
-      <div class="coming-item"><span class="icon">🪞</span><div><strong>Bio + branding workshop</strong><span>Templates + teaching for front-facing presence — how to read like a creator people remember</span></div></div>
-      <div class="coming-item"><span class="icon">🎭</span><div><strong>Debut prep checklist</strong><span>Every box to tick before launch, each one linked to the playbook section that explains it</span></div></div>
-      <div class="coming-item"><span class="icon">🔍</span><div><strong>Niche discovery quiz</strong><span>A real positioning tool — find the angle nobody else in the VTuber space is occupying</span></div></div>
+    <h3>🌸 More coming soon</h3>
+    <div class="coming-chips">
+      <span class="coming-chip"><span class="icon">🥄</span> Sustainable schedule quiz</span>
+      <span class="coming-chip"><span class="icon">🪞</span> Bio + branding workshop</span>
+      <span class="coming-chip"><span class="icon">🎭</span> Debut prep checklist</span>
+      <span class="coming-chip"><span class="icon">🔍</span> Niche discovery quiz</span>
     </div>
   </section>
 
-  <!-- QUICK LINKS -->
-  <div class="quick-links">
+  <!-- Mini links -->
+  <div class="mini-links">
     <a href="about.html">📖 About · niche list · contact</a>
     <a href="growth.html#resources">🔗 Resource library</a>
   </div>
 
-  <!-- ABOUT EGGIE -->
-  <section class="eggie-strip">
-    <div class="eggie-strip-art">
-      <!--
-        ┌─────────────────────────────────────────────────────────────────┐
-        │  EGGIE PORTRAIT SLOT — drop a PNG named  eggie-portrait.png    │
-        │  in this folder. Suggested: the close-up sparkle / playing art.│
-        └─────────────────────────────────────────────────────────────────┘
-      -->
+  <!-- Slim about + support -->
+  <section class="footer-band">
+    <div class="fb-art">
       <img src="eggie-portrait.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🐙'}))" />
     </div>
-    <div class="eggie-strip-text">
+    <div class="fb-text">
       <h3>Hi, I'm Eggie 💗</h3>
-      <p>I'm a VTuber learning out loud — sharing the systems, scripts, and hard-earned lessons I wish I'd had when I started. If something here helps, come say hi on <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> — I'd love to hear what you'd want me to build next.</p>
+      <p>A VTuber learning out loud — sharing the systems and lessons I wish I'd had. Say hi on <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> and tell me what to build next.</p>
+    </div>
+    <div class="fb-links">
+      <a class="social-pill kofi" href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">☕ Ko-fi</a>
+      <a class="social-pill" href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">🐦 @EggieWeggieVT</a>
     </div>
   </section>
-
-  <!-- SUPPORT ROW -->
-  <div class="support-row">
-    <a class="social-pill kofi" href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">☕ Buy me a ko-fi</a>
-    <a class="social-pill" href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">🐦 @EggieWeggieVT on X</a>
-  </div>
 
   <footer>
     Made with 💗 by Eggie &middot; Brand by <a href="https://twitter.com/nyxgothica" target="_blank" rel="noreferrer">@nyxgothica</a>
@@ -889,11 +678,102 @@
 
 <script>
 // ============================================================
-//  V2.9 — SITE-WIDE AUTH (single sign-on across the hub)
-//
-//  All tools (analyzer, planner, habits, planner-editor) use the same
-//  Supabase project, so signing in here persists the session in localStorage —
-//  every other tool auto-picks it up via sb.auth.getSession() on load.
+//  SEARCH + FILTER + ENTRANCE ANIMATION
+// ============================================================
+(function hubBrowse(){
+  const search   = document.getElementById('toolSearch');
+  const clearBtn = document.getElementById('searchClear');
+  const chipsWrap= document.getElementById('filterChips');
+  const chips    = Array.from(chipsWrap.querySelectorAll('.chip'));
+  const groups   = Array.from(document.querySelectorAll('.group'));
+  const tiles    = Array.from(document.querySelectorAll('.tile'));
+  const noResults= document.getElementById('noResults');
+  const resetBtn = document.getElementById('noResultsReset');
+  let activeCat = 'all';
+
+  function norm(s){ return (s||'').toLowerCase().trim(); }
+
+  function apply(){
+    const q = norm(search.value);
+    clearBtn.classList.toggle('show', q.length > 0);
+    let totalVisible = 0;
+
+    groups.forEach(group => {
+      const cat = group.dataset.cat;
+      const catOk = (activeCat === 'all' || activeCat === cat);
+      let groupVisible = 0;
+
+      group.querySelectorAll('.tile').forEach(tile => {
+        const hay = norm(tile.dataset.name + ' ' + tile.dataset.search);
+        const matches = catOk && (q === '' || hay.includes(q));
+        tile.style.display = matches ? '' : 'none';
+        if(matches) groupVisible++;
+      });
+
+      group.style.display = groupVisible > 0 ? '' : 'none';
+      const countEl = group.querySelector('.gt-count');
+      if(countEl) countEl.textContent = groupVisible;
+      totalVisible += groupVisible;
+    });
+
+    noResults.classList.toggle('show', totalVisible === 0);
+  }
+
+  // Chips
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCat = chip.dataset.cat;
+      apply();
+    });
+  });
+
+  // Search
+  search.addEventListener('input', apply);
+  clearBtn.addEventListener('click', () => { search.value=''; search.focus(); apply(); });
+  resetBtn.addEventListener('click', () => {
+    search.value=''; activeCat='all';
+    chips.forEach(c => c.classList.toggle('active', c.dataset.cat==='all'));
+    apply(); search.focus();
+  });
+  // Press "/" to jump to search
+  document.addEventListener('keydown', e => {
+    if(e.key === '/' && document.activeElement !== search && !/input|textarea/i.test(document.activeElement.tagName)){
+      e.preventDefault(); search.focus();
+    }
+    if(e.key === 'Escape' && document.activeElement === search){ search.value=''; apply(); search.blur(); }
+  });
+
+  apply();
+
+  // Staggered entrance animation
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const anims = Array.from(document.querySelectorAll('.anim'));
+  if(reduce){
+    anims.forEach(el => el.classList.add('in'));
+  } else if('IntersectionObserver' in window){
+    let i = 0;
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.style.animationDelay = (Math.min(i, 8) * 55) + 'ms';
+          entry.target.classList.add('in');
+          i++;
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.08, rootMargin:'0px 0px -40px 0px' });
+    anims.forEach(el => io.observe(el));
+  } else {
+    anims.forEach(el => el.classList.add('in'));
+  }
+})();
+</script>
+
+<script>
+// ============================================================
+//  SITE-WIDE AUTH (single sign-on across the hub)
 // ============================================================
 (function siteAuth(){
   const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
@@ -978,10 +858,8 @@
     if(!sb){ await init(); }
     if(!sb){ setStatus('Supabase unavailable. Check network and retry.', 'error'); return; }
     const btn = $('siteAuthSend');
-    // V2.19 — Client-side cooldown. Supabase's built-in SMTP allows ~30 emails/hour on Pro
-    // and even less on free. Prevent spamming the button while a previous send is settling.
     const lastSendKey = 'eggie:authLastSendTs';
-    const COOLDOWN_MS = 30 * 1000;   // 30 s between attempts
+    const COOLDOWN_MS = 30 * 1000;
     const lastTs = parseInt(localStorage.getItem(lastSendKey) || '0', 10);
     const sinceLast = Date.now() - lastTs;
     if(sinceLast < COOLDOWN_MS){
@@ -995,7 +873,6 @@
       const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
       if(error){
         const msg = String(error.message || '').toLowerCase();
-        // V2.19 — Detect the specific rate-limit error and explain it usefully
         if(/rate limit|too many|429/.test(msg)){
           setStatus(
             '🚦 <strong>Email rate limit hit.</strong> Supabase\'s built-in mailer caps magic links at ~30/hour, and you\'ve burned through them. ' +
@@ -1022,7 +899,6 @@
       btn.disabled = false; btn.innerHTML = '📬 Send magic link';
     }
   }
-  // V2.19 — Light HTML-escape so dynamic error text can't break the status panel
   function escapeMsg(s){
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -1068,9 +944,7 @@
 </script>
 
 <script>
-// V2.5 — Habits weekly summary widget. Reads localStorage written by habits.html
-// and renders a compact "this week" stat block above the coming-soon section.
-// Only appears if the user has habits data (so first-time visitors don't see empty zeros).
+// Habits weekly summary widget — reads localStorage written by habits.html.
 (function habitsWidget(){
   const STORAGE_KEY = 'eggie.habits.v1';
   try{
@@ -1079,14 +953,9 @@
     const state = JSON.parse(raw);
     if(!state || !state.enabled || Object.keys(state.enabled).length === 0) return;
 
-    // Inline copy of HABIT_LIBRARY ids so we can resolve names + tracking types.
-    // Avoid pulling the full library here — we just need enough metadata to count.
-    // Trick: walk through enabled IDs + customs, and use the user's logs to count completions.
     const enabledIds = Object.keys(state.enabled);
-    const customs = state.customs || [];
     const logs = state.logs || {};
 
-    // Today + week dates
     const today = new Date();
     const todayKey = today.toISOString().slice(0, 10);
     const weekStart = new Date(today);
@@ -1098,7 +967,6 @@
       weekKeys.push(d.toISOString().slice(0, 10));
     }
 
-    // Count completions today (any habit logged true OR count >= 1)
     const todayLog = logs[todayKey] || {};
     const todayDone = enabledIds.filter(id => {
       const v = todayLog[id];
@@ -1106,7 +974,6 @@
     }).length;
     const todayTotal = enabledIds.length;
 
-    // Count total completions this week
     let weekTotal = 0;
     weekKeys.forEach(k => {
       const log = logs[k] || {};
@@ -1116,24 +983,17 @@
       });
     });
 
-    // Longest current streak (count consecutive days with ANY habit completed, allow 1 miss)
     let streak = 0, misses = 0;
     const d = new Date(today);
     for(let i = 0; i < 365; i++){
       const k = d.toISOString().slice(0, 10);
       const log = logs[k] || {};
       const hasAny = Object.entries(log).some(([id, v]) => enabledIds.includes(id) && (v === true || (typeof v === 'number' && v > 0)));
-      if(hasAny){
-        streak++;
-        misses = 0;
-      } else {
-        misses++;
-        if(misses >= 2) break;
-      }
+      if(hasAny){ streak++; misses = 0; }
+      else { misses++; if(misses >= 2) break; }
       d.setDate(d.getDate() - 1);
     }
 
-    // Render
     const widget = document.getElementById('habitsWidget');
     widget.classList.remove('hidden');
     document.getElementById('hwDone').textContent = todayDone;

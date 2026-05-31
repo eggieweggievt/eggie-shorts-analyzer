@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Eggie's Creator Hub 🐙 — Tools + guides for VTubers + streamers</title>
+<meta name="description" content="A growing hub of free tools and guides for VTubers, streamers, and short-form creators. Score your shorts, read the growth playbook, and more coming soon." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/" />
+<meta property="og:title" content="Eggie's Creator Hub 🐙" />
+<meta property="og:description" content="Free tools + guides for VTubers and creators. Pick research or build something." />
+<meta property="og:image" content="preview.png" />
+<meta property="og:image:width" content="1100" />
+<meta property="og:image:height" content="550" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@EggieWeggieVT" />
+<meta name="twitter:creator" content="@EggieWeggieVT" />
+<meta name="twitter:title" content="Eggie's Creator Hub 🐙" />
+<meta name="twitter:description" content="Free tools + guides for VTubers and creators." />
+<meta name="twitter:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --shadow-lift:0 16px 48px rgba(99,170,244,0.28), 0 4px 12px rgba(255,178,240,0.22);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 88%, rgba(255,255,255,0.55) 0 3px, transparent 4px),
+      radial-gradient(circle at 22% 62%, rgba(255,255,255,0.45) 0 2px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 20px 60px;position:relative;z-index:1}
+
+  /* HERO */
+  header.hero{
+    text-align:center;
+    padding:24px 0 12px;
+  }
+  .brand-row{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    margin-bottom:20px;
+  }
+  .brand-logo{
+    display:block;max-width:340px;width:75%;height:auto;
+    filter:drop-shadow(0 8px 20px rgba(99,170,244,0.28));
+  }
+  /* Hero character — replaces the SVG fallback once you drop a PNG named hero-chibi.png */
+  .hero-char{
+    display:block;
+    width:clamp(180px, 28vw, 260px);
+    height:auto;
+    margin:0 auto 6px;
+    filter:drop-shadow(0 12px 28px rgba(255,178,240,0.35));
+    animation:gentle-bob 6s ease-in-out infinite;
+  }
+  @keyframes gentle-bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+  header.hero h1{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:clamp(36px, 6vw, 56px);
+    margin:6px auto 4px;
+    padding:14px 12px 22px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);
+    line-height:1.35;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:17px;
+    margin:0 auto 4px;max-width:680px;line-height:1.55;
+    padding:0 16px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+  header.hero p.sub-tag{
+    font-size:14px;color:var(--ink-soft);
+    margin:8px auto 0;max-width:520px;line-height:1.5;
+    padding:0 16px;
+  }
+
+  /* CHOICE PROMPT — small section break between hero and tiles */
+  .pick-prompt{
+    text-align:center;
+    margin:34px auto 18px;
+    font-size:14px;font-weight:800;letter-spacing:.12em;
+    color:var(--ink-soft);text-transform:uppercase;
+    display:flex;align-items:center;gap:14px;justify-content:center;
+  }
+  .pick-prompt::before,
+  .pick-prompt::after{
+    content:"";flex:0 0 60px;
+    height:1.5px;
+    background:linear-gradient(90deg, transparent, rgba(144,165,255,0.5), transparent);
+  }
+
+  /* TILE GRID — flex so 5 tiles wrap as 3+2 (centered) on desktop, 2+2+1 on medium, 1 each on mobile */
+  .tiles{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:22px;
+    max-width:1100px;
+    margin:0 auto 32px;
+  }
+  .tile{flex:0 1 320px;max-width:340px;min-width:0}
+  @media(max-width:1024px){.tile{flex:0 1 calc(50% - 22px)}}
+  @media(max-width:580px){.tile{flex:0 1 100%;max-width:480px}}
+
+  .tile{
+    position:relative;
+    display:flex;flex-direction:column;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:0;
+    text-decoration:none;color:inherit;
+    overflow:hidden;
+    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  }
+  .tile:hover{transform:translateY(-6px);box-shadow:var(--shadow-lift);border-color:rgba(255,178,240,0.65)}
+  .tile:active{transform:translateY(-2px)}
+
+  /* Header strip with character art */
+  .tile-art{
+    position:relative;
+    aspect-ratio: 16 / 10;
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .tile-art.analyzer-art{background:linear-gradient(135deg, rgba(107,228,234,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))}
+  .tile-art.playbook-art{background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.4), rgba(199,210,255,0.55))}
+  .tile-art.thumb-art{background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,178,240,0.5))}
+  .tile-art img{
+    max-height:90%;max-width:90%;
+    object-fit:contain;
+    filter:drop-shadow(0 8px 18px rgba(99,170,244,0.25));
+    transition:transform .35s ease;
+  }
+  .tile:hover .tile-art img{transform:scale(1.04) rotate(-1deg)}
+  /* Fallback emoji if image isn't there */
+  .tile-art .fallback-emoji{font-size:80px;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.1))}
+
+  .tile-body{
+    padding:22px 24px 26px;
+    display:flex;flex-direction:column;flex:1;
+  }
+  .tile-kind{
+    display:inline-block;align-self:flex-start;
+    font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    padding:4px 11px;border-radius:999px;
+    background:rgba(144,165,255,0.18);color:var(--deep);
+    margin-bottom:10px;
+  }
+  .tile-kind.tool{background:linear-gradient(135deg, rgba(107,228,234,0.4), rgba(144,165,255,0.3));color:#1f6580}
+  .tile-kind.research{background:linear-gradient(135deg, rgba(255,178,240,0.4), rgba(255,219,247,0.6));color:#a23556}
+  .tile h2{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:30px;margin:0 0 8px;color:var(--deep);
+    line-height:1.15;
+  }
+  .tile p.tile-desc{
+    margin:0 0 14px;
+    font-size:14.5px;color:var(--ink);line-height:1.55;
+  }
+  .tile-bullets{
+    margin:0 0 16px;padding-left:0;list-style:none;
+    font-size:13px;color:var(--ink-soft);line-height:1.6;
+  }
+  .tile-bullets li{padding:2px 0;padding-left:18px;position:relative}
+  .tile-bullets li::before{content:"✦";position:absolute;left:0;color:var(--pink-hot);font-size:11px;top:5px}
+
+  .tile-cta{
+    margin-top:auto;
+    display:inline-flex;align-items:center;gap:8px;
+    align-self:flex-start;
+    padding:11px 22px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:14.5px;
+    border-radius:999px;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .12s ease, filter .15s ease, box-shadow .18s ease;
+  }
+  .tile:hover .tile-cta{transform:translateX(3px);filter:brightness(1.05);box-shadow:0 10px 22px rgba(144,165,255,0.42)}
+  .tile-cta::after{
+    content:"→";font-weight:800;font-size:16px;line-height:1;
+    transition:transform .18s ease;
+  }
+  .tile:hover .tile-cta::after{transform:translateX(2px)}
+
+  /* V2.5 — HABITS WIDGET (only shown if user has data in localStorage) */
+  .habits-widget{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;
+    padding:18px 22px;margin:0 auto 24px;
+    max-width:920px;
+    box-shadow:var(--shadow);
+  }
+  .habits-widget .hw-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  .habits-widget .hw-icon{font-size:22px;line-height:1}
+  .habits-widget .hw-label{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:20px;color:var(--deep);flex:1;
+  }
+  .habits-widget .hw-link{
+    font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--deep);text-decoration:none;
+    padding:5px 12px;border-radius:999px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.4);
+  }
+  .habits-widget .hw-link:hover{background:rgba(255,255,255,0.95)}
+  .habits-widget .hw-row{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(3, auto) 1fr;
+    align-items:center;
+  }
+  @media(max-width:680px){.habits-widget .hw-row{grid-template-columns:1fr 1fr 1fr;gap:10px}.habits-widget .hw-bar-wrap{grid-column:1/-1}}
+  .habits-widget .hw-stat{text-align:center}
+  .habits-widget .hw-num{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:32px;color:var(--deep);line-height:1;
+  }
+  .habits-widget .hw-sub{font-size:11px;color:var(--ink-soft);font-weight:700;line-height:1.3;margin-top:2px}
+  .habits-widget .hw-bar-wrap{min-width:0}
+  .habits-widget .hw-bar-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:5px}
+  .habits-widget .hw-bar-label span{color:var(--deep);font-weight:800}
+  .habits-widget .hw-bar{
+    height:10px;background:rgba(255,255,255,0.6);border-radius:999px;overflow:hidden;
+  }
+  .habits-widget .hw-bar-fill{
+    height:100%;border-radius:999px;width:0%;transition:width .4s;
+    background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));
+  }
+
+  /* WHAT'S COMING — placeholder for future expansion */
+  .coming-soon{
+    background:rgba(255,255,255,0.6);
+    border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:18px;
+    padding:22px 26px;
+    margin:0 0 28px;
+  }
+  .coming-soon h3{
+    font-family:'Pacifico',cursive;font-weight:400;
+    margin:0 0 6px;font-size:22px;color:var(--deep);
+  }
+  .coming-soon p.intro{
+    margin:0 0 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;
+  }
+  .coming-grid{
+    display:flex;flex-wrap:wrap;gap:10px;
+    justify-content:center;
+  }
+  .coming-item{
+    background:rgba(255,255,255,0.55);
+    border:1px dashed rgba(144,165,255,0.35);
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:13px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;
+    line-height:1.4;
+    flex:1 1 220px;
+    max-width:300px;
+  }
+  .coming-item .icon{font-size:18px;flex-shrink:0}
+  .coming-item strong{color:var(--deep);font-weight:800;display:block;font-size:13.5px;margin-bottom:1px}
+  .coming-item span{display:block;font-size:12px;color:var(--ink-soft)}
+
+  /* SECONDARY LINKS — small row */
+  .quick-links{
+    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+    margin:0 0 24px;
+  }
+  .quick-links a{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 18px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:13.5px;
+    text-decoration:none;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .quick-links a:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle)}
+
+  /* ABOUT EGGIE STRIP */
+  .eggie-strip{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(199,210,255,0.4));
+    border:1.5px solid rgba(255,178,240,0.4);
+    border-radius:20px;
+    padding:22px 26px;
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    margin:0 0 24px;
+  }
+  .eggie-strip-text{flex:1;min-width:240px}
+  .eggie-strip h3{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;
+    color:var(--deep);margin:0 0 4px;line-height:1.2;
+  }
+  .eggie-strip p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.55}
+  .eggie-strip p a{color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dashed var(--periwinkle)}
+  .eggie-strip p a:hover{color:var(--pink-hot);border-bottom-color:var(--pink-hot)}
+  .eggie-strip-art{
+    flex-shrink:0;width:120px;height:120px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.7);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 2px rgba(255,178,240,0.4), 0 6px 16px rgba(255,178,240,0.22);
+  }
+  .eggie-strip-art img{width:115%;height:115%;object-fit:cover}
+  .eggie-strip-art .fallback-emoji{font-size:64px}
+
+  /* SUPPORT / SOCIAL ROW */
+  .support-row{
+    display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+    margin:0 0 18px;
+  }
+  .social-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 20px;
+    background:rgba(255,255,255,0.78);
+    border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    text-decoration:none;
+    transition:background .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  .social-pill:hover{background:rgba(255,255,255,0.95);border-color:var(--periwinkle);transform:translateY(-1px)}
+  .social-pill.kofi{background:#FF5E5B;color:#fff;border-color:#FF5E5B;box-shadow:0 6px 14px rgba(255,94,91,0.32)}
+  .social-pill.kofi:hover{filter:brightness(1.06);transform:translateY(-2px)}
+
+  /* V2.9 — Site-wide auth pill + welcome card */
+  .site-auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;
+    border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .15s, filter .15s;
+  }
+  .site-auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .site-auth-pill.signed-in{
+    background:rgba(255,255,255,0.95);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);font-weight:700;
+  }
+  .welcome-card{
+    background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(168,230,190,0.35));
+    border:1.5px solid rgba(255,178,240,0.5);
+    border-radius:18px;
+    padding:18px 22px;margin:0 auto 22px;
+    max-width:920px;
+    box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  .welcome-card .wc-icon{font-size:36px;line-height:1;flex-shrink:0}
+  .welcome-card .wc-text{flex:1;min-width:200px}
+  .welcome-card .wc-greeting{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;color:var(--deep);line-height:1.2;margin:0 0 4px;
+  }
+  .welcome-card .wc-sub{font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0}
+  .welcome-card .wc-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .welcome-card .wc-actions .wc-btn{
+    font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--deep);text-decoration:none;
+    padding:6px 13px;border-radius:999px;
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(144,165,255,0.4);
+    cursor:pointer;font-family:inherit;
+  }
+  .welcome-card .wc-actions .wc-btn:hover{background:rgba(255,255,255,0.95)}
+
+  /* V3 — Top utility row + manager hub button. Subtle, sits above the hero. */
+  .top-utility{
+    display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;
+    margin:0 0 8px;
+  }
+  .utility-btn{
+    display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+    padding:8px 14px;border-radius:999px;
+    background:rgba(255,255,255,0.75);
+    border:1.5px solid rgba(255,178,240,0.5);
+    color:var(--deep);font-weight:800;font-size:13px;
+    box-shadow:0 4px 14px rgba(255,178,240,0.15);
+    transition:transform .12s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .utility-btn:hover{
+    transform:translateY(-1px);
+    background:rgba(255,255,255,0.95);
+    border-color:rgba(144,165,255,0.65);
+    box-shadow:0 6px 18px rgba(144,165,255,0.25);
+  }
+  .utility-btn .ub-icon{font-size:16px;line-height:1}
+  .utility-btn .ub-label{letter-spacing:.02em}
+
+  /* Site-wide auth modal */
+  .site-modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .site-modal-bg.open{display:flex}
+  .site-modal{
+    background:rgba(255,255,255,0.97);border-radius:22px;
+    padding:24px 26px;max-width:480px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+    font-family:'Quicksand',sans-serif;
+  }
+  .site-modal h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+  .site-modal p{margin:0 0 10px;font-size:14px;color:var(--ink);line-height:1.55}
+  .site-modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:var(--ink)}
+  .site-modal input[type=email]{
+    width:100%;padding:11px 14px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14.5px;color:var(--ink);
+    box-sizing:border-box;
+  }
+  .site-modal input:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  .site-modal-actions{
+    display:flex;gap:10px;justify-content:flex-end;
+    margin-top:18px;padding-top:14px;
+    border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap;
+  }
+  .site-modal-actions button{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+  }
+  .site-modal-actions button.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .site-modal-status{
+    margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;
+  }
+  .site-modal-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+  .site-modal-status.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .site-modal-status.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+  .site-modal-status.hidden{display:none}
+  /* Generic .hidden — used by welcome card + habits widget */
+  .welcome-card.hidden,.habits-widget.hidden{display:none !important}
+
+  /* FOOTER */
+  footer{
+    text-align:center;padding:24px 0 8px;color:var(--ink-soft);font-size:13px;line-height:1.55;
+  }
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  footer a:hover{color:var(--pink-hot)}
+</style>
+</head>
+<body>
+
+<!-- V2.9 — Site-wide auth pill (signs you in once, all tools auto-pick up the session) -->
+<button id="siteAuthPill" class="site-auth-pill" title="Sign in once — all tools across the hub share your session">🔓 Sign in</button>
+
+<!-- Site-wide sign-in modal -->
+<div class="site-modal-bg" id="siteAuthModal" role="dialog" aria-modal="true">
+  <div class="site-modal">
+    <h2>📬 Sign in to your hub</h2>
+    <p>Magic link, no password. Sign in once here — every tool on the hub (analyzer, planner, habits, etc.) shares your session automatically. <strong>No more re-signing in.</strong></p>
+    <label for="siteEmailInput">Email</label>
+    <input id="siteEmailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+    <div id="siteAuthStatus" class="site-modal-status hidden"></div>
+    <div class="site-modal-actions">
+      <button class="secondary" id="siteAuthCancel">Cancel</button>
+      <button id="siteAuthSend">📬 Send magic link</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="top-utility">
+    <a class="utility-btn" href="manager-hub.html" title="Manager hub — see your clients, accept invites, add notes">
+      <span class="ub-icon">👑</span><span class="ub-label">Manager Hub</span>
+    </a>
+  </div>
+
+  <header class="hero">
+    <div class="brand-row">
+      <img class="brand-logo" src="EGGIE LOGOTYPE - BORDER.png" alt="Eggie" onerror="this.style.display='none'" />
+      <img class="hero-char" src="hero-chibi.png" alt="" aria-hidden="true" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'hero-char',style:'font-size:96px;text-align:center;line-height:1',textContent:'🐙'}))" />
+    </div>
+    <h1>Welcome to the Creator Hub</h1>
+    <p class="tag">Free tools and guides for <em>VTubers, streamers, and short-form creators</em>. Pick research or tools below.</p>
+    <p class="sub-tag">Everything here is free to use and gets updated as I learn new things. ✨</p>
+  </header>
+
+  <div id="welcomeCard" class="welcome-card hidden">
+    <div class="wc-icon">🐙</div>
+    <div class="wc-text">
+      <div class="wc-greeting">Welcome back, <span id="welcomeName">friend</span>!</div>
+      <p class="wc-sub">You're signed in across the whole hub — your analyses, planner, habits, and brand kit are all syncing.</p>
+    </div>
+    <div class="wc-actions">
+      <button class="wc-btn" id="welcomeSignOut">Sign out</button>
+    </div>
+  </div>
+
+  <div id="habitsWidget" class="habits-widget hidden">
+    <div class="hw-head">
+      <span class="hw-icon">🌸</span>
+      <span class="hw-label">Your habits this week</span>
+      <a href="habits.html" class="hw-link">Open tracker →</a>
+    </div>
+    <div class="hw-row">
+      <div class="hw-stat"><div class="hw-num" id="hwDone">0</div><div class="hw-sub">done today</div></div>
+      <div class="hw-stat"><div class="hw-num" id="hwWeek">0</div><div class="hw-sub">this week</div></div>
+      <div class="hw-stat"><div class="hw-num" id="hwStreak">0</div><div class="hw-sub">longest streak</div></div>
+      <div class="hw-bar-wrap">
+        <div class="hw-bar-label">Today: <span id="hwToday">0/0</span></div>
+        <div class="hw-bar"><div class="hw-bar-fill" id="hwBar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pick-prompt">Pick where to start</div>
+
+  <div class="tiles">
+
+    <a class="tile" href="analyzer.html">
+      <div class="tile-art analyzer-art">
+        <img src="tile-analyzer.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🎬'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Shorts Analyzer</h2>
+        <p class="tile-desc">Upload a short or fill in the details and get a score, smart hashtags, and a ready-to-copy post pack for every platform.</p>
+        <ul class="tile-bullets">
+          <li>Reads your video with Florence-2 + Whisper</li>
+          <li>1S/2M/2L hashtag mix from a curated VTuber pool</li>
+          <li>Title + caption + tweet pack for YT, TikTok, IG, X</li>
+        </ul>
+        <span class="tile-cta">Open the analyzer</span>
+      </div>
+    </a>
+
+    <a class="tile" href="growth.html">
+      <div class="tile-art playbook-art">
+        <img src="tile-growth.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌱'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind research">📚 The Research</span>
+        <h2>Growth Playbook</h2>
+        <p class="tile-desc">The full master reference. Every rule, threshold, and tactic the analyzer's scoring system is built on — plus everything else worth knowing.</p>
+        <ul class="tile-bullets">
+          <li>Algorithm + 1S/2M/2L hashtag formula + platform rules</li>
+          <li>Twitch + Twitter/X + OBS setup deep-dives</li>
+          <li>Monetization, sponsors, Fansly, mental health</li>
+        </ul>
+        <span class="tile-cta">Open the playbook</span>
+      </div>
+    </a>
+
+    <a class="tile" href="thumbnail.html">
+      <div class="tile-art thumb-art">
+        <img src="tile-thumbnail.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🖼️'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Thumbnail Checker</h2>
+        <p class="tile-desc">Drop in a YouTube or Twitch thumbnail and find out if it'll actually get the click. Reads your text, finds your faces, shows you what it looks like at every real display size.</p>
+        <ul class="tile-bullets">
+          <li>Multi-size preview from 120px mobile to 1280px full</li>
+          <li>Contrast + focal point + face detection scoring</li>
+          <li>Florence-2 OCR reads any text on the thumbnail</li>
+        </ul>
+        <span class="tile-cta">Check a thumbnail</span>
+      </div>
+    </a>
+
+    <a class="tile" href="planner.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(180,240,243,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">
+        <img src="tile-planner.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'📅'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Content Planner</h2>
+        <p class="tile-desc">Plan, draft, schedule, and ship your content. Real-time sync via Supabase — assign to editors and see their updates live. Magic-link sign-in (no password).</p>
+        <ul class="tile-bullets">
+          <li>Kanban + list views with 7 status columns</li>
+          <li>Rich per-item briefs — hook, script, hashtags, thumbnail, analyzer score</li>
+          <li>Real-time multi-device sync (private to your account)</li>
+        </ul>
+        <span class="tile-cta">Open the planner</span>
+      </div>
+    </a>
+
+
+    <a class="tile" href="habits.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(168,230,190,0.45), rgba(199,210,255,0.55))">
+        <img src="tile-habits.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌸'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Sustainable Habits</h2>
+        <p class="tile-desc">A gentle habit tracker built on spoon theory — pre-loaded with proven VTuber + streamer routines. Missed days pause your streak, not reset it.</p>
+        <ul class="tile-bullets">
+          <li>50+ curated creator habits (pre-stream, on-air, post-stream, health, business)</li>
+          <li>Stream Day / Recovery Day modes filter habits to your energy</li>
+          <li>Local-first, optional sign-in for cross-device sync</li>
+        </ul>
+        <span class="tile-cta">Open the tracker</span>
+      </div>
+    </a>
+
+    <a class="tile" href="todo.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,213,138,0.5), rgba(255,178,240,0.5), rgba(199,210,255,0.55))">
+        <img src="tile-todo.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'✓'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>To-Do List</h2>
+        <p class="tile-desc">A customizable task list that lives next to your planner. Recurring tasks, subtasks, focus timer, streak, daily review — all synced live so you stay shipping without losing the plot.</p>
+        <ul class="tile-bullets">
+          <li>Today / Week / Later board + list + today-only views, with drag-and-drop</li>
+          <li>Recurring tasks, subtasks, priority, tags + custom categories</li>
+          <li>Built-in pomodoro focus timer, daily review, and streak counter</li>
+          <li>Link any task to a planner item (e.g., "record b-roll for ___")</li>
+        </ul>
+        <span class="tile-cta">Open the to-do list</span>
+      </div>
+    </a>
+
+    <a class="tile" href="media-kit.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,219,247,0.6), rgba(255,178,240,0.45), rgba(199,210,255,0.55))">
+        <img src="tile-mediakit.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'💌'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Media Kit</h2>
+        <p class="tile-desc">A sponsor-facing snapshot of your channel — stats, audience, niche, deliverables, rate card. Edit once, share the link forever. Updates in seconds.</p>
+        <ul class="tile-bullets">
+          <li>Public shareable URL (your-name.eggie-style slug)</li>
+          <li>Manual stats with paste-URL helpers + "last updated" timestamps</li>
+          <li>Audience demographics, past collabs, services + rates</li>
+          <li>Hidden-pricing toggle for rates you don't want public yet</li>
+        </ul>
+        <span class="tile-cta">Build your kit</span>
+      </div>
+    </a>
+
+    <a class="tile" href="sponsor-pitch.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(255,178,240,0.5), rgba(255,213,138,0.4))">
+        <img src="tile-pitch.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'✉️'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Pitch Builder</h2>
+        <p class="tile-desc">Tell me about the brand once — I'll tailor every channel: cold email, DMs for Twitter / Discord / IG, a printable one-page pitch doc, and a rate-card snapshot. Like a resume builder, for collabs.</p>
+        <ul class="tile-bullets">
+          <li>5-step wizard (brand → type → offer → voice → send)</li>
+          <li>8 sponsorship types: seeding, paid integration, ambassador, stream, more</li>
+          <li>Auto-pulls from your media kit (stats, niche, rates)</li>
+          <li>Pipeline tracking — draft → sent → responded → signed</li>
+        </ul>
+        <span class="tile-cta">Build a pitch</span>
+      </div>
+    </a>
+
+    <a class="tile" href="review.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(255,178,240,0.5), rgba(199,210,255,0.5), rgba(180,240,243,0.5))">
+        <img src="tile-review.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🌸'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Weekly Review</h2>
+        <p class="tile-desc">A gentle weekly retro. It auto-pulls what you shipped from your planner, then you note wins, what slipped, and the three things that matter next week. Seal the week to keep your streak.</p>
+        <ul class="tile-bullets">
+          <li>Auto "content shipped" list + at-a-glance stats from your planner</li>
+          <li>Wins, slipped, open loops, follow-ups, content notes + a spoons check</li>
+          <li>Next-week top 3 and a review streak that rewards consistency</li>
+        </ul>
+        <span class="tile-cta">Open weekly review</span>
+      </div>
+    </a>
+
+    <a class="tile" href="ask.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(199,210,255,0.6), rgba(180,240,243,0.5), rgba(255,219,247,0.55))">
+        <img src="tile-ask.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🔮'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Ask My Planner</h2>
+        <p class="tile-desc">Ask in plain words — "what should I film this week?" — and get the right cards back, ranked. Runs right in your browser; nothing leaves your device.</p>
+        <ul class="tile-bullets">
+          <li>Plain-language search over all your content items</li>
+          <li>Surfaces what's overdue, stuck, ready to post, or worth filming next</li>
+          <li>Instant and private — works the moment you sign in</li>
+        </ul>
+        <span class="tile-cta">Ask a question</span>
+      </div>
+    </a>
+
+    <a class="tile" href="finance.html">
+      <div class="tile-art" style="background:linear-gradient(135deg, rgba(168,230,190,0.5), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">
+        <img src="tile-finance.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'💰'}))" />
+      </div>
+      <div class="tile-body">
+        <span class="tile-kind tool">🛠️ The Tool</span>
+        <h2>Finance &amp; Tax</h2>
+        <p class="tile-desc">Log income and expenses with one tap, run tax-ready reports (US &amp; Canada side by side), and stash savings for your projects. Private by default — hide any category, entry, or the whole thing from managers.</p>
+        <ul class="tile-bullets">
+          <li>＋ Income / － Expense quick-add with creator-specific categories</li>
+          <li>Profit &amp; loss, by-category, quarterly set-aside, GST/HST + CSV export</li>
+          <li>Project savings goals with progress bars</li>
+          <li>Per-category &amp; per-entry manager privacy controls</li>
+        </ul>
+        <span class="tile-cta">Open finance tracker</span>
+      </div>
+    </a>
+
+  </div>
+
+  <section class="coming-soon">
+    <h3>More tools + guides coming 🌸</h3>
+    <p class="intro">This hub will grow over time. Things I'm planning or actively building:</p>
+    <div class="coming-grid">
+      <div class="coming-item"><span class="icon">🥄</span><div><strong>Your sustainable schedule quiz</strong><span>Spoon-theory-based — find a posting cadence that fits your energy, not someone else's grind</span></div></div>
+      <div class="coming-item"><span class="icon">🪞</span><div><strong>Bio + branding workshop</strong><span>Templates + teaching for front-facing presence — how to read like a creator people remember</span></div></div>
+      <div class="coming-item"><span class="icon">🎭</span><div><strong>Debut prep checklist</strong><span>Every box to tick before launch, each one linked to the playbook section that explains it</span></div></div>
+      <div class="coming-item"><span class="icon">🔍</span><div><strong>Niche discovery quiz</strong><span>A real positioning tool — find the angle nobody else in the VTuber space is occupying</span></div></div>
+    </div>
+  </section>
+
+  <div class="quick-links">
+    <a href="about.html">📖 About · niche list · contact</a>
+    <a href="growth.html#resources">🔗 Resource library</a>
+  </div>
+
+  <section class="eggie-strip">
+    <div class="eggie-strip-art">
+      <img src="eggie-portrait.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fallback-emoji',textContent:'🐙'}))" />
+    </div>
+    <div class="eggie-strip-text">
+      <h3>Hi, I'm Eggie 💗</h3>
+      <p>I'm a VTuber learning out loud — sharing the systems, scripts, and hard-earned lessons I wish I'd had when I started. If something here helps, come say hi on <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> — I'd love to hear what you'd want me to build next.</p>
+    </div>
+  </section>
+
+  <div class="support-row">
+    <a class="social-pill kofi" href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">☕ Buy me a ko-fi</a>
+    <a class="social-pill" href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">🐦 @EggieWeggieVT on X</a>
+  </div>
+
+  <footer>
+    Made with 💗 by Eggie &middot; Brand by <a href="https://twitter.com/nyxgothica" target="_blank" rel="noreferrer">@nyxgothica</a>
+  </footer>
+
+</div>
+
+<!-- NOTE: The original page's auth + habits scripts follow here verbatim in the live file.
+     This backup preserves the full markup/styles. If restoring, also keep the
+     <script> blocks (siteAuth, habitsWidget) and <script src="focus-widget.js" defer>
+     from the redesigned file — they are unchanged between versions. -->
+<script src="focus-widget.js" defer></script>
+</body>
+</html>
