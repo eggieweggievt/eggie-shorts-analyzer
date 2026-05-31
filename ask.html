@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ask My Planner 🔮 — Eggie's Creator Hub</title>
+<meta name="description" content="Ask your content planner anything — 'what should I film this week?' — and get the right cards back, ranked." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/ask.html" />
+<meta property="og:title" content="Ask My Planner 🔮" />
+<meta property="og:description" content="Ask your content planner anything and get the right cards back, ranked." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;--blue:#63AAF4;--mint:#6BE4EA;--pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;--deep:#4D5BC0;--ink:#3a2a5a;--ink-soft:#6b5f8a;--white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);--radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1}
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;color:var(--deep);font-weight:700;font-size:14px;transition:background .15s}
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+  .back-link.active{background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));border-color:transparent}
+  .auth-pill{position:fixed;top:14px;right:14px;z-index:50;background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(10px);border:2px solid rgba(144,165,255,0.4);border-radius:999px;
+    padding:8px 16px;font-weight:700;font-size:13px;color:var(--deep);cursor:pointer;box-shadow:var(--shadow)}
+  .auth-pill.signed-in{border-color:rgba(107,228,234,0.6)}
+  .hero{margin:14px 0 8px;text-align:center}
+  .hero h1{font-family:'Pacifico',cursive;font-weight:400;font-size:clamp(30px,5vw,46px);
+    line-height:1.3;margin:0;padding:10px 0 14px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{margin:0;color:var(--ink-soft);font-weight:600;font-size:15px}
+  .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin:14px 0}
+  .card h2{font-family:'Pacifico',cursive;font-weight:400;font-size:22px;margin:0 0 12px;padding:2px 0 6px;color:var(--deep)}
+  .muted{color:var(--ink-soft);font-size:13.5px}
+  .hidden{display:none !important}
+  .btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:none;border-radius:999px;
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:14px;padding:10px 20px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));color:#fff;
+    box-shadow:0 4px 14px rgba(144,165,255,0.4);transition:transform .12s, box-shadow .12s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,0.7);color:var(--deep);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
+  .btn.small{padding:7px 14px;font-size:13px}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  input[type=text]{width:100%;font-family:'Quicksand',sans-serif;font-size:15px;color:var(--ink);
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.28);border-radius:14px;padding:12px 15px;transition:border-color .15s, background .15s}
+  input[type=text]:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  .status-banner{margin-top:10px;font-weight:600;font-size:13.5px;color:var(--ink-soft);min-height:18px}
+  .status-banner.error{color:#a23556}
+  .status-banner.success{color:#2f8f6a}
+  .user-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-soft);font-weight:600}
+  .dot{width:9px;height:9px;border-radius:50%;background:#cbd2e8;display:inline-block}
+  .dot.on{background:#5fd0a8;box-shadow:0 0 0 3px rgba(95,208,168,0.22)}
+  .imp-banner{background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.28));
+    border:2px solid rgba(144,165,255,0.45);border-radius:16px;padding:10px 16px;margin:10px 0;
+    font-weight:700;color:var(--deep);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ask-row{display:flex;gap:10px;flex-wrap:wrap}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{font-size:12.5px;font-weight:700;color:var(--deep);background:rgba(144,165,255,0.14);
+    border:1px solid rgba(144,165,255,0.3);border-radius:999px;padding:6px 12px;cursor:pointer;transition:background .15s}
+  .chip:hover{background:rgba(144,165,255,0.26)}
+  .answer{background:linear-gradient(135deg,rgba(255,219,247,0.5),rgba(144,165,255,0.16));
+    border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:14px 16px;font-weight:600;color:var(--ink)}
+  .res-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .res-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,0.6);
+    border:1px solid rgba(144,165,255,0.22);border-radius:14px;padding:10px 14px}
+  .res-row .t{font-weight:700;color:var(--ink);flex:1;min-width:140px}
+  .pill{font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(144,165,255,0.16);color:var(--deep)}
+  .pill.idea{background:rgba(255,219,247,0.7)}
+  .pill.editing,.pill.recording{background:rgba(255,210,122,0.45)}
+  .pill.scheduled{background:rgba(107,228,234,0.4)}
+  .pill.posted{background:rgba(95,208,168,0.32);color:#2f8f6a}
+  .star{color:#e9a23b;font-weight:800}
+  .empty{padding:14px;text-align:center;color:var(--ink-soft);font-weight:600}
+  .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(144,165,255,0.3);
+    border-top-color:var(--periwinkle);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .footer{margin-top:24px;text-align:center;color:var(--ink-soft);font-size:12.5px}
+  .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</div>
+
+<div class="wrap">
+  <div class="back-row">
+    <a class="back-link" href="index.html">🏠 Hub</a>
+    <a class="back-link" href="planner.html">🗂️ Planner</a>
+    <a class="back-link" href="review.html">🌸 Review</a>
+    <a class="back-link active" href="ask.html">🔮 Ask</a>
+    <a class="back-link" href="growth.html">📚 Playbook</a>
+  </div>
+
+  <div class="hero">
+    <h1>Ask My Planner 🔮</h1>
+    <p>Ask in plain words — I'll read your planner and hand back the cards that matter.</p>
+  </div>
+
+  <div class="imp-banner hidden" id="impersonationBanner">
+    👑 Asking about <strong id="impName">creator</strong>'s planner
+    <a class="btn ghost small" href="ask.html" style="margin-left:auto">Exit manager mode</a>
+  </div>
+
+  <!-- Signed-out -->
+  <div class="card hidden" id="authView">
+    <h2>Sign in to ask ✨</h2>
+    <p class="muted">Smart search reads your own planner securely — passwordless magic-link sign-in.</p>
+    <div class="ask-row" style="margin-top:10px">
+      <input type="text" id="emailInput" placeholder="you@example.com" style="flex:1;min-width:200px" />
+      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    </div>
+    <div class="status-banner" id="authStatus"></div>
+  </div>
+
+  <!-- Signed-in -->
+  <div class="hidden" id="appView">
+    <div class="card">
+      <div class="user-bar" style="margin-bottom:14px">
+        <span class="dot" id="connDot"></span>
+        <span id="userEmail">—</span>
+        <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
+      </div>
+      <div class="ask-row">
+        <input type="text" id="q" placeholder="what should I film this week?" onkeydown="if(event.key==='Enter')doAsk()" />
+        <button class="btn" id="askBtn" onclick="doAsk()">🔮 Ask</button>
+      </div>
+      <div class="chips" id="chips">
+        <span class="chip" onclick="quick(this)">what should I film this week?</span>
+        <span class="chip" onclick="quick(this)">which shorts are stuck in editing?</span>
+        <span class="chip" onclick="quick(this)">what's overdue?</span>
+        <span class="chip" onclick="quick(this)">what's ready to post?</span>
+      </div>
+      <div class="status-banner" id="askStatus"></div>
+    </div>
+
+    <div class="card hidden" id="resultCard">
+      <h2>Here's what I'd focus on 🌟</h2>
+      <div class="answer" id="answerBox"></div>
+      <div class="res-list" id="resList"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by your hub's <code>planner-smart-search</code> function · the AI only runs when you press Ask.
+  </div>
+</div>
+
+<!-- Auth modal -->
+<div class="card hidden" id="authModal" style="position:fixed;inset:auto 0 0 0;max-width:420px;margin:0 auto;bottom:20px;z-index:70">
+  <h2>Sign in 🔑</h2>
+  <input type="text" id="modalEmail" placeholder="you@example.com" />
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn" onclick="modalSendMagicLink()">📬 Send link</button>
+    <button class="btn ghost" onclick="closeAuthModal()">Close</button>
+  </div>
+  <div class="status-banner" id="modalStatus"></div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+let sb = null;
+let currentUser = null;
+let manageOwnerId = null;   // set when a manager impersonates via ?manage=<id>
+
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user){ await onSignIn(session.user); } else { showAuthView(); }
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user); else onSignOut();
+    });
+  }catch(e){ console.warn('Supabase init failed', e); showAuthView(); }
+}
+
+function getQuery(name){
+  const m = new RegExp('[?&]'+name+'=([^&#]*)').exec(window.location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+async function onSignIn(user){
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.textContent = `🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.onclick = () => { if(confirm('Sign out?')) sb.auth.signOut(); };
+  closeAuthModal();
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('connDot').classList.add('on');
+
+  const manageId = getQuery('manage');
+  if(manageId){ await resolveManager(manageId); }
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+}
+
+function onSignOut(){
+  currentUser = null; manageOwnerId = null;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in';
+  pill.onclick = openAuthModal;
+  document.getElementById('connDot').classList.remove('on');
+  showAuthView();
+}
+function showAuthView(){
+  document.getElementById('authView').classList.remove('hidden');
+  document.getElementById('appView').classList.add('hidden');
+}
+
+async function resolveManager(managerId){
+  const { data:delegations, error } = await sb.rpc('planner_list_my_delegations');
+  if(error){ console.warn('delegations failed', error); return; }
+  const d = (delegations||[]).find(x => x.manager_id === managerId);
+  if(d){
+    manageOwnerId = d.owner_id;
+    document.getElementById('impersonationBanner').classList.remove('hidden');
+    document.getElementById('impName').textContent = d.owner_email || 'creator';
+  }
+}
+
+// ---- Magic link ----
+async function sendMagicLink(){ await doMagicLink('emailInput','authStatus','authSend'); }
+async function modalSendMagicLink(){ await doMagicLink('modalEmail','modalStatus',null); }
+async function doMagicLink(inputId, statusId, btnId){
+  const email = (document.getElementById(inputId).value || '').trim().toLowerCase();
+  const status = document.getElementById(statusId);
+  if(!email || !email.includes('@')){ status.textContent='Please enter a valid email.'; status.className='status-banner error'; return; }
+  if(window.location.protocol === 'file:'){ status.textContent='⚠️ Magic links require http(s). Open from your deployed site.'; status.className='status-banner error'; return; }
+  if(!sb) await initAuth();
+  const KEY='eggie:authLastSendTs', MS=30000;
+  const last=parseInt(localStorage.getItem(KEY)||'0',10);
+  if(Date.now()-last < MS){ const w=Math.ceil((MS-(Date.now()-last))/1000); status.textContent=`⏳ Wait ${w}s before sending another link.`; status.className='status-banner error'; return; }
+  const btn=btnId?document.getElementById(btnId):null;
+  if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
+  const redirectTo = window.location.origin + window.location.pathname + window.location.search;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  if(btn){ btn.disabled=false; btn.innerHTML='📬 Send magic link'; }
+  if(error){
+    const msg=String(error.message||'').toLowerCase();
+    status.textContent = /rate limit|too many|429/.test(msg) ? '🚦 Email rate limit hit (~30/hour). Wait ~1 hour or set up custom SMTP.' : 'Sign-in failed: '+error.message;
+    status.className='status-banner error';
+  } else {
+    localStorage.setItem(KEY,String(Date.now()));
+    status.textContent=`✨ Magic link sent to ${email}! Check inbox + spam.`;
+    status.className='status-banner success';
+  }
+}
+function openAuthModal(){ document.getElementById('authModal').classList.remove('hidden'); }
+function closeAuthModal(){ document.getElementById('authModal').classList.add('hidden'); }
+function doSignOut(){ if(sb && confirm('Sign out?')) sb.auth.signOut(); }
+
+// ---- Ask ----
+function quick(el){ document.getElementById('q').value = el.textContent; doAsk(); }
+
+async function doAsk(){
+  const question = document.getElementById('q').value.trim();
+  const status = document.getElementById('askStatus');
+  const btn = document.getElementById('askBtn');
+  if(!question){ status.textContent='Type a question first.'; status.className='status-banner error'; return; }
+  if(!sb || !currentUser){ status.textContent='Please sign in first.'; status.className='status-banner error'; return; }
+
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner"></span> thinking…';
+  status.className = 'status-banner';
+
+  const body = { question };
+  if(manageOwnerId) body.manageOwnerId = manageOwnerId;
+
+  const { data, error } = await sb.functions.invoke('planner-smart-search', { body });
+
+  btn.disabled = false;
+  if(error){
+    console.error('smart-search failed', error);
+    status.textContent = 'Hmm, that didn’t work: ' + (error.message || 'function error') + ' — is the function deployed? (see SMART-SEARCH-SETUP.md)';
+    status.className = 'status-banner error';
+    return;
+  }
+  if(data && data.error){
+    status.textContent = data.error;
+    status.className = 'status-banner error';
+    return;
+  }
+  status.textContent = '';
+  renderResults(data || {});
+}
+
+function renderResults(data){
+  document.getElementById('resultCard').classList.remove('hidden');
+  document.getElementById('answerBox').textContent = data.answer || 'Here are the closest matches.';
+  const list = document.getElementById('resList');
+  list.innerHTML = '';
+  const items = data.items || [];
+  if(!items.length){
+    list.innerHTML = '<div class="empty">No matching items — try rephrasing, or add more to your planner. 🌱</div>';
+    return;
+  }
+  items.forEach(it => {
+    const row = document.createElement('div');
+    row.className = 'res-row';
+    const st = (it.status || '').toLowerCase();
+    const plats = (it.platforms||[]).map(p => `<span class="pill">${escapeHtml(p)}</span>`).join('');
+    const star = it.is_priority ? '<span class="star">⭐</span>' : '';
+    row.innerHTML = `${star}<span class="t">${escapeHtml(it.title||'Untitled')}</span>`
+      + `<span class="pill ${st}">${escapeHtml(it.status||'')}</span>${plats}`;
+    list.appendChild(row);
+  });
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+initAuth();
+</script>
+</body>
+</html>
