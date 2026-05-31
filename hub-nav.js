@@ -1,76 +1,107 @@
 /* ============================================================
    hub-nav.js — animated hamburger navigation for Eggie's Creator Hub
    Drop-in: <script src="hub-nav.js"></script> before </body>.
-   Finds the existing .back-row pill nav on the page, hides the
-   pills, and replaces them with an animated hamburger button that
-   opens a slide-in drawer holding the same links. The original
-   <a class="back-link"> nodes are reused, so each page keeps its
-   own theme + link set automatically, and the current page is
-   marked active. No dependencies.
+
+   One shared source of truth for the whole hub. Renders a compact
+   hamburger button that opens a small dropdown panel organised into
+   categories + sub-items (mirrors the home page taxonomy). Works on
+   every page, including index.html. Self-styled, no dependencies.
+
+   Mount: uses the page's .back-row if present (hides the old pills),
+   otherwise .top-utility, otherwise the top of .wrap / body.
    ============================================================ */
 (function () {
   if (window.__hubNavInit) return;
   window.__hubNavInit = true;
 
-  /* ---- inject styles (runs as soon as the script is parsed) ---- */
-  var CSS = [
-    '.back-row[data-hubnav] > a.back-link{display:none!important}',          /* hide raw <a> pills, keep <button> burger */
-    '.hubnav-burger{position:relative;cursor:pointer}',
-    '.hubnav-box{position:relative;display:inline-block;width:20px;height:14px;flex:0 0 auto}',
-    '.hubnav-line{position:absolute;left:0;width:100%;height:2.4px;border-radius:3px;background:currentColor;',
-      'transition:transform .3s cubic-bezier(.6,.05,.28,1),top .3s cubic-bezier(.6,.05,.28,1),opacity .18s ease}',
-    '.hubnav-line:nth-child(1){top:0}',
-    '.hubnav-line:nth-child(2){top:5.8px}',
-    '.hubnav-line:nth-child(3){top:11.6px}',
-    '.hubnav-burger.open .hubnav-line:nth-child(1){top:5.8px;transform:rotate(45deg)}',
-    '.hubnav-burger.open .hubnav-line:nth-child(2){opacity:0;transform:scaleX(.2)}',
-    '.hubnav-burger.open .hubnav-line:nth-child(3){top:5.8px;transform:rotate(-45deg)}',
+  /* ---- canonical hub taxonomy (matches index.html groups) ---- */
+  var HOME = { emoji: '🏠', name: 'Home', href: 'index.html' };
+  var CATS = [
+    { emoji: '🎬', name: 'Make & Optimize', items: [
+      { emoji: '🎬', name: 'Shorts Analyzer', href: 'analyzer.html' },
+      { emoji: '🖼️', name: 'Thumbnail Checker', href: 'thumbnail.html' }
+    ]},
+    { emoji: '🗂️', name: 'Plan & Organize', items: [
+      { emoji: '📅', name: 'Content Planner', href: 'planner.html' },
+      { emoji: '✓', name: 'To-Do List', href: 'todo.html' },
+      { emoji: '🌸', name: 'Sustainable Habits', href: 'habits.html' },
+      { emoji: '🪞', name: 'Weekly Review', href: 'review.html' },
+      { emoji: '🔮', name: 'Ask My Planner', href: 'ask.html' }
+    ]},
+    { emoji: '💰', name: 'Grow & Earn', items: [
+      { emoji: '💌', name: 'Media Kit', href: 'media-kit.html' },
+      { emoji: '✉️', name: 'Pitch Builder', href: 'sponsor-pitch.html' },
+      { emoji: '💰', name: 'Finance & Tax', href: 'finance.html' }
+    ]},
+    { emoji: '📚', name: 'Learn', items: [
+      { emoji: '📚', name: 'Growth Playbook', href: 'growth.html' }
+    ]},
+    { emoji: '✨', name: 'More', items: [
+      { emoji: '📖', name: 'About & Contact', href: 'about.html' },
+      { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' }
+    ]}
+  ];
 
-    '.hubnav-overlay{position:fixed;inset:0;z-index:8000;background:rgba(55,48,90,0.32);',
-      'backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);',
-      'opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease}',
+  /* ---- styles (injected immediately) ---- */
+  var CSS = [
+    '.back-row[data-hubnav] > a{display:none!important}',
+
+    '.hubnav{position:relative;display:inline-flex;vertical-align:middle}',
+
+    '.hubnav-burger{display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-family:inherit;line-height:1;',
+      'background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.42);color:var(--deep,#4a4490);',
+      'font-weight:700;font-size:13.5px;padding:8px 15px;border-radius:999px;',
+      'transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s ease,background .22s ease,border-color .22s ease}',
+    '.hubnav-burger:hover{background:#fff;border-color:rgba(144,165,255,0.72);transform:translateY(-1px);',
+      'box-shadow:0 6px 18px rgba(144,165,255,0.38),0 0 0 3px rgba(144,165,255,0.12)}',
+    '.hubnav-burger:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(144,165,255,0.4)}',
+    '.hubnav.open .hubnav-burger{background:#fff;border-color:rgba(144,165,255,0.72);',
+      'box-shadow:0 6px 18px rgba(144,165,255,0.32)}',
+
+    '.hubnav-box{position:relative;display:inline-block;width:18px;height:13px;flex:0 0 auto}',
+    '.hubnav-line{position:absolute;left:0;width:100%;height:2.2px;border-radius:3px;background:currentColor;',
+      'transition:transform .32s cubic-bezier(.22,1,.36,1),top .32s cubic-bezier(.22,1,.36,1),opacity .2s ease}',
+    '.hubnav-line:nth-child(1){top:0}',
+    '.hubnav-line:nth-child(2){top:5.4px}',
+    '.hubnav-line:nth-child(3){top:10.8px}',
+    '.hubnav.open .hubnav-line:nth-child(1){top:5.4px;transform:rotate(45deg)}',
+    '.hubnav.open .hubnav-line:nth-child(2){opacity:0;transform:translateX(-7px)}',
+    '.hubnav.open .hubnav-line:nth-child(3){top:5.4px;transform:rotate(-45deg)}',
+
+    '.hubnav-overlay{position:fixed;inset:0;z-index:7000;background:rgba(45,40,75,0.05);',
+      'opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}',
     '.hubnav.open .hubnav-overlay{opacity:1;visibility:visible}',
 
-    '.hubnav-drawer{position:fixed;top:0;left:0;height:100%;width:min(310px,84vw);z-index:8001;',
-      'display:flex;flex-direction:column;gap:4px;padding:18px 16px;box-sizing:border-box;',
-      'background:rgba(255,255,255,0.97);border-right:2px solid rgba(144,165,255,0.35);',
-      'box-shadow:18px 0 50px rgba(90,90,160,0.22);overflow-y:auto;',
-      'transform:translateX(-104%);transition:transform .34s cubic-bezier(.5,.05,.2,1)}',
-    '.hubnav.open .hubnav-drawer{transform:translateX(0)}',
+    '.hubnav-panel{position:absolute;top:calc(100% + 9px);left:0;z-index:7001;',
+      'width:min(256px,86vw);max-height:72vh;overflow-y:auto;box-sizing:border-box;padding:7px;',
+      'background:rgba(255,255,255,0.98);border:1px solid rgba(144,165,255,0.28);border-radius:16px;',
+      'box-shadow:0 16px 40px rgba(120,125,200,0.26);transform-origin:top left;',
+      'opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-8px) scale(.96);',
+      'transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1),visibility .2s ease;',
+      'will-change:transform,opacity}',
+    '.hubnav.open .hubnav-panel{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}',
+    '.hubnav-panel.flip-right{left:auto;right:0;transform-origin:top right}',
 
-    '.hubnav-drawer-head{display:flex;align-items:center;justify-content:space-between;',
-      'margin:2px 4px 12px;font-weight:800;font-size:15px;letter-spacing:.2px;color:#5b54a8;opacity:.9}',
-    '.hubnav-close{border:none;background:rgba(144,165,255,0.16);color:#5b54a8;width:32px;height:32px;',
-      'border-radius:50%;cursor:pointer;font-size:16px;line-height:1;display:inline-flex;',
-      'align-items:center;justify-content:center;font-family:inherit;transition:background .15s ease}',
-    '.hubnav-close:hover{background:rgba(144,165,255,0.32)}',
+    '.hubnav-row{display:flex;align-items:center;gap:9px;text-decoration:none;padding:8px 11px;',
+      'border-radius:11px;font-size:13.5px;font-weight:600;color:var(--deep,#4a4490);',
+      'transition:background .15s ease,box-shadow .2s ease,transform .14s cubic-bezier(.22,1,.36,1)}',
+    '.hubnav-row .he{width:20px;flex:0 0 auto;text-align:center;font-size:15px}',
+    '.hubnav-row:hover{background:rgba(144,165,255,0.12);transform:translateX(2px);',
+      'box-shadow:0 0 0 1px rgba(144,165,255,0.22),0 6px 16px rgba(144,165,255,0.3)}',
+    '.hubnav-home{font-weight:700;background:rgba(144,165,255,0.08)}',
+    '.hubnav-row.active{color:#fff;border-color:transparent;',
+      'background:linear-gradient(135deg,#ff9ec8,#9aa6ff 58%,#8fe3d0);box-shadow:0 5px 16px rgba(144,165,255,0.36)}',
+    '.hubnav-row.active:hover{transform:translateX(0);box-shadow:0 7px 20px rgba(144,165,255,0.42)}',
 
-    '.hubnav-list{display:flex;flex-direction:column;gap:6px}',
-    '.hubnav-list .back-link.hubnav-item{display:flex!important;width:100%;justify-content:flex-start;',
-      'box-sizing:border-box;border-radius:13px;margin:0;font-size:15px;padding:11px 15px}',
-    '.hubnav-list .back-link.hubnav-item.active{color:#fff;border-color:transparent;',
-      'background:linear-gradient(135deg,#ff9ec8,#9aa6ff 60%,#8fe3d0);box-shadow:0 6px 16px rgba(144,165,255,0.32)}',
-    '.hubnav-list .back-link.hubnav-item:hover{transform:translateX(2px)}',
-
-    '.hubnav.open .hubnav-list .hubnav-item{animation:hubnavIn .34s ease both}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(1){animation-delay:.03s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(2){animation-delay:.06s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(3){animation-delay:.09s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(4){animation-delay:.12s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(5){animation-delay:.15s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(6){animation-delay:.18s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(7){animation-delay:.21s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(8){animation-delay:.24s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(9){animation-delay:.27s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(10){animation-delay:.30s}',
-    '.hubnav.open .hubnav-list .hubnav-item:nth-child(11){animation-delay:.33s}',
-    '@keyframes hubnavIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}',
+    '.hubnav-cat{margin:10px 6px 3px;font-size:10.5px;font-weight:800;letter-spacing:.7px;',
+      'text-transform:uppercase;color:#9a93cf;display:flex;align-items:center;gap:6px}',
+    '.hubnav-cat .he{font-size:12px}',
+    '.hubnav-sep{height:1px;margin:7px 4px 0;background:rgba(144,165,255,0.16)}',
 
     '@media print{.hubnav,.back-row[data-hubnav]{display:none!important}}',
     'body.public-mode .hubnav{display:none!important}',
     '@media (prefers-reduced-motion:reduce){',
-      '.hubnav-line,.hubnav-drawer,.hubnav-overlay{transition-duration:.01ms!important}',
-      '.hubnav.open .hubnav-list .hubnav-item{animation:none!important}}'
+      '.hubnav-line,.hubnav-panel,.hubnav-overlay,.hubnav-burger,.hubnav-row{transition-duration:.01ms!important}}'
   ].join('');
 
   var style = document.createElement('style');
@@ -78,106 +109,113 @@
   style.textContent = CSS;
   (document.head || document.documentElement).appendChild(style);
 
-  /* ---- build the menu ---- */
-  function init() {
-    var row = document.querySelector('.back-row');
-    if (!row || row.dataset.hubnav) return;
-
-    var links = Array.prototype.slice.call(row.querySelectorAll('a'));
-    if (!links.length) return;
-    row.dataset.hubnav = '1';
-
-    var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-
-    var menu = document.createElement('div');
-    menu.className = 'hubnav';
-
-    var overlay = document.createElement('div');
-    overlay.className = 'hubnav-overlay';
-
-    var drawer = document.createElement('nav');
-    drawer.className = 'hubnav-drawer';
-    drawer.setAttribute('aria-label', 'Site navigation');
-
-    var head = document.createElement('div');
-    head.className = 'hubnav-drawer-head';
-    var headLabel = document.createElement('span');
-    headLabel.textContent = 'Navigate';
-    var closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.className = 'hubnav-close';
-    closeBtn.setAttribute('aria-label', 'Close menu');
-    closeBtn.innerHTML = '&#10005;';
-    head.appendChild(headLabel);
-    head.appendChild(closeBtn);
-
-    var list = document.createElement('div');
-    list.className = 'hubnav-list';
-
-    var activeLabel = null;
-    links.forEach(function (a) {
-      var hrefFile = (a.getAttribute('href') || '').split('#')[0].split('/').pop().toLowerCase();
-      a.classList.add('hubnav-item');
-      if (a.classList.contains('active') || (hrefFile && hrefFile === here)) {
-        a.classList.add('active');
-        a.setAttribute('aria-current', 'page');
-        if (!activeLabel) activeLabel = a.textContent.trim();
-      }
-      list.appendChild(a);
-    });
-
-    drawer.appendChild(head);
-    drawer.appendChild(list);
-    menu.appendChild(overlay);
-    menu.appendChild(drawer);
-    document.body.appendChild(menu);
-
-    /* burger button reuses the page's own .back-link pill styling */
-    var burger = document.createElement('button');
-    burger.type = 'button';
-    burger.className = 'back-link hubnav-burger';
-    burger.setAttribute('aria-label', 'Open navigation menu');
-    burger.setAttribute('aria-haspopup', 'true');
-    burger.setAttribute('aria-expanded', 'false');
-    burger.innerHTML =
-      '<span class="hubnav-box" aria-hidden="true">' +
-      '<span class="hubnav-line"></span><span class="hubnav-line"></span><span class="hubnav-line"></span>' +
-      '</span><span class="hubnav-burger-label">' + (activeLabel ? esc(activeLabel) : 'Menu') + '</span>';
-    row.appendChild(burger);
-
-    function open() {
-      menu.classList.add('open');
-      burger.classList.add('open');
-      burger.setAttribute('aria-expanded', 'true');
-      var first = list.querySelector('a');
-      if (first) setTimeout(function () { first.focus(); }, 60);
-    }
-    function shut() {
-      menu.classList.remove('open');
-      burger.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
-    }
-    burger.addEventListener('click', function () {
-      menu.classList.contains('open') ? shut() : open();
-    });
-    overlay.addEventListener('click', shut);
-    closeBtn.addEventListener('click', function () { shut(); burger.focus(); });
-    list.addEventListener('click', function (e) { if (e.target.closest('a')) shut(); });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && menu.classList.contains('open')) { shut(); burger.focus(); }
-    });
+  function fileOf(href) {
+    return (href || '').split('#')[0].split('/').pop().toLowerCase();
   }
-
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
   }
 
-  /* The <script> tag sits at the end of <body>, after .back-row, so the
-     nav is already in the DOM — run immediately to avoid any flash of the
-     old pills, and keep a DOMContentLoaded fallback for safety. init() is
-     idempotent (guards on row.dataset.hubnav). */
+  function init() {
+    if (document.querySelector('.hubnav')) return;
+
+    var host = document.querySelector('.back-row');
+    var isBackRow = !!host;
+    if (!host) host = document.querySelector('.top-utility') || document.querySelector('.wrap') || document.body;
+    if (!host) return;
+    if (isBackRow) host.dataset.hubnav = '1';
+
+    var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    if (here === '') here = 'index.html';
+
+    /* find the active item's display name for the burger label */
+    var activeName = null;
+    if (fileOf(HOME.href) === here) activeName = HOME.name;
+    CATS.forEach(function (cat) {
+      cat.items.forEach(function (it) { if (fileOf(it.href) === here) activeName = it.name; });
+    });
+
+    var wrap = document.createElement('div');
+    wrap.className = 'hubnav';
+
+    var burger = document.createElement('button');
+    burger.type = 'button';
+    burger.className = 'hubnav-burger';
+    burger.setAttribute('aria-label', 'Open navigation menu');
+    burger.setAttribute('aria-haspopup', 'true');
+    burger.setAttribute('aria-expanded', 'false');
+    burger.innerHTML =
+      '<span class="hubnav-box" aria-hidden="true"><span class="hubnav-line"></span>' +
+      '<span class="hubnav-line"></span><span class="hubnav-line"></span></span>' +
+      '<span class="hubnav-burger-label">' + esc(activeName || 'Menu') + '</span>';
+
+    var overlay = document.createElement('div');
+    overlay.className = 'hubnav-overlay';
+
+    var panel = document.createElement('div');
+    panel.className = 'hubnav-panel';
+    panel.setAttribute('role', 'menu');
+    panel.setAttribute('aria-label', 'Site navigation');
+
+    var html = '';
+    html += rowHTML(HOME, here, 'hubnav-home');
+    CATS.forEach(function (cat) {
+      html += '<div class="hubnav-cat"><span class="he" aria-hidden="true">' + cat.emoji + '</span>' + esc(cat.name) + '</div>';
+      cat.items.forEach(function (it) { html += rowHTML(it, here, ''); });
+    });
+    panel.innerHTML = html;
+
+    wrap.appendChild(burger);
+    wrap.appendChild(overlay);
+    wrap.appendChild(panel);
+
+    if (isBackRow) host.appendChild(wrap);
+    else host.insertBefore(wrap, host.firstChild);
+
+    /* flip the panel to the right edge if it would overflow the viewport */
+    function place() {
+      panel.classList.remove('flip-right');
+      var r = wrap.getBoundingClientRect();
+      if (r.left + 256 > window.innerWidth - 8) panel.classList.add('flip-right');
+    }
+
+    function open() {
+      place();
+      wrap.classList.add('open');
+      burger.setAttribute('aria-expanded', 'true');
+      var first = panel.querySelector('a');
+      if (first) setTimeout(function () { first.focus(); }, 70);
+    }
+    function shut() {
+      wrap.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    }
+    burger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      wrap.classList.contains('open') ? shut() : open();
+    });
+    overlay.addEventListener('click', shut);
+    panel.addEventListener('click', function (e) { if (e.target.closest('a')) shut(); });
+    document.addEventListener('click', function (e) {
+      if (wrap.classList.contains('open') && !wrap.contains(e.target)) shut();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && wrap.classList.contains('open')) { shut(); burger.focus(); }
+    });
+    window.addEventListener('resize', function () { if (wrap.classList.contains('open')) place(); });
+  }
+
+  function rowHTML(item, here, extra) {
+    var active = fileOf(item.href) === here ? ' active' : '';
+    var aria = active ? ' aria-current="page"' : '';
+    return '<a class="hubnav-row ' + extra + active + '" role="menuitem" href="' + esc(item.href) + '"' + aria + '>' +
+      '<span class="he" aria-hidden="true">' + item.emoji + '</span><span>' + esc(item.name) + '</span></a>';
+  }
+
+  /* script sits at end of <body>, so the DOM is ready — run now (idempotent),
+     with a DOMContentLoaded fallback for safety. */
   init();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 })();
