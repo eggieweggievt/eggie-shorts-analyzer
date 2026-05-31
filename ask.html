@@ -88,24 +88,57 @@
   .chip{font-size:12.5px;font-weight:700;color:var(--deep);background:rgba(144,165,255,0.14);
     border:1px solid rgba(144,165,255,0.3);border-radius:999px;padding:6px 12px;cursor:pointer;transition:background .15s}
   .chip:hover{background:rgba(144,165,255,0.26)}
+
+  /* Mode toggle */
+  .mode-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .seg{display:inline-flex;background:rgba(144,165,255,0.12);border:1px solid rgba(144,165,255,0.3);
+    border-radius:999px;padding:3px;gap:3px}
+  .seg button{border:none;background:transparent;cursor:pointer;font-family:'Quicksand',sans-serif;
+    font-weight:700;font-size:13px;color:var(--ink-soft);padding:6px 14px;border-radius:999px;transition:.15s}
+  .seg button.on{background:#fff;color:var(--deep);box-shadow:0 2px 8px rgba(144,165,255,0.3)}
+  .mode-note{font-size:12px;color:var(--ink-soft);font-weight:600}
+
   .answer{background:linear-gradient(135deg,rgba(255,219,247,0.5),rgba(144,165,255,0.16));
     border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:14px 16px;font-weight:600;color:var(--ink)}
+  .answer .src{display:block;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--ink-soft)}
   .res-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .res-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,0.6);
     border:1px solid rgba(144,165,255,0.22);border-radius:14px;padding:10px 14px}
   .res-row .t{font-weight:700;color:var(--ink);flex:1;min-width:140px}
-  .pill{font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(144,165,255,0.16);color:var(--deep)}
+  .res-row .when{font-size:12px;color:var(--ink-soft);font-weight:600}
+  .pill{font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(144,165,255,0.16);color:var(--deep);text-transform:capitalize}
   .pill.idea{background:rgba(255,219,247,0.7)}
   .pill.editing,.pill.recording{background:rgba(255,210,122,0.45)}
   .pill.scheduled{background:rgba(107,228,234,0.4)}
   .pill.posted{background:rgba(95,208,168,0.32);color:#2f8f6a}
+  .pill.plat{background:rgba(144,165,255,0.12);color:var(--ink-soft);text-transform:none}
   .star{color:#e9a23b;font-weight:800}
   .empty{padding:14px;text-align:center;color:var(--ink-soft);font-weight:600}
-  .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(144,165,255,0.3);
-    border-top-color:var(--periwinkle);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px}
-  @keyframes spin{to{transform:rotate(360deg)}}
   .footer{margin-top:24px;text-align:center;color:var(--ink-soft);font-size:12.5px}
   .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+
+  /* ---- Floating squid loader 🐙 ---- */
+  .squid-loader{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+    flex-direction:column;background:rgba(254,240,251,0.55);backdrop-filter:blur(3px);pointer-events:none}
+  .squid-loader.show{display:flex}
+  .squid{font-size:72px;line-height:1;filter:drop-shadow(0 10px 18px rgba(144,165,255,0.45));
+    animation:squidbob 1.6s ease-in-out infinite}
+  @keyframes squidbob{
+    0%   {transform:translateY(0) rotate(-6deg)}
+    25%  {transform:translateY(-14px) rotate(4deg)}
+    50%  {transform:translateY(0) rotate(-3deg)}
+    75%  {transform:translateY(-9px) rotate(6deg)}
+    100% {transform:translateY(0) rotate(-6deg)}
+  }
+  .squid-cap{margin-top:14px;font-weight:800;color:var(--deep);font-size:15px;
+    background:rgba(255,255,255,0.8);padding:7px 16px;border-radius:999px;box-shadow:var(--shadow)}
+  .bubbles{position:relative;width:80px;height:0}
+  .bubble{position:absolute;bottom:0;width:8px;height:8px;border-radius:50%;
+    background:rgba(144,165,255,0.5);animation:rise 1.8s ease-in infinite}
+  .bubble:nth-child(1){left:14px;animation-delay:0s}
+  .bubble:nth-child(2){left:38px;width:6px;height:6px;animation-delay:.5s}
+  .bubble:nth-child(3){left:58px;width:5px;height:5px;animation-delay:1s}
+  @keyframes rise{0%{transform:translateY(0);opacity:0}20%{opacity:.8}100%{transform:translateY(-70px);opacity:0}}
 </style>
 </head>
 <body>
@@ -134,7 +167,7 @@
   <!-- Signed-out -->
   <div class="card hidden" id="authView">
     <h2>Sign in to ask ✨</h2>
-    <p class="muted">Smart search reads your own planner securely — passwordless magic-link sign-in.</p>
+    <p class="muted">Ask reads your own planner securely — passwordless magic-link sign-in.</p>
     <div class="ask-row" style="margin-top:10px">
       <input type="text" id="emailInput" placeholder="you@example.com" style="flex:1;min-width:200px" />
       <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
@@ -150,15 +183,25 @@
         <span id="userEmail">—</span>
         <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
       </div>
+
+      <div class="mode-wrap">
+        <div class="seg" id="modeSeg">
+          <button id="modeAi" class="on" onclick="setMode('ai')">🔮 Smarter</button>
+          <button id="modeLocal" onclick="setMode('local')">⚡ Instant</button>
+        </div>
+        <span class="mode-note" id="modeNote"></span>
+      </div>
+
       <div class="ask-row">
         <input type="text" id="q" placeholder="what should I film this week?" onkeydown="if(event.key==='Enter')doAsk()" />
-        <button class="btn" id="askBtn" onclick="doAsk()">🔮 Ask</button>
+        <button class="btn" id="askBtn" onclick="doAsk()">🐙 Ask</button>
       </div>
       <div class="chips" id="chips">
         <span class="chip" onclick="quick(this)">what should I film this week?</span>
         <span class="chip" onclick="quick(this)">which shorts are stuck in editing?</span>
         <span class="chip" onclick="quick(this)">what's overdue?</span>
         <span class="chip" onclick="quick(this)">what's ready to post?</span>
+        <span class="chip" onclick="quick(this)">what are my priorities?</span>
       </div>
       <div class="status-banner" id="askStatus"></div>
     </div>
@@ -171,12 +214,19 @@
   </div>
 
   <div class="footer">
-    Powered by your hub's <code>planner-smart-search</code> function · the AI only runs when you press Ask.
+    Smarter mode uses your hub's AI function; Instant mode runs fully on-device, free. The 🐙 only swims when you ask.
   </div>
 </div>
 
+<!-- Floating squid loader -->
+<div class="squid-loader" id="squidLoader" aria-hidden="true">
+  <div class="squid">🐙</div>
+  <div class="bubbles"><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></div>
+  <div class="squid-cap" id="squidCap">thinking…</div>
+</div>
+
 <!-- Auth modal -->
-<div class="card hidden" id="authModal" style="position:fixed;inset:auto 0 0 0;max-width:420px;margin:0 auto;bottom:20px;z-index:70">
+<div class="card hidden" id="authModal" style="position:fixed;inset:auto 0 0 0;max-width:420px;margin:0 auto;bottom:20px;z-index:90">
   <h2>Sign in 🔑</h2>
   <input type="text" id="modalEmail" placeholder="you@example.com" />
   <div style="display:flex;gap:8px;margin-top:10px">
@@ -192,8 +242,13 @@ const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 
 let sb = null;
 let currentUser = null;
-let manageOwnerId = null;   // set when a manager impersonates via ?manage=<id>
+let manageOwnerId = null;     // set when a manager impersonates via ?manage=<id>
+let allItems = [];            // planner items fetched client-side (for Instant mode + fallback)
+let mode = localStorage.getItem('eggie:askMode') || 'ai';   // 'ai' (default) | 'local'
 
+// ============================================================
+//  SUPABASE INIT + AUTH
+// ============================================================
 function loadSupabaseSDK(){
   return new Promise((resolve, reject) => {
     if(window.supabase) return resolve(window.supabase);
@@ -238,10 +293,12 @@ async function onSignIn(user){
   if(manageId){ await resolveManager(manageId); }
   document.getElementById('authView').classList.add('hidden');
   document.getElementById('appView').classList.remove('hidden');
+  applyMode();
+  await loadItems();
 }
 
 function onSignOut(){
-  currentUser = null; manageOwnerId = null;
+  currentUser = null; manageOwnerId = null; allItems = [];
   const pill = document.getElementById('authPill');
   pill.classList.remove('signed-in');
   pill.innerHTML = '🔓 Sign in';
@@ -263,6 +320,19 @@ async function resolveManager(managerId){
     document.getElementById('impersonationBanner').classList.remove('hidden');
     document.getElementById('impName').textContent = d.owner_email || 'creator';
   }
+}
+
+// Fetch the planner items client-side (RLS-scoped) for Instant mode + AI fallback.
+async function loadItems(){
+  if(!sb || !currentUser) return;
+  let q = sb.from('planner_items')
+    .select('id,title,status,platforms,is_priority,deadline_at,posted_at,hook,notes')
+    .neq('status','archived')
+    .limit(500);
+  if(manageOwnerId) q = q.eq('user_id', manageOwnerId);
+  const { data, error } = await q;
+  if(error){ console.warn('items load failed', error); allItems = []; return; }
+  allItems = data || [];
 }
 
 // ---- Magic link ----
@@ -296,7 +366,37 @@ function openAuthModal(){ document.getElementById('authModal').classList.remove(
 function closeAuthModal(){ document.getElementById('authModal').classList.add('hidden'); }
 function doSignOut(){ if(sb && confirm('Sign out?')) sb.auth.signOut(); }
 
-// ---- Ask ----
+// ============================================================
+//  MODE TOGGLE
+// ============================================================
+function setMode(m){ mode = m; localStorage.setItem('eggie:askMode', m); applyMode(); }
+function applyMode(){
+  document.getElementById('modeAi').classList.toggle('on', mode==='ai');
+  document.getElementById('modeLocal').classList.toggle('on', mode==='local');
+  document.getElementById('modeNote').textContent = mode==='ai'
+    ? 'Smarter uses the AI function — falls back to Instant if it’s not set up yet.'
+    : 'Instant runs fully on your device. Free, private, no AI credits.';
+}
+
+// ============================================================
+//  SQUID LOADER 🐙  (min display so it always gets to swim)
+// ============================================================
+let squidShownAt = 0;
+const SQUID_MIN_MS = 650;
+function showSquid(cap){
+  document.getElementById('squidCap').textContent = cap || 'thinking…';
+  document.getElementById('squidLoader').classList.add('show');
+  squidShownAt = Date.now();
+}
+function hideSquid(){
+  const elapsed = Date.now() - squidShownAt;
+  const wait = Math.max(0, SQUID_MIN_MS - elapsed);
+  setTimeout(() => document.getElementById('squidLoader').classList.remove('show'), wait);
+}
+
+// ============================================================
+//  ASK
+// ============================================================
 function quick(el){ document.getElementById('q').value = el.textContent; doAsk(); }
 
 async function doAsk(){
@@ -307,33 +407,37 @@ async function doAsk(){
   if(!sb || !currentUser){ status.textContent='Please sign in first.'; status.className='status-banner error'; return; }
 
   btn.disabled = true;
-  status.innerHTML = '<span class="spinner"></span> thinking…';
-  status.className = 'status-banner';
-
-  const body = { question };
-  if(manageOwnerId) body.manageOwnerId = manageOwnerId;
-
-  const { data, error } = await sb.functions.invoke('planner-smart-search', { body });
-
-  btn.disabled = false;
-  if(error){
-    console.error('smart-search failed', error);
-    status.textContent = 'Hmm, that didn’t work: ' + (error.message || 'function error') + ' — is the function deployed? (see SMART-SEARCH-SETUP.md)';
-    status.className = 'status-banner error';
-    return;
-  }
-  if(data && data.error){
-    status.textContent = data.error;
-    status.className = 'status-banner error';
-    return;
-  }
   status.textContent = '';
-  renderResults(data || {});
+  showSquid(mode==='ai' ? 'asking the smart squid…' : 'sifting your planner…');
+
+  let result, srcNote;
+  if(mode === 'ai'){
+    const body = { question };
+    if(manageOwnerId) body.manageOwnerId = manageOwnerId;
+    const { data, error } = await sb.functions.invoke('planner-smart-search', { body });
+    if(error || (data && data.error)){
+      // Graceful fallback — Smarter isn't available, answer on-device instead.
+      console.warn('AI mode unavailable, falling back to local', error || data.error);
+      result = localAnswer(question);
+      srcNote = '⚡ Answered on-device — turn on the AI function for smarter answers (see SMART-SEARCH-SETUP.md).';
+    } else {
+      result = { answer: data.answer, items: data.items || [] };
+      srcNote = '🔮 Smarter mode · powered by your hub’s AI function.';
+    }
+  } else {
+    result = localAnswer(question);
+    srcNote = '⚡ Instant mode · on-device, no AI credits used.';
+  }
+
+  hideSquid();
+  setTimeout(() => { btn.disabled = false; renderResults(result, srcNote); }, Math.max(0, SQUID_MIN_MS - (Date.now()-squidShownAt)));
 }
 
-function renderResults(data){
+function renderResults(data, srcNote){
   document.getElementById('resultCard').classList.remove('hidden');
-  document.getElementById('answerBox').textContent = data.answer || 'Here are the closest matches.';
+  const ans = document.getElementById('answerBox');
+  ans.innerHTML = escapeHtml(data.answer || 'Here are the closest matches.')
+    + (srcNote ? `<span class="src">${escapeHtml(srcNote)}</span>` : '');
   const list = document.getElementById('resList');
   list.innerHTML = '';
   const items = data.items || [];
@@ -345,12 +449,125 @@ function renderResults(data){
     const row = document.createElement('div');
     row.className = 'res-row';
     const st = (it.status || '').toLowerCase();
-    const plats = (it.platforms||[]).map(p => `<span class="pill">${escapeHtml(p)}</span>`).join('');
+    const plats = (it.platforms||[]).map(p => `<span class="pill plat">${escapeHtml(p)}</span>`).join('');
     const star = it.is_priority ? '<span class="star">⭐</span>' : '';
+    const when = whenLabel(it);
     row.innerHTML = `${star}<span class="t">${escapeHtml(it.title||'Untitled')}</span>`
-      + `<span class="pill ${st}">${escapeHtml(it.status||'')}</span>${plats}`;
+      + `<span class="pill ${st}">${escapeHtml(it.status||'')}</span>${plats}`
+      + (when ? `<span class="when">${escapeHtml(when)}</span>` : '');
     list.appendChild(row);
   });
+}
+
+function whenLabel(it){
+  if(it.posted_at) return 'posted ' + fmtDay(new Date(it.posted_at));
+  if(it.deadline_at){
+    const d = new Date(it.deadline_at), now = new Date();
+    const days = Math.round((d - now)/86400000);
+    if(days < 0) return `${Math.abs(days)}d overdue`;
+    if(days === 0) return 'due today';
+    if(days === 1) return 'due tomorrow';
+    return 'due ' + fmtDay(d);
+  }
+  return '';
+}
+
+// ============================================================
+//  LOCAL RULE-BASED ENGINE  (free, on-device)
+// ============================================================
+function mondayOf(d){ const x=new Date(d); const dow=(x.getDay()+6)%7; x.setDate(x.getDate()-dow); x.setHours(0,0,0,0); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function fmtDay(d){ return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+function plural(n){ return n===1 ? '' : 's'; }
+
+const STOP = new Set(['the','a','an','my','our','your','what','which','who','should','shall','can','could','would',
+  'is','are','am','do','does','did','i','me','to','for','of','in','on','at','this','that','these','those','and','or',
+  'with','have','has','need','want','show','find','list','get','give','any','some','right','now','about','please','week']);
+
+const PLATFORMS = [
+  {key:'youtube', words:['youtube','yt','long']},
+  {key:'short',   words:['short','shorts','reel','reels']},
+  {key:'tiktok',  words:['tiktok','tik tok','tt']},
+  {key:'instagram',words:['instagram','insta','ig']},
+  {key:'twitch',  words:['twitch','stream','live']},
+  {key:'x',       words:['twitter','tweet','x ']}
+];
+function detectPlatform(q){
+  for(const p of PLATFORMS){ if(p.words.some(w => q.includes(w))) return p; }
+  return null;
+}
+function platMatches(platformStr, p){
+  const s = (platformStr||'').toLowerCase();
+  return p.words.some(w => s.includes(w.trim())) || s.includes(p.key);
+}
+
+function byDeadlineAsc(a,b){
+  const da = a.deadline_at ? +new Date(a.deadline_at) : Infinity;
+  const db = b.deadline_at ? +new Date(b.deadline_at) : Infinity;
+  return da - db;
+}
+function byPriorityThenDeadline(a,b){
+  if(!!b.is_priority !== !!a.is_priority) return (b.is_priority?1:0)-(a.is_priority?1:0);
+  return byDeadlineAsc(a,b);
+}
+
+function localAnswer(question){
+  const q = ' ' + question.toLowerCase() + ' ';
+  const has = (...w) => w.some(x => q.includes(x));
+  const now = new Date();
+  const wkStart = mondayOf(now), wkEnd = addDays(wkStart,7);
+  const items = allItems || [];
+  const active = items.filter(it => !['posted','archived'].includes((it.status||'').toLowerCase()));
+  const plat = detectPlatform(q);
+
+  let pool, answer;
+
+  if(has('overdue','late','past due','behind','missed')){
+    pool = active.filter(it => it.deadline_at && new Date(it.deadline_at) < now).sort(byDeadlineAsc);
+    answer = pool.length ? `You've got ${pool.length} item${plural(pool.length)} overdue — most overdue first. Knock the top one out first. 💪`
+                         : `Nothing overdue — you're on top of it. 🎉`;
+  } else if(has('stuck','stalled') || (has('editing','edit') && !has('done','finished'))){
+    pool = active.filter(it => ['editing','recording'].includes((it.status||'').toLowerCase())).sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} thing${plural(pool.length)} mid-pipeline (recording/editing). Closest deadline first.`
+                         : `Nothing stuck in editing right now. ✨`;
+  } else if(has('ready to post','ready','scheduled','queued','queue','go out','upcoming')){
+    pool = active.filter(it => (it.status||'').toLowerCase()==='scheduled').sort(byDeadlineAsc);
+    if(!pool.length) pool = active.filter(it => (it.status||'').toLowerCase()==='editing').sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} ready / lined up to go out.` : `Nothing scheduled yet — want to queue something? 🌱`;
+  } else if(has('film','record','shoot','make','create','produce')){
+    pool = active.filter(it => ['idea','script','recording'].includes((it.status||'').toLowerCase())).sort(byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} thing${plural(pool.length)} to film/make — priority + soonest deadline up top.`
+                         : `No ideas queued to film — time to brainstorm a few! 🌸`;
+  } else if(has('idea','ideas','brainstorm','backlog')){
+    pool = items.filter(it => (it.status||'').toLowerCase()==='idea').sort(byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} idea${plural(pool.length)} in your backlog.` : `No ideas captured yet.`;
+  } else if(has('priority','priorities','important','focus','matter')){
+    pool = active.filter(it => it.is_priority).sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} starred priorit${pool.length===1?'y':'ies'} still open.` : `No priorities flagged right now.`;
+  } else if(has('posted','shipped','published','went out')){
+    pool = items.filter(it => it.posted_at && new Date(it.posted_at) >= wkStart && new Date(it.posted_at) < wkEnd)
+                .sort((a,b)=> +new Date(b.posted_at) - +new Date(a.posted_at));
+    answer = pool.length ? `${pool.length} thing${plural(pool.length)} shipped this week — nice work! 🚀` : `Nothing posted yet this week. Rest counts too. 🌙`;
+  } else if(has('this week','week','today','soon','due')){
+    pool = active.filter(it => (it.deadline_at && new Date(it.deadline_at) >= wkStart && new Date(it.deadline_at) < wkEnd) || it.is_priority)
+                 .sort(byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} thing${plural(pool.length)} on deck this week (deadlines + priorities).` : `Your week looks open — breathing room. 🫧`;
+  } else {
+    // keyword search across title/hook/notes/platforms
+    const terms = q.split(/[^a-z0-9]+/).filter(w => w.length>2 && !STOP.has(w));
+    pool = items.filter(it => {
+      const hay = `${it.title||''} ${it.hook||''} ${it.notes||''} ${(it.platforms||[]).join(' ')}`.toLowerCase();
+      return terms.length ? terms.some(t => hay.includes(t)) : false;
+    }).sort(byPriorityThenDeadline);
+    answer = pool.length ? `Found ${pool.length} match${pool.length===1?'':'es'} for that.` : `No matches — try different words, or check the chips above.`;
+  }
+
+  if(plat && pool.length){
+    const filtered = pool.filter(it => (it.platforms||[]).some(p => platMatches(p, plat)));
+    if(filtered.length){ pool = filtered; answer += ` (filtered to ${plat.key}).`; }
+  }
+
+  return { answer, items: pool.slice(0,20) };
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c =>
