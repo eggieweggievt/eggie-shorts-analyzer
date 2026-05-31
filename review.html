@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Weekly Review 🌸 — Eggie's Creator Hub</title>
+<meta name="description" content="A gentle weekly retro for creators — what shipped, what slipped, and the three things that matter next week." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/review.html" />
+<meta property="og:title" content="Weekly Review 🌸" />
+<meta property="og:description" content="What shipped, what slipped, and the three things that matter next week." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --white:#ffffff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 80%, rgba(255,255,255,0.45) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1}
+
+  /* Nav */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+  .back-link.active{background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.3));border-color:transparent}
+
+  /* Floating auth pill */
+  .auth-pill{
+    position:fixed;top:14px;right:14px;z-index:50;
+    background:rgba(255,255,255,0.85);backdrop-filter:blur(10px);
+    border:2px solid rgba(144,165,255,0.4);border-radius:999px;
+    padding:8px 16px;font-weight:700;font-size:13px;color:var(--deep);
+    cursor:pointer;box-shadow:var(--shadow);transition:background .15s ease;
+  }
+  .auth-pill:hover{background:#fff}
+  .auth-pill.signed-in{border-color:rgba(107,228,234,0.6)}
+
+  /* Hero */
+  .hero{margin:14px 0 8px;text-align:center}
+  .hero h1{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:clamp(30px,5vw,46px);line-height:1.3;margin:0;padding:10px 0 14px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{margin:0;color:var(--ink-soft);font-weight:600;font-size:15px}
+
+  /* Cards */
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px 22px;margin:14px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:22px;
+    margin:0 0 12px;padding:2px 0 6px;color:var(--deep);
+  }
+  .muted{color:var(--ink-soft);font-size:13.5px}
+  .hidden{display:none !important}
+
+  /* Buttons */
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    border:none;border-radius:999px;font-family:'Quicksand',sans-serif;
+    font-weight:700;font-size:14px;padding:10px 20px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;box-shadow:0 4px 14px rgba(144,165,255,0.4);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(144,165,255,0.5)}
+  .btn.ghost{background:rgba(255,255,255,0.7);color:var(--deep);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
+  .btn.ghost:hover{background:#fff}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .btn.small{padding:7px 14px;font-size:13px}
+
+  /* Inputs */
+  input[type=text], textarea{
+    width:100%;font-family:'Quicksand',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.28);
+    border-radius:14px;padding:11px 14px;transition:border-color .15s ease, background .15s ease;
+  }
+  input[type=text]:focus, textarea:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  textarea{resize:vertical;min-height:84px;line-height:1.55}
+
+  .status-banner{margin-top:10px;font-weight:600;font-size:13.5px;color:var(--ink-soft);min-height:18px}
+  .status-banner.error{color:#a23556}
+  .status-banner.success{color:#2f8f6a}
+
+  /* User bar */
+  .user-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-soft);font-weight:600}
+  .dot{width:9px;height:9px;border-radius:50%;background:#cbd2e8;display:inline-block}
+  .dot.on{background:#5fd0a8;box-shadow:0 0 0 3px rgba(95,208,168,0.22)}
+
+  /* Impersonation */
+  .imp-banner{
+    background:linear-gradient(135deg,rgba(255,178,240,0.3),rgba(144,165,255,0.28));
+    border:2px solid rgba(144,165,255,0.45);border-radius:16px;
+    padding:10px 16px;margin:10px 0;font-weight:700;color:var(--deep);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+
+  /* Week navigator */
+  .weeknav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+  .weeknav .range{font-weight:800;color:var(--deep);font-size:16px;text-align:center;min-width:230px}
+  .weeknav .range small{display:block;font-weight:600;color:var(--ink-soft);font-size:12px}
+  .navbtn{
+    width:38px;height:38px;border-radius:50%;border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.8);color:var(--deep);font-weight:800;font-size:18px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .navbtn:hover{background:#fff}
+  .seal-pill{
+    font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;
+    background:rgba(203,210,232,0.4);color:var(--ink-soft);
+  }
+  .seal-pill.sealed{background:rgba(95,208,168,0.22);color:#2f8f6a}
+  .save-chip{font-size:12.5px;font-weight:700;color:var(--ink-soft);min-width:80px;text-align:right}
+  .save-chip.saving{color:var(--periwinkle)}
+  .save-chip.saved{color:#2f8f6a}
+  .save-chip.err{color:#a23556}
+
+  /* Stats strip */
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{
+    background:linear-gradient(135deg,rgba(255,219,247,0.5),rgba(144,165,255,0.18));
+    border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:12px 10px;text-align:center;
+  }
+  .stat .n{font-size:26px;font-weight:800;color:var(--deep);line-height:1.1}
+  .stat .l{font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:3px}
+
+  /* Shipped list */
+  .ship-list{display:flex;flex-direction:column;gap:8px}
+  .ship-row{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:rgba(255,255,255,0.6);border:1px solid rgba(144,165,255,0.22);
+    border-radius:14px;padding:10px 14px;
+  }
+  .ship-row .t{font-weight:700;color:var(--ink);flex:1;min-width:140px}
+  .ship-row .when{font-size:12.5px;color:var(--ink-soft);font-weight:600}
+  .plat{font-size:11px;font-weight:800;color:var(--deep);background:rgba(144,165,255,0.16);padding:2px 8px;border-radius:999px}
+  .empty{padding:14px;text-align:center;color:var(--ink-soft);font-weight:600}
+
+  /* Field grid */
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.fields{grid-template-columns:1fr}}
+  .field label{display:block;font-weight:800;color:var(--deep);font-size:14px;margin-bottom:6px}
+  .field .hint{font-weight:600;color:var(--ink-soft);font-size:12px}
+  .next3{display:flex;flex-direction:column;gap:10px}
+  .next3 .row{display:flex;align-items:center;gap:10px}
+  .next3 .num{
+    width:30px;height:30px;flex:0 0 30px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;
+  }
+
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--deep);color:#fff;font-weight:700;font-size:14px;
+    padding:11px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;z-index:60;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+  .seal-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .footer{margin-top:24px;text-align:center;color:var(--ink-soft);font-size:12.5px}
+  .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</div>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a class="back-link" href="index.html">🏠 Hub</a>
+    <a class="back-link" href="planner.html">🗂️ Planner</a>
+    <a class="back-link" href="todo.html">✓ Tasks</a>
+    <a class="back-link" href="habits.html">🌱 Habits</a>
+    <a class="back-link active" href="review.html">🌸 Review</a>
+    <a class="back-link" href="growth.html">📚 Playbook</a>
+  </div>
+
+  <div class="hero">
+    <h1>Weekly Review 🌸</h1>
+    <p>A gentle retro — what shipped, what slipped, and the three things that matter next week.</p>
+  </div>
+
+  <!-- Impersonation banner -->
+  <div class="imp-banner hidden" id="impersonationBanner">
+    👑 Reviewing <strong id="impName">creator</strong>'s week
+    <a class="btn ghost small" href="review.html" style="margin-left:auto">Exit manager mode</a>
+  </div>
+
+  <!-- Signed-out view -->
+  <div class="card hidden" id="authView">
+    <h2>Sign in to start your review ✨</h2>
+    <p class="muted">Your weekly reviews sync across every device. We use passwordless magic-link sign-in — no password gymnastics.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <input type="text" id="emailInput" placeholder="you@example.com" style="flex:1;min-width:200px" />
+      <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
+    </div>
+    <div class="status-banner" id="authStatus"></div>
+  </div>
+
+  <!-- Signed-in app -->
+  <div class="hidden" id="appView">
+
+    <div class="card">
+      <div class="user-bar" style="margin-bottom:14px">
+        <span class="dot" id="connDot"></span>
+        <span id="userEmail">—</span>
+        <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
+      </div>
+
+      <div class="weeknav">
+        <button class="navbtn" id="prevWeek" title="Previous week" onclick="stepWeek(-1)">‹</button>
+        <div class="range">
+          <span id="rangeLabel">—</span>
+          <small id="weekMeta"></small>
+        </div>
+        <button class="navbtn" id="nextWeek" title="Next week" onclick="stepWeek(1)">›</button>
+        <button class="btn ghost small" id="thisWeekBtn" onclick="goThisWeek()">This week</button>
+        <span class="seal-pill" id="sealPill">draft</span>
+        <span class="save-chip" id="saveChip"></span>
+      </div>
+    </div>
+
+    <!-- Auto stats -->
+    <div class="card">
+      <h2>This week at a glance</h2>
+      <div class="stats">
+        <div class="stat"><div class="n" id="stShipped">0</div><div class="l">Shipped</div></div>
+        <div class="stat"><div class="n" id="stProgress">0</div><div class="l">In progress</div></div>
+        <div class="stat"><div class="n" id="stScheduled">0</div><div class="l">Scheduled</div></div>
+        <div class="stat"><div class="n" id="stDeadlines">0</div><div class="l">Deadlines</div></div>
+        <div class="stat"><div class="n" id="stStreak">0</div><div class="l">Review streak</div></div>
+      </div>
+    </div>
+
+    <!-- Content shipped (auto-pulled) -->
+    <div class="card">
+      <h2>Content shipped 🚀</h2>
+      <p class="muted" style="margin-top:-6px">Auto-pulled from your planner — anything with a <em>posted</em> date inside this week.</p>
+      <div class="ship-list" id="shipList"></div>
+    </div>
+
+    <!-- Reflection fields -->
+    <div class="card">
+      <h2>Reflection</h2>
+      <div class="fields">
+        <div class="field">
+          <label>🌟 Wins this week</label>
+          <textarea id="f_wins" placeholder="What went well? Big or small — both count."></textarea>
+        </div>
+        <div class="field">
+          <label>🥀 What slipped</label>
+          <textarea id="f_slipped" placeholder="What didn't happen, and is that okay?"></textarea>
+        </div>
+        <div class="field">
+          <label>🔓 Open loops</label>
+          <textarea id="f_open_loops" placeholder="Half-finished things still on your mind."></textarea>
+        </div>
+        <div class="field">
+          <label>💬 People to follow up with</label>
+          <textarea id="f_follow_ups" placeholder="Collabs, editors, sponsors, mods…"></textarea>
+        </div>
+        <div class="field">
+          <label>📝 Content notes</label>
+          <textarea id="f_content_notes" placeholder="Ideas, what resonated, what to try next."></textarea>
+        </div>
+        <div class="field">
+          <label>💖 Energy &amp; wellbeing <span class="hint">— spoons check</span></label>
+          <textarea id="f_energy_notes" placeholder="How were your spoons this week? Sleep, rest, burnout signals."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next week top 3 -->
+    <div class="card">
+      <h2>Next week — top 3 🎯</h2>
+      <p class="muted" style="margin-top:-6px">If only three things happen next week, what should they be?</p>
+      <div class="next3">
+        <div class="row"><span class="num">1</span><input type="text" id="nw0" placeholder="The one that matters most…" /></div>
+        <div class="row"><span class="num">2</span><input type="text" id="nw1" placeholder="Second priority…" /></div>
+        <div class="row"><span class="num">3</span><input type="text" id="nw2" placeholder="Third priority…" /></div>
+      </div>
+      <div class="seal-row">
+        <button class="btn" id="sealBtn" onclick="toggleSeal()">✓ Seal week</button>
+        <span class="muted" id="sealNote">Sealing marks the week done and keeps your streak going. You can still edit after.</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      Made with 💗 for <a href="https://creatorhub.eggieweggie.ca">Eggie's Creator Hub</a> · everything auto-saves as you type.
+    </div>
+  </div>
+</div>
+
+<!-- Auth modal (reused for the floating pill) -->
+<div class="card hidden" id="authModal" style="position:fixed;inset:auto 0 0 0;max-width:420px;margin:0 auto;bottom:20px;z-index:70">
+  <h2>Sign in 🔑</h2>
+  <input type="text" id="modalEmail" placeholder="you@example.com" />
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn" onclick="modalSendMagicLink()">📬 Send link</button>
+    <button class="btn ghost" onclick="closeAuthModal()">Close</button>
+  </div>
+  <div class="status-banner" id="modalStatus"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+let sb = null;
+let currentUser = null;
+let currentOwnerId = null;     // mirrors the planner.html manager-impersonation pattern
+let impersonating = false;
+let weekStart = mondayOf(new Date());   // Date object — local Monday of the active week
+let row = null;                // the loaded planner_weekly_reviews row (or a fresh blank)
+let suppressSave = false;      // true while we programmatically fill fields (avoids clobber saves)
+let dirty = false;             // becomes true on the first real user edit (Part 8 #4 guard)
+let saveTimer = null;
+
+// ============================================================
+//  DATE HELPERS  (local clock — never UTC; Part 8 bug #2)
+// ============================================================
+function localDateKey(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function mondayOf(d){
+  const x = new Date(d);
+  const dow = (x.getDay()+6)%7;     // 0=Mon … 6=Sun
+  x.setDate(x.getDate()-dow);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function fmtDay(d){ return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+function isoWeekNumber(d){
+  const x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = (x.getUTCDay()+6)%7;
+  x.setUTCDate(x.getUTCDate()-day+3);
+  const firstThu = new Date(Date.UTC(x.getUTCFullYear(),0,4));
+  const fday = (firstThu.getUTCDay()+6)%7;
+  firstThu.setUTCDate(firstThu.getUTCDate()-fday+3);
+  return 1 + Math.round((x-firstThu)/(7*24*3600*1000));
+}
+
+// ============================================================
+//  SUPABASE INIT + AUTH
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user){ await onSignIn(session.user); }
+    else { showAuthView(); }
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user);
+      else onSignOut();
+    });
+  }catch(e){
+    console.warn('Supabase init failed', e);
+    showAuthView();
+  }
+}
+
+function getQuery(name){
+  const m = new RegExp('[?&]'+name+'=([^&#]*)').exec(window.location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+async function onSignIn(user){
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.textContent = `🐙 ${user.email.split('@')[0]} · signed in`;
+  pill.onclick = () => { if(confirm('Sign out?')) sb.auth.signOut(); };
+  closeAuthModal();
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('connDot').classList.add('on');
+
+  // Resolve owner (manager impersonation via ?manage=)
+  const manageId = getQuery('manage');
+  if(manageId){
+    await loadAsManager(manageId);
+  } else {
+    currentOwnerId = currentUser.id;
+    impersonating = false;
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    await loadWeek();
+  }
+}
+
+function onSignOut(){
+  currentUser = null; currentOwnerId = null; impersonating = false;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in';
+  pill.onclick = openAuthModal;
+  document.getElementById('connDot').classList.remove('on');
+  showAuthView();
+}
+
+function showAuthView(){
+  document.getElementById('authView').classList.remove('hidden');
+  document.getElementById('appView').classList.add('hidden');
+}
+
+async function loadAsManager(managerId){
+  if(!sb) await initAuth();
+  const { data:delegations, error } = await sb.rpc('planner_list_my_delegations');
+  if(error){ console.warn('delegations failed', error); }
+  const d = (delegations||[]).find(x => x.manager_id === managerId);
+  if(!d){
+    flashToast('Manager delegation not found');
+    currentOwnerId = currentUser.id; impersonating = false;
+  } else {
+    currentOwnerId = d.owner_id;
+    impersonating = true;
+    document.getElementById('impersonationBanner').classList.remove('hidden');
+    document.getElementById('impName').textContent = d.owner_email || 'creator';
+  }
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  await loadWeek();
+}
+
+// ----- Magic link -----
+async function sendMagicLink(){ await doMagicLink('emailInput','authStatus','authSend'); }
+async function modalSendMagicLink(){ await doMagicLink('modalEmail','modalStatus',null); }
+async function doMagicLink(inputId, statusId, btnId){
+  const email = (document.getElementById(inputId).value || '').trim().toLowerCase();
+  const status = document.getElementById(statusId);
+  if(!email || !email.includes('@')){
+    status.textContent = 'Please enter a valid email.'; status.className = 'status-banner error'; return;
+  }
+  if(window.location.protocol === 'file:'){
+    status.textContent = '⚠️ Magic links require http(s). Open from your deployed site.';
+    status.className = 'status-banner error'; return;
+  }
+  if(!sb) await initAuth();
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    status.textContent = `⏳ Wait ${wait}s before sending another link.`;
+    status.className = 'status-banner error'; return;
+  }
+  const btn = btnId ? document.getElementById(btnId) : null;
+  if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+  const redirectTo = window.location.origin + window.location.pathname + window.location.search;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  if(btn){ btn.disabled = false; btn.innerHTML = '📬 Send magic link'; }
+  if(error){
+    const msg = String(error.message || '').toLowerCase();
+    status.textContent = /rate limit|too many|429/.test(msg)
+      ? '🚦 Email rate limit hit (~30/hour). Wait ~1 hour or set up custom SMTP.'
+      : 'Sign-in failed: ' + error.message;
+    status.className = 'status-banner error';
+  } else {
+    localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
+    status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`;
+    status.className = 'status-banner success';
+  }
+}
+
+function openAuthModal(){ document.getElementById('authModal').classList.remove('hidden'); }
+function closeAuthModal(){ document.getElementById('authModal').classList.add('hidden'); }
+function doSignOut(){ if(sb && confirm('Sign out?')) sb.auth.signOut(); }
+
+// ============================================================
+//  WEEK LOAD
+// ============================================================
+function blankRow(){
+  return { user_id: currentOwnerId, week_start: localDateKey(weekStart),
+    wins:'', slipped:'', open_loops:'', follow_ups:'', content_notes:'', energy_notes:'',
+    next_week:[], sealed_at:null };
+}
+
+async function loadWeek(){
+  if(!sb || !currentOwnerId) return;
+  const wk = localDateKey(weekStart);
+  renderRangeLabel();
+  setSaveChip('');
+
+  // 1) the review row for this owner+week
+  const { data, error } = await sb
+    .from('planner_weekly_reviews')
+    .select('*')
+    .eq('user_id', currentOwnerId)
+    .eq('week_start', wk)
+    .maybeSingle();
+  if(error && error.code !== 'PGRST116'){
+    console.warn('load review failed', error);
+    flashToast('Couldn’t load this week: ' + error.message);
+  }
+  row = data || blankRow();
+  fillFields(row);
+
+  // 2) auto stats + shipped list from the planner
+  await loadStats();
+  await computeStreak();
+  refreshNav();
+}
+
+function fillFields(r){
+  suppressSave = true;
+  dirty = false;
+  document.getElementById('f_wins').value = r.wins || '';
+  document.getElementById('f_slipped').value = r.slipped || '';
+  document.getElementById('f_open_loops').value = r.open_loops || '';
+  document.getElementById('f_follow_ups').value = r.follow_ups || '';
+  document.getElementById('f_content_notes').value = r.content_notes || '';
+  document.getElementById('f_energy_notes').value = r.energy_notes || '';
+  const nw = Array.isArray(r.next_week) ? r.next_week : [];
+  document.getElementById('nw0').value = nw[0] || '';
+  document.getElementById('nw1').value = nw[1] || '';
+  document.getElementById('nw2').value = nw[2] || '';
+  renderSeal();
+  suppressSave = false;
+}
+
+async function loadStats(){
+  const startISO = weekStart.toISOString();
+  const endISO = addDays(weekStart,7).toISOString();
+  const PROGRESS = ['recording','editing'];
+
+  // Shipped this week (anything with posted_at inside the window)
+  const { data:shipped, error:e1 } = await sb
+    .from('planner_items')
+    .select('id,title,platforms,posted_at')
+    .eq('user_id', currentOwnerId)
+    .not('posted_at','is',null)
+    .gte('posted_at', startISO)
+    .lt('posted_at', endISO)
+    .order('posted_at', { ascending:false });
+  if(e1) console.warn('shipped query failed', e1);
+  renderShipped(shipped || []);
+  document.getElementById('stShipped').textContent = (shipped||[]).length;
+
+  // Deadlines landing in this week
+  const { count:dlCount } = await sb
+    .from('planner_items')
+    .select('id', { count:'exact', head:true })
+    .eq('user_id', currentOwnerId)
+    .not('deadline_at','is',null)
+    .gte('deadline_at', startISO)
+    .lt('deadline_at', endISO);
+  document.getElementById('stDeadlines').textContent = dlCount || 0;
+
+  // In progress (current pipeline state, not week-scoped)
+  const { count:progCount } = await sb
+    .from('planner_items')
+    .select('id', { count:'exact', head:true })
+    .eq('user_id', currentOwnerId)
+    .in('status', PROGRESS);
+  document.getElementById('stProgress').textContent = progCount || 0;
+
+  // Scheduled ahead
+  const { count:schCount } = await sb
+    .from('planner_items')
+    .select('id', { count:'exact', head:true })
+    .eq('user_id', currentOwnerId)
+    .eq('status','scheduled');
+  document.getElementById('stScheduled').textContent = schCount || 0;
+}
+
+function renderShipped(items){
+  const box = document.getElementById('shipList');
+  box.innerHTML = '';
+  if(!items.length){
+    box.innerHTML = '<div class="empty">Nothing posted this week yet — that’s okay. Rest is part of the rhythm. 🌙</div>';
+    return;
+  }
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'ship-row';
+    const plats = (it.platforms||[]).map(p => `<span class="plat">${escapeHtml(p)}</span>`).join('');
+    const when = it.posted_at ? fmtDay(new Date(it.posted_at)) : '';
+    div.innerHTML = `<span class="t">${escapeHtml(it.title || 'Untitled')}</span>${plats}<span class="when">${when}</span>`;
+    box.appendChild(div);
+  });
+}
+
+async function computeStreak(){
+  // Count consecutive sealed weeks ending at (or just before) the active week.
+  const { data, error } = await sb
+    .from('planner_weekly_reviews')
+    .select('week_start,sealed_at')
+    .eq('user_id', currentOwnerId)
+    .not('sealed_at','is',null)
+    .order('week_start', { ascending:false })
+    .limit(120);
+  if(error){ console.warn('streak query failed', error); document.getElementById('stStreak').textContent='0'; return; }
+  const sealed = new Set((data||[]).map(r => r.week_start));
+  let streak = 0;
+  let cursor = new Date(weekStart);
+  if(!sealed.has(localDateKey(cursor))) cursor = addDays(cursor,-7); // current week unsealed → count from last
+  while(sealed.has(localDateKey(cursor))){ streak++; cursor = addDays(cursor,-7); }
+  document.getElementById('stStreak').textContent = streak;
+}
+
+// ============================================================
+//  NAV
+// ============================================================
+function renderRangeLabel(){
+  const end = addDays(weekStart,6);
+  document.getElementById('rangeLabel').textContent = `${fmtDay(weekStart)} → ${fmtDay(end)}`;
+  document.getElementById('weekMeta').textContent =
+    `Week ${isoWeekNumber(weekStart)} · ${weekStart.getFullYear()}`;
+}
+function refreshNav(){
+  // Don't allow navigating into the future beyond the current week
+  const thisMon = mondayOf(new Date());
+  document.getElementById('nextWeek').disabled = (weekStart >= thisMon);
+  const isThis = localDateKey(weekStart) === localDateKey(thisMon);
+  document.getElementById('thisWeekBtn').classList.toggle('hidden', isThis);
+}
+async function stepWeek(n){
+  const thisMon = mondayOf(new Date());
+  const candidate = addDays(weekStart, n*7);
+  if(candidate > thisMon) return;       // no future weeks
+  await flushSave();                    // persist any pending edits before switching
+  weekStart = candidate;
+  await loadWeek();
+}
+async function goThisWeek(){ await flushSave(); weekStart = mondayOf(new Date()); await loadWeek(); }
+
+// ============================================================
+//  SAVE  (debounced, dirty-guarded)
+// ============================================================
+function collect(){
+  return {
+    user_id: currentOwnerId,
+    week_start: localDateKey(weekStart),
+    wins: document.getElementById('f_wins').value,
+    slipped: document.getElementById('f_slipped').value,
+    open_loops: document.getElementById('f_open_loops').value,
+    follow_ups: document.getElementById('f_follow_ups').value,
+    content_notes: document.getElementById('f_content_notes').value,
+    energy_notes: document.getElementById('f_energy_notes').value,
+    next_week: [
+      document.getElementById('nw0').value.trim(),
+      document.getElementById('nw1').value.trim(),
+      document.getElementById('nw2').value.trim()
+    ].filter(s => s.length),
+    sealed_at: row ? row.sealed_at : null
+  };
+}
+
+function scheduleSave(){
+  if(suppressSave) return;
+  dirty = true;
+  setSaveChip('saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 800);
+}
+
+async function saveNow(){
+  if(!sb || !currentOwnerId) return;
+  const payload = collect();
+  const { error } = await sb
+    .from('planner_weekly_reviews')
+    .upsert(payload, { onConflict: 'user_id,week_start' });
+  if(error){
+    console.error('save failed', error);   // never swallow — Part 8 #3
+    setSaveChip('err');
+    flashToast('Save failed: ' + error.message);
+    return;
+  }
+  // keep our in-memory row in sync so seal/streak logic stays correct
+  row = Object.assign(row || {}, payload);
+  setSaveChip('saved');
+}
+
+async function flushSave(){
+  clearTimeout(saveTimer);
+  if(dirty){ await saveNow(); dirty = false; }
+}
+
+function setSaveChip(state){
+  const c = document.getElementById('saveChip');
+  c.className = 'save-chip ' + (state||'');
+  c.textContent = state === 'saving' ? 'saving…'
+    : state === 'saved' ? 'saved ✓'
+    : state === 'err' ? 'save failed'
+    : '';
+}
+
+// ============================================================
+//  SEAL
+// ============================================================
+async function toggleSeal(){
+  if(!sb || !currentOwnerId) return;
+  await flushSave();
+  const newVal = row && row.sealed_at ? null : new Date().toISOString();
+  const payload = collect();
+  payload.sealed_at = newVal;
+  const { error } = await sb
+    .from('planner_weekly_reviews')
+    .upsert(payload, { onConflict: 'user_id,week_start' });
+  if(error){ flashToast('Couldn’t update: ' + error.message); return; }
+  row = Object.assign(row || {}, payload);
+  renderSeal();
+  await computeStreak();
+  flashToast(newVal ? 'Week sealed 🌸' : 'Week reopened');
+}
+
+function renderSeal(){
+  const sealed = !!(row && row.sealed_at);
+  const pill = document.getElementById('sealPill');
+  pill.classList.toggle('sealed', sealed);
+  pill.textContent = sealed ? '✓ sealed' : 'draft';
+  document.getElementById('sealBtn').innerHTML = sealed ? '↩︎ Reopen week' : '✓ Seal week';
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+let toastTimer = null;
+function flashToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// Wire inputs → debounced save
+['f_wins','f_slipped','f_open_loops','f_follow_ups','f_content_notes','f_energy_notes','nw0','nw1','nw2']
+  .forEach(id => document.getElementById(id).addEventListener('input', scheduleSave));
+
+// Save pending edits if the tab is closed/hidden mid-typing
+window.addEventListener('beforeunload', () => { if(dirty) saveNow(); });
+document.addEventListener('visibilitychange', () => { if(document.hidden && dirty) flushSave(); });
+
+// Go
+initAuth();
+</script>
+</body>
+</html>
