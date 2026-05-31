@@ -754,6 +754,68 @@
     box-shadow:0 4px 10px rgba(255,138,168,0.3);
   }
   .preview-banner .pb-exit:hover{filter:brightness(1.05)}
+
+  /* V3.1 — Accordion: collapse a whole creator column */
+  .vtuber-head{cursor:pointer;user-select:none}
+  .vtuber-head .vtuber-name{flex:1;min-width:120px}
+  .vtuber-head .vtuber-collapse{
+    flex-shrink:0;font-size:15px;color:var(--ink-soft);
+    transition:transform .18s;line-height:1;
+  }
+  .vtuber-section[data-collapsed="true"] .vtuber-collapse{transform:rotate(-90deg)}
+  .vtuber-section[data-collapsed="true"] .vtuber-body{display:none}
+  .vtuber-section[data-collapsed="true"] .vtuber-head{margin-bottom:0}
+  .vtuber-head:hover .vtuber-name{text-decoration:underline dotted rgba(144,165,255,0.6)}
+
+  /* V3.1 — List / Board view toggle */
+  .tasks-card-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px}
+  .tasks-card-head h3{margin:0 !important;flex:1}
+  .view-toggle{
+    display:inline-flex;background:rgba(255,255,255,0.6);
+    border:1.5px solid rgba(144,165,255,0.3);border-radius:999px;padding:3px;gap:2px;flex-shrink:0;
+  }
+  .view-toggle button{
+    border:none;background:transparent;cursor:pointer;font-family:inherit;
+    font-weight:700;font-size:12.5px;color:var(--ink-soft);
+    padding:6px 14px;border-radius:999px;transition:background .12s,color .12s;
+  }
+  .view-toggle button.active{
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;box-shadow:0 2px 8px rgba(144,165,255,0.3);
+  }
+
+  /* V3.1 — Kanban board view (readiness buckets as side-by-side columns) */
+  .kanban-board{
+    display:flex;gap:14px;align-items:flex-start;
+    overflow-x:auto;padding-bottom:8px;
+  }
+  .kanban-col{
+    flex:0 0 320px;min-width:280px;max-width:340px;
+    background:rgba(255,255,255,0.45);
+    border:1.5px solid rgba(144,165,255,0.22);
+    border-radius:14px;padding:10px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .kanban-col.ready{background:linear-gradient(180deg,rgba(168,230,190,0.22),rgba(255,255,255,0.4))}
+  .kanban-col.pending{background:linear-gradient(180deg,rgba(255,213,138,0.2),rgba(255,255,255,0.4))}
+  .kanban-col.done{opacity:.92}
+  .kanban-col-head{display:flex;align-items:center;gap:8px;padding:4px 6px 6px;border-bottom:1.5px dashed rgba(144,165,255,0.25)}
+  .kanban-col-head .bucket-icon{font-size:20px;line-height:1}
+  .kanban-col-head h4{font-family:'Pacifico',cursive;font-weight:400;font-size:17px;margin:0;flex:1;line-height:1.2;color:var(--deep)}
+  .kanban-col.ready .kanban-col-head h4{color:#1f6580}
+  .kanban-col.pending .kanban-col-head h4{color:#a35c00}
+  .kanban-col.done .kanban-col-head h4{color:var(--ink-soft)}
+  .kanban-col-head .bucket-count{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
+    color:var(--deep);font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;
+  }
+  .kanban-col-body{display:flex;flex-direction:column;gap:10px}
+  .kanban-col.done .project-card{opacity:.78}
+  .kanban-col.done .project-card:hover{opacity:1}
+  .kanban-empty{
+    padding:16px 12px;text-align:center;color:var(--ink-soft);font-style:italic;font-size:12.5px;
+    background:rgba(255,255,255,0.5);border:1.5px dashed rgba(144,165,255,0.25);border-radius:10px;
+  }
 </style>
 </head>
 <body>
@@ -824,7 +886,13 @@
 
       <!-- Tasks column -->
       <div class="card tasks-card">
-        <h3>🎬 Your projects</h3>
+        <div class="tasks-card-head">
+          <h3>🎬 Your projects</h3>
+          <div class="view-toggle" id="viewToggle" title="Switch between a stacked list and a kanban board">
+            <button type="button" data-view="list">☰ List</button>
+            <button type="button" data-view="board">▦ Board</button>
+          </div>
+        </div>
         <div class="status-summary" id="statusSummary"></div>
         <div class="project-list" id="projectList">
           <div class="empty-state">
@@ -884,6 +952,26 @@ function viewerEmail(){
   return ((currentUser && currentUser.email) || '').trim().toLowerCase();
 }
 
+// V3.1 — Editor view preferences, persisted locally in this editor's browser.
+const EDITOR_VIEW_KEY = 'eggie:editorViewMode';        // 'list' | 'board'
+const EDITOR_COLLAPSE_KEY = 'eggie:editorCollapsedOwners'; // JSON array of owner ids
+function getViewMode(){ return localStorage.getItem(EDITOR_VIEW_KEY) === 'board' ? 'board' : 'list'; }
+function setViewMode(m){ localStorage.setItem(EDITOR_VIEW_KEY, m === 'board' ? 'board' : 'list'); }
+function getCollapsedOwners(){
+  try{ return new Set(JSON.parse(localStorage.getItem(EDITOR_COLLAPSE_KEY) || '[]')); }
+  catch(_){ return new Set(); }
+}
+function setOwnerCollapsed(ownerId, collapsed){
+  const s = getCollapsedOwners();
+  if(collapsed) s.add(ownerId); else s.delete(ownerId);
+  localStorage.setItem(EDITOR_COLLAPSE_KEY, JSON.stringify([...s]));
+}
+function applyViewToggleUI(){
+  const vt = $('viewToggle'); if(!vt) return;
+  const mode = getViewMode();
+  vt.querySelectorAll('button[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
+}
+
 async function init(){
   try{
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -899,6 +987,19 @@ async function init(){
   $('signInBtn').addEventListener('click', signIn);
   $('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') signIn(); });
   $('signOutBtn').addEventListener('click', signOut);
+
+  // V3.1 — List / Board view toggle (persisted, re-renders on switch)
+  const vt = $('viewToggle');
+  if(vt){
+    vt.querySelectorAll('button[data-view]').forEach(b => {
+      b.addEventListener('click', () => {
+        setViewMode(b.dataset.view);
+        applyViewToggleUI();
+        if(currentUser && projects.length) renderProjects();
+      });
+    });
+  }
+  applyViewToggleUI();
 
   // V2.1 — Read invite link params: ?email=...&ed=...&name=...
   // Pre-fill the email field + show a personalized welcome banner.
@@ -1252,6 +1353,7 @@ async function loadProjects(){
 }
 
 function renderProjects(){
+  applyViewToggleUI();
   // Status summary (across every VTuber the editor works with)
   const counts = {};
   projects.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
@@ -1306,6 +1408,21 @@ function renderProjects(){
     };
     head.addEventListener('click', e => { if(e.target !== btn) flip(); });
     btn.addEventListener('click', e => { e.stopPropagation(); flip(); });
+  });
+
+  // V3.1 — Wire up per-creator accordion: click the column header to collapse/expand.
+  wrap.querySelectorAll('.vtuber-section').forEach(sec => {
+    const head = sec.querySelector('.vtuber-head');
+    if(!head) return;
+    const toggle = () => {
+      const collapsed = sec.dataset.collapsed === 'true';
+      sec.dataset.collapsed = (!collapsed).toString();
+      setOwnerCollapsed(sec.dataset.owner, !collapsed);
+    };
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
   });
 }
 
@@ -1369,25 +1486,32 @@ function renderVtuberSection(ownerId, items, index, multi){
 
   const countLabel = items.length === 1 ? '1 project' : `${items.length} projects`;
 
+  // V3.1 — Accordion state (persisted) + list/board view of this creator's items.
+  const collapsed = getCollapsedOwners().has(ownerId);
+  const projectsHtml = getViewMode() === 'board' ? renderReadinessBoard(items) : renderReadinessBuckets(items);
+
   return `
-    <div class="vtuber-section">
-      <div class="vtuber-head">
+    <div class="vtuber-section" data-owner="${escape(ownerId)}" data-collapsed="${collapsed}">
+      <div class="vtuber-head" role="button" tabindex="0" aria-expanded="${!collapsed}" title="Click to collapse / expand this creator">
         <span class="vtuber-avatar">🎀</span>
         <h3 class="vtuber-name">${escape(name)}</h3>
         <span class="vtuber-count">${countLabel}</span>
+        <span class="vtuber-collapse" aria-hidden="true">▾</span>
       </div>
-      ${batchHtml}
-      ${kitHtml}
-      ${renderReadinessBuckets(items)}
+      <div class="vtuber-body">
+        ${batchHtml}
+        ${kitHtml}
+        ${projectsHtml}
+      </div>
     </div>`;
 }
 
 // V2.7 / V3 — Bucket a creator's items by readiness so editors immediately see
-// what to work on. Returns an HTML string.
+// what to work on. Shared by both the list and the board view.
 //   READY    = editing, OR recording + has footage/attachments (handed over)
 //   PENDING  = idea / script / recording-without-footage (creator still prepping)
 //   DONE     = scheduled / posted / archived (shipped or in queue)
-function renderReadinessBuckets(items){
+function bucketItems(items){
   function hasFootage(p){
     return !!(p.footage_url || (Array.isArray(p.attachments) && p.attachments.length > 0));
   }
@@ -1401,6 +1525,35 @@ function renderReadinessBuckets(items){
       pending.push(p);
     }
   });
+  return { ready, pending, done };
+}
+
+// V3.1 — Board view: the three readiness buckets as side-by-side kanban columns.
+// Empty columns stay visible so the editor sees the whole pipeline at a glance.
+function renderReadinessBoard(items){
+  const { ready, pending, done } = bucketItems(items);
+  const col = (cls, icon, title, arr, emptyMsg) => `
+    <div class="kanban-col ${cls}">
+      <div class="kanban-col-head">
+        <span class="bucket-icon">${icon}</span>
+        <h4>${title}</h4>
+        <span class="bucket-count">${arr.length}</span>
+      </div>
+      <div class="kanban-col-body">
+        ${arr.length ? arr.map(renderProjectCard).join('') : `<div class="kanban-empty">${emptyMsg}</div>`}
+      </div>
+    </div>`;
+  return `
+    <div class="kanban-board">
+      ${col('ready', '🎬', 'Ready to edit', ready, 'Nothing to edit right now.')}
+      ${col('pending', '⏳', 'Coming up', pending, 'Nothing in prep yet.')}
+      ${col('done', '✅', 'Shipped', done, 'Nothing shipped yet.')}
+    </div>`;
+}
+
+// List view: the same readiness buckets stacked vertically (full-width cards).
+function renderReadinessBuckets(items){
+  const { ready, pending, done } = bucketItems(items);
 
   const sections = [];
 

@@ -2415,6 +2415,76 @@ function suggestTitles(originalTitle, description){
   const cleanedTitle = t.replace(/[?!.…]+$/,'').replace(/^(why|how|what|this|wait|i|she|he|they|we|my)\s+/i,'').trim();
   const titleWordCount = cleanedTitle.split(/\s+/).filter(Boolean).length;
 
+  // ============================================================
+  //  V5 (2026-05-31) — SUBJECT SANITIZER + CONTEXT KEYWORD EXTRACTOR
+  //  Root-cause fix: long, sentence-like phrases were reaching the
+  //  noun slot (e.g. "real life story this happened"), so every
+  //  template read as garbage. Now EVERY non-curated subject is
+  //  hard-clamped to a clean ≤3-word topic, and we actively mine
+  //  the real topic out of the full context instead of grabbing a
+  //  raw span.
+  // ============================================================
+  // Glue/narration words — removed everywhere. These never carry topic meaning.
+  const STOPWORDS = new Set(('a an the this that these those my your our his her their its me i we you he she it they them us ' +
+    'of to in on at for from with by as is are was were be been being am im ive id ill ' +
+    'and or but so then than when while because if not no yes just like really very too also ' +
+    'actually basically literally honestly kinda sorta gonna wanna gotta about into over under ' +
+    'do does did done done get got go goes going went make makes made making ' +
+    'here there now today tonight again still even ever never always').split(/\s+/));
+  // "Weak" words — topic-less narration nouns. Stripped only from the EDGES of a phrase
+  // (so "bodycam footage" → "bodycam", but a real topic in the middle is kept).
+  const WEAK = new Set(('story storytime stories video vid clip clips content moment moments time times ' +
+    'thing things footage real life day days vlog stream streaming streamer pov reaction reacting ' +
+    'happened happens happening guys chat everyone').split(/\s+/));
+
+  // Reduce any raw phrase to a clean ≤3-word topic, or null if nothing topical remains.
+  function sanitizeSubject(raw){
+    if(!raw) return null;
+    let toks = String(raw).toLowerCase()
+      .replace(/[^a-z0-9 '\-]/g,' ').replace(/\s+/g,' ').trim()
+      .split(' ').filter(Boolean)
+      .filter(w => !STOPWORDS.has(w));
+    // Trim weak narration words off both ends (keep the middle).
+    while(toks.length > 1 && WEAK.has(toks[0])) toks.shift();
+    while(toks.length > 1 && WEAK.has(toks[toks.length-1])) toks.pop();
+    // If everything left is weak/narration, there's no real topic → bail to a clean label.
+    const content = toks.filter(w => !WEAK.has(w));
+    if(!content.length) return null;
+    // Keep up to the first 3 content-bearing words, in order.
+    const phrase = content.slice(0,3).join(' ').trim();
+    if(phrase.length < 3 || phrase.length > 26) return null;
+    return phrase;
+  }
+
+  // Mine the strongest concrete topic out of the FULL context (user text + video).
+  // Prefers a capitalized proper noun (game / character / show names), else the most
+  // salient content word. Returns a clean ≤3-word phrase or null.
+  function pickKeywordSubject(rawText){
+    if(!rawText) return null;
+    const text = String(rawText).replace(/\s+/g,' ').trim();
+    if(!text) return null;
+    // 1) Proper-noun run (e.g. "Baldur's Gate", "Elden Ring", "Aqua") — 1-3 capitalized words.
+    const proper = text.match(/\b([A-Z][a-zA-Z0-9'’]+(?:\s+[A-Z][a-zA-Z0-9'’]+){0,2})\b/g) || [];
+    const properClean = proper
+      .map(p => p.trim())
+      .filter(p => !/^(I|I'm|Im|POV|The|This|That|My|A|An|And|But|So|When|Why|How|What)$/i.test(p))
+      .filter(p => p.length >= 3);
+    for(const p of properClean){
+      const s = sanitizeSubject(p);   // only accept if it survives cleaning (skips "Today", "Then"…)
+      if(s) return s;
+    }
+    // 2) Frequency of content words — strip stop/weak, prefer the longest/most-repeated.
+    const words = text.toLowerCase().replace(/[^a-z0-9 '\-]/g,' ').split(/\s+/)
+      .filter(w => w && w.length >= 4 && !STOPWORDS.has(w) && !WEAK.has(w));
+    if(!words.length) return null;
+    const freq = {};
+    words.forEach(w => { freq[w] = (freq[w]||0) + 1; });
+    words.sort((a,b) => (freq[b]-freq[a]) || (b.length-a.length));
+    return words[0] || null;
+  }
+  // Full raw context for keyword mining (case preserved for proper-noun detection).
+  const fullRaw = `${t} ${Array.isArray(description) ? description.join(' ') : String(description||'')}`.trim();
+
   // V2 fix #56 — extract a topical noun phrase from the user's quickContext (description)
   // when detection didn't pick up a specific game/genre. This rescues titles from generic
   // "this reaction" fallbacks when the user actually told us what their content is about.
@@ -2449,23 +2519,40 @@ function suggestTitles(originalTitle, description){
   }
   const userTopical = extractTopicalSubject(description);
 
+  // V5 — sanitize the user-provided topic, and mine a topic from the full context.
+  const userTopicalClean = sanitizeSubject(userTopical);
+  const keywordSubject   = pickKeywordSubject(fullRaw);
+
   let subject;
   if(detected.games.length){
-    subject = detected.games[0];
-  } else if(userTopical){
-    // V2 fix #56 — prefer the user's own context over generic content-type labels
-    subject = userTopical;
+    subject = detected.games[0];               // curated game name — already clean
+  } else if(userTopicalClean){
+    subject = userTopicalClean;                // user told us their topic, now cleaned
+  } else if(keywordSubject){
+    subject = keywordSubject;                   // mined from context (proper noun / keyword)
   } else if(specificGenre){
     subject = shortGenreLabel(specificGenre);
   } else if(specificContent){
     subject = shortContentLabel(specificContent);
   } else if(detected.hasVTuber){
     subject = 'this VTuber moment';
-  } else if(cleanedTitle && titleWordCount <= 3 && cleanedTitle.length <= 30){
-    // Only use the user's title as the noun slot when it's grammatically short.
-    subject = cleanedTitle;
   } else {
-    subject = 'this';
+    subject = sanitizeSubject(cleanedTitle) || 'this';
+  }
+
+  // FINAL SAFETY CLAMP — a non-curated subject must be a clean ≤3-word / ≤26-char noun.
+  // This is the backstop that stops sentence-like phrases ever reaching the templates,
+  // no matter which path produced them. Curated labels are whitelisted.
+  const CURATED = new Set([detected.games[0], 'this', 'this VTuber moment',
+    shortGenreLabel(specificGenre||''), shortContentLabel(specificContent||'')].filter(Boolean));
+  if(!CURATED.has(subject)){
+    const wc = String(subject).trim().split(/\s+/).filter(Boolean).length;
+    if(wc > 3 || String(subject).length > 26){
+      subject = sanitizeSubject(subject)
+        || (specificContent ? shortContentLabel(specificContent) : null)
+        || (specificGenre ? shortGenreLabel(specificGenre) : null)
+        || 'this';
+    }
   }
 
   const lower = subject.toLowerCase();
