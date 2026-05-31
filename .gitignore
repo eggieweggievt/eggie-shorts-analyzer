@@ -1,0 +1,29 @@
+# ── OS / editor noise ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/
+
+# ── Dependencies / build ──────────────────────────────────────
+node_modules/
+.vercel/
+*.log
+
+# ── Secrets / env ─────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Local-only operational data (NOT served by the live site) ──
+# Scheduled-task input watchlist — kept local, contains private notes
+channels.json
+# Dated scan outputs from the weekly tag-mining task — scratch artifacts
+channel-scan-*.json
+tag-candidates-*.json
+
+# ── Superseded / stray files (safe to delete from disk) ───────
+# Old single-file-analyzer README, replaced by README.md + HUB-FEATURES.md
+eggie-shorts-analyzer-README.md
