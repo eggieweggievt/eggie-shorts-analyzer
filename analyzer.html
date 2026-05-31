@@ -634,12 +634,13 @@
   .creator-profile .profile-grid{display:flex;flex-wrap:wrap;gap:8px 10px}
   .creator-profile .profile-open-btn{
     display:inline-flex;align-items:center;gap:8px;
-    padding:9px 18px;
-    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
-    color:#fff;font-weight:800;font-size:13.5px;
-    border:none;border-radius:999px;cursor:pointer;
-    box-shadow:0 4px 12px rgba(144,165,255,0.32);
-    transition:transform .12s ease, filter .15s ease;
+    flex-shrink:0;
+    padding:11px 22px;border-radius:999px;
+    font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+    border:none;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .12s ease, filter .15s ease, box-shadow .15s ease;
   }
   .creator-profile .profile-open-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
   .creator-profile .profile-open-btn:active{transform:translateY(0)}
