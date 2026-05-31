@@ -37,7 +37,7 @@
       { emoji: '📚', name: 'Growth Playbook', href: 'growth.html' }
     ]},
     { emoji: '✨', name: 'More', items: [
-      { emoji: '📖', name: 'About & Contact', href: 'about.html' },
+      { emoji: '❓', name: 'FAQ & About', href: 'faq.html' },
       { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' }
     ]}
   ];
@@ -47,6 +47,7 @@
     '.back-row[data-hubnav] > a{display:none!important}',
 
     '.hubnav{position:relative;display:inline-flex;vertical-align:middle}',
+    '.hubnav--lead{margin-right:auto;order:-1}',
 
     '.hubnav-burger{display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-family:inherit;line-height:1;',
       'background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.42);color:var(--deep,#4a4490);',
@@ -171,8 +172,12 @@
     wrap.appendChild(overlay);
     wrap.appendChild(panel);
 
-    if (isBackRow) host.appendChild(wrap);
-    else host.insertBefore(wrap, host.firstChild);
+    if (isBackRow) {
+      host.appendChild(wrap);
+    } else {
+      wrap.classList.add('hubnav--lead');   /* push to the left edge of the row (e.g. home page) */
+      host.insertBefore(wrap, host.firstChild);
+    }
 
     /* flip the panel to the right edge if it would overflow the viewport */
     function place() {

@@ -4,13 +4,13 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>FAQ 🐙 — Eggie's Creator Hub</title>
-<meta name="description" content="Answers to common questions about Eggie's Creator Hub — how it works, how your data is stored and protected, whether it uses AI, and what it costs (nothing)." />
+<meta name="description" content="Answers to common questions about Eggie's Creator Hub — how it works, how your data is stored and protected, whether it uses AI, what it costs (nothing), and the full list of games and niches the Shorts Analyzer knows." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/faq.html" />
 <meta property="og:title" content="FAQ — Eggie's Creator Hub 🐙" />
-<meta property="og:description" content="How it works, how your data is protected, and what it costs (nothing)." />
+<meta property="og:description" content="How it works, how your data is protected, what it costs (nothing), and every niche the analyzer knows." />
 <meta property="og:image" content="preview.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@EggieWeggieVT" />
@@ -63,7 +63,7 @@
     pointer-events:none;
     z-index:0;
   }
-  .wrap{max-width:780px;margin:0 auto;padding:18px 20px 56px;position:relative;z-index:1}
+  .wrap{max-width:820px;margin:0 auto;padding:18px 20px 56px;position:relative;z-index:1}
 
   /* ===== back-row (hub-nav.js converts this into the hamburger) ===== */
   .back-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 8px}
@@ -171,6 +171,54 @@
 
   .sec-intro{font-size:13.5px;color:var(--ink-soft);margin:-4px 0 14px 4px;line-height:1.55}
 
+  /* ===== analyzer: overview + pipeline + formula (folded in) ===== */
+  .overview{display:grid;gap:11px;margin:4px 0 2px}
+  @media(min-width:620px){.overview{grid-template-columns:1fr 1fr 1fr}}
+  .ov-card{background:rgba(255,255,255,0.6);border:1.5px dashed rgba(144,165,255,0.4);border-radius:13px;padding:12px 14px}
+  .ov-card h4{margin:0 0 5px;font-size:13.5px;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:7px}
+  .ov-card p{margin:0;font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+
+  .tech-grid{display:grid;gap:11px;margin:4px 0 2px}
+  @media(min-width:620px){.tech-grid{grid-template-columns:1fr 1fr}}
+  .tech-item{background:rgba(255,255,255,0.6);border-radius:12px;padding:11px 14px;border:1px solid rgba(144,165,255,0.3)}
+  .tech-item h4{margin:0 0 4px;font-size:13.5px;color:var(--deep);font-weight:800}
+  .tech-item p{margin:0;font-size:12.5px;color:var(--ink);line-height:1.5}
+
+  .formula-card{background:linear-gradient(135deg, rgba(255,219,247,0.5), rgba(199,210,255,0.4), rgba(180,240,243,0.4));border:1.5px solid rgba(144,165,255,0.45);border-radius:14px;padding:14px 16px;margin:4px 0 2px}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .size-pill-big{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(255,255,255,0.85);border-radius:999px;font-weight:700;font-size:12.5px;color:var(--deep);border:1px solid rgba(144,165,255,0.35)}
+  .size-pill-big .sb{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+  .size-pill-big .sb.s{background:#E879C5}
+  .size-pill-big .sb.m{background:#7E94F4}
+  .size-pill-big .sb.l{background:#3FB8C0}
+
+  /* ===== niche database pools ===== */
+  .pool-grid{display:grid;gap:13px;margin:4px 0 2px}
+  @media(min-width:680px){.pool-grid{grid-template-columns:1fr 1fr}}
+  .pool-section{background:rgba(255,255,255,0.55);border:1.5px dashed rgba(144,165,255,0.35);border-radius:13px;padding:13px 15px}
+  .pool-section.games{background:linear-gradient(135deg, rgba(255,219,247,0.55), rgba(255,178,240,0.18))}
+  .pool-section.genres{background:linear-gradient(135deg, rgba(144,165,255,0.22), rgba(199,210,255,0.42))}
+  .pool-section.content{background:linear-gradient(135deg, rgba(107,228,234,0.3), rgba(180,240,243,0.42))}
+  .pool-section.identity{background:linear-gradient(135deg, rgba(255,219,247,0.42), rgba(180,240,243,0.32), rgba(144,165,255,0.22))}
+  .pool-section h4{margin:0 0 6px;font-size:14px;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:7px}
+  .pool-section h4 .count{margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,0.75);color:var(--deep);padding:2px 8px;border-radius:999px}
+  .pool-list{column-count:2;column-gap:16px;margin:4px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--ink);line-height:1.55}
+  .pool-list li{break-inside:avoid;padding:1px 0}
+  .pool-list li::before{content:"·  ";color:var(--periwinkle);font-weight:800}
+  @media(max-width:520px){.pool-list{column-count:1}}
+
+  /* ===== contact rows ===== */
+  .niche-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:4px 0 2px}
+  .niche{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:13px;background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.25);font-size:13px;font-weight:600;color:var(--ink)}
+  .niche .ni{font-size:17px;flex-shrink:0}
+  .contact-links{display:flex;flex-direction:column;gap:9px;margin:4px 0 2px}
+  .contact-row{display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:13px;background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.25);text-decoration:none;color:var(--ink);font-weight:600;font-size:13.5px;transition:background .15s ease, border-color .15s ease, transform .12s ease}
+  .contact-row:hover{background:#fff;border-color:var(--periwinkle);transform:translateY(-1px)}
+  .contact-row .cr-ic{font-size:21px;flex-shrink:0}
+  .contact-row .cr-text{flex:1;min-width:0}
+  .contact-row .cr-label{display:block;font-weight:800;color:var(--deep);font-size:13.5px}
+  .contact-row .cr-sub{display:block;font-size:12px;color:var(--ink-soft)}
+
   /* ===== footer ===== */
   footer{text-align:center;padding:24px 0 8px;color:var(--ink-soft);font-size:12.5px;line-height:1.6}
   footer a{color:var(--deep);text-decoration:none;font-weight:700}
@@ -200,12 +248,12 @@
 
   <div class="back-row">
     <a href="index.html">🏠 Hub Home</a>
-    <a href="about.html">📖 About</a>
+    <a href="growth.html">📚 Growth Playbook</a>
   </div>
 
   <header class="hero">
     <h1>Frequently Asked Questions</h1>
-    <p class="tag">Honest answers about how the Creator Hub works, how your data is handled, and what it costs. 🐙</p>
+    <p class="tag">Honest answers about how the Creator Hub works, how your data is handled, what it costs, and what the analyzer knows. 🐙</p>
   </header>
 
   <div class="tldr">
@@ -213,19 +261,75 @@
     <ul>
       <li>The hub is <strong>completely free</strong>. There's no paywall, trial timer, or locked features.</li>
       <li>It is <strong>not generative AI</strong> and is <strong>not connected to any LLM</strong> such as ChatGPT.</li>
-      <li>Your data is <strong>encrypted</strong> and stored in a <strong>private database</strong>. It is never sold or shared without your permission.</li>
+      <li>Your saved data is <strong>encrypted</strong> and stored in a <strong>private database</strong>. It is never sold or shared without your permission.</li>
+      <li>The Shorts Analyzer processes your <strong>video locally in your browser</strong> — the video itself is never uploaded.</li>
       <li>Under the hood it's a large database plus pattern recognition, with speech-to-text for transcription — essentially pre-AI technology.</li>
     </ul>
   </div>
 
-  <!-- ============ DATA & PRIVACY (lead with this — it's the top concern) ============ -->
+  <!-- ============ GETTING STARTED (moved to top per request) ============ -->
+  <section class="faq-section">
+    <h2 class="sec-title"><span class="se">🌸</span> Getting started</h2>
+
+    <details class="faq-item">
+      <summary class="faq-q">What is Eggie's Creator Hub?</summary>
+      <div class="faq-a">
+        <p>A free suite of tools to help VTubers and content creators plan, write, and grow their content — built by one creator trying to make something that genuinely helps others.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">What does the Shorts Analyzer give me?</summary>
+      <div class="faq-a">
+        <p>Upload a short, tell it what the short is about (or let it read the visuals and audio), and you get:</p>
+        <div class="overview">
+          <div class="ov-card">
+            <h4>🎯 A score out of 10</h4>
+            <p>Broken down by hook, duration, title, hashtags, caption, engagement, SEO, niche fit, and retention — sorted by what moves the score most.</p>
+          </div>
+          <div class="ov-card">
+            <h4>🏷️ Five smart hashtags</h4>
+            <p>A 1 small / 2 medium / 2 large mix drawn from a pool matched to your specific content — not generic "#shorts" filler.</p>
+          </div>
+          <div class="ov-card">
+            <h4>📋 A ready-to-copy post pack</h4>
+            <p>Title + description for YouTube, a caption for TikTok and Instagram, and a 280-character tweet for X. Hashtags editable before you copy.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Do I need to know how to code?</summary>
+      <div class="faq-a">
+        <p>Not at all. Everything runs right in your browser — just open a tool and start using it.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Can I be a beta tester?</summary>
+      <div class="faq-a">
+        <p>Yes, and that's hugely appreciated. The easiest way is to reach out on my socials and let me know, ideally with your channel links so I can find you. The more creators trying the tools, the better they become.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DATA & PRIVACY ============ -->
   <section class="faq-section">
     <h2 class="sec-title"><span class="se">🔒</span> Your data &amp; privacy</h2>
 
     <details class="faq-item" open>
       <summary class="faq-q">Is the information I enter being stored somewhere?</summary>
       <div class="faq-a">
-        <p>Yes. In order for your projects, plans, and settings to still be there when you return, they have to be saved. Your data is stored <strong>encrypted</strong> in a <strong>private database</strong> (hosted on <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>) with as much security applied to it as reasonably possible. It is not stored in the open or left publicly accessible.</p>
+        <p>The parts you save to your account — projects, plans, settings — are stored so they're still there when you return. That data is kept <strong>encrypted</strong> in a <strong>private database</strong> (hosted on <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>) with as much security applied to it as reasonably possible. It is not stored in the open or left publicly accessible.</p>
+        <p>Separately, the Shorts Analyzer processes your <strong>video entirely in your browser</strong> — see "Does my video get uploaded?" below.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Does my video get uploaded anywhere?<span class="badge">local</span></summary>
+      <div class="faq-a">
+        <p>No. The Shorts Analyzer runs <strong>entirely in your browser</strong>. The detection models load locally and process the video frames on your own computer — the video file is never uploaded to a server. The first analysis downloads the models (around 380MB total), after which they're cached in your browser so later runs are faster and fully offline.</p>
       </div>
     </details>
 
@@ -253,7 +357,7 @@
     <details class="faq-item">
       <summary class="faq-q">Is there a Terms of Service / Privacy Policy?</summary>
       <div class="faq-a">
-        <p>A formal Terms of Service is being written and will be linked here once it's ready. In the meantime, the plain-language summary further down this page (<a href="#privacy-summary">"How your data is handled"</a>) describes exactly what is stored, how it is protected, and what will never be done with it.</p>
+        <p>A formal Terms of Service is being written and will be linked here once it's ready. In the meantime, the plain-language summary near the bottom of this page (<a href="#privacy-summary">"How your data is handled"</a>) describes exactly what is stored, how it is protected, and what will never be done with it.</p>
       </div>
     </details>
   </section>
@@ -263,7 +367,7 @@
     <h2 class="sec-title"><span class="se">⚙️</span> How it actually works</h2>
 
     <details class="faq-item">
-      <summary class="faq-q">Is this generative AI? Does it use ChatGPT or an LLM?<span class="badge lav">/gen</span></summary>
+      <summary class="faq-q">Is this generative AI? Does it use ChatGPT or an LLM?</summary>
       <div class="faq-a">
         <p>No. The hub is <strong>not connected to any LLM</strong>. It is not ChatGPT, it is not a chatbot, and it does not generate content from a language model.</p>
         <p>While it would be technically possible to connect it to such a service, that is deliberately not how it is built. The goal is the opposite: results that are predictable, transparent, and grounded in real creator data rather than produced by a model.</p>
@@ -288,9 +392,49 @@
     </details>
 
     <details class="faq-item">
-      <summary class="faq-q">Where does the data it learns from come from?</summary>
+      <summary class="faq-q">How does the analyzer actually detect what's in my video?</summary>
       <div class="faq-a">
-        <p>From creator-analytics sources such as VidIQ and other resources that measure how content performs. That is the data the pattern recognition runs on. It is <strong>not</strong> built from your private information — the public trend data and your personal account data are kept separate.</p>
+        <p>It combines several local models, then weighs what you tell it above what the video shows:</p>
+        <div class="tech-grid">
+          <div class="tech-item">
+            <h4>👁️ Florence-2 vision (×3 frames)</h4>
+            <p>Samples 3 frames — opening (25%), middle (50%), closing (75%) — and runs both a scene caption and an OCR pass on each, so it catches both the visuals and any on-screen text (captions, "POV:" overlays, chat boxes, alerts). Duplicate overlays are deduped.</p>
+          </div>
+          <div class="tech-item">
+            <h4>🎙️ Whisper transcription (medium.en)</h4>
+            <p>Transcribes whatever's being said. The <code>medium.en</code> model is much better than tiny models at slang, character names, fast speech, and storytime phrasing.</p>
+          </div>
+          <div class="tech-item">
+            <h4>🎞️ Frame + audio analysis</h4>
+            <p>Motion/cut detection, audio loudness, BlazeFace face detection on the middle frame, colour vibe, and aspect ratio — used to score your hook strength.</p>
+          </div>
+          <div class="tech-item">
+            <h4>📝 Your typed text + pills (tier-1)</h4>
+            <p>What you type and the short-type pills you pick always win over what the video shows. Emojis become keywords (💀 → funny, 🥺 → wholesome, 🍵 → drama) and any <code>#hashtags</code> you add are read as explicit signals.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">What's the 1S / 2M / 2L hashtag formula?</summary>
+      <div class="faq-a">
+        <p>Every short gets <strong>5 hashtags, mixed by reach size</strong>, so your video has a fighting chance at every stage of the algorithm:</p>
+        <div class="formula-card">
+          <div class="pill-row">
+            <span class="size-pill-big"><span class="sb s">S</span> 1 small (under 500k posts) — low competition, easier to rank</span>
+            <span class="size-pill-big"><span class="sb m">M</span> 2 medium (500k–1M) — balanced reach</span>
+            <span class="size-pill-big"><span class="sb l">L</span> 2 large (1M+) — high exposure if you break out</span>
+          </div>
+          <p style="margin:6px 0 0;font-size:12.5px;color:var(--ink-soft)">If a topic doesn't have tags in every size, the picker fills with the best mix it can and tells you when it didn't hit the formula exactly. The 5 picks also come from different slots (primary topic → VTuber identity → content type → sub-topic) so the mix stays varied rather than clustering on one theme.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Is this affiliated with YouTube, TikTok, Instagram, or VidIQ?</summary>
+      <div class="faq-a">
+        <p>No. The growth rubric is based on publicly known short-form best practices plus outlier research into hashtags that actually perform. The tag pools are refreshed regularly using VidIQ data, but the hub is an independent project and is not affiliated with or endorsed by any of those platforms.</p>
       </div>
     </details>
   </section>
@@ -309,33 +453,103 @@
     <details class="faq-item">
       <summary class="faq-q">If it's free, how is it funded?</summary>
       <div class="faq-a">
-        <p>Primarily out of pocket, because it's a project worth building. Optional tips help cover running costs such as the database and data sources, but the hub does not depend on them and will remain free regardless.</p>
+        <p>Primarily out of pocket, because it's a project worth building. Optional tips (there's a <a href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">Ko-fi</a> link) help cover running costs such as the database and data sources, but the hub does not depend on them and will remain free regardless.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Can I share this with my server or community?</summary>
+      <div class="faq-a">
+        <p>Please do. The more creators using it, the more feedback comes back and the better the tools get for everyone.</p>
       </div>
     </details>
   </section>
 
-  <!-- ============ GETTING STARTED ============ -->
-  <section class="faq-section">
-    <h2 class="sec-title"><span class="se">🌸</span> Getting started</h2>
+  <!-- ============ ABOUT, NICHES & CONTACT (folded in from the old About page) ============ -->
+  <section class="faq-section" id="about">
+    <h2 class="sec-title"><span class="se">🐙</span> About, niches &amp; contact</h2>
 
     <details class="faq-item">
-      <summary class="faq-q">What is Eggie's Creator Hub?</summary>
+      <summary class="faq-q">Who makes this hub?</summary>
       <div class="faq-a">
-        <p>A free suite of tools to help VTubers and content creators plan, write, and grow their content — built by one creator trying to make something that genuinely helps others.</p>
+        <p>Hi, I'm Eggie — a VTuber and content creator who got <em>way</em> too into the systems behind growing a channel: the hashtags, the posting cadence, the analytics, the spreadsheets. This hub is everything I built for myself, cleaned up and shared so other creators don't have to start from scratch.</p>
+        <p>Everything here is free. I build it between streams because I love this stuff and want the VTuber community to have tools that actually fit how we work.</p>
       </div>
     </details>
 
     <details class="faq-item">
-      <summary class="faq-q">Do I need to know how to code?</summary>
+      <summary class="faq-q">Who is the hub for?</summary>
       <div class="faq-a">
-        <p>Not at all. Everything runs right in your browser — just open a tool and start using it.</p>
+        <p>It's tuned for VTubers, streamers, and short-form creators, though the tools work for anyone making content. These are the niches kept most in mind:</p>
+        <div class="niche-grid">
+          <div class="niche"><span class="ni">🎮</span> Gaming</div>
+          <div class="niche"><span class="ni">🎨</span> Art &amp; illustration</div>
+          <div class="niche"><span class="ni">🎵</span> Music &amp; singing</div>
+          <div class="niche"><span class="ni">💬</span> Just chatting</div>
+          <div class="niche"><span class="ni">📚</span> Educational</div>
+          <div class="niche"><span class="ni">🧸</span> ASMR &amp; cozy</div>
+          <div class="niche"><span class="ni">👹</span> Horror &amp; spooky</div>
+          <div class="niche"><span class="ni">✨</span> Lifestyle &amp; vlog</div>
+        </div>
       </div>
     </details>
 
     <details class="faq-item">
-      <summary class="faq-q">Can I be a beta tester?</summary>
+      <summary class="faq-q">What games, niches, and content types does the analyzer know?</summary>
       <div class="faq-a">
-        <p>Yes, and that's hugely appreciated. The easiest way is to reach out on my socials and let me know, ideally with your channel links so I can find you. The more creators trying the tools, the better they become.</p>
+        <p>If you're wondering whether your niche is covered, here's the full database. Each entry has its own tag pool (small / medium / large mix) and trigger words the detector listens for. Don't see yours? <a href="#contact-rows">Request it below</a> — new pools get added all the time.</p>
+        <div class="pool-grid">
+
+          <div class="pool-section games">
+            <h4>🎮 Games <span class="count">≈100</span></h4>
+            <ul class="pool-list">
+              <li>Among Us</li><li>Animal Crossing</li><li>Apex Legends</li><li>ARC Raiders</li><li>Arknights</li><li>Azur Lane</li><li>Backrooms (liminal horror)</li><li>Baldur's Gate 3</li><li>Balatro</li><li>Black Myth Wukong</li><li>Bloodborne</li><li>Blue Archive</li><li>Call of Duty</li><li>Clair Obscur (Expedition 33)</li><li>Code Vein / Code Vein 2</li><li>Content Warning</li><li>Coral Island</li><li>Cooking Simulator</li><li>Counter-Strike</li><li>Crab Champions</li><li>Cult of the Lamb</li><li>Cuphead</li><li>Cyberpunk 2077</li><li>Dark Souls</li><li>Dead by Daylight</li><li>Diablo IV / 3 / 2</li><li>Disney Dreamlight Valley</li><li>Dota 2</li><li>Dungeons &amp; Dragons (DnD / TTRPG)</li><li>Elden Ring</li><li>Enshrouded</li><li>Escape from Tarkov</li><li>Fall Guys</li><li>Fallout / 4 / 76 / New Vegas</li><li>Fields of Mistria</li><li>Final Fantasy XIV</li><li>Forza Horizon 6</li><li>Fortnite</li><li>Frieren (anime crossover)</li><li>Genshin Impact</li><li>Golf It!</li><li>Goose Goose Duck</li><li>Got To Go</li><li>GTA V / RP / GTA 6</li><li>Hades / Hades 2</li><li>Hearthstone</li><li>Helldivers 2</li><li>Hollow Knight</li><li>Honkai Star Rail</li><li>Honkai Impact 3rd</li><li>Identity V</li><li>Jackbox Party Pack</li><li>Jujutsu Kaisen / JJK</li><li>Jujutsu Shenanigans (Roblox)</li><li>Just Chatting / IRL / yapping</li><li>League of Legends</li><li>Lethal Company</li><li>Lies of P</li><li>Limbus Company</li><li>Manor Lords</li><li>Mario Kart World</li><li>Hatsune Miku / Vocaloid / Project Sekai</li><li>Marvel Rivals</li><li>Marvel Snap</li><li>Metroidvania (generic)</li><li>Miside / Mita (indie horror)</li><li>Mongil: Star Dive (gacha)</li><li>Minecraft (+ Modded)</li><li>Monster Hunter</li><li>Neverness to Everness (NTE)</li><li>NIKKE (Goddess of Victory)</li><li>Once Human</li><li>Outlast</li><li>Overcooked / 2</li><li>Overwatch 2</li><li>Palia</li><li>Palworld</li><li>Party Animals</li><li>Path of Exile / PoE 2</li><li>Peak</li><li>Persona / Persona 5 Royal</li><li>Phasmophobia</li><li>Pirate Software</li><li>Plate Up</li><li>Pokemon / Legends Z-A</li><li>Pragmata</li><li>Punishing Gray Raven (PGR)</li><li>R6 / Rainbow Six Siege</li><li>REPO</li><li>Resident Evil</li><li>Reverse 1999</li><li>Roblox / Roblox Pressure</li><li>Rocket League</li><li>Rust</li><li>Schedule I</li><li>Sea of Thieves</li><li>Sekiro</li><li>Silent Hill</li><li>Sims 4</li><li>Slay the Spire</li><li>Snowbreak</li><li>Sonic the Hedgehog</li><li>Strinova</li><li>Spyro</li><li>Splatoon</li><li>SpongeBob (cartoon nostalgia)</li><li>S.T.A.L.K.E.R. 2</li><li>Stardew Valley</li><li>Subnautica 2</li><li>Super Mario</li><li>Terraria</li><li>The Finals</li><li>Throne and Liberty</li><li>Tomodachi Life</li><li>Tower of Fantasy</li><li>Uma Musume Pretty Derby</li><li>Valorant</li><li>Visual Novel / Dating Sim</li><li>VRChat</li><li>Warframe</li><li>Warhammer / 40K / Age of Sigmar</li><li>Where Winds Meet</li><li>Wuthering Waves</li><li>Yap Yap</li><li>Zelda</li><li>Zenless Zone Zero (ZZZ)</li>
+            </ul>
+          </div>
+
+          <div class="pool-section genres">
+            <h4>🎨 Genres / topics <span class="count">39</span></h4>
+            <ul class="pool-list">
+              <li>ADHD / neurodivergent / autism</li><li>Anime</li><li>Art / drawing / illustration</li><li>Beauty / makeup / skincare</li><li>Cars / automotive</li><li>Cooking / recipes</li><li>Cosplay</li><li>Cozy (gaming + stream)</li><li>Dance</li><li>Daily life / day-in-my-life</li><li>Education / facts / "did you know"</li><li>Fashion / outfits / OOTD</li><li>Fitness / workout</li><li>Food / foodie</li><li>Friendslop / co-op chaos</li><li>Gacha (cross-niche)</li><li>Gaming (generic fallback)</li><li>Gunpla / model building</li><li>Horror</li><li>Kawaii / cute VTuber</li><li>LARP / live-action roleplay</li><li>LGBTQ+ creator identity</li><li>Mental health / therapy / self-care</li><li>Millennial / 30+ VTuber</li><li>Movies / film</li><li>Mukbang / eating show</li><li>Music / cover / singing</li><li>Nostalgia / Y2K / 90s / 2000s</li><li>Parenting / mom-life / dad-life</li><li>Pets / cats / dogs</li><li>POC creator</li><li>Relationships / dating / poly</li><li>Sports</li><li>Streaming (generic)</li><li>Tech / coding / gadgets</li><li>Trans creator identity</li><li>Travel</li><li>TV / series / binge</li><li>Wholesome / seiso VTuber</li>
+            </ul>
+          </div>
+
+          <div class="pool-section content">
+            <h4>📋 Content types <span class="count">35</span></h4>
+            <ul class="pool-list">
+              <li>Animation / animatic</li><li>ASMR</li><li>Art tutorial / study</li><li>Behind the scenes (BTS)</li><li>Brainrot (skibidi, sigma)</li><li>Challenge</li><li>Clip (stream highlight)</li><li>Comic dub / voice acting</li><li>Compilation / montage</li><li>Cursed / unhinged</li><li>Debut</li><li>Drama / spilling tea</li><li>Edit / AMV</li><li>Emotes / sticker / asset creation</li><li>Face reveal / model reveal</li><li>Fanart (of other VTubers)</li><li>Fail / "did not go well"</li><li>Funny / comedy / memes</li><li>Lifehack / tip</li><li>Lore / OC backstory</li><li>Model showcase / Live2D reveal</li><li>No-context / out-of-pocket</li><li>OC / original character</li><li>POV / point-of-view scenario</li><li>Q&amp;A / Ask Me Anything</li><li>Rage / tilting</li><li>Rant / hot take</li><li>Reaction</li><li>Relatable / "it me"</li><li>Review / first impressions</li><li>Skit / sketch comedy</li><li>Storytime</li><li>Tutorial / how-to</li><li>Vlog</li>
+            </ul>
+          </div>
+
+          <div class="pool-section identity">
+            <h4>🐙 Creator identity <span class="count">7</span></h4>
+            <ul class="pool-list">
+              <li>VTuber</li><li>EN VTuber</li><li>Streamer (Twitch / Kick / YT Live)</li><li>Clipper / stream clips</li><li>LGBTQ+ creator</li><li>Trans creator</li><li>POC creator</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </details>
+
+    <details class="faq-item" id="contact-rows">
+      <summary class="faq-q">Don't see your niche, or want to get in touch?</summary>
+      <div class="faq-a">
+        <p>If your community has its own language, hashtags, or characters and it's not in the list above, send it over and I'll fold it in. Same goes for questions, bug reports, or tool suggestions — Twitter DMs are fastest, but anything works.</p>
+        <div class="contact-links">
+          <a class="contact-row" href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">
+            <span class="cr-ic">🐦</span>
+            <span class="cr-text"><span class="cr-label">@EggieWeggieVT</span><span class="cr-sub">Twitter / X — DMs open</span></span>
+          </a>
+          <a class="contact-row" href="mailto:eggieweggievt@gmail.com?subject=Creator Hub — niche request">
+            <span class="cr-ic">✉️</span>
+            <span class="cr-text"><span class="cr-label">eggieweggievt@gmail.com</span><span class="cr-sub">Email — niche requests &amp; longer messages</span></span>
+          </a>
+          <a class="contact-row" href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">
+            <span class="cr-ic">☕</span>
+            <span class="cr-text"><span class="cr-label">Ko-fi</span><span class="cr-sub">Support the hub + leave a message</span></span>
+          </a>
+        </div>
       </div>
     </details>
   </section>
@@ -353,7 +567,7 @@
         <li>The content you create here — projects, plans, titles, notes, and settings</li>
         <li>Basic technical data needed to keep the tools functioning</li>
       </ul>
-      <p>Public creator-trend data (from VidIQ and similar sources) is kept separate from your personal account data.</p>
+      <p>Your video files are not part of this — the analyzer processes them locally in your browser. Public creator-trend data (from VidIQ and similar sources) is kept separate from your personal account data.</p>
     </div>
 
     <div class="privacy-box">
@@ -374,7 +588,7 @@
     <div class="privacy-box">
       <h3>✅ Your rights</h3>
       <p>You can view, edit, and delete your content at any time, and you can request full account deletion by contacting me. Your data belongs to you.</p>
-      <p class="stamp">This is a friendly summary, not the final legal Terms of Service — a complete TOS will be linked here once it is ready. Last updated: May 2026.</p>
+      <p class="stamp">Last updated: May 2026.</p>
     </div>
   </section>
 
@@ -384,17 +598,17 @@
     <p>If something isn't covered here, please ask. Recurring questions get added to this page so they're easy to find next time.</p>
     <div class="foot-links">
       <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">🐦 @EggieWeggieVT</a>
-      <a href="about.html">📖 About &amp; contact</a>
+      <a href="mailto:eggieweggievt@gmail.com">✉️ Email</a>
       <a class="kofi" href="https://ko-fi.com/eggieweggie" target="_blank" rel="noreferrer">☕ Ko-fi</a>
     </div>
   </div>
 
   <footer>
-    Made with 💗 by Eggie &middot; <a href="index.html">Back to the Hub</a>
+    Made with 💗 by Eggie &middot; Brand by <a href="https://twitter.com/nyxgothica" target="_blank" rel="noreferrer">@nyxgothica</a> &middot; <a href="index.html">Back to the Hub</a>
   </footer>
 
 </div>
 
-<script src="hub-nav.js"></script>
+<script src="hub-nav.js?v=4"></script>
 </body>
 </html>
