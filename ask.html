@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ask My Planner 🔮 — Eggie's Creator Hub</title>
-<meta name="description" content="Ask your content planner anything — 'what should I film this week?' — and get the right cards back, ranked." />
+<meta name="description" content="Ask your content planner anything — 'what should I film this week?' — and get the right cards back, ranked. Runs right in your browser." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <meta property="og:type" content="website" />
@@ -88,19 +88,8 @@
   .chip{font-size:12.5px;font-weight:700;color:var(--deep);background:rgba(144,165,255,0.14);
     border:1px solid rgba(144,165,255,0.3);border-radius:999px;padding:6px 12px;cursor:pointer;transition:background .15s}
   .chip:hover{background:rgba(144,165,255,0.26)}
-
-  /* Mode toggle */
-  .mode-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-  .seg{display:inline-flex;background:rgba(144,165,255,0.12);border:1px solid rgba(144,165,255,0.3);
-    border-radius:999px;padding:3px;gap:3px}
-  .seg button{border:none;background:transparent;cursor:pointer;font-family:'Quicksand',sans-serif;
-    font-weight:700;font-size:13px;color:var(--ink-soft);padding:6px 14px;border-radius:999px;transition:.15s}
-  .seg button.on{background:#fff;color:var(--deep);box-shadow:0 2px 8px rgba(144,165,255,0.3)}
-  .mode-note{font-size:12px;color:var(--ink-soft);font-weight:600}
-
   .answer{background:linear-gradient(135deg,rgba(255,219,247,0.5),rgba(144,165,255,0.16));
     border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:14px 16px;font-weight:600;color:var(--ink)}
-  .answer .src{display:block;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--ink-soft)}
   .res-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .res-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,0.6);
     border:1px solid rgba(144,165,255,0.22);border-radius:14px;padding:10px 14px}
@@ -156,7 +145,7 @@
 
   <div class="hero">
     <h1>Ask My Planner 🔮</h1>
-    <p>Ask in plain words — I'll read your planner and hand back the cards that matter.</p>
+    <p>Ask in plain words — I'll dig through your planner and hand back the cards that matter.</p>
   </div>
 
   <div class="imp-banner hidden" id="impersonationBanner">
@@ -184,14 +173,6 @@
         <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
       </div>
 
-      <div class="mode-wrap">
-        <div class="seg" id="modeSeg">
-          <button id="modeAi" class="on" onclick="setMode('ai')">🔮 Smarter</button>
-          <button id="modeLocal" onclick="setMode('local')">⚡ Instant</button>
-        </div>
-        <span class="mode-note" id="modeNote"></span>
-      </div>
-
       <div class="ask-row">
         <input type="text" id="q" placeholder="what should I film this week?" onkeydown="if(event.key==='Enter')doAsk()" />
         <button class="btn" id="askBtn" onclick="doAsk()">🐙 Ask</button>
@@ -214,7 +195,7 @@
   </div>
 
   <div class="footer">
-    Smarter mode uses your hub's AI function; Instant mode runs fully on-device, free. The 🐙 only swims when you ask.
+    Searches your planner right in your browser — nothing leaves your device. The 🐙 only swims when you ask.
   </div>
 </div>
 
@@ -222,7 +203,7 @@
 <div class="squid-loader" id="squidLoader" aria-hidden="true">
   <div class="squid">🐙</div>
   <div class="bubbles"><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></div>
-  <div class="squid-cap" id="squidCap">thinking…</div>
+  <div class="squid-cap" id="squidCap">sifting your planner…</div>
 </div>
 
 <!-- Auth modal -->
@@ -243,8 +224,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 let sb = null;
 let currentUser = null;
 let manageOwnerId = null;     // set when a manager impersonates via ?manage=<id>
-let allItems = [];            // planner items fetched client-side (for Instant mode + fallback)
-let mode = localStorage.getItem('eggie:askMode') || 'ai';   // 'ai' (default) | 'local'
+let allItems = [];            // planner items fetched client-side, searched on-device
 
 // ============================================================
 //  SUPABASE INIT + AUTH
@@ -293,7 +273,6 @@ async function onSignIn(user){
   if(manageId){ await resolveManager(manageId); }
   document.getElementById('authView').classList.add('hidden');
   document.getElementById('appView').classList.remove('hidden');
-  applyMode();
   await loadItems();
 }
 
@@ -322,7 +301,7 @@ async function resolveManager(managerId){
   }
 }
 
-// Fetch the planner items client-side (RLS-scoped) for Instant mode + AI fallback.
+// Fetch the planner items (RLS-scoped) so search runs entirely on-device.
 async function loadItems(){
   if(!sb || !currentUser) return;
   let q = sb.from('planner_items')
@@ -367,24 +346,12 @@ function closeAuthModal(){ document.getElementById('authModal').classList.add('h
 function doSignOut(){ if(sb && confirm('Sign out?')) sb.auth.signOut(); }
 
 // ============================================================
-//  MODE TOGGLE
-// ============================================================
-function setMode(m){ mode = m; localStorage.setItem('eggie:askMode', m); applyMode(); }
-function applyMode(){
-  document.getElementById('modeAi').classList.toggle('on', mode==='ai');
-  document.getElementById('modeLocal').classList.toggle('on', mode==='local');
-  document.getElementById('modeNote').textContent = mode==='ai'
-    ? 'Smarter uses the AI function — falls back to Instant if it’s not set up yet.'
-    : 'Instant runs fully on your device. Free, private, no AI credits.';
-}
-
-// ============================================================
 //  SQUID LOADER 🐙  (min display so it always gets to swim)
 // ============================================================
 let squidShownAt = 0;
 const SQUID_MIN_MS = 650;
 function showSquid(cap){
-  document.getElementById('squidCap').textContent = cap || 'thinking…';
+  document.getElementById('squidCap').textContent = cap || 'sifting your planner…';
   document.getElementById('squidLoader').classList.add('show');
   squidShownAt = Date.now();
 }
@@ -395,11 +362,11 @@ function hideSquid(){
 }
 
 // ============================================================
-//  ASK
+//  ASK  (runs entirely on-device)
 // ============================================================
 function quick(el){ document.getElementById('q').value = el.textContent; doAsk(); }
 
-async function doAsk(){
+function doAsk(){
   const question = document.getElementById('q').value.trim();
   const status = document.getElementById('askStatus');
   const btn = document.getElementById('askBtn');
@@ -408,41 +375,23 @@ async function doAsk(){
 
   btn.disabled = true;
   status.textContent = '';
-  showSquid(mode==='ai' ? 'asking the smart squid…' : 'sifting your planner…');
+  showSquid('sifting your planner…');
 
-  let result, srcNote;
-  if(mode === 'ai'){
-    const body = { question };
-    if(manageOwnerId) body.manageOwnerId = manageOwnerId;
-    const { data, error } = await sb.functions.invoke('planner-smart-search', { body });
-    if(error || (data && data.error)){
-      // Graceful fallback — Smarter isn't available, answer on-device instead.
-      console.warn('AI mode unavailable, falling back to local', error || data.error);
-      result = localAnswer(question);
-      srcNote = '⚡ Answered on-device — turn on the AI function for smarter answers (see SMART-SEARCH-SETUP.md).';
-    } else {
-      result = { answer: data.answer, items: data.items || [] };
-      srcNote = '🔮 Smarter mode · powered by your hub’s AI function.';
-    }
-  } else {
-    result = localAnswer(question);
-    srcNote = '⚡ Instant mode · on-device, no AI credits used.';
-  }
+  const result = answerQuestion(question);
 
   hideSquid();
-  setTimeout(() => { btn.disabled = false; renderResults(result, srcNote); }, Math.max(0, SQUID_MIN_MS - (Date.now()-squidShownAt)));
+  const wait = Math.max(0, SQUID_MIN_MS - (Date.now() - squidShownAt));
+  setTimeout(() => { btn.disabled = false; renderResults(result); }, wait);
 }
 
-function renderResults(data, srcNote){
+function renderResults(data){
   document.getElementById('resultCard').classList.remove('hidden');
-  const ans = document.getElementById('answerBox');
-  ans.innerHTML = escapeHtml(data.answer || 'Here are the closest matches.')
-    + (srcNote ? `<span class="src">${escapeHtml(srcNote)}</span>` : '');
+  document.getElementById('answerBox').textContent = data.answer || 'Here are the closest matches.';
   const list = document.getElementById('resList');
   list.innerHTML = '';
   const items = data.items || [];
   if(!items.length){
-    list.innerHTML = '<div class="empty">No matching items — try rephrasing, or add more to your planner. 🌱</div>';
+    list.innerHTML = '<div class="empty">No matching items — try rephrasing, or check the chips above. 🌱</div>';
     return;
   }
   items.forEach(it => {
@@ -473,7 +422,7 @@ function whenLabel(it){
 }
 
 // ============================================================
-//  LOCAL RULE-BASED ENGINE  (free, on-device)
+//  THE SEARCH ENGINE  (rule-based, on-device)
 // ============================================================
 function mondayOf(d){ const x=new Date(d); const dow=(x.getDay()+6)%7; x.setDate(x.getDate()-dow); x.setHours(0,0,0,0); return x; }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
@@ -511,7 +460,7 @@ function byPriorityThenDeadline(a,b){
   return byDeadlineAsc(a,b);
 }
 
-function localAnswer(question){
+function answerQuestion(question){
   const q = ' ' + question.toLowerCase() + ' ';
   const has = (...w) => w.some(x => q.includes(x));
   const now = new Date();
@@ -553,7 +502,6 @@ function localAnswer(question){
                  .sort(byPriorityThenDeadline);
     answer = pool.length ? `${pool.length} thing${plural(pool.length)} on deck this week (deadlines + priorities).` : `Your week looks open — breathing room. 🫧`;
   } else {
-    // keyword search across title/hook/notes/platforms
     const terms = q.split(/[^a-z0-9]+/).filter(w => w.length>2 && !STOP.has(w));
     pool = items.filter(it => {
       const hay = `${it.title||''} ${it.hook||''} ${it.notes||''} ${(it.platforms||[]).join(' ')}`.toLowerCase();
