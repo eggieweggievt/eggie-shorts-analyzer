@@ -2215,6 +2215,16 @@ function bestFixFor(c){
 //  questions, comparisons, and reveals. Each template is a fn
 //  taking the subject and returning a full title string.
 // ============================================================
+// ============================================================
+//  TITLE TEMPLATE BANK  —  V4 (2026-05-31) MASSIVELY EXPANDED
+//  Every template is (l,u,c) => string where:
+//    l = subject lowercased   u = UPPERCASED   c = Capitalized
+//  Use real — / … characters (NOT &mdash;) because titles are
+//  escapeHtml()'d on render, which would double-escape entities.
+//  More templates per category + more categories = far more variety;
+//  the engine below draws across ALL of them, then Datamuse multiplies
+//  the subject pool so the same clip yields dozens of distinct titles.
+// ============================================================
 const TITLE_TEMPLATES = {
   // Curiosity / open loop — the most reliable category
   curiosity: [
@@ -2223,13 +2233,28 @@ const TITLE_TEMPLATES = {
     (l,u,c) => `Why ${l} hits different`,
     (l,u,c) => `What no one tells you about ${l}`,
     (l,u,c) => `The real reason ${l} is everywhere`,
+    (l,u,c) => `There's something off about ${l}`,
+    (l,u,c) => `${c}… but it gets weirder`,
+    (l,u,c) => `Watch what happens with ${l}`,
+    (l,u,c) => `I can't stop thinking about ${l}`,
+    (l,u,c) => `${c} has a secret`,
+    (l,u,c) => `You weren't supposed to see ${l}`,
+    (l,u,c) => `The ${l} thing nobody warned me about`,
+    (l,u,c) => `Wait for the ${l} part`,
   ],
   // Shock / pattern interrupt
   shock: [
-    (l,u,c) => `Wait &mdash; ${u}?!`,
+    (l,u,c) => `Wait — ${u}?!`,
     (l,u,c) => `${c} (you have to see this)`,
     (l,u,c) => `${u} BROKE ME`,
     (l,u,c) => `${c} is not what you think`,
+    (l,u,c) => `I did NOT expect ${l} to do that`,
+    (l,u,c) => `${u} WENT TOO FAR 💀`,
+    (l,u,c) => `no because ${l}?? actually??`,
+    (l,u,c) => `${c} just changed everything`,
+    (l,u,c) => `this is the most unhinged ${l} ever`,
+    (l,u,c) => `${u} HAS NO RIGHT TO BE THIS GOOD`,
+    (l,u,c) => `okay ${l} was NOT on my bingo card`,
   ],
   // Personal / POV
   personal: [
@@ -2237,6 +2262,12 @@ const TITLE_TEMPLATES = {
     (l,u,c) => `What ${l} actually taught me`,
     (l,u,c) => `POV: you just found ${l}`,
     (l,u,c) => `${c}, from someone who's been there`,
+    (l,u,c) => `me trying ${l} for the first time`,
+    (l,u,c) => `nobody told me ${l} would feel like this`,
+    (l,u,c) => `the day ${l} finally clicked for me`,
+    (l,u,c) => `how ${l} completely rewired my brain`,
+    (l,u,c) => `I gave ${l} one more shot. wow.`,
+    (l,u,c) => `${c} but make it a personal attack`,
   ],
   // Contrarian / hot take
   contrarian: [
@@ -2244,41 +2275,69 @@ const TITLE_TEMPLATES = {
     (l,u,c) => `Unpopular opinion: ${l}`,
     (l,u,c) => `Everyone is wrong about ${l}`,
     (l,u,c) => `Stop sleeping on ${l}`,
+    (l,u,c) => `${c} is actually a trap`,
+    (l,u,c) => `hot take: ${l} peaked and nobody noticed`,
+    (l,u,c) => `you've been doing ${l} wrong this whole time`,
+    (l,u,c) => `${c} isn't deep, you just want it to be`,
+    (l,u,c) => `delete your opinion on ${l}`,
   ],
   // Numbered / listicle
   numbered: [
     (l,u,c) => `3 things I wish I knew about ${l}`,
     (l,u,c) => `The 1 thing that changed how I do ${l}`,
     (l,u,c) => `5 ${l} mistakes you're making`,
+    (l,u,c) => `7 seconds of ${l} that live in my head`,
+    (l,u,c) => `2 types of people who love ${l}`,
+    (l,u,c) => `ranking ${l} from cursed to perfect`,
+    (l,u,c) => `the top 3 ${l} moments of all time`,
+    (l,u,c) => `4 reasons ${l} is taking over`,
   ],
   // Direct question
   question: [
     (l,u,c) => `Why is ${l} everywhere right now?`,
     (l,u,c) => `How is ${l} this good?`,
     (l,u,c) => `Why does ${l} feel different?`,
+    (l,u,c) => `who let ${l} happen?`,
+    (l,u,c) => `is ${l} okay? genuinely asking`,
+    (l,u,c) => `what if ${l} was the answer all along?`,
+    (l,u,c) => `how did ${l} get this out of hand?`,
+    (l,u,c) => `did ${l} just do that on purpose?`,
   ],
   // Comparison / superlative
   comparison: [
     (l,u,c) => `${c} vs what everyone else does`,
     (l,u,c) => `The best ${l} I've ever seen`,
     (l,u,c) => `${c}, ranked`,
+    (l,u,c) => `${c} before vs after`,
+    (l,u,c) => `expectation vs reality: ${l}`,
+    (l,u,c) => `${c} but it's the final boss version`,
+    (l,u,c) => `the ${l} they don't want vs the one you get`,
   ],
   // Reveal / secret
   reveal: [
     (l,u,c) => `What they don't show you about ${l}`,
     (l,u,c) => `The hidden side of ${l}`,
     (l,u,c) => `${c}: behind the scenes`,
+    (l,u,c) => `the ${l} part they always cut`,
+    (l,u,c) => `what really goes into ${l}`,
+    (l,u,c) => `${c}, fully uncut`,
+    (l,u,c) => `the ${l} no one posts`,
   ],
   // VTuber — proven hook shapes from the top breakout VidIQ outliers
-  // (refreshed 2026-05-23). These slot in when hasVTuber is detected.
+  // (refreshed 2026-05-31). These slot in when hasVTuber is detected.
   vtuber: [
     (l,u,c) => `This VTuber ${l}?!`,
     (l,u,c) => `Nobody Can Guess ${c}`,
     (l,u,c) => `${c} could KILL a VTuber`,
     (l,u,c) => `How I Accidentally Got Into ${c}`,
     (l,u,c) => `VTuber ${l} gets completely out of hand`,
-    (l,u,c) => `VTubers EXPLAINED &mdash; ${l} edition`,
+    (l,u,c) => `VTubers EXPLAINED — ${l} edition`,
     (l,u,c) => `${c} is not what you think (VTuber moment)`,
+    (l,u,c) => `when a VTuber tries ${l} 💀`,
+    (l,u,c) => `this is why you don't let a VTuber near ${l}`,
+    (l,u,c) => `VTuber reacts to ${l} and immediately regrets it`,
+    (l,u,c) => `${c}, but a VTuber is involved`,
+    (l,u,c) => `small VTuber discovers ${l}`,
   ],
   // POV — extracted from top performers across YT + IG
   pov: [
@@ -2286,6 +2345,36 @@ const TITLE_TEMPLATES = {
     (l,u,c) => `POV you're about to ${l} but it goes wrong`,
     (l,u,c) => `Imagine if ${l} actually happened`,
     (l,u,c) => `Send this to a friend who needs to see ${l}`,
+    (l,u,c) => `POV: it's 3am and ${l}`,
+    (l,u,c) => `POV: you're the only one who gets ${l}`,
+    (l,u,c) => `tag someone who is exactly like ${l}`,
+    (l,u,c) => `POV: ${l} but everything is fine (it is not)`,
+  ],
+  // Relatable / emotional — high-share, low-effort wins
+  relatable: [
+    (l,u,c) => `${c} and I felt that`,
+    (l,u,c) => `it's just ${l} for me`,
+    (l,u,c) => `if you know ${l}, you know`,
+    (l,u,c) => `${c} said what we were all thinking`,
+    (l,u,c) => `the way ${l} lives in my head rent free`,
+    (l,u,c) => `${c} is a personality trait now`,
+  ],
+  // Tutorial / value — "how to" framing
+  tutorial: [
+    (l,u,c) => `how to actually do ${l}`,
+    (l,u,c) => `${c} in 15 seconds`,
+    (l,u,c) => `the easiest way to ${l}`,
+    (l,u,c) => `do ${l} like this instead`,
+    (l,u,c) => `steal my ${l} trick`,
+    (l,u,c) => `${c}, explained simply`,
+  ],
+  // Emoji-led — stop the scroll on mobile
+  emoji: [
+    (l,u,c) => `${c} 😭`,
+    (l,u,c) => `${c}… 💀`,
+    (l,u,c) => `wait ${l} 👀`,
+    (l,u,c) => `${c} ✨ (watch till the end)`,
+    (l,u,c) => `${c} 🔥🔥`,
   ]
 };
 
@@ -2408,46 +2497,288 @@ function suggestTitles(originalTitle, description){
   pickedCategories.push('curiosity', 'shock');
   const c = detected.content;
   if(c.includes('pov')){
-    pickedCategories.push('pov','personal');
+    pickedCategories.push('pov','personal','relatable');
   } else if(c.includes('tutorial') || c.includes('lifehack') || c.includes('review')){
-    pickedCategories.push('numbered','reveal');
+    pickedCategories.push('tutorial','numbered','reveal');
   } else if(c.includes('rant') || c.includes('storytime')){
-    pickedCategories.push('contrarian','personal');
+    pickedCategories.push('contrarian','personal','relatable');
   } else if(c.includes('reaction') || c.includes('cursed') || c.includes('fail')){
-    pickedCategories.push('question','personal');
+    pickedCategories.push('question','personal','emoji');
   } else if(c.includes('vlog') || c.includes('bts') || c.includes('debut')){
-    pickedCategories.push('personal','reveal');
+    pickedCategories.push('personal','reveal','relatable');
   } else if(c.includes('challenge') || c.includes('compilation')){
-    pickedCategories.push('comparison','numbered');
+    pickedCategories.push('comparison','numbered','pov');
   } else if(c.includes('funny') || c.includes('skit') || c.includes('drama')){
-    pickedCategories.push('shock','contrarian');
+    pickedCategories.push('shock','contrarian','emoji');
   } else {
     // Default mix — gives variety regardless
-    pickedCategories.push('personal','contrarian');
+    pickedCategories.push('personal','contrarian','relatable');
   }
+  // V4 — Broaden the pool: after the prioritized categories, append EVERY remaining
+  //      category so the engine can draw deep batches for "show more". Priority order
+  //      is preserved (profile + content categories were pushed first).
+  pickedCategories.push('question','numbered','reveal','comparison','tutorial','pov','relatable','emoji','curiosity','personal','contrarian','shock');
 
-  // Take one template per category for variety. Use a simple hash of the subject
-  // so the same subject always gets the same picks (consistent, not random feeling).
   function hash(str){
     let h = 0;
     for(let i=0; i<str.length; i++){ h = ((h<<5)-h) + str.charCodeAt(i); h |= 0; }
     return Math.abs(h);
   }
-  const seed = hash(lower);
   // V3.1 — Dedupe categories while preserving FIRST-seen order. Profile categories were
   //        prepended above so they win the first slot when present.
   const __seen = new Set();
-  const __ordered = pickedCategories.filter(c => (__seen.has(c) ? false : __seen.add(c)));
-  const titles = [];
-  __ordered.slice(0,4).forEach((cat, idx)=>{
-    const templates = TITLE_TEMPLATES[cat];
-    if(templates && templates.length){
-      const pick = templates[(seed + idx) % templates.length];
-      titles.push(pick(lower, upper, cap));
-    }
-  });
-  return titles;
+  const orderedCats = pickedCategories.filter(cat => (__seen.has(cat) ? false : __seen.add(cat)));
+
+  // V4 — Hand off to the batching engine. It builds a large, deduped, seeded-shuffled
+  //      pool across ALL ordered categories, warms the free Datamuse cache (which adds
+  //      on-topic synonym variants for "show more"), stashes state for the show-more
+  //      button, and returns the first batch of 8.
+  return EggieTitleEngine.start({ subject: lower, orderedCats, seed: hash(lower) });
 }
+
+// ============================================================
+//  EGGIE TITLE ENGINE  —  V4 (2026-05-31)
+//  Turns the template bank into a deep, varied, deduped pool.
+//  • Draws across EVERY prioritized category (not just 4).
+//  • Seeded shuffle: fresh-feeling order, deterministic per subject.
+//  • Datamuse (free, no key, 100k/day) supplies on-topic synonyms so
+//    the same clip yields dozens of distinct titles — pulled in the
+//    background; the offline pool always works even if Datamuse is down.
+//  Public API: start(opts) → first 8 | more() → next 8 | hasMore()
+// ============================================================
+const EggieTitleEngine = (function(){
+  const BATCH = 8;
+  let state = null; // {subject, orderedCats, seed, pool, cursor}
+  window.__eggieDatamuse = window.__eggieDatamuse || {};   // Datamuse synonyms cache
+  window.__eggieYTSuggest = window.__eggieYTSuggest || {}; // YouTube autocomplete cache
+
+  // mulberry32 — tiny seeded PRNG so shuffles are deterministic per subject.
+  function rng(seed){
+    return function(){
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function shuffle(arr, rand){
+    const a = arr.slice();
+    for(let i=a.length-1; i>0; i--){ const j = Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+  function casing(s){
+    s = String(s||'').trim();
+    return { l:s.toLowerCase(), u:s.toUpperCase(), c:s.charAt(0).toUpperCase()+s.slice(1) };
+  }
+  // Normalized key for dedupe: lowercased, trailing punctuation/emoji/space stripped.
+  function norm(t){
+    try{ return String(t||'').toLowerCase().replace(/[\s\p{P}\p{S}]+$/u,'').replace(/\s+/g,' ').trim(); }
+    catch(e){ return String(t||'').toLowerCase().replace(/[\s\W]+$/,'').replace(/\s+/g,' ').trim(); }
+  }
+
+  function buildPool(subject, orderedCats, seed){
+    const rand = rng(seed);
+    const primary = casing(subject);
+    const key = String(subject||'').toLowerCase();
+    // On-topic variants. YOUTUBE AUTOCOMPLETE phrases come first — they're literally
+    // what people are searching for, so they're the most accurate/clickable — then
+    // Datamuse synonyms. Both are deduped against the primary subject and capped.
+    const yt = (window.__eggieYTSuggest[key] || []);
+    const dm = (window.__eggieDatamuse[key] || []);
+    const synSeen = new Set([key]);
+    const syns = [];
+    [...yt, ...dm].forEach(w=>{ const k=String(w||'').toLowerCase().trim(); if(k && !synSeen.has(k)){ synSeen.add(k); syns.push(w); } });
+    const variants = [primary, ...syns.slice(0,6).map(casing)];
+    // Categories where swapping the subject noun for a synonym still reads naturally.
+    const SWAPPABLE = new Set(['curiosity','question','comparison','reveal','numbered','tutorial','relatable','personal','contrarian']);
+    const seen = new Set();
+    const primaryTitles = [];
+    const enrichedTitles = [];
+    orderedCats.forEach(cat=>{
+      const tpls = TITLE_TEMPLATES[cat];
+      if(!tpls || !tpls.length) return;
+      shuffle(tpls, rand).forEach(fn=>{
+        try{
+          const t0 = fn(primary.l, primary.u, primary.c);
+          const k0 = norm(t0);
+          if(t0 && k0 && !seen.has(k0)){ seen.add(k0); primaryTitles.push(t0); }
+        }catch(e){}
+        if(SWAPPABLE.has(cat)){
+          for(let i=1; i<variants.length; i++){
+            const v = variants[i];
+            try{
+              const t1 = fn(v.l, v.u, v.c);
+              const k1 = norm(t1);
+              if(t1 && k1 && !seen.has(k1)){ seen.add(k1); enrichedTitles.push(t1); }
+            }catch(e){}
+          }
+        }
+      });
+    });
+    // Most on-topic (primary subject) titles lead; synonym-driven variety follows.
+    return shuffle(primaryTitles, rand).concat(shuffle(enrichedTitles, rand));
+  }
+
+  function start(opts){
+    state = { subject:opts.subject, orderedCats:opts.orderedCats, seed:opts.seed, cursor:0 };
+    state.pool = buildPool(state.subject, state.orderedCats, state.seed);
+    state.cursor = Math.min(BATCH, state.pool.length);
+    window.__eggieTitleState = state;
+    // Both enrichers run in the background and grow the pool when they land.
+    ensureYouTube(state.subject);  // real search phrases (most accurate)
+    ensureDatamuse(state.subject); // synonyms / associated words
+    return state.pool.slice(0, state.cursor);
+  }
+  // Shared: if the user is still on this subject, rebuild the pool with whatever
+  // enrichment just arrived, preserving everything already shown.
+  function growPoolIfCurrent(subject){
+    if(!(state && state.subject === subject)) return;
+    const grown = buildPool(state.subject, state.orderedCats, state.seed);
+    const alreadySeen = new Set(state.pool.slice(0, state.cursor).map(norm));
+    const extra = grown.filter(t => !alreadySeen.has(norm(t)));
+    if(!extra.length) return;
+    state.pool = state.pool.slice(0, state.cursor).concat(extra);
+    if(typeof window.__eggieOnTitlesEnriched === 'function'){
+      try{ window.__eggieOnTitlesEnriched(); }catch(e){}
+    }
+  }
+  function more(){
+    if(!state) return [];
+    const next = state.pool.slice(state.cursor, state.cursor + BATCH);
+    state.cursor += next.length;
+    return next;
+  }
+  function hasMore(){ return !!state && state.cursor < state.pool.length; }
+
+  // Free Datamuse word-finding API — no key, ~100k req/day. Pulls "means-like"
+  // synonyms + associated words for the subject so titles can vary on-topic.
+  async function ensureDatamuse(subject){
+    const key = String(subject||'').toLowerCase().trim();
+    // Skip generic/empty subjects — nothing useful to enrich, saves a request.
+    if(!key || /^this( clip| moment| story| reaction| random clip)?$/.test(key)) return;
+    if(window.__eggieDatamuse[key]) return; // cached or in-flight
+    window.__eggieDatamuse[key] = [];       // mark in-flight (dedupe concurrent calls)
+    try{
+      const q = encodeURIComponent(key);
+      const urls = [
+        `https://api.datamuse.com/words?ml=${q}&max=12`,      // means-like (synonyms/related)
+        `https://api.datamuse.com/words?rel_trg=${q}&max=12`  // strongly associated words
+      ];
+      const lists = await Promise.all(urls.map(u =>
+        fetch(u).then(r => r.ok ? r.json() : []).catch(()=>[])
+      ));
+      const words = [];
+      const stop = new Set(key.split(/\s+/));
+      lists.flat().forEach(item=>{
+        const w = ((item && item.word) || '').toLowerCase().trim();
+        if(!w || w.length < 3 || w.length > 24) return;
+        if(stop.has(w)) return;
+        if(/[^a-z0-9 '-]/.test(w)) return;     // clean, on-brand words only
+        if((item.score || 0) < 200) return;    // relevance gate
+        if(!words.includes(w)) words.push(w);
+      });
+      window.__eggieDatamuse[key] = words.slice(0, 8);
+    }catch(e){
+      window.__eggieDatamuse[key] = []; // graceful — offline pool still serves titles
+    }
+    growPoolIfCurrent(subject);
+  }
+
+  // Free YouTube autocomplete — the actual phrases people type into YouTube search.
+  // No API key, no quota. The browser can't fetch() this endpoint (no CORS headers),
+  // so we use the classic JSONP route: the `client=youtube` endpoint responds by
+  // CALLING window.google.ac.h([...]), which a <script> tag executes — bypassing CORS.
+  function youtubeSuggest(query){
+    return new Promise(resolve=>{
+      let done = false;
+      window.google = window.google || {};
+      window.google.ac = window.google.ac || {};
+      const prev = window.google.ac.h;
+      const script = document.createElement('script');
+      function finish(list){
+        if(done) return; done = true;
+        window.google.ac.h = prev;                 // restore
+        if(script.parentNode) script.parentNode.removeChild(script);
+        resolve(Array.isArray(list) ? list : []);
+      }
+      window.google.ac.h = function(data){
+        let out = [];
+        try{ out = ((data && data[1]) || []).map(x => Array.isArray(x) ? x[0] : x).filter(Boolean); }
+        catch(e){}
+        finish(out);
+      };
+      script.onerror = ()=> finish([]);
+      script.src = 'https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&hl=en&q=' + encodeURIComponent(query);
+      document.head.appendChild(script);
+      setTimeout(()=> finish([]), 2500); // fail open — offline pool still works
+    });
+  }
+
+  async function ensureYouTube(subject){
+    const key = String(subject||'').toLowerCase().trim();
+    if(!key || /^this( clip| moment| story| reaction| random clip)?$/.test(key)) return;
+    if(window.__eggieYTSuggest[key]) return; // cached or in-flight
+    window.__eggieYTSuggest[key] = [];       // mark in-flight
+    try{
+      const raw = await youtubeSuggest(key);
+      const cleaned = [];
+      raw.forEach(p=>{
+        let s = String(p||'').toLowerCase().replace(/\s+/g,' ').trim();
+        if(!s || s === key) return;
+        if(s.length < 4 || s.length > 42) return;           // fits a title noun slot
+        if(/[<>{}|\\^~\[\]`]/.test(s)) return;              // skip junk/operators
+        if(/\b(porn|nsfw|nude|sex)\b/.test(s)) return;       // keep it brand-safe
+        // Drop leading question/aux words — they read awkwardly dropped into a noun slot
+        // ("The truth about is X worth it"). Keep the descriptive phrases, which are the gold.
+        if(/^(is|are|was|were|can|does|do|did|how|why|what|when|who|which|should|will)\b/.test(s)) return;
+        if(!cleaned.includes(s)) cleaned.push(s);
+      });
+      window.__eggieYTSuggest[key] = cleaned.slice(0, 8);
+    }catch(e){
+      window.__eggieYTSuggest[key] = []; // graceful fallback
+    }
+    growPoolIfCurrent(subject);
+  }
+
+  return { start, more, hasMore };
+})();
+
+// V4 — "Show more titles" control. Appends fresh batches of 8 from the engine pool
+// (offline + Datamuse-enriched). New <li>s auto-get 👍/👎 rating buttons via the
+// existing decorateTitleSuggestions() poller, so this stays compatible.
+function setupMoreTitlesButton(){
+  const ol = document.getElementById('titleSuggestions');
+  if(!ol) return;
+  let btn = document.getElementById('moreTitlesBtn');
+  if(!btn){
+    btn = document.createElement('button');
+    btn.id = 'moreTitlesBtn';
+    btn.type = 'button';
+    btn.style.cssText = 'margin:10px 0 4px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--deep,#3a2a4d);background:transparent;color:var(--deep,#3a2a4d);font-weight:700;font-size:13px;cursor:pointer;transition:all .15s';
+    btn.addEventListener('mouseenter',()=>{ btn.style.background='var(--deep,#3a2a4d)'; btn.style.color='#fff'; });
+    btn.addEventListener('mouseleave',()=>{ btn.style.background='transparent'; btn.style.color='var(--deep,#3a2a4d)'; });
+    btn.addEventListener('click', ()=>{
+      const batch = (window.EggieTitleEngine || EggieTitleEngine).more();
+      batch.forEach(t => ol.insertAdjacentHTML('beforeend', `<li>${escapeHtml(t)}</li>`));
+      refreshMoreTitlesButton();
+    });
+    ol.insertAdjacentElement('afterend', btn);
+  }
+  // Let the engine ping us when Datamuse enrichment grows the pool, so the button
+  // reappears with fresh on-topic options even if it had been exhausted.
+  window.__eggieOnTitlesEnriched = refreshMoreTitlesButton;
+  refreshMoreTitlesButton();
+}
+function refreshMoreTitlesButton(){
+  const btn = document.getElementById('moreTitlesBtn');
+  if(!btn) return;
+  const has = !!(window.EggieTitleEngine && window.EggieTitleEngine.hasMore && window.EggieTitleEngine.hasMore())
+            || (typeof EggieTitleEngine !== 'undefined' && EggieTitleEngine.hasMore && EggieTitleEngine.hasMore());
+  btn.style.display = has ? 'inline-block' : 'none';
+  btn.textContent = '✨ Show me more titles';
+}
+// Expose the engine on window so the button handler can always reach it.
+try{ window.EggieTitleEngine = EggieTitleEngine; }catch(e){}
 
 // ============================================================
 //  SMART HASHTAG RECOMMENDATION
@@ -4473,6 +4804,8 @@ function renderResults(r, payload){
   const ts = $('titleSuggestions');
   ts.innerHTML = '';
   r.titleSuggestions.forEach(t=> ts.insertAdjacentHTML('beforeend', `<li>${escapeHtml(t)}</li>`));
+  // V4 — wire up the "show more titles" control (offline pool + Datamuse-enriched variety)
+  setupMoreTitlesButton();
   $('hashtagRec').innerHTML = r.hashtagRec;
   // V3.2 — Hook up the batch tag-feedback panel that may have been rendered inside hashtagRec
   if(typeof wireTagFeedbackPanel === 'function') wireTagFeedbackPanel();
