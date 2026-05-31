@@ -327,9 +327,198 @@
     color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--periwinkle);
   }
   .checklist-item .label strong{color:var(--deep)}
+
+  /* ===================================================================
+     CLASS MODE — guided, lesson-by-lesson walkthrough of the playbook
+     =================================================================== */
+
+  /* The "Begin class" launcher card sits above the search bar */
+  .class-launcher{
+    display:flex;align-items:center;gap:14px;
+    background:linear-gradient(135deg, rgba(255,178,240,0.35), rgba(144,165,255,0.35), rgba(107,228,234,0.35));
+    border:2px solid rgba(255,255,255,0.9);
+    border-radius:18px;
+    padding:14px 18px;
+    margin:14px 0 16px;
+    box-shadow:var(--shadow);
+  }
+  .class-launcher-icon{
+    font-size:32px;line-height:1;flex-shrink:0;
+    width:48px;height:48px;display:grid;place-items:center;
+    background:rgba(255,255,255,0.75);
+    border-radius:14px;
+  }
+  .class-launcher-text{flex:1;min-width:0}
+  .class-launcher-title{
+    font-weight:800;font-size:15px;color:var(--deep);margin:0;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .class-launcher-sub{
+    font-size:12.5px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;
+  }
+  .class-launcher-progress{
+    display:inline-block;padding:2px 8px;border-radius:999px;
+    background:rgba(255,255,255,0.7);font-size:11.5px;font-weight:800;
+    color:var(--deep);
+  }
+  .class-launcher-btn{
+    background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle));
+    color:#fff;border:none;border-radius:999px;
+    padding:10px 20px;font-family:inherit;font-weight:800;font-size:14px;
+    cursor:pointer;flex-shrink:0;
+    box-shadow:0 4px 14px rgba(255,178,240,0.5);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .class-launcher-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 6px 20px rgba(255,178,240,0.7);
+  }
+  .class-launcher-reset{
+    background:none;border:none;color:var(--ink-soft);
+    font-size:12px;font-weight:700;font-family:inherit;
+    cursor:pointer;padding:4px 8px;border-radius:8px;
+    margin-left:auto;align-self:flex-start;
+  }
+  .class-launcher-reset:hover{background:rgba(255,255,255,0.6);color:var(--pink-hot)}
+
+  /* The sticky top bar — only visible during class mode */
+  .class-bar{
+    display:none;
+    position:fixed;top:0;left:0;right:0;
+    background:rgba(255,255,255,0.96);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:2px solid rgba(144,165,255,0.4);
+    box-shadow:0 4px 20px rgba(99,170,244,0.18);
+    padding:10px 16px;
+    z-index:1000;
+    align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  body.class-mode .class-bar{display:flex}
+  body.class-mode{padding-top:64px}
+  .class-bar-exit{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.5);
+    color:var(--deep);font-weight:700;font-size:13px;
+    padding:6px 14px;border-radius:999px;cursor:pointer;
+    font-family:inherit;flex-shrink:0;
+  }
+  .class-bar-exit:hover{background:#fff;border-color:var(--pink-hot);color:var(--pink-hot)}
+  .class-bar-info{
+    display:flex;flex-direction:column;flex:1;min-width:0;
+  }
+  .class-bar-lesson{
+    font-weight:800;font-size:13px;color:var(--deep);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .class-bar-progress-wrap{
+    height:6px;background:rgba(144,165,255,0.25);border-radius:999px;
+    overflow:hidden;margin-top:3px;
+  }
+  .class-bar-progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--pink-hot), var(--periwinkle), var(--mint));
+    transition:width .3s ease;border-radius:999px;
+  }
+  .class-bar-select{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.5);
+    color:var(--deep);font-weight:700;font-size:12.5px;
+    padding:6px 10px;border-radius:10px;cursor:pointer;
+    font-family:inherit;max-width:200px;
+  }
+  .class-bar-select:hover{border-color:var(--pink-hot)}
+
+  /* In class mode, hide everything except the current lesson */
+  body.class-mode .hero,
+  body.class-mode .back-row,
+  body.class-mode #growth > h2,
+  body.class-mode #growth > p:not(.lesson-meta),
+  body.class-mode .playbook-search,
+  body.class-mode .search-status,
+  body.class-mode .growth-toc,
+  body.class-mode .class-launcher,
+  body.class-mode footer{
+    display:none !important;
+  }
+  body.class-mode .growth-section:not(.class-current),
+  body.class-mode .checklist-section{
+    display:none;
+  }
+  /* The current lesson stays open + emphasized */
+  body.class-mode .growth-section.class-current{
+    border:2px solid var(--periwinkle);
+    background:rgba(255,255,255,0.85);
+  }
+  body.class-mode .growth-section.class-current > summary{
+    pointer-events:none;
+    cursor:default;
+    font-size:18px;
+  }
+  body.class-mode .growth-section.class-current > summary::before{
+    display:none;
+  }
+
+  /* Per-lesson nav (Previous · Mark complete · Next) — only in class mode */
+  .lesson-nav{
+    display:none;
+    align-items:center;justify-content:space-between;gap:10px;
+    margin:24px 0 8px;padding:18px 16px 6px;
+    border-top:2px dashed rgba(144,165,255,0.45);
+    flex-wrap:wrap;
+  }
+  body.class-mode .class-current .lesson-nav{display:flex}
+  .lesson-nav-btn{
+    background:rgba(255,255,255,0.85);
+    border:1.5px solid rgba(144,165,255,0.5);
+    color:var(--deep);font-weight:700;font-size:13.5px;
+    padding:9px 16px;border-radius:999px;cursor:pointer;
+    font-family:inherit;
+    transition:transform .12s ease;
+  }
+  .lesson-nav-btn:hover:not(:disabled){background:#fff;border-color:var(--pink-hot);color:var(--pink-hot)}
+  .lesson-nav-btn:disabled{opacity:0.4;cursor:not-allowed}
+  .lesson-nav-next{
+    background:linear-gradient(135deg, var(--periwinkle), var(--blue));
+    color:#fff;border-color:transparent;
+    box-shadow:0 4px 12px rgba(99,170,244,0.4);
+  }
+  .lesson-nav-next:hover:not(:disabled){
+    background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle));
+    color:#fff;
+    transform:translateY(-1px);
+  }
+  .lesson-nav-complete{
+    background:rgba(107,228,234,0.25);
+    border-color:var(--mint);color:var(--deep);
+  }
+  .lesson-nav-complete.is-done{
+    background:linear-gradient(135deg, var(--mint), var(--periwinkle));
+    color:#fff;border-color:transparent;
+  }
+  .lesson-nav-complete.is-done::before{content:"✓ "}
+
+  /* TOC checkmarks for completed lessons */
+  .toc-pills a.is-done::before{
+    content:"✓ ";color:var(--mint);font-weight:900;
+  }
+  .toc-pills a.is-current{
+    background:linear-gradient(135deg, rgba(255,178,240,0.4), rgba(144,165,255,0.4));
+    border-color:var(--pink-hot);
+  }
 </style>
 </head>
 <body>
+
+<!-- Sticky bar shown during class mode -->
+<div class="class-bar" id="classBar" role="region" aria-label="Class mode controls">
+  <button type="button" class="class-bar-exit" id="classBarExit" aria-label="Exit class mode">✕ Exit class</button>
+  <div class="class-bar-info">
+    <div class="class-bar-lesson" id="classBarLesson">Lesson 1 of 13</div>
+    <div class="class-bar-progress-wrap"><div class="class-bar-progress-fill" id="classBarProgress" style="width:0%"></div></div>
+  </div>
+  <select class="class-bar-select" id="classBarSelect" aria-label="Jump to lesson"></select>
+</div>
+
 <div class="wrap">
 
   <div class="back-row">
@@ -348,6 +537,20 @@
   <section class="card" id="growth">
     <h2>Pick a chapter 🌱</h2>
     <p>Everything I've learned about getting shorts (and your stream) actually seen. <strong>Search a keyword</strong> below or click any chapter to expand.</p>
+
+    <!-- Take-the-playbook-as-a-class launcher -->
+    <div class="class-launcher" id="classLauncher">
+      <div class="class-launcher-icon">🎓</div>
+      <div class="class-launcher-text">
+        <p class="class-launcher-title">
+          <span id="classLauncherHeading">Learn the whole thing as a class</span>
+          <span class="class-launcher-progress" id="classLauncherProgress" hidden></span>
+        </p>
+        <p class="class-launcher-sub" id="classLauncherSub">13 lessons, one chapter at a time. Your progress saves automatically — come back any time and pick up where you left off.</p>
+      </div>
+      <button type="button" class="class-launcher-btn" id="classLauncherBtn">▶ Begin class</button>
+      <button type="button" class="class-launcher-reset" id="classLauncherReset" hidden>Reset progress</button>
+    </div>
 
     <div class="playbook-search" id="playbookSearch">
       <span class="icon" aria-hidden="true">🔍</span>
@@ -1514,6 +1717,250 @@
       updateProgress();
     });
   }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init, {once:true});
+  } else {
+    init();
+  }
+})();
+
+// ===================================================================
+// CLASS MODE — guided lesson-by-lesson walkthrough
+// ===================================================================
+(function(){
+  // Lesson list: ordered IDs of growth-section chapters that count as lessons.
+  // Pre-publish checklists + Resources are reference, not learning, so they're excluded.
+  const LESSONS = [
+    { id: 'alg',          title: 'How the algorithm works' },
+    { id: 'metrics',      title: 'The 3 metrics that matter' },
+    { id: 'fourCriteria', title: 'The 4-criteria content rule' },
+    { id: 'platforms',    title: 'Platform-specific posting rules' },
+    { id: 'titles',       title: 'Title strategy' },
+    { id: 'hashtags',     title: 'The hashtag formula' },
+    { id: 'ytshorts',     title: 'YouTube Shorts specifics' },
+    { id: 'comments',     title: 'Driving more comments' },
+    { id: 'chat',         title: 'Getting chatters engaged' },
+    { id: 'funnel',       title: 'Conversion + retention' },
+    { id: 'twitch',       title: 'Twitch — the full chapter' },
+    { id: 'twitterX',     title: 'Twitter/X for VTubers' },
+    { id: 'monetize',     title: 'Monetization — the full chapter' }
+  ];
+  const KEY_CURRENT  = 'playbook-class-current';
+  const KEY_COMPLETE = 'playbook-class-complete';
+
+  function getCurrent(){
+    const v = parseInt(localStorage.getItem(KEY_CURRENT), 10);
+    return (isNaN(v) || v < 0 || v >= LESSONS.length) ? 0 : v;
+  }
+  function setCurrent(i){ try { localStorage.setItem(KEY_CURRENT, i); } catch(e){} }
+  function getComplete(){
+    try { const v = JSON.parse(localStorage.getItem(KEY_COMPLETE) || '[]'); return Array.isArray(v) ? v : []; }
+    catch(e){ return []; }
+  }
+  function setComplete(arr){ try { localStorage.setItem(KEY_COMPLETE, JSON.stringify(arr)); } catch(e){} }
+  function hasAnyProgress(){
+    return localStorage.getItem(KEY_CURRENT) !== null || (getComplete().length > 0);
+  }
+
+  function init(){
+    const launcher       = document.getElementById('classLauncher');
+    const launcherBtn    = document.getElementById('classLauncherBtn');
+    const launcherReset  = document.getElementById('classLauncherReset');
+    const launcherSub    = document.getElementById('classLauncherSub');
+    const launcherHead   = document.getElementById('classLauncherHeading');
+    const launcherProg   = document.getElementById('classLauncherProgress');
+    const bar            = document.getElementById('classBar');
+    const barExit        = document.getElementById('classBarExit');
+    const barLesson      = document.getElementById('classBarLesson');
+    const barProgress    = document.getElementById('classBarProgress');
+    const barSelect      = document.getElementById('classBarSelect');
+    if(!launcher || !bar) return;
+
+    // Populate the lesson jump dropdown
+    LESSONS.forEach((lesson, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = 'Lesson ' + (i + 1) + ' · ' + lesson.title;
+      barSelect.appendChild(opt);
+    });
+
+    // Inject per-lesson nav (Prev · Mark complete · Next) into each lesson's body
+    LESSONS.forEach((lesson, i) => {
+      const sec = document.getElementById(lesson.id);
+      if(!sec) return;
+      const body = sec.querySelector('.growth-body');
+      if(!body || body.querySelector('.lesson-nav')) return;
+
+      const nav = document.createElement('div');
+      nav.className = 'lesson-nav';
+      nav.innerHTML =
+        '<button type="button" class="lesson-nav-btn lesson-nav-prev"' + (i === 0 ? ' disabled' : '') + '>← Previous</button>' +
+        '<button type="button" class="lesson-nav-btn lesson-nav-complete">Mark complete</button>' +
+        '<button type="button" class="lesson-nav-btn lesson-nav-next"' + (i === LESSONS.length - 1 ? ' disabled' : '') + '>Next lesson →</button>';
+
+      nav.querySelector('.lesson-nav-prev').addEventListener('click', () => {
+        if(i > 0) showLesson(i - 1);
+      });
+      nav.querySelector('.lesson-nav-next').addEventListener('click', () => {
+        if(i < LESSONS.length - 1){
+          // Auto-mark current as complete when you advance (but don't force — they can also click Mark complete)
+          markComplete(i, true);
+          showLesson(i + 1);
+        }
+      });
+      nav.querySelector('.lesson-nav-complete').addEventListener('click', (e) => {
+        const done = getComplete();
+        const idx = done.indexOf(i);
+        if(idx >= 0){
+          done.splice(idx, 1); // toggle off
+          setComplete(done);
+        } else {
+          done.push(i);
+          setComplete(done);
+        }
+        refreshChrome();
+      });
+
+      // If this is the last lesson, the "Next" button becomes "Finish class"
+      if(i === LESSONS.length - 1){
+        const nextBtn = nav.querySelector('.lesson-nav-next');
+        nextBtn.disabled = false;
+        nextBtn.textContent = '🎉 Finish class';
+        nextBtn.addEventListener('click', () => {
+          markComplete(i, true);
+          exitClassMode();
+          alert('Class complete! 🎓 You\'ve been through every chapter of the playbook. Come back any time — your progress is saved.');
+        }, true);
+      }
+
+      body.appendChild(nav);
+    });
+
+    // Update the launcher card + TOC + bar — call after any progress change
+    function refreshChrome(){
+      const current = getCurrent();
+      const done = getComplete();
+      // Launcher text
+      if(done.length === 0 && localStorage.getItem(KEY_CURRENT) === null){
+        launcherHead.textContent = 'Learn the whole thing as a class';
+        launcherSub.textContent = '13 lessons, one chapter at a time. Your progress saves automatically — come back any time and pick up where you left off.';
+        launcherBtn.textContent = '▶ Begin class';
+        launcherProg.hidden = true;
+        launcherReset.hidden = true;
+      } else if(done.length >= LESSONS.length){
+        launcherHead.textContent = 'You finished the class 🎓';
+        launcherSub.textContent = 'All 13 lessons complete. You can restart from scratch, or jump back into any chapter.';
+        launcherBtn.textContent = '↻ Restart class';
+        launcherProg.hidden = false;
+        launcherProg.textContent = done.length + ' / ' + LESSONS.length + ' done';
+        launcherReset.hidden = false;
+      } else {
+        launcherHead.textContent = 'Resume your class';
+        launcherSub.textContent = 'Pick up at Lesson ' + (current + 1) + ' · ' + LESSONS[current].title + '.';
+        launcherBtn.textContent = '▶ Resume · Lesson ' + (current + 1);
+        launcherProg.hidden = false;
+        launcherProg.textContent = done.length + ' / ' + LESSONS.length + ' done';
+        launcherReset.hidden = false;
+      }
+      // Bar
+      const pct = Math.round((done.length / LESSONS.length) * 100);
+      barProgress.style.width = pct + '%';
+      barLesson.textContent = 'Lesson ' + (current + 1) + ' of ' + LESSONS.length + ' · ' + LESSONS[current].title;
+      barSelect.value = String(current);
+      // TOC checkmarks + current highlight
+      document.querySelectorAll('.toc-pills a').forEach(a => {
+        a.classList.remove('is-done', 'is-current');
+        const href = a.getAttribute('href') || '';
+        if(!href.startsWith('#')) return;
+        const id = href.slice(1);
+        const lessonIdx = LESSONS.findIndex(l => l.id === id);
+        if(lessonIdx === -1) return;
+        if(done.includes(lessonIdx)) a.classList.add('is-done');
+        if(document.body.classList.contains('class-mode') && lessonIdx === current) a.classList.add('is-current');
+      });
+      // Mark-complete button state on current lesson
+      LESSONS.forEach((lesson, i) => {
+        const sec = document.getElementById(lesson.id);
+        if(!sec) return;
+        const btn = sec.querySelector('.lesson-nav-complete');
+        if(!btn) return;
+        if(done.includes(i)){
+          btn.classList.add('is-done');
+          btn.textContent = 'Completed';
+        } else {
+          btn.classList.remove('is-done');
+          btn.textContent = 'Mark complete';
+        }
+      });
+    }
+
+    function markComplete(i, silent){
+      const done = getComplete();
+      if(!done.includes(i)){
+        done.push(i);
+        setComplete(done);
+        if(!silent) refreshChrome();
+      }
+    }
+
+    function showLesson(i){
+      if(i < 0 || i >= LESSONS.length) return;
+      setCurrent(i);
+      // Hide all top-level lesson sections, show current
+      LESSONS.forEach((lesson, idx) => {
+        const sec = document.getElementById(lesson.id);
+        if(!sec) return;
+        if(idx === i){
+          sec.classList.add('class-current');
+          sec.open = true;
+        } else {
+          sec.classList.remove('class-current');
+        }
+      });
+      refreshChrome();
+      // Scroll the current lesson into view (account for sticky bar)
+      const sec = document.getElementById(LESSONS[i].id);
+      if(sec){
+        const y = sec.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+
+    function enterClassMode(){
+      document.body.classList.add('class-mode');
+      showLesson(getCurrent());
+    }
+
+    function exitClassMode(){
+      document.body.classList.remove('class-mode');
+      // Reset section visibility — remove the class-current marker but keep collapsed state as user prefers
+      LESSONS.forEach(lesson => {
+        const sec = document.getElementById(lesson.id);
+        if(sec) sec.classList.remove('class-current');
+      });
+      refreshChrome();
+      // Scroll back to the launcher card
+      const launcher = document.getElementById('classLauncher');
+      if(launcher) launcher.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Wire up
+    launcherBtn.addEventListener('click', enterClassMode);
+    launcherReset.addEventListener('click', () => {
+      if(!confirm('Reset class progress? Your current lesson + completion checkmarks will be cleared.')) return;
+      try { localStorage.removeItem(KEY_CURRENT); localStorage.removeItem(KEY_COMPLETE); } catch(e){}
+      refreshChrome();
+    });
+    barExit.addEventListener('click', exitClassMode);
+    barSelect.addEventListener('change', (e) => {
+      const i = parseInt(e.target.value, 10);
+      if(!isNaN(i)) showLesson(i);
+    });
+
+    // Initial paint
+    refreshChrome();
+  }
+
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init, {once:true});
   } else {
