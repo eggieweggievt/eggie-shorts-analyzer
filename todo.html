@@ -1242,6 +1242,9 @@
 <div class="end-spacer"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Cross-page focus timer (exposes window.EggieFocus; this page owns its own dock UI) -->
+<script>window.EGGIE_FOCUS_IS_TASK_PAGE = true;</script>
+<script src="focus-widget.js"></script>
 <script>
 // ============================================================
 //  CONFIG (shared with planner.html)
@@ -1301,6 +1304,7 @@ let qaPriority = false;
 let focus = {
   running:false, mode:'focus', secondsLeft:25*60,
   focusLen:25, breakLen:5, longBreakLen:15, cycles:0,
+  loggedCycles:0,  // how many completed focus phases have been written to Supabase (watermark)
   todoId:null, interval:null, startedAt:null,
   popout:null   // Pop-out window (Document PiP or fallback popup)
 };
@@ -1441,6 +1445,7 @@ async function showApp(user){
   render();
   maybeShowReviewBanner();
   scheduleMidnightRefresh();
+  restoreFocusOnLoad();   // resume a session that followed you back from another page
 }
 
 // Schedule a re-render at local midnight so the Done column visibly clears
@@ -2724,6 +2729,7 @@ function tickFocus(){
     if(wasFocus){
       focus.cycles++;
       logFocusSession(focus.focusLen, 'focus', focus.todoId);
+      focus.loggedCycles = focus.cycles;   // watermark: this phase is now logged
       // Long break every 4 cycles
       focus.mode = (focus.cycles % 4 === 0) ? 'longbreak' : 'break';
       focus.secondsLeft = (focus.mode === 'longbreak' ? focus.longBreakLen : focus.breakLen) * 60;
@@ -2749,11 +2755,14 @@ function stopFocus(){
   focus.running = false;
   if(focus.interval) clearInterval(focus.interval);
   focus.interval = null;
+  focus.cycles = 0;
+  focus.loggedCycles = 0;
   $('focusOverlay').classList.remove('open');
   $('focusDock').classList.remove('open');
   // FAB comes back once the session ends (but only if the user is signed in)
   if(currentUser) $('focusFab').classList.remove('hidden');
   closePopout();
+  clearFocusState();   // remove the cross-page baton so the float disappears everywhere
   document.title = 'To-Do List ✓ — Eggie\'s Creator Hub';
 }
 function minimizeFocus(){
@@ -2910,6 +2919,66 @@ function updateFocusUI(){
       focus.popout = null;
     }
   }
+  persistFocus();   // keep the cross-page baton fresh on every tick / state change
+}
+
+// ---- Cross-page persistence (the localStorage "baton") ------
+// Whichever hub page is open owns the live ticking; the baton lets
+// the floating widget on other pages reconstruct the countdown from
+// an absolute end-time. See focus-widget.js.
+function persistFocus(){
+  if(!window.EggieFocus) return;
+  const running = !!focus.running;
+  window.EggieFocus.write({
+    active: true,
+    running: running,
+    mode: focus.mode,
+    endsAt: running ? Date.now() + focus.secondsLeft*1000 : null,
+    remaining: focus.secondsLeft,
+    focusLen: focus.focusLen, breakLen: focus.breakLen, longBreakLen: focus.longBreakLen,
+    cycles: focus.cycles || 0,
+    loggedCycles: focus.loggedCycles || 0,
+    todoId: focus.todoId || null,
+    todoTitle: focus.todoId ? (todos.find(t => t.id === focus.todoId)?.title || '') : '',
+    floatDismissed: false,   // you're on the home page → the float is "back"
+    updatedAt: Date.now()
+  });
+}
+function clearFocusState(){
+  if(window.EggieFocus) window.EggieFocus.clear();
+}
+
+// On load, pick up a session that's still running (started here before
+// a reload, or paused/advanced from another page) and resume it live.
+function restoreFocusOnLoad(){
+  if(!window.EggieFocus) return;
+  let st = window.EggieFocus.read();
+  if(!st || !st.active) return;
+  // Catch up through any phases that completed while we were away.
+  st = window.EggieFocus.advance(st, Date.now()).state;
+  // Log focus phases that finished but were never written (watermark).
+  const unlogged = Math.max(0, (st.cycles || 0) - (st.loggedCycles || 0));
+  for(let i = 0; i < unlogged; i++){
+    logFocusSession(st.focusLen || 25, 'focus', st.todoId || null);
+  }
+  st.loggedCycles = st.cycles || 0;
+  // Rebuild the in-page focus object.
+  focus.mode = st.mode || 'focus';
+  focus.cycles = st.cycles || 0;
+  focus.loggedCycles = st.loggedCycles || 0;
+  focus.focusLen = st.focusLen || focus.focusLen;
+  focus.breakLen = st.breakLen || focus.breakLen;
+  focus.longBreakLen = st.longBreakLen || focus.longBreakLen;
+  focus.todoId = st.todoId || null;
+  focus.running = !!st.running;
+  focus.secondsLeft = st.running
+    ? Math.max(1, Math.round((st.endsAt - Date.now())/1000))
+    : Math.max(0, Math.round(st.remaining || 0));
+  if(focus.interval){ clearInterval(focus.interval); focus.interval = null; }
+  if(focus.running){ focus.interval = setInterval(tickFocus, 1000); }
+  $('focusFab').classList.add('hidden');
+  $('focusDock').classList.add('open');
+  updateFocusUI();   // also re-persists with the bumped loggedCycles
 }
 function tryNotify(msg){
   if(!('Notification' in window)) return;
