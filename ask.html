@@ -183,6 +183,10 @@
         <span class="chip" onclick="quick(this)">what's overdue?</span>
         <span class="chip" onclick="quick(this)">what's ready to post?</span>
         <span class="chip" onclick="quick(this)">what are my priorities?</span>
+        <span class="chip" onclick="quick(this)">what's due next?</span>
+        <span class="chip" onclick="quick(this)">what needs a thumbnail?</span>
+        <span class="chip" onclick="quick(this)">what's unassigned?</span>
+        <span class="chip" onclick="quick(this)">give me an overview</span>
       </div>
       <div class="status-banner" id="askStatus"></div>
     </div>
@@ -305,7 +309,7 @@ async function resolveManager(managerId){
 async function loadItems(){
   if(!sb || !currentUser) return;
   let q = sb.from('planner_items')
-    .select('id,title,status,platforms,is_priority,scheduled_at,posted_at,hook,notes')
+    .select('id,title,status,platforms,is_priority,scheduled_at,posted_at,hook,notes,thumbnail_url,footage_url,assignee_email,analyzer_score,created_at')
     .neq('status','archived')
     .limit(500);
   if(manageOwnerId) q = q.eq('owner_id', manageOwnerId);
@@ -400,9 +404,10 @@ function renderResults(data){
     const st = (it.status || '').toLowerCase();
     const plats = (it.platforms||[]).map(p => `<span class="pill plat">${escapeHtml(p)}</span>`).join('');
     const star = it.is_priority ? '<span class="star">⭐</span>' : '';
+    const score = (it.analyzer_score != null) ? `<span class="pill">▲${escapeHtml(String(it.analyzer_score))}</span>` : '';
     const when = whenLabel(it);
     row.innerHTML = `${star}<span class="t">${escapeHtml(it.title||'Untitled')}</span>`
-      + `<span class="pill ${st}">${escapeHtml(it.status||'')}</span>${plats}`
+      + `<span class="pill ${st}">${escapeHtml(it.status||'')}</span>${plats}${score}`
       + (when ? `<span class="when">${escapeHtml(when)}</span>` : '');
     list.appendChild(row);
   });
@@ -428,6 +433,14 @@ function mondayOf(d){ const x=new Date(d); const dow=(x.getDay()+6)%7; x.setDate
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
 function fmtDay(d){ return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
 function plural(n){ return n===1 ? '' : 's'; }
+function daysSince(s){ return (Date.now() - new Date(s)) / 86400000; }
+function extractAssignee(q){
+  const m = q.match(/assigned to ([a-z0-9._@+-]{2,})/) || q.match(/waiting on ([a-z0-9._@+-]{2,})/) || q.match(/@([a-z0-9._-]{2,})/);
+  if(!m) return null;
+  const name = m[1].trim().replace(/[?.!,]+$/,'');
+  if(['editor','editors','an','the','someone','anyone','my','your','our','me','us'].includes(name)) return null;
+  return name;
+}
 
 const STOP = new Set(['the','a','an','my','our','your','what','which','who','should','shall','can','could','would',
   'is','are','am','do','does','did','i','me','to','for','of','in','on','at','this','that','these','those','and','or',
@@ -470,29 +483,91 @@ function answerQuestion(question){
   const plat = detectPlatform(q);
 
   let pool, answer;
+  const S = it => (it.status||'').toLowerCase();
 
-  if(has('overdue','late','past due','behind','missed')){
+  if(has('overview','summary','recap','dashboard','how am i doing','how is everything','status of everything','where am i')){
+    const c = st => active.filter(it => S(it)===st).length;
+    const shippedWk = items.filter(it => it.posted_at && new Date(it.posted_at)>=wkStart && new Date(it.posted_at)<wkEnd).length;
+    answer = `Right now: ${c('idea')} idea${plural(c('idea'))}, ${c('script')} scripting, ${c('recording')} recording, ${c('editing')} editing, ${c('scheduled')} scheduled · ${shippedWk} shipped this week. Top focus below. 🌟`;
+    pool = active.slice().sort(byPriorityThenDeadline);
+  } else if(has('score','scored','scoring','rated','rating')){
+    const scored = items.filter(it => it.analyzer_score != null);
+    if(has('high','best','top ','great','strong','banger')){
+      pool = scored.filter(it => it.analyzer_score >= 85).sort((a,b)=> b.analyzer_score - a.analyzer_score);
+      answer = pool.length ? `${pool.length} high-scoring (85+) — your bangers. 🔥` : `Nothing's scored 85+ yet.`;
+    } else if(has('low','bad','worst','under','weak','rework','poor')){
+      pool = scored.filter(it => it.analyzer_score < 70).sort((a,b)=> a.analyzer_score - b.analyzer_score);
+      answer = pool.length ? `${pool.length} scored under 70 — worth a stronger hook or a rework.` : (scored.length ? `Nothing under 70 — nice. ✨` : `No analyzer scores saved yet.`);
+    } else {
+      pool = scored.slice().sort((a,b)=> b.analyzer_score - a.analyzer_score);
+      answer = pool.length ? `${pool.length} item${plural(pool.length)} have analyzer scores — highest first.` : `No analyzer scores saved yet.`;
+    }
+  } else if(has('overdue','late','past due','behind','missed')){
     pool = active.filter(it => it.scheduled_at && new Date(it.scheduled_at) < now).sort(byDeadlineAsc);
     answer = pool.length ? `You've got ${pool.length} item${plural(pool.length)} overdue — most overdue first. Knock the top one out first. 💪`
                          : `Nothing overdue — you're on top of it. 🎉`;
-  } else if(has('stuck','stalled') || (has('editing','edit') && !has('done','finished'))){
-    pool = active.filter(it => ['editing','recording'].includes((it.status||'').toLowerCase())).sort(byDeadlineAsc);
-    answer = pool.length ? `${pool.length} thing${plural(pool.length)} mid-pipeline (recording/editing). Closest deadline first.`
-                         : `Nothing stuck in editing right now. ✨`;
-  } else if(has('ready to post','ready','scheduled','queued','queue','go out','upcoming')){
-    pool = active.filter(it => (it.status||'').toLowerCase()==='scheduled').sort(byDeadlineAsc);
-    if(!pool.length) pool = active.filter(it => (it.status||'').toLowerCase()==='editing').sort(byDeadlineAsc);
+  } else if(has('unassigned','no editor','not assigned','nobody assigned','no one assigned','without an editor')){
+    pool = active.filter(it => !((it.assignee_email||'').trim())).sort(byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} active item${plural(pool.length)} have no editor assigned.` : `Everything active has an editor. ✨`;
+  } else if(has('assigned','assignee','waiting on','my editor','the editor','editor has','handed off','hand off','with an editor','with my editor')){
+    const name = extractAssignee(q);
+    let p = active.filter(it => (it.assignee_email||'').trim());
+    if(name){
+      p = p.filter(it => (it.assignee_email||'').toLowerCase().includes(name));
+      answer = p.length ? `${p.length} item${plural(p.length)} assigned to “${name}”.` : `Nothing assigned to “${name}”.`;
+    } else if(has('waiting','my editor','the editor','editor has','with an editor','with my editor')){
+      p = p.filter(it => ['editing','recording'].includes(S(it)));
+      answer = p.length ? `${p.length} item${plural(p.length)} in your editors' hands right now.` : `Nothing with your editors at the moment.`;
+    } else {
+      answer = p.length ? `${p.length} item${plural(p.length)} assigned to an editor.` : `Nothing assigned to an editor yet.`;
+    }
+    pool = p.sort(byPriorityThenDeadline);
+  } else if(has('thumbnail','thumb')){
+    pool = active.filter(it => !((it.thumbnail_url||'').trim()) && ['script','recording','editing','scheduled'].includes(S(it))).sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} in-flight item${plural(pool.length)} still need a thumbnail. 🎨` : `Every in-flight item has a thumbnail. 🎨`;
+  } else if(has('footage','raw file','raw files','b-roll','broll')){
+    pool = active.filter(it => !((it.footage_url||'').trim()) && ['recording','editing','scheduled'].includes(S(it))).sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} item${plural(pool.length)} are missing footage links. 🎬` : `No missing footage on active items. 🎬`;
+  } else if(has('scripting','in script','needs a script','need a script','write the script','to script','no script')){
+    pool = active.filter(it => S(it)==='script').sort(byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} item${plural(pool.length)} in scripting.` : `Nothing in the scripting stage.`;
+  } else if(has('ready to edit','to edit','needs editing','need editing','ready for edit','to be edited')){
+    pool = active.filter(it => S(it)==='recording').sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} recorded and ready to edit. ✂️` : `Nothing waiting to be edited.`;
+  } else if(has('stuck','stalled','in editing','being edited','mid-edit','editing pile')){
+    pool = active.filter(it => S(it)==='editing').sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} sitting in editing right now — closest deadline first.` : `Nothing stuck in editing. ✨`;
+  } else if(has('no deadline','without a deadline','no due date','not scheduled','undated','needs a date','no date','no due')){
+    pool = active.filter(it => !it.scheduled_at).sort(byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} active item${plural(pool.length)} have no deadline set. 📅` : `Everything active has a date. 📅`;
+  } else if(has('due next','next deadline','due soonest','soonest','coming up','what is next','whats next')){
+    pool = active.filter(it => it.scheduled_at && new Date(it.scheduled_at) >= now).sort(byDeadlineAsc);
+    answer = pool.length ? `Next up: “${pool[0].title||'Untitled'}” (${whenLabel(pool[0])}). ${pool.length} upcoming in all.` : `Nothing with a future deadline.`;
+  } else if(has('next post','posting','go out','going out','publish next','scheduled to')){
+    pool = active.filter(it => S(it)==='scheduled' && it.scheduled_at).sort(byDeadlineAsc);
+    if(!pool.length) pool = active.filter(it => it.scheduled_at && new Date(it.scheduled_at) >= now).sort(byDeadlineAsc);
+    answer = pool.length ? `${pool.length} lined up to post — soonest first.` : `Nothing scheduled to post yet.`;
+  } else if(has('ready to post','ready','scheduled','queued','queue','lined up','upcoming')){
+    pool = active.filter(it => S(it)==='scheduled').sort(byDeadlineAsc);
+    if(!pool.length) pool = active.filter(it => S(it)==='editing').sort(byDeadlineAsc);
     answer = pool.length ? `${pool.length} ready / lined up to go out.` : `Nothing scheduled yet — want to queue something? 🌱`;
+  } else if(has('idea','ideas','backlog') && has('stale','sitting','old','untouched','gathering dust','forgotten','a while','dusty')){
+    pool = items.filter(it => S(it)==='idea' && it.created_at && daysSince(it.created_at) >= 21)
+                .sort((a,b)=> +new Date(a.created_at) - +new Date(b.created_at));
+    answer = pool.length ? `${pool.length} idea${plural(pool.length)} have been sitting 3+ weeks — revive or let go? 🍂` : `No stale ideas — your backlog is fresh. 🌱`;
   } else if(has('film','record','shoot','make','create','produce')){
-    pool = active.filter(it => ['idea','script','recording'].includes((it.status||'').toLowerCase())).sort(byPriorityThenDeadline);
+    pool = active.filter(it => ['idea','script','recording'].includes(S(it))).sort(byPriorityThenDeadline);
     answer = pool.length ? `${pool.length} thing${plural(pool.length)} to film/make — priority + soonest deadline up top.`
                          : `No ideas queued to film — time to brainstorm a few! 🌸`;
   } else if(has('idea','ideas','brainstorm','backlog')){
-    pool = items.filter(it => (it.status||'').toLowerCase()==='idea').sort(byPriorityThenDeadline);
+    pool = items.filter(it => S(it)==='idea').sort(byPriorityThenDeadline);
     answer = pool.length ? `${pool.length} idea${plural(pool.length)} in your backlog.` : `No ideas captured yet.`;
   } else if(has('priority','priorities','important','focus','matter')){
     pool = active.filter(it => it.is_priority).sort(byDeadlineAsc);
     answer = pool.length ? `${pool.length} starred priorit${pool.length===1?'y':'ies'} still open.` : `No priorities flagged right now.`;
+  } else if(has('posted','shipped','published','went out','post') && has('recent','recently','lately','last','latest')){
+    pool = items.filter(it => it.posted_at).sort((a,b)=> +new Date(b.posted_at) - +new Date(a.posted_at)).slice(0,15);
+    answer = pool.length ? `Your most recent posts, newest first. 🚀` : `Nothing posted yet.`;
   } else if(has('posted','shipped','published','went out')){
     pool = items.filter(it => it.posted_at && new Date(it.posted_at) >= wkStart && new Date(it.posted_at) < wkEnd)
                 .sort((a,b)=> +new Date(b.posted_at) - +new Date(a.posted_at));
