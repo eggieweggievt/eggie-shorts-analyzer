@@ -2654,8 +2654,30 @@
     <div class="modal-content" style="max-width:860px">
       <h2>🎨 Brand Kit</h2>
       <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5">
-        This is the <strong>creator-wide</strong> kit your editors see at the top of <a href="planner-editor.html" target="_blank" style="color:var(--deep);font-weight:700">their dashboard</a> — branding sheets, editing-style references, asset folders. Visible on <em>every</em> project for every editor you've added.
+        This is the <strong>creator-wide</strong> kit your editors see on <a href="planner-editor.html" target="_blank" style="color:var(--deep);font-weight:700">their dashboard</a> — branding sheets, editing-style references, asset folders. It heads up <em>your</em> column on every editor's view (editors who work for several creators see one column each).
       </p>
+
+      <!-- V3 — VTUBER IDENTITY + BATCH DOWNLOAD (shown as the editor's column header) -->
+      <div class="bk-section" style="background:linear-gradient(135deg,rgba(201,168,255,0.16),rgba(107,228,234,0.12));border:1.5px solid rgba(144,165,255,0.4);border-radius:14px;padding:14px 16px">
+        <div class="bk-section-head">
+          <span class="bk-section-title">🎀 Your column on the editor dashboard</span>
+          <span class="bk-section-hint">How editors recognize you + grab the whole batch at once</span>
+        </div>
+        <label for="bkCreatorName">Your name / VTuber name <span class="opt">(column header editors see)</span></label>
+        <input id="bkCreatorName" type="text" maxlength="60" placeholder="e.g. Eggie 🐙" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px">
+          <div>
+            <label for="bkBatchUrl">Batch download link <span class="opt">(download all videos)</span></label>
+            <input id="bkBatchUrl" type="url" placeholder="https://drive.google.com/…" />
+          </div>
+          <div>
+            <label for="bkBatchDeadline">Batch deadline <span class="opt">(optional)</span></label>
+            <input id="bkBatchDeadline" type="datetime-local" />
+          </div>
+        </div>
+        <label for="bkBatchLabel">Batch name <span class="opt">(optional, e.g. "June drop")</span></label>
+        <input id="bkBatchLabel" type="text" maxlength="60" placeholder="this batch" />
+      </div>
 
       <!-- BRANDING IMAGES -->
       <div class="bk-section">
@@ -4194,9 +4216,9 @@ function renderEditorsList(){
   `;}).join('');
   wrap.querySelectorAll('.ed-edit').forEach(b => b.addEventListener('click', () => loadEditorIntoForm(b.dataset.id)));
   wrap.querySelectorAll('.ed-preview').forEach(b => b.addEventListener('click', () => {
-    // Load into form first so the preview reads the latest values
-    loadEditorIntoForm(b.dataset.id);
-    openEditorPreview();
+    // V3 — Open the REAL editor dashboard in preview mode (always in sync).
+    const editor = editors.find(x => x.id === b.dataset.id);
+    openRealEditorPreview(editor && editor.email);
   }));
   // V2.6 — Quick-copy invite link from the list (no need to open the edit form first)
   wrap.querySelectorAll('.ed-copy-link').forEach(b => b.addEventListener('click', async () => {
@@ -4266,6 +4288,25 @@ function buildEditorInviteUrl(editor){
   if(editor.id) params.set('ed', editor.id);
   if(editor.name) params.set('name', editor.name);
   return `${origin}${window.location.pathname.replace(/[^/]+$/, '')}planner-editor.html?${params.toString()}`;
+}
+
+// V3 — Preview / oversight: open the REAL editor dashboard as a given editor.
+// This is the single source of truth (no separate re-implementation to drift),
+// so what you see here is exactly what the editor sees. RLS still applies — you
+// can only see items you (or creators you manage) assigned to them.
+function buildEditorPreviewUrl(email){
+  const e = (email || '').trim().toLowerCase();
+  if(!e) return '';
+  const origin = (window.location.origin && window.location.origin !== 'null')
+    ? window.location.origin
+    : 'https://shortsanalyzer.eggieweggie.ca';
+  const base = `${origin}${window.location.pathname.replace(/[^/]+$/, '')}planner-editor.html`;
+  return `${base}?preview=${encodeURIComponent(e)}`;
+}
+function openRealEditorPreview(email){
+  const url = buildEditorPreviewUrl(email);
+  if(!url){ alert('Add an email for this editor first — preview needs to know whose dashboard to open.'); return; }
+  window.open(url, '_blank', 'noopener');
 }
 
 function showInviteLinkFor(editor){
@@ -5208,6 +5249,11 @@ async function openBrandKitModal(){
   bkVideos = Array.isArray(brandKit?.editing_style_videos) ? JSON.parse(JSON.stringify(brandKit.editing_style_videos)) : [];
   bkAssets = Array.isArray(brandKit?.asset_links) ? JSON.parse(JSON.stringify(brandKit.asset_links)) : [];
   $('bkNotes').value = brandKit?.notes || '';
+  // V3 — VTuber identity + batch download fields (editor dashboard column header)
+  $('bkCreatorName').value = brandKit?.creator_name || '';
+  $('bkBatchUrl').value = brandKit?.batch_download_url || '';
+  $('bkBatchDeadline').value = brandKit?.batch_deadline ? toLocalInput(brandKit.batch_deadline) : '';
+  $('bkBatchLabel').value = brandKit?.batch_label || '';
   renderBkBranding();
   renderBkVideos();
   renderBkAssets();
@@ -5315,6 +5361,11 @@ async function saveBrandKit(){
     editing_style_videos: bkVideos.filter(v => v.url),
     asset_links: bkAssets.filter(a => a.url),
     notes: $('bkNotes').value.trim() || null,
+    // V3 — VTuber identity + batch download (editor dashboard column header)
+    creator_name: $('bkCreatorName').value.trim() || null,
+    batch_download_url: $('bkBatchUrl').value.trim() || null,
+    batch_deadline: $('bkBatchDeadline').value ? new Date($('bkBatchDeadline').value).toISOString() : null,
+    batch_label: $('bkBatchLabel').value.trim() || null,
     // V2.20 — Persist the per-format defaults too (Shorts + Long-form column inputs)
     format_defaults: readBkFormatDefaults(),
     updated_at: new Date().toISOString()
@@ -5326,6 +5377,8 @@ async function saveBrandKit(){
   if(error){
     if(/relation.*does not exist/i.test(error.message || '')){
       alert('Brand kit table missing. Run the updated planner-supabase-v2.sql in Supabase first.');
+    } else if(/column .*(creator_name|batch_download_url|batch_deadline|batch_label).* does not exist/i.test(error.message || '') || /could not find the .* column/i.test(error.message || '')){
+      alert('The new VTuber-name / batch-download columns aren\'t in your database yet. Run planner-editor-multivtuber.sql in the Supabase SQL Editor, then save again.');
     } else {
       alert('Save failed: ' + error.message);
     }
@@ -6611,8 +6664,8 @@ function wireApp(){
     }
   });
 
-  // V2.1: preview-as-editor + invite link wiring
-  $('previewEditorBtn').addEventListener('click', openEditorPreview);
+  // V2.1 / V3: preview-as-editor opens the REAL editor dashboard (single source of truth)
+  $('previewEditorBtn').addEventListener('click', () => openRealEditorPreview($('edEmail').value));
   $('previewCloseBtn').addEventListener('click', closeEditorPreview);
   $('previewDoneBtn').addEventListener('click', closeEditorPreview);
   $('previewBackToEditor').addEventListener('click', closeEditorPreview);

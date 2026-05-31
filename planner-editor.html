@@ -675,6 +675,85 @@
     padding-top:10px;border-top:1.5px dashed rgba(144,165,255,0.22);
     margin-top:4px;
   }
+
+  /* ============================================================
+     V3 — Multi-VTuber columns. One editor can be assigned work by several
+     creators who share this hub. Each creator becomes one soft "purple
+     column" bundling their branding, editing styles, a batch-download link,
+     a deadline, and the videos to edit — so the editor never juggles tabs. */
+  .vtuber-section{
+    background:linear-gradient(135deg, rgba(201,168,255,0.20), rgba(144,165,255,0.13));
+    border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:20px;
+    padding:18px 18px 20px;
+    margin:0 0 24px;
+    box-shadow:0 6px 20px rgba(144,165,255,0.14);
+  }
+  .vtuber-section:last-child{margin-bottom:0}
+  .vtuber-head{
+    display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+    margin:0 0 12px;
+  }
+  .vtuber-head .vtuber-avatar{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    box-shadow:inset 0 0 0 2px #fff, 0 2px 8px rgba(144,165,255,0.3);
+  }
+  .vtuber-head h3.vtuber-name{
+    font-family:'Pacifico',cursive;font-weight:400;
+    font-size:24px;color:var(--deep);margin:0;line-height:1.2;
+  }
+  .vtuber-head .vtuber-count{
+    background:rgba(255,255,255,0.75);color:var(--deep);
+    font-weight:800;font-size:12px;padding:3px 11px;border-radius:999px;
+    border:1px solid rgba(144,165,255,0.3);
+  }
+  /* Batch download + deadline strip — the "grab everything at once" CTA */
+  .vtuber-batch{
+    display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+    padding:12px 14px;margin:0 0 14px;
+    background:rgba(255,255,255,0.72);
+    border:1.5px solid rgba(107,228,234,0.5);
+    border-radius:14px;
+  }
+  .vtuber-batch .vb-text{flex:1;min-width:140px;font-size:13px;color:var(--ink);font-weight:700}
+  .vtuber-batch .vb-text small{display:block;font-weight:500;color:var(--ink-soft);font-size:11.5px;margin-top:2px}
+  .vtuber-batch .vb-deadline{
+    background:rgba(255,213,138,0.3);color:#a35c00;
+    padding:5px 12px;border-radius:999px;font-weight:800;font-size:12px;white-space:nowrap;
+  }
+  .vtuber-batch .vb-deadline.overdue{background:rgba(255,138,168,0.3);color:#a23556}
+  .vtuber-batch .vb-download{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:10px 20px;border-radius:999px;text-decoration:none;white-space:nowrap;
+    font-family:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    background:linear-gradient(135deg,#6BE4EA,#63AAF4);
+    box-shadow:0 4px 12px rgba(99,170,244,0.32);
+    transition:transform .12s,filter .12s;
+  }
+  .vtuber-batch .vb-download:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
+  /* V3 — Preview / oversight banner */
+  .preview-banner{
+    display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+    padding:11px 16px;margin:0 0 16px;
+    background:linear-gradient(135deg, rgba(255,213,138,0.5), rgba(255,178,240,0.4));
+    border:1.5px solid rgba(255,176,122,0.7);
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(255,176,122,0.2);
+    font-size:13.5px;color:#7a4a10;
+  }
+  .preview-banner .pb-eye{font-size:18px;line-height:1}
+  .preview-banner .pb-text{flex:1;min-width:180px;line-height:1.45}
+  .preview-banner .pb-text strong{color:#5a3a8a}
+  .preview-banner .pb-exit{
+    text-decoration:none;font-weight:800;font-size:13px;color:#fff;
+    background:linear-gradient(135deg,#FFB07A,#FF8AA8);
+    padding:8px 16px;border-radius:999px;white-space:nowrap;
+    box-shadow:0 4px 10px rgba(255,138,168,0.3);
+  }
+  .preview-banner .pb-exit:hover{filter:brightness(1.05)}
 </style>
 </head>
 <body>
@@ -687,7 +766,7 @@
 
   <header class="hero">
     <h1 class="logo">Editor Dashboard 🎬</h1>
-    <p class="tag">Sign in with the email your creator added you with. You'll see <em>only the projects assigned to you</em> — footage, references, deadlines, everything in one place. ✨</p>
+    <p class="tag">Sign in with the email your creator added you with. You'll see <em>only the projects assigned to you</em> — grouped into one column per creator, each with their branding, batch download link, deadline, and videos to edit. ✨</p>
   </header>
 
   <!-- AUTH VIEW -->
@@ -715,20 +794,23 @@
 
   <!-- APP VIEW -->
   <div id="appView" class="hidden">
+
+    <!-- V3 — Preview / oversight banner (creator viewing as one of their editors) -->
+    <div id="previewBanner" class="preview-banner hidden">
+      <span class="pb-eye">👁</span>
+      <span class="pb-text">Previewing as <strong id="previewBannerEmail">—</strong> — this is exactly what they see on their dashboard. <em>Read-only.</em></span>
+      <a class="pb-exit" href="planner.html">← Back to your planner</a>
+    </div>
+
     <div class="user-bar">
       <span class="who">Signed in as <strong id="userEmailDisplay">—</strong></span>
       <span class="conn-status"><span class="conn-dot" id="connDotApp"></span><span id="connTextApp">Live</span></span>
       <button class="btn secondary" id="signOutBtn" style="padding:7px 16px;font-size:13px">Sign out</button>
     </div>
 
-    <!-- V2.3 — Creator's Brand Kit (shown to every editor on every project) -->
-    <div id="brandKitCard" class="brand-kit-card hidden" data-open="true">
-      <div class="bk-card-head" id="brandKitHead">
-        <h3>🎨 Branding &amp; assets</h3>
-        <button class="bk-card-toggle" id="brandKitToggleBtn" type="button">Collapse</button>
-      </div>
-      <div class="bk-card-body" id="brandKitBody"></div>
-    </div>
+    <!-- V3 — Brand kits now render per-VTuber inside each column below
+         (see renderVtuberSection), so the single top-of-page brand kit card
+         was removed. -->
 
     <div class="app-grid">
 
@@ -786,7 +868,21 @@ let currentUser = null;
 let myProfile = null;     // planner_editors row for this email
 let projects = [];
 
+// V3 — Preview / oversight mode. When a signed-in creator (or manager) opens
+// this page with ?preview=<editor-email>, they view the dashboard exactly as
+// that editor would. RLS still applies: a creator owns their own items so they
+// can read everything they assigned to that editor, but writes are blocked.
+let previewEmail = null;
+let isPreview = false;
+
 function $(id){ return document.getElementById(id); }
+
+// The email whose dashboard we're rendering — the preview target if set,
+// otherwise the signed-in user themselves.
+function viewerEmail(){
+  if(previewEmail) return previewEmail;
+  return ((currentUser && currentUser.email) || '').trim().toLowerCase();
+}
 
 async function init(){
   try{
@@ -807,6 +903,11 @@ async function init(){
   // V2.1 — Read invite link params: ?email=...&ed=...&name=...
   // Pre-fill the email field + show a personalized welcome banner.
   applyInviteLinkParams();
+
+  // V3 — Preview / oversight mode: ?preview=<editor-email>
+  const _preview = new URLSearchParams(window.location.search).get('preview');
+  previewEmail = _preview ? _preview.trim().toLowerCase() : null;
+  isPreview = !!previewEmail;
 
   const { data:{ session } } = await sb.auth.getSession();
   if(session?.user) showApp(session.user); else showAuth();
@@ -907,44 +1008,56 @@ function showAuth(){
   currentUser = null;
   $('authView').classList.remove('hidden');
   $('appView').classList.add('hidden');
+  // V3 — In preview mode the creator must be signed in (as themselves) for RLS to
+  // expose the items they assigned. Nudge them if they're not.
+  if(isPreview){
+    setAuthStatus(`👁 To preview ${previewEmail}'s dashboard, sign in with YOUR creator email first (the account that assigned them work).`, 'info');
+  }
 }
 
 async function showApp(user){
   currentUser = user;
   $('authView').classList.add('hidden');
   $('appView').classList.remove('hidden');
-  $('userEmailDisplay').textContent = user.email;
+
+  const vEmail = viewerEmail();
+
+  // V3 — Preview / oversight: show a banner + hide controls that don't apply.
+  const banner = $('previewBanner');
+  const signOut = $('signOutBtn');
+  if(isPreview){
+    $('userEmailDisplay').textContent = vEmail + ' (preview)';
+    if($('previewBannerEmail')) $('previewBannerEmail').textContent = vEmail;
+    if(banner) banner.classList.remove('hidden');
+    if(signOut) signOut.classList.add('hidden');  // signing out would log the creator out
+  } else {
+    $('userEmailDisplay').textContent = user.email;
+    if(banner) banner.classList.add('hidden');
+    if(signOut) signOut.classList.remove('hidden');
+  }
+
   await Promise.all([loadProfile(), loadProjects(), loadBrandKit()]);
-  // Realtime — refetch on any change to items where this editor is assigned.
+  // Realtime — refetch on any change to items for the viewed editor.
   // Note: postgres_changes filter only supports eq (no ilike), so we send the
   // lowercased email. Newly-saved rows from planner.html are now normalized to
   // lowercase, so live refresh works for all new data. Legacy mis-cased rows
   // still show up via the case-insensitive loadProjects() call, just not in
   // real time — they'll appear on next manual reload.
-  const realtimeEmail = (user.email || '').trim().toLowerCase();
   sb.channel('editor-items-realtime')
     .on('postgres_changes',
-        { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${realtimeEmail}` },
+        { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${vEmail}` },
         () => loadProjects())
     .subscribe();
-  // V2.3 — Wire up brand kit collapse toggle (lazy, so it doesn't matter if the section is hidden)
-  const head = $('brandKitHead'), toggleBtn = $('brandKitToggleBtn'), card = $('brandKitCard');
-  if(head && toggleBtn && card){
-    const flip = () => {
-      const open = card.dataset.open === 'true';
-      card.dataset.open = (!open).toString();
-      toggleBtn.textContent = open ? 'Expand' : 'Collapse';
-    };
-    head.addEventListener('click', e => { if(e.target !== toggleBtn) flip(); });
-    toggleBtn.addEventListener('click', e => { e.stopPropagation(); flip(); });
-  }
+  // V3 — Brand kit collapse toggles are now wired per-VTuber inside renderProjects().
 }
 
-// V2.3 — Load the creator's brand kit. RLS picks the right one based on which creator has
-// assigned this editor at least one item.
-let brandKit = null;
+// V3 — Load ALL brand kits this editor can see (one per creator who assigned
+// them at least one item). RLS already scopes this to the right creators, so a
+// plain select returns exactly the kits that belong on this editor's dashboard.
+// Keyed by owner_id so each VTuber column can show its own branding + styles.
+let brandKitsByOwner = {};
 async function loadBrandKit(){
-  const { data, error } = await sb.from('planner_brand_kit').select('*').limit(1).maybeSingle();
+  const { data, error } = await sb.from('planner_brand_kit').select('*');
   if(error){
     if(/relation.*does not exist/i.test(error.message || '')){
       console.warn('Brand kit table not set up yet — ask your creator to run the latest planner-supabase-v2.sql.');
@@ -953,31 +1066,23 @@ async function loadBrandKit(){
     console.error('Brand kit load failed:', error);
     return;
   }
-  brandKit = data || null;
-  renderBrandKit();
+  brandKitsByOwner = {};
+  (data || []).forEach(k => { if(k && k.owner_id) brandKitsByOwner[k.owner_id] = k; });
+  // Projects may already be on screen — re-render so each VTuber column picks up
+  // its kit. If projects haven't loaded yet, loadProjects() will render with the
+  // kits already in hand, so we skip here to avoid a brief "no projects" flash.
+  if(currentUser && projects.length) renderProjects();
 }
 
-function renderBrandKit(){
-  const card = $('brandKitCard');
-  const body = $('brandKitBody');
-  if(!card || !body) return;
-  const hasContent =
-    brandKit && (
-      (brandKit.branding_images || []).length ||
-      (brandKit.editing_style_videos || []).length ||
-      (brandKit.asset_links || []).length ||
-      (brandKit.notes || '').trim()
-    );
-  if(!hasContent){
-    card.classList.add('hidden');
-    return;
-  }
-  card.classList.remove('hidden');
-
+// V3 — Build the inner branding / editing-style / asset / notes sections for ONE
+// creator's brand kit. Returns an HTML string (empty if the kit has no content).
+// Used inside each VTuber column instead of the old single top-of-page card.
+function renderBrandKitBody(kit){
+  if(!kit) return '';
   const sections = [];
 
-  // V2.4 — Branding images: bigger, natural aspect ratio, with label below each
-  const imgs = brandKit.branding_images || [];
+  // Branding images: bigger, natural aspect ratio, with label below each
+  const imgs = kit.branding_images || [];
   if(imgs.length){
     sections.push(`
       <div class="bk-card-section">
@@ -996,8 +1101,8 @@ function renderBrandKit(){
     `);
   }
 
-  // V2.4 — Video editing styles: split embeddable into a grid + non-embeddable into compact link rows
-  const vids = brandKit.editing_style_videos || [];
+  // Video editing styles: split embeddable into a grid + non-embeddable into compact link rows
+  const vids = kit.editing_style_videos || [];
   if(vids.length){
     const embedHtml = [], linkHtml = [];
     vids.forEach(v => {
@@ -1015,7 +1120,7 @@ function renderBrandKit(){
   }
 
   // Asset folder links
-  const links = brandKit.asset_links || [];
+  const links = kit.asset_links || [];
   if(links.length){
     sections.push(`
       <div class="bk-card-section">
@@ -1033,16 +1138,16 @@ function renderBrandKit(){
   }
 
   // Notes
-  if((brandKit.notes || '').trim()){
+  if((kit.notes || '').trim()){
     sections.push(`
       <div class="bk-card-section">
         <h4>📝 Notes from your creator</h4>
-        <div class="bk-card-notes">${escape(brandKit.notes)}</div>
+        <div class="bk-card-notes">${escape(kit.notes)}</div>
       </div>
     `);
   }
 
-  body.innerHTML = sections.join('');
+  return sections.join('');
 }
 
 // V2.4 — Build a video reference. Returns { kind: 'embed' | 'link', html }
@@ -1087,7 +1192,7 @@ function renderVideoEmbed(v){
 }
 
 async function loadProfile(){
-  const { data, error } = await sb.from('planner_editors').select('*').eq('email', currentUser.email).maybeSingle();
+  const { data, error } = await sb.from('planner_editors').select('*').eq('email', viewerEmail()).maybeSingle();
   if(error){
     if(/relation.*does not exist/i.test(error.message || '')){
       $('profileSummary').innerHTML = '<p style="color:var(--ink-soft)">Editor profiles aren\'t enabled yet on this planner. Ask your creator to run the V2 migration.</p>';
@@ -1105,16 +1210,16 @@ function renderProfile(){
   if(!myProfile){
     sum.innerHTML = `
       <p style="color:var(--ink-soft);font-size:13.5px;line-height:1.55">
-        No profile yet for <strong>${escape(currentUser.email)}</strong>. Once your creator adds you in their planner, your profile will appear here.
+        No profile yet for <strong>${escape(viewerEmail())}</strong>. Once your creator adds you in their planner, your profile will appear here.
       </p>`;
     return;
   }
-  // V2.6 — Profile card shows just identity. Brand assets live in the brand kit card.
+  // V3 — Profile card shows just identity. Brand assets live in each VTuber column.
   sum.innerHTML = `
     <p style="margin:0 0 8px"><span class="swatch-display" style="background:${escape(myProfile.color || '#90A5FF')}"></span><strong>${escape(myProfile.name)}</strong></p>
-    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 4px">${escape(myProfile.email || currentUser.email)}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 4px">${escape(myProfile.email || viewerEmail())}</p>
     <p style="font-size:11.5px;color:var(--ink-soft);line-height:1.5;margin:8px 0 0;font-style:italic">
-      Brand assets (asset folders, reference videos, creator's notes) are in the <strong style="color:var(--deep);font-style:normal">🎨 Branding &amp; assets</strong> section above — same kit shows on every project.
+      Each creator's branding, editing styles, asset folders, and batch download link live inside <strong style="color:var(--deep);font-style:normal">their column</strong> on the right.
     </p>
   `;
 }
@@ -1124,7 +1229,7 @@ async function loadProjects(){
   // Case-insensitive match so legacy rows where the creator typed the email with
   // different casing (e.g. "Mixed.Case@example.com") still show up. Trim too,
   // in case a stray space snuck in on either side.
-  const emailForQuery = (currentUser.email || '').trim().toLowerCase();
+  const emailForQuery = viewerEmail();
   const { data, error } = await sb.from('planner_items')
     .select('*')
     .ilike('assignee_email', emailForQuery)
@@ -1147,7 +1252,7 @@ async function loadProjects(){
 }
 
 function renderProjects(){
-  // Status summary
+  // Status summary (across every VTuber the editor works with)
   const counts = {};
   projects.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
   $('statusSummary').innerHTML = Object.entries(STATUS_LABELS)
@@ -1159,22 +1264,135 @@ function renderProjects(){
     wrap.innerHTML = `
       <div class="empty-state">
         <h3>No projects yet 🌸</h3>
-        <p>Nothing's assigned to you right now. When your creator adds a project with your email, it'll appear here.</p>
+        <p>Nothing's assigned to you right now. When a creator adds a project with your email, it'll appear here.</p>
       </div>`;
     return;
   }
 
-  // V2.7 — Bucket projects by readiness so editors immediately see what to work on.
-  //   READY    = editing, OR recording + has footage/attachments (creator handed it over)
-  //   PENDING  = idea / script / recording-without-footage (creator hasn't finished prep yet)
-  //   DONE     = scheduled / posted / archived (shipped or in queue)
+  // V3 — Group projects by creator (owner_id), preserving first-seen order.
+  // Each creator becomes its own "purple column" (VTuber section).
+  const order = [];
+  const byOwner = {};
+  projects.forEach(p => {
+    const key = p.owner_id || 'unknown';
+    if(!byOwner[key]){ byOwner[key] = []; order.push(key); }
+    byOwner[key].push(p);
+  });
+  const multi = order.length > 1;
+
+  wrap.innerHTML = order.map((ownerId, i) => renderVtuberSection(ownerId, byOwner[ownerId], i, multi)).join('');
+
+  // Wire up status pickers
+  wrap.querySelectorAll('.pc-status-pick').forEach(btn => {
+    btn.addEventListener('click', () => updateStatus(btn.dataset.id, btn.dataset.next));
+  });
+  // Wire up uploads
+  wrap.querySelectorAll('input[type=file][data-upload-id]').forEach(input => {
+    input.addEventListener('change', e => uploadEditorFile(input.dataset.uploadId, e.target.files));
+  });
+  // V2.14 — Wire up editor-notes save buttons
+  wrap.querySelectorAll('button[data-save-notes-id]').forEach(btn => {
+    btn.addEventListener('click', () => saveEditorNotes(btn.dataset.saveNotesId, btn));
+  });
+  // V3 — Wire up per-VTuber brand kit collapse toggles
+  wrap.querySelectorAll('.vtuber-section .brand-kit-card').forEach(card => {
+    const head = card.querySelector('.bk-card-head');
+    const btn = card.querySelector('.bk-card-toggle');
+    if(!head || !btn) return;
+    const flip = () => {
+      const open = card.dataset.open === 'true';
+      card.dataset.open = (!open).toString();
+      btn.textContent = open ? 'Expand' : 'Collapse';
+    };
+    head.addEventListener('click', e => { if(e.target !== btn) flip(); });
+    btn.addEventListener('click', e => { e.stopPropagation(); flip(); });
+  });
+}
+
+// V3 — Render one creator's column: name header, batch download + deadline,
+// that VTuber's branding/editing-style/notes, then their videos by readiness.
+function renderVtuberSection(ownerId, items, index, multi){
+  const kit = brandKitsByOwner[ownerId] || null;
+  const name = (kit && kit.creator_name && kit.creator_name.trim())
+    ? kit.creator_name.trim()
+    : (multi ? `Creator ${index + 1}` : 'Your creator');
+
+  // --- Batch download + deadline ---------------------------------------
+  const batchUrl = kit && kit.batch_download_url ? kit.batch_download_url.trim() : '';
+  // Deadline: use the explicit batch deadline if set, else fall back to the
+  // earliest upcoming item deadline so the editor still sees a "due" date.
+  let deadlineIso = (kit && kit.batch_deadline) ? kit.batch_deadline : null;
+  const explicitBatchDeadline = !!deadlineIso;
+  if(!deadlineIso){
+    const upcoming = items
+      .filter(p => p.scheduled_at && !['posted','archived'].includes(p.status))
+      .map(p => p.scheduled_at)
+      .sort();
+    if(upcoming.length) deadlineIso = upcoming[0];
+  }
+  let deadlineChip = '';
+  if(deadlineIso){
+    const d = new Date(deadlineIso);
+    const overdue = d < new Date();
+    const fmt = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+    const time = d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+    const lbl = explicitBatchDeadline ? (overdue ? 'Batch overdue' : 'Batch due')
+                                      : (overdue ? 'Next overdue' : 'Next due');
+    deadlineChip = `<span class="vb-deadline${overdue ? ' overdue' : ''}">📅 ${escape(lbl)} ${escape(fmt)}, ${escape(time)}</span>`;
+  }
+  let batchHtml = '';
+  if(batchUrl || deadlineChip){
+    const batchName = (kit && kit.batch_label && kit.batch_label.trim()) ? escape(kit.batch_label.trim()) : 'this batch';
+    batchHtml = `
+      <div class="vtuber-batch">
+        <span class="vb-text">📦 ${batchUrl ? 'Download ' + batchName : batchName}
+          <small>${batchUrl
+            ? 'Grab every video in one go, then drop your cuts on each card below.'
+            : 'No batch link yet — use the per-video footage links on each card.'}</small>
+        </span>
+        ${deadlineChip}
+        ${batchUrl ? `<a class="vb-download" href="${escape(batchUrl)}" target="_blank" rel="noreferrer">⬇️ Download all</a>` : ''}
+      </div>`;
+  }
+
+  // --- Per-VTuber brand kit (expanded when there's only one creator) ----
+  const kitBody = renderBrandKitBody(kit);
+  const kitOpen = !multi;
+  const kitHtml = kitBody ? `
+    <div class="brand-kit-card" data-open="${kitOpen}">
+      <div class="bk-card-head">
+        <h3>🎨 ${escape(name)}'s branding &amp; style</h3>
+        <button class="bk-card-toggle" type="button">${kitOpen ? 'Collapse' : 'Expand'}</button>
+      </div>
+      <div class="bk-card-body">${kitBody}</div>
+    </div>` : '';
+
+  const countLabel = items.length === 1 ? '1 project' : `${items.length} projects`;
+
+  return `
+    <div class="vtuber-section">
+      <div class="vtuber-head">
+        <span class="vtuber-avatar">🎀</span>
+        <h3 class="vtuber-name">${escape(name)}</h3>
+        <span class="vtuber-count">${countLabel}</span>
+      </div>
+      ${batchHtml}
+      ${kitHtml}
+      ${renderReadinessBuckets(items)}
+    </div>`;
+}
+
+// V2.7 / V3 — Bucket a creator's items by readiness so editors immediately see
+// what to work on. Returns an HTML string.
+//   READY    = editing, OR recording + has footage/attachments (handed over)
+//   PENDING  = idea / script / recording-without-footage (creator still prepping)
+//   DONE     = scheduled / posted / archived (shipped or in queue)
+function renderReadinessBuckets(items){
   function hasFootage(p){
     return !!(p.footage_url || (Array.isArray(p.attachments) && p.attachments.length > 0));
   }
-  const ready = [];
-  const pending = [];
-  const done = [];
-  projects.forEach(p => {
+  const ready = [], pending = [], done = [];
+  items.forEach(p => {
     if(['scheduled','posted','archived'].includes(p.status)){
       done.push(p);
     } else if(p.status === 'editing' || (p.status === 'recording' && hasFootage(p))){
@@ -1186,7 +1404,6 @@ function renderProjects(){
 
   const sections = [];
 
-  // READY bucket — what the editor should be actively working on
   if(ready.length){
     sections.push(`
       <div class="project-bucket ready">
@@ -1201,7 +1418,6 @@ function renderProjects(){
     `);
   }
 
-  // PENDING bucket — coming-up content, footage not handed over yet
   if(pending.length){
     sections.push(`
       <div class="project-bucket pending">
@@ -1216,7 +1432,6 @@ function renderProjects(){
     `);
   }
 
-  // DONE bucket — already shipped, keep visible for reference but de-emphasized
   if(done.length){
     sections.push(`
       <div class="project-bucket done">
@@ -1231,26 +1446,14 @@ function renderProjects(){
     `);
   }
 
-  wrap.innerHTML = sections.join('');
-
-  // Wire up status pickers
-  wrap.querySelectorAll('.pc-status-pick').forEach(btn => {
-    btn.addEventListener('click', () => updateStatus(btn.dataset.id, btn.dataset.next));
-  });
-  // Wire up uploads
-  wrap.querySelectorAll('input[type=file][data-upload-id]').forEach(input => {
-    input.addEventListener('change', e => uploadEditorFile(input.dataset.uploadId, e.target.files));
-  });
-  // V2.14 — Wire up editor-notes save buttons
-  wrap.querySelectorAll('button[data-save-notes-id]').forEach(btn => {
-    btn.addEventListener('click', () => saveEditorNotes(btn.dataset.saveNotesId, btn));
-  });
+  return sections.join('');
 }
 
 // V2.14 — Save free-text notes the editor leaves for the creator on a project.
 // Uses the RLS update policy ("editors update assigned items") so editors can
 // write but only to items already assigned to them.
 async function saveEditorNotes(itemId, btn){
+  if(isPreview){ alert('👁 Preview mode is read-only. Open the editor\'s real dashboard (or have them sign in) to leave notes.'); return; }
   const card = btn.closest('.project-card');
   if(!card) return;
   const textarea = card.querySelector('textarea.pc-editor-notes[data-id="' + cssEscape(itemId) + '"]');
@@ -1464,6 +1667,7 @@ function renderProjectCard(p){
 }
 
 async function updateStatus(itemId, nextStatus){
+  if(isPreview){ alert('👁 Preview mode is read-only. Status changes are made by the editor on their own dashboard.'); return; }
   if(!confirm(`Move this project to ${STATUS_LABELS[nextStatus]}?`)) return;
   const { error } = await sb.from('planner_items').update({ status: nextStatus }).eq('id', itemId);
   if(error){ alert('Update failed: ' + error.message); return; }
@@ -1474,6 +1678,7 @@ async function updateStatus(itemId, nextStatus){
 const EDITOR_MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;  // 5 GB
 
 async function uploadEditorFile(itemId, files){
+  if(isPreview){ alert('👁 Preview mode is read-only. Uploads happen on the editor\'s own dashboard.'); return; }
   if(!files || files.length === 0) return;
   const item = projects.find(p => p.id === itemId);
   if(!item) return;
