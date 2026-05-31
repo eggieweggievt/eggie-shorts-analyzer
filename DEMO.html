@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🧪 Creator Hub — Demo Launcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0; --blue:#63AAF4; --mint:#6BE4EA; --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF; --deep:#4D5BC0; --ink:#3a2a5a; --ink-soft:#6b5f8a; --radius:24px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; font-family:Quicksand,system-ui,sans-serif; color:var(--ink);
+    background:linear-gradient(135deg,#FFDBF7 0%,#E6ECFF 50%,#D9F7F9 100%);
+    padding:32px 18px 64px;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  .badge{
+    display:inline-block;background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));
+    color:var(--ink);font-weight:700;padding:6px 16px;border-radius:999px;font-size:13px;
+    box-shadow:0 6px 18px rgba(77,91,192,.25);
+  }
+  h1{font-family:Pacifico,cursive;font-weight:400;color:var(--deep);font-size:42px;margin:14px 0 6px}
+  .lede{font-size:16px;color:var(--ink-soft);max-width:620px;line-height:1.5;margin:0 0 8px}
+  .safe{
+    background:#fff;border-radius:var(--radius);padding:16px 20px;margin:22px 0;
+    box-shadow:0 10px 30px rgba(77,91,192,.12);border:2px solid var(--pink-light);
+    display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.5;
+  }
+  .safe b{color:var(--deep)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:8px}
+  a.tile{
+    text-decoration:none;color:var(--ink);background:#fff;border-radius:18px;padding:16px;
+    box-shadow:0 6px 16px rgba(77,91,192,.10);border:2px solid transparent;transition:.15s;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  a.tile:hover{transform:translateY(-3px);border-color:var(--periwinkle);box-shadow:0 12px 24px rgba(77,91,192,.18)}
+  a.tile .emoji{font-size:26px}
+  a.tile .name{font-weight:700;color:var(--deep)}
+  a.tile .desc{font-size:12px;color:var(--ink-soft);line-height:1.35}
+  .section-label{font-weight:700;color:var(--deep);margin:26px 0 4px;font-size:14px;letter-spacing:.3px}
+  .foot{margin-top:30px;font-size:13px;color:var(--ink-soft);line-height:1.6}
+  .foot code{background:#fff;padding:2px 7px;border-radius:6px;border:1px solid var(--pink-light);color:var(--deep)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">🧪 LOCAL DEMO LAUNCHER</span>
+  <h1>Creator Hub — Demo Mode</h1>
+  <p class="lede">A safe sandbox for testing changes before they go live. You're auto-signed-in as a
+    demo user, every page is loaded with sample data, and <b>nothing you do here touches your real hub.</b></p>
+
+  <div class="safe">
+    <span style="font-size:22px">🛡️</span>
+    <div>
+      <b>How it stays safe:</b> these links open each tool with <code style="background:#FFF0FB;padding:1px 6px;border-radius:5px">?demo=1</code>,
+      which swaps the live Supabase backend for an in-browser mock. All reads/writes go to your browser's
+      local storage only — your live database, sign-in, and editor/manager data are never contacted.
+      Use <b>Reset demo data</b> in the bottom bar to wipe the sandbox back to the sample set.
+    </div>
+  </div>
+
+  <div class="section-label">🐙 Creator tools (sign-in pages — demo signs you in automatically)</div>
+  <div class="grid">
+    <a class="tile" href="index.html?demo=1"><span class="emoji">🏠</span><span class="name">Home</span><span class="desc">Hub homepage + tile grid</span></a>
+    <a class="tile" href="planner.html?demo=1"><span class="emoji">🗂️</span><span class="name">Planner</span><span class="desc">Kanban / list / calendar (seeded)</span></a>
+    <a class="tile" href="todo.html?demo=1"><span class="emoji">✅</span><span class="name">To-do</span><span class="desc">Tasks, focus timer, review</span></a>
+    <a class="tile" href="habits.html?demo=1"><span class="emoji">🌱</span><span class="name">Habits</span><span class="desc">Spoon-theory tracker</span></a>
+    <a class="tile" href="finance.html?demo=1"><span class="emoji">💰</span><span class="name">Finance</span><span class="desc">Income, categories, goals</span></a>
+    <a class="tile" href="media-kit.html?demo=1"><span class="emoji">📊</span><span class="name">Media Kit</span><span class="desc">Sponsor-facing kit editor</span></a>
+    <a class="tile" href="sponsor-pitch.html?demo=1"><span class="emoji">✉️</span><span class="name">Sponsor Pitch</span><span class="desc">Pitch builder wizard</span></a>
+    <a class="tile" href="ask.html?demo=1"><span class="emoji">🔎</span><span class="name">Ask</span><span class="desc">Smart search over items</span></a>
+    <a class="tile" href="review.html?demo=1"><span class="emoji">📝</span><span class="name">Review</span><span class="desc">Daily review</span></a>
+    <a class="tile" href="planner-editor.html?demo=1"><span class="emoji">🎬</span><span class="name">Editor Dash</span><span class="desc">Editor view of projects</span></a>
+    <a class="tile" href="manager-hub.html?demo=1"><span class="emoji">👑</span><span class="name">Manager Hub</span><span class="desc">Delegated-creator dashboard</span></a>
+  </div>
+
+  <div class="section-label">🌸 Public tools (no sign-in needed even live)</div>
+  <div class="grid">
+    <a class="tile" href="analyzer.html?demo=1"><span class="emoji">📈</span><span class="name">Analyzer</span><span class="desc">Score a short (title engine V4)</span></a>
+    <a class="tile" href="thumbnail.html?demo=1"><span class="emoji">🖼️</span><span class="name">Thumbnail</span><span class="desc">Thumbnail checker</span></a>
+    <a class="tile" href="growth.html?demo=1"><span class="emoji">📚</span><span class="name">Growth</span><span class="desc">Growth playbook</span></a>
+    <a class="tile" href="about.html?demo=1"><span class="emoji">ℹ️</span><span class="name">About</span><span class="desc">Knowledge DB + contact</span></a>
+    <a class="tile" href="faq.html?demo=1"><span class="emoji">❓</span><span class="name">FAQ</span><span class="desc">Frequently asked</span></a>
+  </div>
+
+  <div class="foot">
+    <b>Tip:</b> once you click into any tool, demo mode stays sticky — every link keeps the
+    <code>?demo=1</code> flag automatically, so you can wander the whole hub without leaving the sandbox.
+    To compare against the real thing, just open the normal files (without this launcher).
+  </div>
+</div>
+</body>
+</html>

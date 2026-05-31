@@ -44,7 +44,7 @@
 
   /* ---- styles (injected immediately) ---- */
   var CSS = [
-    '.back-row[data-hubnav] > a{display:none!important}',
+    '.back-row[data-hubnav]{display:none!important}',   /* hide the whole old pill row; menu mounts as a sibling */
 
     '.hubnav{position:relative;display:inline-flex;vertical-align:middle}',
     '.hubnav--lead{margin-right:auto;order:-1}',
@@ -173,7 +173,9 @@
     wrap.appendChild(panel);
 
     if (isBackRow) {
-      host.appendChild(wrap);
+      /* mount as a SIBLING before the old pill row (which we hide), so page-level
+         selectors like ".back-row a" can't leak onto the dropdown's links */
+      (host.parentNode || document.body).insertBefore(wrap, host);
     } else {
       wrap.classList.add('hubnav--lead');   /* push to the left edge of the row (e.g. home page) */
       host.insertBefore(wrap, host.firstChild);
