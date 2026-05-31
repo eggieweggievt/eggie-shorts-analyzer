@@ -632,6 +632,17 @@
     margin:0 0 12px;
   }
   .creator-profile .profile-grid{display:flex;flex-wrap:wrap;gap:8px 10px}
+  .creator-profile .profile-open-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 18px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;font-weight:800;font-size:13.5px;
+    border:none;border-radius:999px;cursor:pointer;
+    box-shadow:0 4px 12px rgba(144,165,255,0.32);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .creator-profile .profile-open-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .creator-profile .profile-open-btn:active{transform:translateY(0)}
   .creator-profile .profile-check{
     display:flex;align-items:center;gap:8px;
     padding:8px 14px;
@@ -1147,25 +1158,6 @@
     <div class="ab-detail" id="abDetail"></div>
   </div>
 
-  <!-- KO-FI SUPPORT CARD -->
-  <div class="kofi-card">
-    <div class="kofi-text">
-      <h3>Like this tool? 🐙</h3>
-      <p>I built this for free for the VTuber + streamer community. If it's helped you, a tip on Ko-fi keeps it going and lets me keep adding new features.</p>
-    </div>
-    <a class="kofi-btn" href="https://ko-fi.com/eggieweggievt" target="_blank" rel="noreferrer" aria-label="Support Eggie on Ko-fi">
-      <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <!-- Cup body -->
-        <path d="M2.5 7.5 H 20.5 V 16 C 20.5 19.3 17.8 22 14.5 22 H 8.5 C 5.2 22 2.5 19.3 2.5 16 Z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.6" stroke-linejoin="round"/>
-        <!-- Handle -->
-        <path d="M20.5 9.5 H 22.5 C 24.2 9.5 25.5 10.8 25.5 12.5 V 13.5 C 25.5 15.2 24.2 16.5 22.5 16.5 H 20.5" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.6" stroke-linejoin="round"/>
-        <!-- Heart inside the cup -->
-        <path d="M8.5 10.5 C 7.1 10.5 6 11.5 6 13 C 6 15 8.5 16.5 11.5 19 C 14.5 16.5 17 15 17 13 C 17 11.5 15.9 10.5 14.5 10.5 C 13.5 10.5 12.8 11.1 11.5 12.4 C 10.2 11.1 9.5 10.5 8.5 10.5 Z" fill="#FF5E5B"/>
-      </svg>
-      <span>Buy me a Ko-fi</span>
-    </a>
-  </div>
-
   <!-- CREATOR PROFILE — saved in browser so identity tags travel with every short -->
   <details class="creator-profile" id="creatorProfile">
     <summary>
@@ -1174,9 +1166,9 @@
       <span class="saved-pill" id="profileSavedPill">Saved ✓</span>
     </summary>
     <div class="profile-body">
-      <p class="profile-blurb">Tick this if you're a VTuber and I'll quietly fold #VTuber (and the usual streaming / clip identity tags) into every short you score &mdash; even when this particular short doesn't mention any of that in the title.</p>
+      <p class="profile-blurb">Your niche, voice, and audience &mdash; saved to your account and folded into every short you score. Open your full profile to edit it.</p>
       <div class="profile-grid">
-        <label class="profile-check"><input type="checkbox" id="profileVtuber" /> I'm a VTuber</label>
+        <button type="button" class="profile-open-btn" id="openFullProfileBtn">🌸 Open your creator profile</button>
       </div>
     </div>
   </details>
@@ -1497,7 +1489,8 @@
 
   <footer>
     Made with 💗 by Eggie &middot; Brand by <a href="https://twitter.com/nyxgothica" target="_blank" rel="noreferrer">@nyxgothica</a><br/>
-    Come hang out &mdash; <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> 🐙
+    Come hang out &mdash; <a href="https://twitter.com/EggieWeggieVT" target="_blank" rel="noreferrer">@EggieWeggieVT</a> 🐙<br/>
+    Free for the community &mdash; <a href="https://ko-fi.com/eggieweggievt" target="_blank" rel="noreferrer">tip on Ko-fi ☕</a> if it's helped you
   </footer>
 </div>
 
@@ -7086,6 +7079,10 @@ function renderVideoVerdict(v){
     profilePill.innerHTML = `<span class="pp-icon">🌸</span><span class="pp-text">—</span>`;
     profilePill.addEventListener('click', () => openProfileModal(false));
     document.body.appendChild(profilePill);
+
+    // Inline "Open your creator profile" button (in the page's creator-profile dropdown)
+    const inlineProfileBtn = $byId('openFullProfileBtn');
+    if(inlineProfileBtn) inlineProfileBtn.addEventListener('click', () => openProfileModal(false));
 
     // V3.1 — Creator profile / onboarding modal (single screen)
     const profile = document.createElement('div');
