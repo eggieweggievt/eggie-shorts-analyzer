@@ -7345,7 +7345,7 @@ function escape(s){
 // escape() stops attribute breakout; safeUrl() stops javascript:/data:/vbscript:
 // code-execution links (an editor's footage_url etc. is rendered to the owner).
 function safeUrl(u){
-  const s = String(u == null ? '' : u).trim().replace(/[ -]/g,'');
+  const s = String(u == null ? '' : u).trim();
   if(!s) return '';
   if(/^(https?:|mailto:)/i.test(s)) return s;     // allowed schemes
   if(/^[a-z][a-z0-9+.\-]*:/i.test(s)) return '';  // any other scheme → blocked
@@ -8029,5 +8029,6 @@ if(document.readyState === 'loading'){
 </script>
 <script src="focus-widget.js" defer></script>
 <script src="hub-nav.js?v=5"></script>
+<script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>
