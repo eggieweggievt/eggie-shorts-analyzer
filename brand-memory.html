@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Creator Memory 🧠 — Eggie's Creator Hub</title>
+<meta name="description" content="One persistent profile of who you are — voice, audience, series, word bank and facts — so every tool stays on-brand and sounds like YOU, not generic." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/brand-memory.html" />
+<meta property="og:title" content="Creator Memory 🧠" />
+<meta property="og:description" content="The 'this is me' brain your hub remembers — and feeds to every tool." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 32%, rgba(255,255,255,0.6) 0 4px, transparent 5px),
+      radial-gradient(circle at 42% 78%, rgba(255,255,255,0.5) 0 2px, transparent 3px);
+    pointer-events:none;z-index:0;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  /* Nav row */
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+    transition:background .15s ease;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  /* Hero */
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px, 5.5vw, 48px);line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 16px rgba(99,170,244,0.18);
+    margin:14px auto 6px;padding:14px 12px 22px;display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:720px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 24px;margin:16px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 4px;color:var(--deep);
+  }
+  .card .hint{font-size:13px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5}
+
+  /* Buttons + inputs */
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn.small{padding:7px 14px;font-size:13px}
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+  input[type=text],input[type=url],input[type=email],textarea{
+    padding:9px 13px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14px;color:var(--ink);
+    box-sizing:border-box;width:100%;
+  }
+  textarea{resize:vertical;min-height:60px;line-height:1.5}
+  input:focus,textarea:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  .hidden{display:none !important}
+
+  /* Field grid */
+  .field-grid{display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
+  @media(max-width:680px){.field-grid{grid-template-columns:1fr}}
+  .field label{display:block;font-weight:700;font-size:13px;margin:0 0 5px;color:var(--deep)}
+  .field .sub{font-weight:500;color:var(--ink-soft);font-size:12px}
+  .field.full{grid-column:1 / -1}
+
+  /* Chip / tag editor */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 0}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.32));
+    color:var(--deep);font-weight:700;font-size:13px;
+    padding:5px 6px 5px 13px;border-radius:999px;
+    border:1px solid rgba(255,255,255,0.8);
+  }
+  .chip.ban{background:linear-gradient(135deg,rgba(255,138,168,0.28),rgba(255,178,240,0.22));color:#a23556}
+  .chip button{
+    border:none;cursor:pointer;width:20px;height:20px;border-radius:999px;
+    background:rgba(255,255,255,0.7);color:inherit;font-weight:800;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .chip-input-row{display:flex;gap:8px;margin-top:8px}
+  .chip-input-row input{flex:1}
+
+  /* Canonical option picker (niche / vtuber / forms / platforms / goals / voice) */
+  .opt-row{display:flex;flex-wrap:wrap;gap:8px}
+  .opt-chip{
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.85);color:var(--ink-soft);
+    font-family:inherit;font-weight:700;font-size:13px;
+    padding:7px 14px;border-radius:999px;cursor:pointer;
+    transition:transform .1s, background .15s, color .15s, border-color .15s;
+  }
+  .opt-chip:hover{transform:translateY(-1px);background:#fff}
+  .opt-chip.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.5),rgba(144,165,255,0.4));
+    color:var(--deep);border-color:rgba(144,165,255,0.7);
+  }
+
+  /* List rows (series / links / facts) */
+  .list{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .list-row{
+    display:flex;gap:10px;align-items:flex-start;
+    background:rgba(255,255,255,0.6);
+    border:1px solid rgba(255,255,255,0.95);
+    border-radius:14px;padding:12px 14px;
+  }
+  .list-row .grow{flex:1;display:flex;flex-direction:column;gap:8px}
+  .list-row .del{
+    border:none;cursor:pointer;background:rgba(255,138,168,0.18);color:#a23556;
+    font-weight:800;border-radius:10px;padding:8px 11px;font-size:13px;flex:none;
+  }
+  .list-row .del:hover{background:rgba(255,138,168,0.32)}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:560px){.two-col{grid-template-columns:1fr}}
+  .add-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+  /* Empty state */
+  .empty{
+    text-align:center;padding:18px;color:var(--ink-soft);font-size:13.5px;
+    background:rgba(255,255,255,0.5);
+    border:1.5px dashed rgba(144,165,255,0.3);border-radius:14px;
+  }
+
+  /* Creator brief preview */
+  .preview-card{
+    background:linear-gradient(180deg, rgba(77,91,192,0.06), rgba(107,228,234,0.06));
+    border:1.5px solid rgba(144,165,255,0.35);
+  }
+  .preview-card h2{color:var(--deep)}
+  pre.preview{
+    white-space:pre-wrap;word-wrap:break-word;
+    background:rgba(255,255,255,0.92);border-radius:14px;
+    border:1px solid rgba(144,165,255,0.25);
+    padding:16px 18px;margin:10px 0 0;
+    font-family:'Quicksand',ui-monospace,monospace;font-size:13.5px;line-height:1.6;color:var(--ink);
+    max-height:340px;overflow:auto;
+  }
+  .preview-actions{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .save-state{font-size:12.5px;color:var(--ink-soft)}
+
+  /* Auth pill */
+  .auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;
+    border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+    transition:transform .15s, filter .15s;
+  }
+  .auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .auth-pill.signed-in{
+    background:rgba(255,255,255,0.95);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);font-weight:700;
+  }
+
+  /* Modal */
+  .modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .modal-bg.open{display:flex}
+  .modal{
+    background:rgba(255,255,255,0.97);border-radius:22px;
+    padding:24px 26px;max-width:560px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+  }
+  .modal h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+  .modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+  .modal-actions{
+    display:flex;gap:10px;justify-content:flex-end;
+    margin-top:18px;padding-top:14px;
+    border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap;
+  }
+
+  /* Status banner */
+  .status-banner{margin:10px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;}
+  .status-banner.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+  .status-banner.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .status-banner.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+
+  footer{text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5;}
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+  footer a:hover{color:var(--pink-hot)}
+</style>
+</head>
+<body>
+
+<button id="authPill" class="auth-pill" title="Sign in to sync your Creator Memory across devices">🔓 Sign in to sync</button>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="planner.html" class="back-link">📅 Planner</a>
+    <a href="todo.html" class="back-link">✓ Tasks</a>
+    <a href="habits.html" class="back-link">🌱 Habits</a>
+    <a href="review.html" class="back-link">🌸 Review</a>
+    <a href="ask.html" class="back-link">🔮 Ask</a>
+    <a href="analyzer.html" class="back-link">🎯 Optimizer</a>
+    <a href="growth.html" class="back-link">🌱 Playbook</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Creator Memory 🧠</h1>
+    <p class="tag">One place that remembers <em>who you are</em> — your voice, your audience, your series, the words you live by and the ones you ban. Every tool reads from it to stay on-brand and sound like <em>you</em> instead of guessing. Borrowed from Odysseus' memory idea, rebuilt for your hub.</p>
+  </header>
+
+  <!-- IDENTITY -->
+  <div class="card">
+    <h2>You + your brand</h2>
+    <p class="hint">The basics any assistant (or collaborator) should know before writing a single word as you.</p>
+    <div class="field-grid">
+      <div class="field">
+        <label>Creator name</label>
+        <input type="text" id="f_creator_name" data-profile="creator_name" placeholder="e.g. Eggie" />
+      </div>
+      <div class="field">
+        <label>Pronouns</label>
+        <input type="text" id="f_pronouns" data-profile="pronouns" placeholder="e.g. she/her" />
+      </div>
+      <div class="field full">
+        <label>One-line tagline <span class="sub">— how you'd describe yourself in a sentence</span></label>
+        <input type="text" id="f_tagline" data-profile="tagline" placeholder="e.g. A cozy octopus VTuber making chill art + gaming shorts" />
+      </div>
+      <div class="field full">
+        <label>Overall vibe <span class="sub">— the feeling your content gives off</span></label>
+        <input type="text" id="f_vibe" data-profile="vibe" placeholder="e.g. soft, witty, a little chaotic, never mean" />
+      </div>
+      <div class="field full">
+        <label>Who you're talking to <span class="sub">— your audience</span></label>
+        <textarea id="f_audience" data-profile="audience" placeholder="e.g. Gen-Z + millennial VTuber fans, cozy-gamer crowd, people who like low-pressure streams"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNEL BASICS (engine profile — read by the Analyzer) -->
+  <div class="card">
+    <h2>Channel basics</h2>
+    <p class="hint">Your lane, format and platforms. The <a href="analyzer.html" style="color:var(--deep);font-weight:700">Optimizer</a> reads these to score titles + suggest hashtags that fit <em>your</em> channel — so set them once here.</p>
+
+    <div class="field full" style="margin-bottom:14px">
+      <label>Primary niche <span class="sub">— pick one, your main lane</span></label>
+      <div class="opt-row" data-opt="niche_primary" data-mode="single" id="opt_niche_primary"></div>
+    </div>
+    <div class="field full" style="margin-bottom:14px">
+      <label>VTuber style <span class="sub">— if applicable</span></label>
+      <div class="opt-row" data-opt="vtuber_type" data-mode="single" id="opt_vtuber_type"></div>
+    </div>
+    <div class="field full" style="margin-bottom:14px">
+      <label>Content forms <span class="sub">— pick all that fit</span></label>
+      <div class="opt-row" data-opt="content_forms" data-mode="multi" id="opt_content_forms"></div>
+    </div>
+    <div class="field full" style="margin-bottom:14px">
+      <label>Platforms <span class="sub">— where you post</span></label>
+      <div class="opt-row" data-opt="platforms" data-mode="multi" id="opt_platforms"></div>
+    </div>
+    <div class="field full">
+      <label>Working toward <span class="sub">— optional goals</span></label>
+      <div class="opt-row" data-opt="goals" data-mode="multi" id="opt_goals"></div>
+    </div>
+  </div>
+
+  <!-- VOICE -->
+  <div class="card">
+    <h2>Your voice</h2>
+    <p class="hint">Tone, catchphrases, and how you use emoji. This is what makes generated copy sound like <em>you</em> — and the tone chips also feed the Optimizer's title scoring.</p>
+
+    <div class="field full" style="margin-bottom:14px">
+      <label>Voice / tone <span class="sub">— pick the vibes that fit (1–3)</span></label>
+      <div class="opt-row" data-opt="voice_tone" data-mode="multi" id="opt_voice_tone"></div>
+    </div>
+
+    <div class="field full" style="margin-bottom:14px">
+      <label>Extra tone words <span class="sub">— optional, free text for nuance</span></label>
+      <div class="chips" id="chips_adjectives"></div>
+      <div class="chip-input-row">
+        <input type="text" id="in_adjectives" placeholder="e.g. cozy, deadpan, earnest + Enter" />
+        <button class="btn small" type="button" data-add-chip="adjectives">＋ Add</button>
+      </div>
+    </div>
+
+    <div class="field full" style="margin-bottom:14px">
+      <label>Signature phrases <span class="sub">— things you actually say</span></label>
+      <div class="chips" id="chips_signature_phrases"></div>
+      <div class="chip-input-row">
+        <input type="text" id="in_signature_phrases" placeholder="e.g. 'welcome to the cult', 'stay cozy' + Enter" />
+        <button class="btn small" type="button" data-add-chip="signature_phrases">＋ Add</button>
+      </div>
+    </div>
+
+    <div class="field full">
+      <label>Emoji style <span class="sub">— which ones, how heavy</span></label>
+      <input type="text" id="f_emoji_style" data-profile="emoji_style" placeholder="e.g. 🐙🌸✨ — a couple per post, never spammy" />
+    </div>
+  </div>
+
+  <!-- WORD BANK -->
+  <div class="card">
+    <h2>Word bank</h2>
+    <p class="hint">Words to lean into, and words to never use. Your analyzer and planner can check copy against these.</p>
+    <div class="field-grid">
+      <div class="field">
+        <label>✅ Always-OK words <span class="sub">— on-brand language</span></label>
+        <div class="chips" id="chips_always_words"></div>
+        <div class="chip-input-row">
+          <input type="text" id="in_always_words" placeholder="e.g. cozy, gremlin, shenanigans + Enter" />
+          <button class="btn small" type="button" data-add-chip="always_words">＋ Add</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>🚫 Never-use words <span class="sub">— off-brand / banned</span></label>
+        <div class="chips" id="chips_never_words"></div>
+        <div class="chip-input-row">
+          <input type="text" id="in_never_words" placeholder="e.g. 'guys', clickbait words + Enter" />
+          <button class="btn small" type="button" data-add-chip="never_words">＋ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERIES -->
+  <div class="card">
+    <h2>Recurring series + formats</h2>
+    <p class="hint">The shows and formats you make on repeat — so naming, framing and titles stay consistent.</p>
+    <div class="list" id="list_series"></div>
+    <div class="add-row">
+      <button class="btn secondary small" type="button" id="addSeriesBtn">＋ Add a series / format</button>
+    </div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="card">
+    <h2>Links worth remembering</h2>
+    <p class="hint">Socials, Discord, schedule, media kit — anything you'd want an assistant to drop in or reference.</p>
+    <div class="list" id="list_links"></div>
+    <div class="add-row">
+      <button class="btn secondary small" type="button" id="addLinkBtn">＋ Add a link</button>
+    </div>
+  </div>
+
+  <!-- STREAM DAY: SCHEDULE + SPONSORS -->
+  <div class="card">
+    <h2>Stream day — schedule + sponsors</h2>
+    <p class="hint">Used to auto-fill paste-ready stream descriptions in the <a href="analyzer.html" style="color:var(--deep);font-weight:700">Optimizer</a> (and pitches). Set it once here.</p>
+    <div class="field full" style="margin-bottom:14px">
+      <label>Stream schedule <span class="sub">— one line, however you say it</span></label>
+      <input type="text" id="f_stream_schedule" data-profile="stream_schedule" placeholder="e.g. Mon / Wed / Fri · 4–6 PM EDT · Twitch + YouTube" />
+    </div>
+    <div class="field full">
+      <label>Sponsors + codes <span class="sub">— one per line: Name | https://link | CODE</span></label>
+      <textarea id="f_sponsors" data-profile="sponsors" rows="4" placeholder="GamerSupps | https://gamersupps.gg | SUCKEGG&#10;Stoneforged PCs | https://stoneforged.tech/SUCKEGG | SUCKEGG"></textarea>
+    </div>
+  </div>
+
+  <!-- FACTS -->
+  <div class="card">
+    <h2>Anything else worth remembering</h2>
+    <p class="hint">Freeform facts — boundaries, lore, schedule, sponsor no-gos, inside jokes. The catch-all memory.</p>
+    <div class="list" id="list_facts"></div>
+    <div class="add-row">
+      <button class="btn secondary small" type="button" id="addFactBtn">＋ Add a fact</button>
+    </div>
+  </div>
+
+  <!-- CREATOR BRIEF PREVIEW -->
+  <div class="card preview-card">
+    <h2>What your tools know about you 🔮</h2>
+    <p class="hint">This is the exact "this is me" brief your tools read from. Copy it whenever you need your details in one place — paste it into a doc, a pitch, anywhere. It updates live as you edit above.</p>
+    <pre class="preview" id="contextPreview"></pre>
+    <div class="preview-actions">
+      <button class="btn" type="button" id="copyContextBtn">📋 Copy brief</button>
+      <span class="save-state" id="saveState">Saved locally</span>
+    </div>
+  </div>
+
+  <footer>
+    🧠 Creator Memory — part of <a href="index.html">Eggie's Creator Hub</a>.
+    Lives in your browser; sign in to sync across devices.
+  </footer>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="authModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2>📬 Sign in to sync</h2>
+    <p style="font-size:14px;color:var(--ink);margin:0 0 10px;line-height:1.55">
+      Magic link, no password. Your Creator Memory will sync automatically once you're in — pick up where you left off on any device.
+    </p>
+    <label for="emailInput">Email</label>
+    <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+    <div id="authStatus" class="status-banner hidden"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="authCancel">Cancel</button>
+      <button class="btn" id="authSend">📬 Send magic link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG + STATE
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+const STORAGE_KEY = 'eggie.brandmemory.v1';
+
+const CHIP_FIELDS = ['adjectives','signature_phrases','always_words','never_words'];
+const PROFILE_TEXT_FIELDS = ['creator_name','pronouns','tagline','vibe','emoji_style','audience','stream_schedule','sponsors'];
+// Canonical option fields — values MUST match analyzer.html PROFILE_OPTIONS so the
+// Optimizer can read them straight off this row. single vs multi noted below.
+const OPT_SINGLE = ['niche_primary','vtuber_type'];
+const OPT_MULTI  = ['content_forms','platforms','goals','voice_tone'];
+const PROFILE_OPTIONS = {
+  niche_primary: [
+    {v:'gaming', l:'🎮 Gaming'}, {v:'chatting', l:'💬 Just Chatting'}, {v:'art', l:'🎨 Art / Creative'},
+    {v:'music', l:'🎵 Music'}, {v:'variety', l:'✨ Variety'}, {v:'tech', l:'💻 Tech'},
+    {v:'lifestyle', l:'🌿 Lifestyle / Vlog'}, {v:'irl', l:'📱 IRL'}, {v:'asmr', l:'🌙 ASMR'}, {v:'vrchat', l:'🕶️ VRChat'}
+  ],
+  vtuber_type: [
+    {v:'pngtuber', l:'🖼️ PNGtuber'}, {v:'2d_live2d', l:'✨ 2D Live2D'}, {v:'3d', l:'🪩 3D / VTube Studio'},
+    {v:'irl', l:'📷 IRL (no avatar)'}, {v:'none', l:'❌ N/A'}
+  ],
+  content_forms: [
+    {v:'shorts', l:'📱 Shorts'}, {v:'long-form', l:'📺 Long-form'}, {v:'livestream', l:'🔴 Livestream'}
+  ],
+  platforms: [
+    {v:'youtube', l:'📺 YouTube'}, {v:'twitch', l:'🟣 Twitch'}, {v:'tiktok', l:'🎵 TikTok'},
+    {v:'instagram', l:'📷 Instagram'}, {v:'x', l:'🐦 X / Twitter'}, {v:'kick', l:'💚 Kick'}
+  ],
+  goals: [
+    {v:'subscribers', l:'📈 Grow subs'}, {v:'watch-time', l:'⏱️ More watch-time'}, {v:'community', l:'💬 Tight community'},
+    {v:'brand-deals', l:'🤝 Brand deals'}, {v:'algorithm-pickup', l:'🚀 Algorithm pickup'}
+  ],
+  voice_tone: [
+    {v:'chaotic', l:'⚡ Chaotic'}, {v:'chill', l:'🌊 Chill'}, {v:'energetic', l:'🔥 Energetic'},
+    {v:'wholesome', l:'💗 Wholesome'}, {v:'edgy', l:'🌑 Edgy'}, {v:'dry-humor', l:'☕ Dry humor'},
+    {v:'sweet', l:'🍰 Sweet'}, {v:'sharp', l:'🗡️ Sharp / witty'}
+  ]
+};
+function optLabel(field, v){ const o = (PROFILE_OPTIONS[field]||[]).find(x => x.v === v); return o ? o.l.replace(/^[^\s]+\s/,'') : v; }
+
+let state = {
+  profile: {
+    creator_name:'', pronouns:'', tagline:'', vibe:'', emoji_style:'', audience:'', stream_schedule:'', sponsors:'',
+    adjectives:[], signature_phrases:[], always_words:[], never_words:[],
+    // canonical engine fields (read by the analyzer)
+    niche_primary:'', vtuber_type:'', content_forms:[], platforms:[], goals:[], voice_tone:[]
+  },
+  series: [],   // { id, name, desc }
+  links: [],    // { id, label, url }
+  facts: [],    // { id, text }
+  settings: {}
+};
+
+let sb = null;
+let currentUser = null;
+
+function uid(){ return 'm-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7); }
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s); }
+
+// ============================================================
+//  PERSISTENCE — localStorage + optional Supabase sync
+// ============================================================
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const p = JSON.parse(raw);
+      state = {
+        ...state, ...p,
+        profile: { ...state.profile, ...(p.profile || {}) },
+        series: Array.isArray(p.series) ? p.series : [],
+        links: Array.isArray(p.links) ? p.links : [],
+        facts: Array.isArray(p.facts) ? p.facts : []
+      };
+      // ensure chip arrays exist
+      [...CHIP_FIELDS, ...OPT_MULTI].forEach(f => { if(!Array.isArray(state.profile[f])) state.profile[f] = []; });
+    }
+  }catch(e){ console.warn('localStorage load failed', e); }
+}
+function saveLocal(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn('localStorage save failed', e); }
+}
+
+async function loadSupabase(){
+  if(!sb || !currentUser) return;
+  const { data, error } = await sb.from('planner_brand_memory')
+    .select('*').eq('user_id', currentUser.id).maybeSingle();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('brand memory table missing — run planner-brand-memory.sql to enable sync.');
+      return;
+    }
+    console.error('Creator Memory load failed', error);
+    return;
+  }
+  if(!data){ await saveSupabase(); return; }   // nothing on server yet → seed it from local
+  state = {
+    ...state,
+    profile: { ...state.profile, ...(data.profile || {}) },
+    series: Array.isArray(data.series) ? data.series : [],
+    links: Array.isArray(data.links) ? data.links : [],
+    facts: Array.isArray(data.facts) ? data.facts : [],
+    settings: data.settings || state.settings
+  };
+  [...CHIP_FIELDS, ...OPT_MULTI].forEach(f => { if(!Array.isArray(state.profile[f])) state.profile[f] = []; });
+  saveLocal();
+  render();
+}
+
+let saveTimer = null;
+async function saveSupabase(){
+  if(!sb || !currentUser) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const payload = {
+      user_id: currentUser.id,
+      profile: state.profile,
+      series: state.series,
+      links: state.links,
+      facts: state.facts,
+      settings: state.settings,
+      updated_at: new Date().toISOString()
+    };
+    // onConflict:user_id — this table is keyed by user_id, not id
+    const { error } = await sb.from('planner_brand_memory').upsert(payload, { onConflict: 'user_id' });
+    if(error) console.error('Creator Memory sync failed', error);
+  }, 600);
+}
+
+function persist(){
+  saveLocal();
+  saveSupabase();
+  const ss = document.getElementById('saveState');
+  if(ss) ss.textContent = currentUser ? 'Saved + syncing ☁️' : 'Saved locally';
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function render(){
+  // text fields
+  PROFILE_TEXT_FIELDS.forEach(f => {
+    const el = document.querySelector('[data-profile="'+f+'"]');
+    if(el && el.value !== (state.profile[f] || '')) el.value = state.profile[f] || '';
+  });
+  // chip fields
+  CHIP_FIELDS.forEach(renderChips);
+  // canonical option pickers
+  [...OPT_SINGLE, ...OPT_MULTI].forEach(renderOptRow);
+  renderSeries();
+  renderLinks();
+  renderFacts();
+  updatePreview();
+}
+
+function renderChips(field){
+  const box = document.getElementById('chips_' + field);
+  if(!box) return;
+  const list = state.profile[field] || [];
+  const ban = (field === 'never_words');
+  box.innerHTML = list.map((v, i) =>
+    '<span class="chip'+(ban?' ban':'')+'">'+escapeHtml(v)+
+    '<button type="button" data-rm-chip="'+field+'" data-i="'+i+'" aria-label="Remove">✕</button></span>'
+  ).join('');
+}
+
+function renderOptRow(field){
+  const box = document.getElementById('opt_' + field);
+  if(!box) return;
+  const single = OPT_SINGLE.includes(field);
+  const sel = single ? (state.profile[field] || '') : (Array.isArray(state.profile[field]) ? state.profile[field] : []);
+  box.innerHTML = (PROFILE_OPTIONS[field] || []).map(o => {
+    const on = single ? (sel === o.v) : sel.includes(o.v);
+    return '<button type="button" class="opt-chip'+(on?' active':'')+'" data-opt-field="'+field+'" data-val="'+escapeAttr(o.v)+'">'+o.l+'</button>';
+  }).join('');
+}
+
+function toggleOpt(field, val){
+  if(OPT_SINGLE.includes(field)){
+    state.profile[field] = (state.profile[field] === val) ? '' : val;   // click again to clear
+  } else {
+    if(!Array.isArray(state.profile[field])) state.profile[field] = [];
+    const i = state.profile[field].indexOf(val);
+    if(i > -1) state.profile[field].splice(i, 1); else state.profile[field].push(val);
+  }
+  renderOptRow(field);
+  updatePreview();
+  persist();
+}
+
+function renderSeries(){
+  const box = document.getElementById('list_series');
+  if(!state.series.length){ box.innerHTML = '<div class="empty">No series yet — add your repeat formats (e.g. "Cozy Art Streams", "Cursed Game Reviews").</div>'; return; }
+  box.innerHTML = state.series.map(s =>
+    '<div class="list-row" data-id="'+s.id+'">'+
+      '<div class="grow">'+
+        '<input type="text" data-series="name" data-id="'+s.id+'" value="'+escapeAttr(s.name)+'" placeholder="Series / format name" />'+
+        '<textarea data-series="desc" data-id="'+s.id+'" placeholder="What it is, format, vibe, length…">'+escapeHtml(s.desc||'')+'</textarea>'+
+      '</div>'+
+      '<button class="del" type="button" data-del-series="'+s.id+'">✕</button>'+
+    '</div>'
+  ).join('');
+}
+
+function renderLinks(){
+  const box = document.getElementById('list_links');
+  if(!state.links.length){ box.innerHTML = '<div class="empty">No links yet — add socials, Discord, schedule, media kit…</div>'; return; }
+  box.innerHTML = state.links.map(l =>
+    '<div class="list-row" data-id="'+l.id+'">'+
+      '<div class="grow"><div class="two-col">'+
+        '<input type="text" data-link="label" data-id="'+l.id+'" value="'+escapeAttr(l.label)+'" placeholder="Label (e.g. Discord)" />'+
+        '<input type="url" data-link="url" data-id="'+l.id+'" value="'+escapeAttr(l.url)+'" placeholder="https://…" />'+
+      '</div></div>'+
+      '<button class="del" type="button" data-del-link="'+l.id+'">✕</button>'+
+    '</div>'
+  ).join('');
+}
+
+function renderFacts(){
+  const box = document.getElementById('list_facts');
+  if(!state.facts.length){ box.innerHTML = '<div class="empty">No extra facts yet — boundaries, lore, sponsor no-gos, schedule…</div>'; return; }
+  box.innerHTML = state.facts.map(f =>
+    '<div class="list-row" data-id="'+f.id+'">'+
+      '<div class="grow"><textarea data-fact="text" data-id="'+f.id+'" placeholder="One thing to remember…">'+escapeHtml(f.text||'')+'</textarea></div>'+
+      '<button class="del" type="button" data-del-fact="'+f.id+'">✕</button>'+
+    '</div>'
+  ).join('');
+}
+
+// ============================================================
+//  CREATOR BRIEF BUILDER — turns the saved memory into a clean profile string
+// ============================================================
+function buildContext(){
+  const p = state.profile;
+  const lines = [];
+  const name = (p.creator_name || '').trim() || 'This creator';
+  lines.push('# Creator briefing');
+  let who = name;
+  if(p.pronouns) who += ' (' + p.pronouns.trim() + ')';
+  if(p.tagline) who += ' — ' + p.tagline.trim();
+  lines.push(who + '.');
+  if(p.vibe) lines.push('Overall vibe: ' + p.vibe.trim() + '.');
+  if(p.audience) lines.push('Audience: ' + p.audience.trim() + '.');
+
+  // Channel basics
+  const basics = [];
+  if(p.niche_primary) basics.push('Niche: ' + optLabel('niche_primary', p.niche_primary));
+  if(p.vtuber_type && p.vtuber_type !== 'none') basics.push('VTuber style: ' + optLabel('vtuber_type', p.vtuber_type));
+  if((p.content_forms||[]).length) basics.push('Formats: ' + p.content_forms.map(v=>optLabel('content_forms',v)).join(', '));
+  if((p.platforms||[]).length) basics.push('Platforms: ' + p.platforms.map(v=>optLabel('platforms',v)).join(', '));
+  if((p.goals||[]).length) basics.push('Goals: ' + p.goals.map(v=>optLabel('goals',v)).join(', '));
+  if(basics.length) lines.push('\n## Channel\n' + basics.map(b => '- ' + b).join('\n'));
+
+  // Voice
+  const toneWords = [].concat((p.voice_tone||[]).map(v=>optLabel('voice_tone',v)), (p.adjectives||[]));
+  const voiceLines = [];
+  if(toneWords.length) voiceLines.push('Tone: ' + toneWords.join(', ') + '.');
+  if((p.signature_phrases||[]).length) voiceLines.push('Signature phrases: ' + p.signature_phrases.map(s=>'"'+s+'"').join(', ') + '.');
+  if(p.emoji_style) voiceLines.push('Emoji style: ' + p.emoji_style.trim() + '.');
+  if(voiceLines.length) lines.push('\n## Voice\n' + voiceLines.join('\n'));
+
+  if((p.always_words||[]).length || (p.never_words||[]).length){
+    lines.push('\n## Word bank');
+    if((p.always_words||[]).length) lines.push('Lean into: ' + p.always_words.join(', ') + '.');
+    if((p.never_words||[]).length) lines.push('Never use: ' + p.never_words.join(', ') + '.');
+  }
+
+  const series = state.series.filter(s => (s.name||'').trim());
+  if(series.length){
+    lines.push('\n## Recurring series');
+    series.forEach(s => lines.push('- ' + s.name.trim() + (s.desc ? ': ' + s.desc.trim() : '')));
+  }
+
+  const links = state.links.filter(l => (l.url||'').trim() || (l.label||'').trim());
+  if(links.length){
+    lines.push('\n## Links');
+    links.forEach(l => lines.push('- ' + (l.label||'link').trim() + ': ' + (l.url||'').trim()));
+  }
+
+  // Stream day
+  const streamDay = [];
+  if((p.stream_schedule||'').trim()) streamDay.push('Schedule: ' + p.stream_schedule.trim());
+  if((p.sponsors||'').trim()){
+    const sp = p.sponsors.split('\n').map(s=>s.trim()).filter(Boolean)
+      .map(line => { const parts = line.split('|').map(x=>x.trim()); return parts[0] + (parts[1]?' ('+parts[1]+')':'') + (parts[2]?' — code '+parts[2]:''); });
+    if(sp.length) streamDay.push('Sponsors: ' + sp.join('; '));
+  }
+  if(streamDay.length) lines.push('\n## Stream day\n' + streamDay.map(s=>'- '+s).join('\n'));
+
+  const facts = state.facts.filter(f => (f.text||'').trim());
+  if(facts.length){
+    lines.push('\n## Also remember');
+    facts.forEach(f => lines.push('- ' + f.text.trim()));
+  }
+
+  return lines.join('\n');
+}
+
+function updatePreview(){
+  const el = document.getElementById('contextPreview');
+  const ctx = buildContext();
+  el.textContent = ctx.trim() || 'Fill anything in above and your creator brief builds itself here…';
+}
+
+// ============================================================
+//  EDIT ACTIONS
+// ============================================================
+function addChip(field, value){
+  const v = (value || '').trim();
+  if(!v) return;
+  if(!Array.isArray(state.profile[field])) state.profile[field] = [];
+  // case-insensitive de-dupe
+  if(state.profile[field].some(x => x.toLowerCase() === v.toLowerCase())) return;
+  state.profile[field].push(v);
+  renderChips(field);
+  updatePreview();
+  persist();
+}
+function removeChip(field, i){
+  if(!Array.isArray(state.profile[field])) return;
+  state.profile[field].splice(i, 1);
+  renderChips(field);
+  updatePreview();
+  persist();
+}
+
+function addSeries(){ state.series.push({ id:uid(), name:'', desc:'' }); renderSeries(); persist(); }
+function addLink(){ state.links.push({ id:uid(), label:'', url:'' }); renderLinks(); persist(); }
+function addFact(){ state.facts.push({ id:uid(), text:'' }); renderFacts(); persist(); }
+
+function byId(arr, id){ return arr.find(x => x.id === id); }
+
+// ============================================================
+//  EVENT WIRING (delegated — survives re-renders)
+// ============================================================
+function wireEvents(){
+  // profile text inputs
+  PROFILE_TEXT_FIELDS.forEach(f => {
+    const el = document.querySelector('[data-profile="'+f+'"]');
+    if(el) el.addEventListener('input', () => { state.profile[f] = el.value; updatePreview(); persist(); });
+  });
+
+  // chip add buttons + enter-to-add
+  CHIP_FIELDS.forEach(f => {
+    const input = document.getElementById('in_' + f);
+    if(input){
+      input.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ','){ e.preventDefault(); addChip(f, input.value); input.value=''; }
+      });
+    }
+  });
+
+  // delegated clicks
+  document.addEventListener('click', e => {
+    const t = e.target;
+    if(t.matches('[data-opt-field]')){
+      toggleOpt(t.getAttribute('data-opt-field'), t.getAttribute('data-val'));
+    } else if(t.matches('[data-add-chip]')){
+      const f = t.getAttribute('data-add-chip');
+      const input = document.getElementById('in_' + f);
+      addChip(f, input.value); input.value=''; input.focus();
+    } else if(t.matches('[data-rm-chip]')){
+      removeChip(t.getAttribute('data-rm-chip'), parseInt(t.getAttribute('data-i'), 10));
+    } else if(t.matches('[data-del-series]')){
+      state.series = state.series.filter(s => s.id !== t.getAttribute('data-del-series')); renderSeries(); updatePreview(); persist();
+    } else if(t.matches('[data-del-link]')){
+      state.links = state.links.filter(l => l.id !== t.getAttribute('data-del-link')); renderLinks(); updatePreview(); persist();
+    } else if(t.matches('[data-del-fact]')){
+      state.facts = state.facts.filter(f => f.id !== t.getAttribute('data-del-fact')); renderFacts(); updatePreview(); persist();
+    }
+  });
+
+  // delegated inputs for list rows
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if(t.matches('[data-series]')){
+      const s = byId(state.series, t.getAttribute('data-id')); if(s){ s[t.getAttribute('data-series')] = t.value; updatePreview(); persist(); }
+    } else if(t.matches('[data-link]')){
+      const l = byId(state.links, t.getAttribute('data-id')); if(l){ l[t.getAttribute('data-link')] = t.value; updatePreview(); persist(); }
+    } else if(t.matches('[data-fact]')){
+      const f = byId(state.facts, t.getAttribute('data-id')); if(f){ f.text = t.value; updatePreview(); persist(); }
+    }
+  });
+
+  document.getElementById('addSeriesBtn').addEventListener('click', addSeries);
+  document.getElementById('addLinkBtn').addEventListener('click', addLink);
+  document.getElementById('addFactBtn').addEventListener('click', addFact);
+
+  document.getElementById('copyContextBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('copyContextBtn');
+    try{
+      await navigator.clipboard.writeText(buildContext());
+      const old = btn.innerHTML; btn.innerHTML = '✅ Copied!';
+      setTimeout(() => btn.innerHTML = old, 1600);
+    }catch(e){
+      // fallback
+      const pre = document.getElementById('contextPreview');
+      const r = document.createRange(); r.selectNode(pre);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      try{ document.execCommand('copy'); }catch(_){}
+      sel.removeAllRanges();
+    }
+  });
+
+  // auth
+  document.getElementById('authPill').addEventListener('click', () => {
+    if(currentUser){
+      if(confirm('Sign out? Your memory stays saved in this browser.')) sb && sb.auth.signOut();
+    } else {
+      document.getElementById('authModal').classList.add('open');
+    }
+  });
+  document.getElementById('authCancel').addEventListener('click', () => document.getElementById('authModal').classList.remove('open'));
+  document.getElementById('authSend').addEventListener('click', sendMagicLink);
+  document.getElementById('authModal').addEventListener('click', e => { if(e.target.id === 'authModal') e.currentTarget.classList.remove('open'); });
+  document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendMagicLink(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') document.getElementById('authModal').classList.remove('open');
+  });
+}
+
+// ============================================================
+//  AUTH (optional — sync to Supabase)
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user) onSignIn(session.user);
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user);
+      else onSignOut();
+    });
+  }catch(e){ console.warn('Supabase init failed', e); }
+}
+
+async function sendMagicLink(){
+  const email = (document.getElementById('emailInput').value || '').trim().toLowerCase();
+  const status = document.getElementById('authStatus');
+  status.classList.remove('hidden');
+  if(!email || !email.includes('@')){
+    status.textContent = 'Please enter a valid email.'; status.className = 'status-banner error';
+    return;
+  }
+  if(window.location.protocol === 'file:'){
+    status.textContent = '⚠️ Magic links require http(s). Open via a local server or your live site.';
+    status.className = 'status-banner error';
+    return;
+  }
+  if(!sb) await initAuth();
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    status.textContent = `⏳ Wait ${wait}s before sending another link — rapid retries trigger Supabase's hourly rate limit.`;
+    status.className = 'status-banner error';
+    return;
+  }
+  const btn = document.getElementById('authSend');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const redirectTo = window.location.origin + window.location.pathname;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  btn.disabled = false; btn.innerHTML = '📬 Send magic link';
+  if(error){
+    const msg = String(error.message || '').toLowerCase();
+    if(/rate limit|too many|429/.test(msg)){
+      status.textContent = '🚦 Email rate limit hit (~30/hour on Supabase\'s built-in mailer). Wait ~1 hour or set up custom SMTP.';
+    } else if(/url|redirect|allowed|allow.?list/.test(msg)){
+      status.textContent = 'Sign-in failed: ' + error.message + '. Add ' + redirectTo + ' to Supabase → Auth → URL Configuration.';
+    } else {
+      status.textContent = 'Sign-in failed: ' + error.message;
+    }
+    status.className = 'status-banner error';
+  } else {
+    localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
+    status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`;
+    status.className = 'status-banner success';
+  }
+}
+
+async function onSignIn(user){
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · syncing`;
+  document.getElementById('authModal').classList.remove('open');
+  document.getElementById('saveState').textContent = 'Saved + syncing ☁️';
+  await loadSupabase();
+}
+
+function onSignOut(){
+  currentUser = null;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in to sync';
+  document.getElementById('saveState').textContent = 'Saved locally';
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+loadLocal();
+wireEvents();
+render();
+initAuth();
+</script>
+
+<script src="hub-nav.js?v=5"></script>
+</body>
+</html>

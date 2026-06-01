@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fef0fb"/>
+      <stop offset="0.52" stop-color="#eaf2ff"/>
+      <stop offset="1" stop-color="#e7fbfc"/>
+    </linearGradient>
+    <linearGradient id="sig" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFB2F0"/>
+      <stop offset="0.55" stop-color="#90A5FF"/>
+      <stop offset="1" stop-color="#6BE4EA"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFB2F0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFB2F0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6BE4EA" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#6BE4EA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#90A5FF" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#90A5FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bub" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#FFDBF7" stop-opacity="0.40"/>
+    </radialGradient>
+    <filter id="lift" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#63AAF4" flood-opacity="0.30"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#63AAF4" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ffffff" flood-opacity="0.85"/>
+    </filter>
+    <symbol id="spark" viewBox="0 0 100 100">
+      <path d="M50 6 C54 36 64 46 94 50 C64 54 54 64 50 94 C46 64 36 54 6 50 C36 46 46 36 50 6 Z" fill="#ffffff"/>
+    </symbol>
+  </defs>
+
+  <!-- background -->
+  <rect width="1080" height="1080" rx="40" fill="url(#bg)"/>
+  <ellipse cx="238" cy="173" rx="820" ry="620" fill="url(#glowA)"/>
+  <ellipse cx="907" cy="324" rx="760" ry="640" fill="url(#glowB)"/>
+  <ellipse cx="756" cy="1037" rx="900" ry="760" fill="url(#glowC)"/>
+
+  <!-- inner frame -->
+  <rect x="34" y="34" width="1012" height="1012" rx="34" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2"/>
+
+  <!-- decorative sparkles -->
+  <use href="#spark" xlink:href="#spark" x="115" y="115" width="70" height="70"/>
+  <use href="#spark" xlink:href="#spark" x="870" y="140" width="60" height="60"/>
+  <use href="#spark" xlink:href="#spark" x="875" y="785" width="70" height="70"/>
+  <use href="#spark" xlink:href="#spark" x="150" y="815" width="50" height="50"/>
+  <use href="#spark" xlink:href="#spark" x="800" y="340" width="38" height="38" opacity="0.85"/>
+  <use href="#spark" xlink:href="#spark" x="235" y="745" width="34" height="34" opacity="0.85"/>
+
+  <!-- decorative bubbles -->
+  <circle cx="300" cy="210" r="25" fill="url(#bub)"/>
+  <circle cx="290" cy="775" r="18" fill="url(#bub)"/>
+  <circle cx="845" cy="560" r="15" fill="url(#bub)"/>
+  <circle cx="792" cy="822" r="22" fill="url(#bub)"/>
+  <circle cx="205" cy="445" r="13" fill="url(#bub)"/>
+
+  <!-- Eggie logo -->
+  <image href="EGGIE LOGOTYPE - BORDER.png" xlink:href="EGGIE LOGOTYPE - BORDER.png"
+         x="210" y="205" width="660" height="375" preserveAspectRatio="xMidYMid meet" filter="url(#glow)"/>
+
+  <!-- x collab node -->
+  <circle cx="540" cy="652" r="46" fill="url(#sig)"/>
+  <circle cx="540" cy="652" r="40" fill="#ffffff" filter="url(#lift)"/>
+  <g stroke="url(#sig)" stroke-width="8" stroke-linecap="round">
+    <line x1="526" y1="638" x2="554" y2="666"/>
+    <line x1="554" y1="638" x2="526" y2="666"/>
+  </g>
+
+  <!-- Beplan lockup card -->
+  <rect x="290" y="730" width="500" height="150" rx="34" fill="#ffffff" fill-opacity="0.94" filter="url(#lift)"/>
+  <svg x="353" y="756" width="98" height="98" viewBox="0 0 375 375">
+    <circle cx="187.5" cy="187.5" r="178" fill="#000000"/>
+    <path fill="#ffffff" d="M 210.464844 153.273438 C 202.464844 150.992188 194.503906 157.03125 194.503906 165.355469 L 194.503906 293.484375 C 194.503906 300.636719 201.160156 305.988281 208.128906 304.34375 C 242.476562 296.253906 268.117188 265.347656 268.117188 228.5625 C 268.117188 192.953125 244.09375 162.859375 210.464844 153.273438 Z M 180.460938 146.476562 L 180.460938 293.484375 C 180.460938 300.636719 173.800781 305.988281 166.835938 304.34375 C 132.488281 296.257812 106.84375 265.347656 106.84375 228.5625 L 106.84375 78.824219 C 106.84375 73.207031 111.972656 68.980469 117.488281 70.050781 C 153.324219 77.011719 180.460938 108.636719 180.460938 146.476562 Z M 180.460938 146.476562 "/>
+  </svg>
+  <text x="477" y="805" dominant-baseline="central"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-weight="700" font-size="76" letter-spacing="-1.5" fill="#0a0a0a">Beplan</text>
+</svg>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<script src="creator-memory.js"></script><!-- shared read-only loader for the single creator profile -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Content Planner 🐙 — Eggie's Creator Hub</title>
@@ -2008,7 +2009,7 @@
     <a href="review.html" class="back-link">🌸 Review</a>
     <a href="ask.html" class="back-link">🔮 Ask</a>
     <a href="finance.html" class="back-link">💰 Finance</a>
-    <a href="analyzer.html" class="back-link">🛠️ Analyzer</a>
+    <a href="analyzer.html" class="back-link">🎯 Optimizer</a>
     <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
     <a href="habits.html" class="back-link">🌸 Habits</a>
     <a href="growth.html" class="back-link">🌱 Playbook</a>
@@ -2250,7 +2251,7 @@
       <div class="post-copy" id="postCopy">
         <p class="pc-intro">
           Fill these out and hit <strong>📋 Copy</strong> next to each line (or <strong>Copy all</strong>) when you go to publish.
-          Same shape as the analyzer — so you can <strong>Open full analyzer with this title</strong> below and have everything ready.
+          Same shape as the Optimizer — so you can <strong>Open the full Optimizer with this title</strong> below and have everything ready.
         </p>
 
         <!-- Title preview — fTitle at the top is the source of truth; this mirrors it for one-click copy -->
@@ -2343,17 +2344,17 @@
         </div>
         <div class="qs-suggestions hidden" id="qsSuggestions"></div>
         <div class="qs-actions">
-          <button type="button" class="btn secondary" id="openFullAnalyzerBtn">🛠️ Open full analyzer with this title</button>
+          <button type="button" class="btn secondary" id="openFullAnalyzerBtn">🎯 Open the full Optimizer with this title</button>
         </div>
       </div>
 
       <div class="modal-row cols-2" style="margin-top:14px">
         <div>
-          <label for="fAnalyzerScore">Analyzer score <span class="opt">(/100, from full run)</span></label>
+          <label for="fAnalyzerScore">Optimizer score <span class="opt">(/100, from full run)</span></label>
           <input id="fAnalyzerScore" type="number" min="0" max="100" placeholder="e.g. 78" />
         </div>
         <div>
-          <label for="fAnalyzerLink">Analyzer link <span class="opt">(your saved run)</span></label>
+          <label for="fAnalyzerLink">Optimizer link <span class="opt">(your saved run)</span></label>
           <input id="fAnalyzerLink" type="url" placeholder="analyzer.html or screenshot link" />
         </div>
       </div>
@@ -2944,7 +2945,7 @@
   </div>
 
   <footer>
-    <a href="index.html">🏠 Hub</a> &middot; <a href="analyzer.html">🛠️ Analyzer</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
+    <a href="index.html">🏠 Hub</a> &middot; <a href="analyzer.html">🎯 Optimizer</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
     Made with 💗 by Eggie &middot; Data lives in your private Supabase — nobody else can read it.
   </footer>
 
@@ -3423,6 +3424,7 @@ function openHubPicker(){
 async function loadItems(){
   setConn(true, 'Loading…');
   if(!currentOwnerId){ items = []; render(); return; }
+  await loadPlannerMem();   // single creator profile → drives the quick-scorer + brand kit
   // V3 — scope to the active hub. Without this filter, managers see BOTH their
   // own items AND every client's items merged together (RLS grants both).
   const { data, error } = await sb
@@ -5252,6 +5254,20 @@ async function openBrandKitModal(){
   $('bkNotes').value = brandKit?.notes || '';
   // V3 — VTuber identity + batch download fields (editor dashboard column header)
   $('bkCreatorName').value = brandKit?.creator_name || '';
+  // Mirror the creator name from the single Creator Memory profile (read-only here)
+  if(!plannerMem) await loadPlannerMem();
+  if(plannerMem && plannerMem.creator_name){
+    const el = $('bkCreatorName');
+    el.value = plannerMem.creator_name;
+    el.readOnly = true; el.style.opacity = '0.7'; el.title = 'Synced from Creator Memory — edit it there';
+    if(!el.dataset.mirrorHinted){
+      el.dataset.mirrorHinted = '1';
+      const hint = document.createElement('div');
+      hint.innerHTML = '🧠 Synced from <a href="brand-memory.html" style="color:var(--deep);font-weight:700">Creator Memory</a>';
+      hint.style.cssText = 'font-size:11px;color:var(--ink-soft,#6b5f8a);margin-top:3px;font-weight:600';
+      el.insertAdjacentElement('afterend', hint);
+    }
+  }
   $('bkBatchUrl').value = brandKit?.batch_download_url || '';
   $('bkBatchDeadline').value = brandKit?.batch_deadline ? toLocalInput(brandKit.batch_deadline) : '';
   $('bkBatchLabel').value = brandKit?.batch_label || '';
@@ -5636,6 +5652,32 @@ async function loadTitlesDb(){
   }
 }
 
+// Single creator profile (planner_brand_memory) — drives niche/never-word scoring.
+let plannerMem = null;
+async function loadPlannerMem(){
+  try{ plannerMem = await CreatorMemory.fetch(sb, currentOwnerId); }catch(e){ plannerMem = null; }
+}
+function plannerNicheTerms(){
+  // Words that count as an "on-niche" signal — your Creator Memory niche + series + always-words,
+  // falling back to the generic VTuber signal when no profile is set.
+  const terms = ['vtuber','vt','vtuberclips','vtuberen'];
+  if(plannerMem){
+    if(plannerMem.niche_primary) CreatorMemory.plainLabel('niche', plannerMem.niche_primary).toLowerCase().split(/[^a-z0-9]+/).forEach(w => w.length>2 && terms.push(w));
+    (plannerMem.series||[]).forEach(s => String(s).toLowerCase().split(/[^a-z0-9]+/).forEach(w => w.length>2 && terms.push(w)));
+    (plannerMem.always_words||[]).forEach(w => terms.push(String(w).toLowerCase()));
+  }
+  return [...new Set(terms.filter(Boolean))];
+}
+function plannerNicheHint(){
+  return (plannerMem && plannerMem.niche_primary) ? '"' + CreatorMemory.plainLabel('niche', plannerMem.niche_primary) + '"' : '"VTuber"';
+}
+function plannerNeverHit(t){
+  const nev = (plannerMem && plannerMem.never_words) || [];
+  const hay = (t||'').toLowerCase();
+  for(const w of nev){ const ww = String(w).toLowerCase().trim(); if(ww && new RegExp('\\b'+ww.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b').test(hay)) return w; }
+  return null;
+}
+
 function quickScoreTitle(title){
   const t = (title || '').trim();
   if(!t) return null;
@@ -5651,9 +5693,13 @@ function quickScoreTitle(title){
   else if(len <= 90){ score += 6; }
   else { score -= 6; tips.push('Over 90 chars — gets truncated on mobile feeds.'); }
 
-  // 2) Has a VTuber niche signal
-  if(/vtuber|vt|vtuberclips|vtuberen/i.test(t)){ score += 8; reasons.push('Has explicit VTuber niche signal'); }
-  else { tips.push('Add "VTuber" or a niche keyword — algorithm picks it up faster.'); }
+  // 2) On-niche signal — tuned to YOUR Creator Memory niche when set
+  const nicheTerms = plannerNicheTerms();
+  if(nicheTerms.some(w => lower.includes(w))){ score += 8; reasons.push('Has an on-niche signal'); }
+  else { tips.push('Add a niche keyword (' + plannerNicheHint() + ') — the algorithm picks it up faster.'); }
+  // 2b) Off-brand check — penalize words on your Creator Memory "never" list
+  const nv = plannerNeverHit(t);
+  if(nv){ score -= 8; tips.push('Uses "' + nv + '" — that\'s on your Creator Memory never-list. Swap it for on-brand wording.'); }
 
   // 3) Template pattern match
   let templateHit = null;
@@ -6130,7 +6176,7 @@ function itemCard(item){
     extrasRow += `<span class="meta-line" title="${item.additional_assets.length} additional asset link(s)">📦 ${item.additional_assets.length}</span>`;
   }
   if(item.analyzer_score != null && item.analyzer_score !== ''){
-    extrasRow += `<span class="meta-line" title="Analyzer score">⭐ ${escape(item.analyzer_score)}</span>`;
+    extrasRow += `<span class="meta-line" title="Optimizer score">⭐ ${escape(item.analyzer_score)}</span>`;
   }
   // V2.12 — Inline star button (toggles is_priority without opening the modal)
   const starred = !!item.is_priority;
@@ -7010,7 +7056,7 @@ function openViewModal(item){
   const links = [];
   if(item.footage_url) links.push({ label:'🎬 Raw footage', url: item.footage_url });
   if(item.editor_files_url) links.push({ label:'📤 Editor folder', url: item.editor_files_url });
-  if(item.analyzer_link) links.push({ label:'🛠️ Analyzer run', url: item.analyzer_link });
+  if(item.analyzer_link) links.push({ label:'🎯 Optimizer run', url: item.analyzer_link });
   (item.additional_assets || []).forEach(a => {
     if(a.url) links.push({ label: '📦 ' + (a.label || 'Asset'), url: a.url });
   });
@@ -7018,7 +7064,7 @@ function openViewModal(item){
     body.push(`<div class="view-section">
       <h4>🔗 Links &amp; assets</h4>
       <div class="view-links">
-        ${links.map(l => `<a class="view-link" href="${escape(l.url)}" target="_blank" rel="noreferrer">
+        ${links.map(l => `<a class="view-link" href="${escape(safeUrl(l.url))}" target="_blank" rel="noreferrer">
           <span class="v-link-label">${escape(l.label)}</span>
           <span class="v-link-url">${escape(l.url)}</span>
         </a>`).join('')}
@@ -7030,7 +7076,7 @@ function openViewModal(item){
     body.push(`<div class="view-section">
       <h4>📎 Uploaded files</h4>
       <div class="view-links">
-        ${item.attachments.map(a => `<a class="view-link" href="${a.url ? escape(a.url) : '#'}" target="_blank" rel="noreferrer"${!a.url ? ' data-expired="1"' : ''}>
+        ${item.attachments.map(a => `<a class="view-link" href="${a.url ? escape(safeUrl(a.url)) : '#'}" target="_blank" rel="noreferrer"${!a.url ? ' data-expired="1"' : ''}>
           <span class="v-link-label">📄 ${escape(a.name || 'file')}</span>
           <span class="v-link-url">${a.size ? formatFileSize(a.size) : (!a.url ? 'link expired — open the edit form to refresh' : '')}</span>
         </a>`).join('')}
@@ -7041,8 +7087,8 @@ function openViewModal(item){
   if(item.thumbnail_url){
     body.push(`<div class="view-section">
       <h4>🖼️ Thumbnail reference</h4>
-      <a href="${escape(item.thumbnail_url)}" target="_blank" rel="noreferrer">
-        <img src="${escape(item.thumbnail_url)}" alt="" class="view-thumb" onerror="this.outerHTML='<div style=&quot;padding:14px;color:var(--ink-soft);font-size:12.5px;font-style:italic&quot;>thumbnail link broken — <a href=&quot;'+this.src+'&quot; target=_blank style=&quot;color:var(--deep)&quot;>open URL</a></div>'" />
+      <a href="${escape(safeUrl(item.thumbnail_url))}" target="_blank" rel="noreferrer">
+        <img src="${escape(safeUrl(item.thumbnail_url))}" alt="" class="view-thumb" onerror="this.outerHTML='<div style=&quot;padding:14px;color:var(--ink-soft);font-size:12.5px;font-style:italic&quot;>thumbnail link broken — <a href=&quot;'+this.src+'&quot; target=_blank style=&quot;color:var(--deep)&quot;>open URL</a></div>'" />
       </a>
     </div>`);
   }
@@ -7293,6 +7339,17 @@ function escape(s){
   return String(s == null ? '' : s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Scheme allow-list for user/editor-supplied URLs rendered into href/src.
+// escape() stops attribute breakout; safeUrl() stops javascript:/data:/vbscript:
+// code-execution links (an editor's footage_url etc. is rendered to the owner).
+function safeUrl(u){
+  const s = String(u == null ? '' : u).trim().replace(/[ -]/g,'');
+  if(!s) return '';
+  if(/^(https?:|mailto:)/i.test(s)) return s;     // allowed schemes
+  if(/^[a-z][a-z0-9+.\-]*:/i.test(s)) return '';  // any other scheme → blocked
+  return s;                                       // scheme-less (relative) → safe
 }
 
 // Convert an ISO string to the format <input type="datetime-local"> expects (no Z, no ms)

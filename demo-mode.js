@@ -99,6 +99,41 @@
         platforms: ['youtube'], hook: 'No clickbait — the real graph.', description: 'Transparency short.',
         is_priority: false, posted_at: nowISO, analyzer_score: 82, attachments: [], additional_assets: [],
         sort: 0, created_at: nowISO }
+    ],
+    // Creator Memory — one user-keyed row so the creator-brief preview feels alive in the sandbox.
+    planner_brand_memory: [
+      { user_id: U,
+        profile: {
+          creator_name: 'Eggie', pronouns: 'she/her',
+          tagline: 'A cozy octopus VTuber making chill art + gaming shorts',
+          vibe: 'soft, witty, a little chaotic, never mean',
+          emoji_style: '🐙🌸✨ — a couple per post, never spammy',
+          audience: 'Gen-Z + millennial VTuber fans, cozy-gamer crowd, people who like low-pressure streams',
+          adjectives: ['warm', 'playful', 'honest', 'cozy'],
+          signature_phrases: ['welcome to the cult', 'stay cozy'],
+          always_words: ['cozy', 'gremlin', 'shenanigans'],
+          never_words: ['guys', 'epic', 'insane'],
+          niche_primary: 'art', vtuber_type: '2d_live2d',
+          content_forms: ['shorts', 'livestream'],
+          platforms: ['youtube', 'tiktok', 'twitch'],
+          goals: ['community', 'algorithm-pickup'],
+          voice_tone: ['chill', 'sweet', 'sharp'],
+          stream_schedule: 'Mon / Wed / Fri · 4–6 PM EDT · Twitch + YouTube',
+          sponsors: 'GamerSupps | https://gamersupps.gg | SUCKEGG\nStoneforged PCs | https://stoneforged.tech/SUCKEGG | SUCKEGG'
+        },
+        series: [
+          { id: 'demo-series-1', name: 'Cozy Art Streams', desc: 'Late-night low-pressure painting, lofi, soft chat.' },
+          { id: 'demo-series-2', name: 'Cursed Game Reviews', desc: 'Short, funny takes on weird indie games. 45-55s.' }
+        ],
+        links: [
+          { id: 'demo-link-1', label: 'Discord', url: 'https://discord.gg/eggie' },
+          { id: 'demo-link-2', label: 'Schedule', url: 'https://eggieweggie.ca/schedule' }
+        ],
+        facts: [
+          { id: 'demo-fact-1', text: 'No horror games with jumpscares — boundary.' },
+          { id: 'demo-fact-2', text: 'Keep heavy venting off the main account; sponsors audit socials.' }
+        ],
+        settings: {}, created_at: nowISO }
     ]
     // Other tables (todos, finance, habits, media kit, etc.) intentionally
     // start empty — the pages handle empty state gracefully.

@@ -115,7 +115,8 @@ CREATE POLICY "editors read own profile" ON planner_editors
 DROP POLICY IF EXISTS "editors update own profile" ON planner_editors;
 CREATE POLICY "editors update own profile" ON planner_editors
   FOR UPDATE
-  USING (email = auth.email());
+  USING (email = auth.email())
+  WITH CHECK (email = auth.email());
 
 -- 4. Extend planner_items policies for editor-facing access
 -- Editors see items where their email matches assignee_email
@@ -127,12 +128,48 @@ CREATE POLICY "editors see assigned items" ON planner_items
     OR assignee_email = auth.email()
   );
 
--- Editors can UPDATE limited fields on items assigned to them
--- (Supabase row-level UPDATE is whole-row; column-level restriction is enforced client-side)
+-- Editors can UPDATE items assigned to them. RLS is whole-row, so we add an
+-- explicit WITH CHECK (an editor must still be the assignee after the write —
+-- this stops them re-pointing the item at another editor) AND a guard trigger
+-- below that locks the identity/ownership columns so an editor can never change
+-- owner_id, id, assignee_email, editor_id, or created_at. Column-level edit
+-- intent is still shaped client-side, but ownership is now enforced server-side.
 DROP POLICY IF EXISTS "editors update assigned items" ON planner_items;
 CREATE POLICY "editors update assigned items" ON planner_items
   FOR UPDATE
-  USING (assignee_email = auth.email());
+  USING (assignee_email = auth.email())
+  WITH CHECK (assignee_email = auth.email());
+
+-- Guard: when the writer is NOT the owner and NOT a manager (i.e. an editor),
+-- silently preserve the protected columns. This closes the item-hijack hole
+-- where an editor could set owner_id = their own uid and steal the row.
+CREATE OR REPLACE FUNCTION planner_items_guard_editor_update()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Owners and managers may change anything.
+  IF auth.uid() = OLD.owner_id OR planner_is_manager_of(OLD.owner_id) THEN
+    RETURN NEW;
+  END IF;
+  -- Everyone else reaching this trigger is an editor (RLS already scoped them
+  -- to rows assigned to their email). Pin the identity columns to their old
+  -- values so they cannot reparent, reassign, or re-key the item.
+  NEW.id            := OLD.id;
+  NEW.owner_id      := OLD.owner_id;
+  NEW.assignee_email := OLD.assignee_email;
+  NEW.editor_id     := OLD.editor_id;
+  NEW.created_at    := OLD.created_at;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS planner_items_guard_editor_update ON planner_items;
+CREATE TRIGGER planner_items_guard_editor_update
+  BEFORE UPDATE ON planner_items
+  FOR EACH ROW EXECUTE FUNCTION planner_items_guard_editor_update();
 
 -- 5. Storage bucket for file uploads
 -- V2.18 — file_size_limit set to 5 GB per file so editors can upload raw 4K stream

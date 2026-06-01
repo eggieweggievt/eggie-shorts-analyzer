@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<script src="creator-memory.js"></script><!-- shared read-only loader for the single creator profile -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Media Kit 💌 — Eggie's Creator Hub</title>
@@ -1652,6 +1653,7 @@ async function loadOwnKit(){
   } else {
     kit = mergeIntoBlank(data);
   }
+  await applyCreatorMemoryMirror();   // overlay name / tagline / niche from Creator Memory
   document.getElementById('authView').classList.add('hidden');
   document.getElementById('modeToggleWrap').classList.remove('hidden');
   document.getElementById('editorActions').classList.remove('hidden');
@@ -1808,6 +1810,34 @@ function closeAuthModal(){ document.getElementById('authModal').classList.remove
 // ============================================================
 //  EDITOR RENDER
 // ============================================================
+// ============================================================
+//  CREATOR MEMORY MIRROR — name / tagline / niche come from the single
+//  creator profile (planner_brand_memory). Live-mirrored + locked here.
+// ============================================================
+let creatorMem = null;
+async function applyCreatorMemoryMirror(){
+  try{ creatorMem = await CreatorMemory.fetch(sb, currentOwnerId); }catch(e){ creatorMem = null; }
+  if(!creatorMem) return;
+  if(creatorMem.creator_name) kit.display_name = creatorMem.creator_name;
+  if(creatorMem.tagline)      kit.tagline = creatorMem.tagline;
+  if(creatorMem.niche_primary) kit.niche_primary = CreatorMemory.plainLabel('niche', creatorMem.niche_primary);
+}
+function lockMirroredInputs(){
+  if(!creatorMem) return;
+  ['ed_display_name','ed_tagline','ed_niche_primary'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.readOnly = true; el.style.opacity = '0.7'; el.style.cursor = 'not-allowed';
+    el.title = 'Synced from Creator Memory — edit it there';
+    if(el.dataset.mirrorHinted) return;
+    el.dataset.mirrorHinted = '1';
+    const hint = document.createElement('div');
+    hint.innerHTML = '🧠 Synced from <a href="brand-memory.html" style="color:var(--deep);font-weight:700">Creator Memory</a> — edit it there';
+    hint.style.cssText = 'font-size:11.5px;color:var(--ink-soft,#6b5f8a);margin-top:3px;font-weight:600';
+    el.insertAdjacentElement('afterend', hint);
+  });
+}
+
 function renderEditor(){
   // Identity
   $('ed_display_name').value = kit.display_name || '';
@@ -1820,6 +1850,7 @@ function renderEditor(){
   $('ed_banner_url').value = kit.banner_url || '';
   $('ed_niche_primary').value = kit.niche_primary || '';
   $('ed_niche_secondary').value = kit.niche_secondary || '';
+  lockMirroredInputs();   // name / tagline / niche are mirrored from Creator Memory
   $('ed_vibe_tags').value = (kit.vibe_tags||[]).join(', ');
   $('ed_contact_email').value = kit.contact_email || '';
   $('ed_booking_link').value = kit.booking_link || '';
@@ -2549,7 +2580,7 @@ function renderPublic(){
   const banner = document.getElementById('kitBanner');
   if(kit.banner_url){
     banner.classList.add('has-image');
-    banner.innerHTML = `<img class="banner-img" src="${escapeAttr(kit.banner_url)}" alt="" onerror="this.parentNode.classList.remove('has-image');this.parentNode.innerHTML='<div class=banner-empty>✨ Banner</div>'" />`;
+    banner.innerHTML = `<img class="banner-img" src="${escapeAttr(safeUrl(kit.banner_url))}" alt="" onerror="this.parentNode.classList.remove('has-image');this.parentNode.innerHTML='<div class=banner-empty>✨ Banner</div>'" />`;
   } else {
     banner.classList.remove('has-image');
     banner.innerHTML = `<div class="banner-empty">✨ Banner image goes here</div>`;
@@ -2560,7 +2591,7 @@ function renderPublic(){
   const mascot = (kit.theme_v2 && kit.theme_v2.mascot) || '🐙';
   const safeMascot = mascot.replace(/'/g, "\\'");
   if(kit.avatar_url){
-    av.innerHTML = `<img src="${escapeAttr(kit.avatar_url)}" alt="" onerror="this.parentNode.innerHTML='${safeMascot}'" />`;
+    av.innerHTML = `<img src="${escapeAttr(safeUrl(kit.avatar_url))}" alt="" onerror="this.parentNode.innerHTML='${safeMascot}'" />`;
   } else av.innerHTML = mascot;
 
   document.getElementById('idName').textContent = kit.display_name || 'Your name here';
@@ -2602,7 +2633,7 @@ function renderPublic(){
         : [['Subscribers', fmtNum(p.subscribers)], ['Avg views', fmtNum(p.avg_views)]];
       const eng = p.engagement_rate ? `<div class="pc-stat"><div class="stat-num">${p.engagement_rate}%</div><div class="stat-label">Engagement</div></div>` : '';
       const upd = p.last_updated ? `<span class="pc-updated">↻ ${niceDate(p.last_updated, true)}</span>` : '';
-      const link = p.url ? `<a class="pc-link" href="${escapeAttr(p.url)}" target="_blank" rel="noopener">Open →</a>` : '';
+      const link = p.url ? `<a class="pc-link" href="${escapeAttr(safeUrl(p.url))}" target="_blank" rel="noopener">Open →</a>` : '';
       return `
         <div class="platform-card">
           ${upd}
@@ -2655,7 +2686,7 @@ function renderPublic(){
   if(kit.top_content?.length){
     cg.innerHTML = kit.top_content.map(c => `
       <div class="content-card">
-        <div class="thumb" style="${c.thumbnail ? `background-image:url('${escapeAttr(c.thumbnail)}')`:''}"></div>
+        <div class="thumb" style="${c.thumbnail ? `background-image:url('${escapeAttr(safeUrl(c.thumbnail))}')`:''}"></div>
         <div class="body">
           <div class="title">${escapeHtml(c.title || '—')}</div>
           <div class="meta">
@@ -2664,7 +2695,7 @@ function renderPublic(){
             ${c.posted_at ? `<span>${escapeHtml(c.posted_at)}</span>` : ''}
           </div>
           ${c.note ? `<div class="muted" style="font-size:12px">${escapeHtml(c.note)}</div>` : ''}
-          ${c.url ? `<a class="open" href="${escapeAttr(c.url)}" target="_blank" rel="noopener">Watch →</a>` : ''}
+          ${c.url ? `<a class="open" href="${escapeAttr(safeUrl(c.url))}" target="_blank" rel="noopener">Watch →</a>` : ''}
         </div>
       </div>`).join('');
   } else cg.innerHTML = '<div class="empty" style="grid-column:1 / -1">No featured content yet.</div>';
@@ -2681,7 +2712,7 @@ function renderPublic(){
         </div>
         ${s.results ? `<div class="sr-results">${escapeHtml(s.results)}</div>` : ''}
         ${s.testimonial ? `<div class="sr-quote">"${escapeHtml(s.testimonial)}"</div>` : ''}
-        ${s.link ? `<div style="margin-top:6px"><a class="open" href="${escapeAttr(s.link)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dotted">See the work →</a></div>` : ''}
+        ${s.link ? `<div style="margin-top:6px"><a class="open" href="${escapeAttr(safeUrl(s.link))}" target="_blank" rel="noopener" style="font-size:12px;color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dotted">See the work →</a></div>` : ''}
       </div>`).join('');
   } else sl.innerHTML = '<div class="empty">No past sponsorships listed.</div>';
 
@@ -2789,7 +2820,7 @@ function renderPublic(){
           </div>
           ${p.blurb ? `<div class="sr-results">${escapeHtml(p.blurb)}</div>` : ''}
           ${code}
-          ${p.link ? `<div style="margin-top:6px"><a href="${escapeAttr(p.link)}" target="_blank" rel="noopener" style="font-size:12.5px;color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dotted">Check them out →</a></div>` : ''}
+          ${p.link ? `<div style="margin-top:6px"><a href="${escapeAttr(safeUrl(p.link))}" target="_blank" rel="noopener" style="font-size:12.5px;color:var(--deep);font-weight:700;text-decoration:none;border-bottom:1.5px dotted">Check them out →</a></div>` : ''}
         </div>`;
     }).join('');
   } else apCard.classList.add('hidden');
@@ -2802,7 +2833,7 @@ function renderPublic(){
     ccCard.classList.remove('hidden');
     ccCloud.innerHTML = collabs.map(c => {
       const inner = `<span class="tag" title="${escapeAttr(c.notes||'')}">${escapeHtml(c.name)}</span>`;
-      return c.link ? `<a href="${escapeAttr(c.link)}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
+      return c.link ? `<a href="${escapeAttr(safeUrl(c.link))}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
     }).join('');
   } else ccCard.classList.add('hidden');
 
@@ -2812,11 +2843,11 @@ function renderPublic(){
   if(grp.name){
     grpCard.classList.remove('hidden');
     const memberHtml = (grp.members||[]).length
-      ? `<p style="margin-top:8px"><strong>Co-members:</strong> ${grp.members.map(m => m.link ? `<a href="${escapeAttr(m.link)}" target="_blank" rel="noopener" style="color:var(--deep);font-weight:700">${escapeHtml(m.name)}</a>` : escapeHtml(m.name)).join(' · ')}</p>`
+      ? `<p style="margin-top:8px"><strong>Co-members:</strong> ${grp.members.map(m => m.link ? `<a href="${escapeAttr(safeUrl(m.link))}" target="_blank" rel="noopener" style="color:var(--deep);font-weight:700">${escapeHtml(m.name)}</a>` : escapeHtml(m.name)).join(' · ')}</p>`
       : '';
     document.getElementById('groupBody').innerHTML = `
       <div class="p-title" style="font-size:18px;font-family:'Pacifico',cursive;font-weight:400">
-        ${grp.link ? `<a href="${escapeAttr(grp.link)}" target="_blank" rel="noopener" style="color:var(--deep);text-decoration:none;border-bottom:1.5px dotted">${escapeHtml(grp.name)}</a>` : escapeHtml(grp.name)}
+        ${grp.link ? `<a href="${escapeAttr(safeUrl(grp.link))}" target="_blank" rel="noopener" style="color:var(--deep);text-decoration:none;border-bottom:1.5px dotted">${escapeHtml(grp.name)}</a>` : escapeHtml(grp.name)}
         ${grp.role ? `<span style="font-family:'Quicksand';font-size:13px;color:var(--ink-soft);font-weight:700;margin-left:8px">— ${escapeHtml(grp.role)}</span>` : ''}
       </div>
       ${grp.blurb ? `<p class="muted" style="margin-top:6px">${escapeHtml(grp.blurb)}</p>` : ''}
@@ -2833,7 +2864,7 @@ function renderPublic(){
       <div class="tag-cloud">${clients.map(c => {
         const t = c.current ? '🟢' : '○';
         const inner = `<span class="tag" title="${escapeAttr([c.role, c.since && 'since '+c.since].filter(Boolean).join(' · '))}">${t} ${escapeHtml(c.name)}</span>`;
-        return c.link ? `<a href="${escapeAttr(c.link)}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
+        return c.link ? `<a href="${escapeAttr(safeUrl(c.link))}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
       }).join('')}</div>
     `;
   } else mgmtCard.classList.add('hidden');
@@ -2846,7 +2877,7 @@ function renderPublic(){
     const kinds = { storefront:'🛍', affiliate:'🔗', partnership:'🤝', 'tip-jar':'☕', other:'✨' };
     document.getElementById('merchList').innerHTML = `
       <div class="service-grid">${merch.map(m => `
-        <a class="service-card" href="${escapeAttr(m.url||'#')}" target="_blank" rel="noopener" style="text-decoration:none">
+        <a class="service-card" href="${escapeAttr(safeUrl(m.url)||'#')}" target="_blank" rel="noopener" style="text-decoration:none">
           <div class="svc-name">${kinds[m.kind]||'✨'} ${escapeHtml(m.label || m.url)}</div>
           ${m.notes ? `<div class="svc-notes">${escapeHtml(m.notes)}</div>` : ''}
         </a>`).join('')}</div>
@@ -2865,7 +2896,7 @@ function renderPublic(){
           ${d.member_count ? `<div class="muted" style="margin-top:2px">${fmtNum(d.member_count)} members</div>` : ''}
           ${d.vibe ? `<div class="muted" style="margin-top:4px;font-style:italic">"${escapeHtml(d.vibe)}"</div>` : ''}
         </div>
-        ${d.invite_url ? `<a class="btn" href="${escapeAttr(d.invite_url)}" target="_blank" rel="noopener">💬 Join the server</a>` : ''}
+        ${d.invite_url ? `<a class="btn" href="${escapeAttr(safeUrl(d.invite_url))}" target="_blank" rel="noopener">💬 Join the server</a>` : ''}
       </div>
     `;
   } else dCard.classList.add('hidden');
@@ -2898,6 +2929,16 @@ function escapeHtml(s){
   return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function escapeAttr(s){ return escapeHtml(s); }
+// Scheme allow-list for creator-supplied URLs rendered into a PUBLIC page.
+// escapeAttr() stops attribute breakout; safeUrl() blocks javascript:/data:/
+// vbscript: links so one creator can't XSS sponsors viewing their media kit.
+function safeUrl(u){
+  const s = String(u==null?'':u).trim();
+  if(!s) return '';
+  if(/^(https?:|mailto:)/i.test(s)) return s;     // allowed schemes
+  if(/^[a-z][a-z0-9+.\-]*:/i.test(s)) return '';  // any other scheme → blocked
+  return s;                                       // scheme-less (relative) → safe
+}
 function parseCommas(s){
   return (s||'').split(',').map(x => x.trim()).filter(Boolean);
 }

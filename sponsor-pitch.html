@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<script src="creator-memory.js"></script><!-- shared read-only loader for the single creator profile -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sponsor Pitch Builder ✉️ — Eggie's Creator Hub</title>
@@ -764,6 +765,7 @@ async function onSignIn(user){
 
   showAppView();
   await loadMediaKit();
+  await loadCreatorMem();   // pull the single creator profile (voice → default pitch tone)
   await loadPitches();
   // Don't render pitch-form UI yet — there's no active pitch until the user
   // clicks "✨ New pitch" or picks one from the sidebar. The render functions
@@ -798,6 +800,12 @@ async function loadMediaKit(){
   const { data } = await sb.from('planner_media_kit')
     .select('*').eq('user_id', currentOwnerId).maybeSingle();
   mediaKit = data || null;
+}
+
+// Single creator profile (planner_brand_memory) — gives new pitches their default voice.
+let creatorMem = null;
+async function loadCreatorMem(){
+  try{ creatorMem = await CreatorMemory.fetch(sb, currentOwnerId); }catch(e){ creatorMem = null; }
 }
 
 async function loadPitches(){
@@ -839,7 +847,7 @@ function blankPitch(){
     id:null,
     name:'', brand_name:'', brand_url:'', brand_description:'',
     sponsorship_type:'paid_integration',
-    tone:'warm',
+    tone:(creatorMem && CreatorMemory.pitchTone(creatorMem)) || 'warm',   // default from your Creator Memory voice
     goals:['paid'],
     audience_fit_notes:'', personal_angle:'',
     deliverables:[], proposed_pricing:'',
@@ -1024,6 +1032,15 @@ function renderToneRow(){
     b.classList.toggle('active', activePitch.tone === b.dataset.tone);
     b.onclick = () => { activePitch.tone = b.dataset.tone; renderToneRow(); };
   });
+  // One-time note: new pitches default to the voice in your Creator Memory.
+  const row = document.getElementById('toneRow');
+  if(creatorMem && row && !document.getElementById('toneMemNote')){
+    const note = document.createElement('div');
+    note.id = 'toneMemNote';
+    note.innerHTML = '🧠 New pitches start from your <a href="brand-memory.html" style="color:var(--deep);font-weight:700">Creator Memory</a> voice — tweak it per brand here.';
+    note.style.cssText = 'font-size:11.5px;color:var(--ink-soft,#6b5f8a);margin:6px 0 0;font-weight:600;flex-basis:100%';
+    row.insertAdjacentElement('afterend', note);
+  }
 }
 
 function renderDeliverables(){
@@ -1459,7 +1476,7 @@ function buildPitchDoc(){
     <h2>Next step</h2>
     <p>${escapeHtml(k.contact_blurb || (k.audience_demographics && k.audience_demographics._blurb) || 'Reply to this email or message — happy to jump on a quick call if it\'s a fit.')}</p>
     ${k.contact_email ? `<p><strong>📧</strong> <a href="mailto:${escapeAttr(k.contact_email)}" style="color:var(--deep);font-weight:700">${escapeHtml(k.contact_email)}</a></p>` : ''}
-    ${k.booking_link ? `<p><strong>📅</strong> <a href="${escapeAttr(k.booking_link)}" style="color:var(--deep);font-weight:700">${escapeHtml(k.booking_link)}</a></p>` : ''}
+    ${k.booking_link ? `<p><strong>📅</strong> <a href="${escapeAttr(safeUrl(k.booking_link))}" style="color:var(--deep);font-weight:700">${escapeHtml(k.booking_link)}</a></p>` : ''}
   `;
   return html;
 }
@@ -1629,6 +1646,15 @@ function getQuery(name){
 function $(id){ return document.getElementById(id); }
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escapeAttr(s){ return escapeHtml(s); }
+// Scheme allow-list for URLs rendered into href/src — blocks javascript:/data:/
+// vbscript: code-execution links while allowing http(s) and mailto.
+function safeUrl(u){
+  const s = String(u==null?'':u).trim();
+  if(!s) return '';
+  if(/^(https?:|mailto:)/i.test(s)) return s;
+  if(/^[a-z][a-z0-9+.\-]*:/i.test(s)) return '';
+  return s;
+}
 function fmtNum(n){
   if(n == null || n === '') return '—';
   n = Number(n);

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eggie Creator Hub × BePlan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --pink-hot:#FFB2F0; --blue:#63AAF4; --mint:#6BE4EA;
+    --pink-light:#FFDBF7; --periwinkle:#90A5FF; --deep:#4D5BC0;
+    --ink:#3a2a5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#dfeaf5;font-family:'Poppins','Segoe UI',-apple-system,system-ui,sans-serif}
+  body{display:flex;flex-direction:column;align-items:center;gap:22px;padding:36px}
+
+  /* ---- 1080x1080 square artboard ---- */
+  .stage{ /* scales the 1080 board down to fit the screen for preview */
+    width:min(1080px,92vw); aspect-ratio:1/1; position:relative;
+  }
+  .artboard{
+    position:absolute; top:0; left:0;
+    width:1080px; height:1080px;
+    transform-origin:top left;
+    overflow:hidden; border-radius:40px;
+    background:
+      radial-gradient(820px 620px at 22% 16%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(760px 640px at 84% 30%, rgba(107,228,234,0.45), transparent 62%),
+      radial-gradient(900px 760px at 70% 96%, rgba(144,165,255,0.50), transparent 60%),
+      linear-gradient(165deg,#fef0fb 0%,#eaf2ff 52%,#e7fbfc 100%);
+    box-shadow:0 30px 90px rgba(99,170,244,0.30), 0 8px 24px rgba(255,178,240,0.30);
+  }
+  /* soft inner frame */
+  .artboard::after{
+    content:""; position:absolute; inset:34px; border-radius:34px;
+    border:2px solid rgba(255,255,255,0.55);
+    box-shadow:inset 0 0 60px rgba(255,255,255,0.45);
+    pointer-events:none;
+  }
+
+  .deco{position:absolute; pointer-events:none}
+
+  /* ---- center lockup ---- */
+  .lockup{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center; gap:30px;
+    width:100%;
+  }
+  .eggie{
+    width:660px; max-width:82%; height:auto; display:block;
+    filter:drop-shadow(0 16px 30px rgba(99,170,244,0.30)) drop-shadow(0 0 18px rgba(255,255,255,0.8));
+  }
+
+  /* the × collab node */
+  .x-node{
+    width:84px; height:84px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:#ffffff;
+    box-shadow:0 14px 34px rgba(144,165,255,0.40), inset 0 0 0 6px rgba(255,255,255,0.9);
+    position:relative;
+  }
+  .x-node::before{ /* gradient ring */
+    content:""; position:absolute; inset:-7px; border-radius:50%; z-index:-1;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 55%,var(--mint));
+    filter:blur(0.3px);
+  }
+  .x-node span{
+    font-size:44px; font-weight:800; line-height:1;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 55%,var(--mint));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    transform:translateY(-3px);
+  }
+
+  /* Beplan lockup on a clean white card (logo is black, needs light bg) */
+  .beplan{
+    display:flex; align-items:center; gap:26px;
+    padding:30px 56px; border-radius:34px;
+    background:rgba(255,255,255,0.94);
+    box-shadow:0 20px 46px rgba(99,170,244,0.28), inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  .beplan .badge{width:98px;height:98px;display:block}
+  .beplan .word{
+    font-size:76px; font-weight:700; letter-spacing:-1.5px; color:#0a0a0a;
+    line-height:1; font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  }
+
+  /* ---- download bar (not part of the image) ---- */
+  .bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .btn{
+    border:none;cursor:pointer;font:600 15px/1 'Poppins','Segoe UI',sans-serif;
+    color:#fff;padding:13px 22px;border-radius:999px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 8px 20px rgba(144,165,255,0.35);
+  }
+  .btn:active{transform:translateY(1px)}
+  .hint{font:500 13px/1.5 'Poppins','Segoe UI',sans-serif;color:#6b5f8a;max-width:560px;text-align:center}
+</style>
+</head>
+<body>
+
+  <div class="stage" id="stage">
+    <div class="artboard" id="artboard">
+
+      <!-- decorative sparkles + bubbles -->
+      <svg class="deco" style="top:60px;left:70px" width="92" height="92" viewBox="0 0 100 100"><use href="#spark"/></svg>
+      <svg class="deco" style="top:90px;right:90px" width="74" height="74" viewBox="0 0 100 100"><use href="#spark"/></svg>
+      <svg class="deco" style="bottom:120px;right:80px" width="86" height="86" viewBox="0 0 100 100"><use href="#spark"/></svg>
+      <svg class="deco" style="bottom:150px;left:90px" width="60" height="60" viewBox="0 0 100 100"><use href="#spark"/></svg>
+      <svg class="deco" style="top:330px;right:150px;opacity:.85" width="46" height="46" viewBox="0 0 100 100"><use href="#spark"/></svg>
+      <svg class="deco" style="bottom:330px;left:190px;opacity:.85" width="40" height="40" viewBox="0 0 100 100"><use href="#spark"/></svg>
+
+      <div class="deco" style="top:170px;left:240px;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.92),rgba(255,219,247,.38));box-shadow:0 4px 14px rgba(255,178,240,.3)"></div>
+      <div class="deco" style="top:740px;left:240px;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.92),rgba(199,210,255,.42))"></div>
+      <div class="deco" style="top:560px;right:210px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.92),rgba(180,240,243,.48))"></div>
+      <div class="deco" style="bottom:200px;right:250px;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.92),rgba(255,219,247,.42));box-shadow:0 4px 14px rgba(144,165,255,.25)"></div>
+      <div class="deco" style="top:430px;left:140px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.92),rgba(199,210,255,.45))"></div>
+
+      <!-- the lockup: Eggie  ×  BePlan -->
+      <div class="lockup">
+        <img class="eggie" src="EGGIE LOGOTYPE - BORDER.png" alt="Eggie Creator Hub" crossorigin="anonymous">
+        <div class="x-node">
+          <svg width="42" height="42" viewBox="0 0 42 42">
+            <defs><linearGradient id="xg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFB2F0"/><stop offset="0.55" stop-color="#90A5FF"/><stop offset="1" stop-color="#6BE4EA"/>
+            </linearGradient></defs>
+            <g stroke="url(#xg)" stroke-width="6" stroke-linecap="round">
+              <line x1="13" y1="13" x2="29" y2="29"/><line x1="29" y1="13" x2="13" y2="29"/>
+            </g>
+          </svg>
+        </div>
+        <div class="beplan">
+          <svg class="badge" viewBox="0 0 375 375" aria-label="Beplan">
+            <circle cx="187.5" cy="187.5" r="178" fill="#000"/>
+            <path fill="#fff" d="M 210.464844 153.273438 C 202.464844 150.992188 194.503906 157.03125 194.503906 165.355469 L 194.503906 293.484375 C 194.503906 300.636719 201.160156 305.988281 208.128906 304.34375 C 242.476562 296.253906 268.117188 265.347656 268.117188 228.5625 C 268.117188 192.953125 244.09375 162.859375 210.464844 153.273438 Z M 180.460938 146.476562 L 180.460938 293.484375 C 180.460938 300.636719 173.800781 305.988281 166.835938 304.34375 C 132.488281 296.257812 106.84375 265.347656 106.84375 228.5625 L 106.84375 78.824219 C 106.84375 73.207031 111.972656 68.980469 117.488281 70.050781 C 153.324219 77.011719 180.460938 108.636719 180.460938 146.476562 Z M 180.460938 146.476562 "/>
+          </svg>
+          <span class="word">Beplan</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shared SVG symbols -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="petalGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="#ffffff" flood-opacity="0.95"/>
+      </filter>
+      <linearGradient id="_Linear15" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(285.4,271.4,-271.4,285.4,975.3,740)"><stop offset="0" style="stop-color:rgb(120,218,229)"/><stop offset="0.55" style="stop-color:rgb(99,170,244)"/><stop offset="1" style="stop-color:rgb(77,91,192)"/></linearGradient>
+      <linearGradient id="_Linear16" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(280,280,-280,280,1406,750)"><stop offset="0" style="stop-color:rgb(120,218,229)"/><stop offset="0.5" style="stop-color:rgb(255,178,240)"/><stop offset="1" style="stop-color:rgb(144,165,255)"/></linearGradient>
+      <linearGradient id="_Linear17" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(240,240,-240,240,142,1258)"><stop offset="0" style="stop-color:rgb(99,170,244)"/><stop offset="1" style="stop-color:rgb(255,178,240)"/></linearGradient>
+      <linearGradient id="_Linear13" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(242.617029,178.887032,-178.887032,242.617029,140.691486,785.912968)"><stop offset="0" style="stop-color:rgb(255,178,240)"/><stop offset="1" style="stop-color:rgb(144,165,255)"/></linearGradient>
+      <radialGradient id="_Radial8" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(224,0,0,224,1078.8,351.6)"><stop offset="0" style="stop-color:white;stop-opacity:0.95"/><stop offset="0.45" style="stop-color:rgb(255,219,247);stop-opacity:0.5"/><stop offset="0.8" style="stop-color:rgb(107,228,234);stop-opacity:0.45"/><stop offset="1" style="stop-color:rgb(144,165,255);stop-opacity:0.55"/></radialGradient>
+
+      <symbol id="kitStar" viewBox="945 710 348 330">
+        <g transform="matrix(1,0,0,1,5,9)"><path d="M1118,740L1156.8,836.6L1260.7,843.6L1180.8,910.4L1206.2,1011.4L1118,956L1029.8,1011.4L1055.2,910.4L975.3,843.6L1079.2,836.6L1118,740Z" style="fill:rgb(77,91,192);fill-opacity:0.16;"/></g>
+        <path d="M1118,740L1156.8,836.6L1260.7,843.6L1180.8,910.4L1206.2,1011.4L1118,956L1029.8,1011.4L1055.2,910.4L975.3,843.6L1079.2,836.6L1118,740Z" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.55;stroke-width:28px;stroke-linecap:round;"/>
+        <path d="M1118,740L1156.8,836.6L1260.7,843.6L1180.8,910.4L1206.2,1011.4L1118,956L1029.8,1011.4L1055.2,910.4L975.3,843.6L1079.2,836.6L1118,740Z" style="fill:none;stroke:white;stroke-width:20px;stroke-linecap:round;"/>
+        <path d="M1118,740L1156.8,836.6L1260.7,843.6L1180.8,910.4L1206.2,1011.4L1118,956L1029.8,1011.4L1055.2,910.4L975.3,843.6L1079.2,836.6L1118,740Z" style="fill:url(#_Linear15);"/>
+      </symbol>
+
+      <symbol id="kitSparkle" viewBox="1386 730 322 322">
+        <g transform="matrix(1,0,0,1,5,9)"><path d="M1546,750L1574,862L1686,890L1574,918L1546,1030L1518,918L1406,890L1518,862L1546,750Z" style="fill:rgb(77,91,192);fill-opacity:0.16;"/></g>
+        <path d="M1546,750L1574,862L1686,890L1574,918L1546,1030L1518,918L1406,890L1518,862L1546,750Z" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.55;stroke-width:28px;stroke-linecap:round;"/>
+        <path d="M1546,750L1574,862L1686,890L1574,918L1546,1030L1518,918L1406,890L1518,862L1546,750Z" style="fill:none;stroke:white;stroke-width:20px;stroke-linecap:round;"/>
+        <path d="M1546,750L1574,862L1686,890L1574,918L1546,1030L1518,918L1406,890L1518,862L1546,750Z" style="fill:url(#_Linear16);"/>
+      </symbol>
+
+      <symbol id="kitTwinkle" viewBox="105 1225 322 288">
+        <g transform="matrix(1,0,0,1,5,9)"><path d="M262,1258L281.2,1358.8L382,1378L281.2,1397.2L262,1498L242.8,1397.2L142,1378L242.8,1358.8L262,1258Z" style="fill:rgb(77,91,192);fill-opacity:0.16;"/></g>
+        <path d="M262,1258L281.2,1358.8L382,1378L281.2,1397.2L262,1498L242.8,1397.2L142,1378L242.8,1358.8L262,1258Z" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.55;stroke-width:18px;stroke-linecap:round;"/>
+        <path d="M262,1258L281.2,1358.8L382,1378L281.2,1397.2L262,1498L242.8,1397.2L142,1378L242.8,1358.8L262,1258Z" style="fill:none;stroke:white;stroke-width:12px;stroke-linecap:round;"/>
+        <path d="M262,1258L281.2,1358.8L382,1378L281.2,1397.2L262,1498L242.8,1397.2L142,1378L242.8,1358.8L262,1258Z" style="fill:url(#_Linear17);"/>
+        <g transform="matrix(1,0,0,1,5,9)"><path d="M360,1240L368.3,1283.7L412,1292L368.3,1300.3L360,1344L351.7,1300.3L308,1292L351.7,1283.7L360,1240Z" style="fill:rgb(77,91,192);fill-opacity:0.16;"/></g>
+        <path d="M360,1240L368.3,1283.7L412,1292L368.3,1300.3L360,1344L351.7,1300.3L308,1292L351.7,1283.7L360,1240Z" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.55;stroke-width:18px;stroke-linecap:round;"/>
+        <path d="M360,1240L368.3,1283.7L412,1292L368.3,1300.3L360,1344L351.7,1300.3L308,1292L351.7,1283.7L360,1240Z" style="fill:none;stroke:white;stroke-width:12px;stroke-linecap:round;"/>
+        <path d="M360,1240L368.3,1283.7L412,1292L368.3,1300.3L360,1344L351.7,1300.3L308,1292L351.7,1283.7L360,1240Z" style="fill:rgb(255,178,240);"/>
+        <g transform="matrix(1,0,0,1,5,9)"><path d="M162,1414L168.7,1449.3L204,1456L168.7,1462.7L162,1498L155.3,1462.7L120,1456L155.3,1449.3L162,1414Z" style="fill:rgb(77,91,192);fill-opacity:0.16;"/></g>
+        <path d="M162,1414L168.7,1449.3L204,1456L168.7,1462.7L162,1498L155.3,1462.7L120,1456L155.3,1449.3L162,1414Z" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.55;stroke-width:18px;stroke-linecap:round;"/>
+        <path d="M162,1414L168.7,1449.3L204,1456L168.7,1462.7L162,1498L155.3,1462.7L120,1456L155.3,1449.3L162,1414Z" style="fill:none;stroke:white;stroke-width:12px;stroke-linecap:round;"/>
+        <path d="M162,1414L168.7,1449.3L204,1456L168.7,1462.7L162,1498L155.3,1462.7L120,1456L155.3,1449.3L162,1414Z" style="fill:rgb(107,228,234);"/>
+      </symbol>
+
+      <symbol id="kitHeart" viewBox="125 750 276 235">
+        <g transform="matrix(1,0,0,1,5,9)"><path d="M262,964.8C235.6,916.4 134.4,894.4 141,832.8C147.6,775.6 222.4,766.8 262,828.4C301.6,766.8 376.4,775.6 383,832.8C389.6,894.4 288.4,916.4 262,964.8Z" style="fill:rgb(77,91,192);fill-opacity:0.15;"/></g>
+        <path d="M262,964.8C235.6,916.4 134.4,894.4 141,832.8C147.6,775.6 222.4,766.8 262,828.4C301.6,766.8 376.4,775.6 383,832.8C389.6,894.4 288.4,916.4 262,964.8Z" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.5;stroke-width:24px;"/>
+        <path d="M262,964.8C235.6,916.4 134.4,894.4 141,832.8C147.6,775.6 222.4,766.8 262,828.4C301.6,766.8 376.4,775.6 383,832.8C389.6,894.4 288.4,916.4 262,964.8Z" style="fill:none;stroke:white;stroke-width:16px;"/>
+        <path d="M262,964.8C235.6,916.4 134.4,894.4 141,832.8C147.6,775.6 222.4,766.8 262,828.4C301.6,766.8 376.4,775.6 383,832.8C389.6,894.4 288.4,916.4 262,964.8Z" style="fill:url(#_Linear13);"/>
+        <g transform="matrix(1,0,0,1,-31.96582,-6.576212)"><path d="M196,824C216.667,806.667 238.667,805.333 262,820" style="fill:none;stroke:white;stroke-opacity:0.85;stroke-width:11px;stroke-linecap:round;"/></g>
+      </symbol>
+
+      <symbol id="kitBubble" viewBox="972 256 296 296">
+        <circle cx="1122" cy="408" r="140" style="fill:rgb(77,91,192);fill-opacity:0.1;"/>
+        <circle cx="1118" cy="402" r="140" style="fill:url(#_Radial8);stroke:white;stroke-width:8px;"/>
+        <circle cx="1118" cy="402" r="140" style="fill:none;stroke:rgb(144,165,255);stroke-opacity:0.6;stroke-width:2px;"/>
+        <g transform="matrix(0.819152,-0.573576,0.573576,0.819152,-6.670864,676.842723)"><ellipse cx="1070" cy="349" rx="39" ry="25" style="fill:white;fill-opacity:0.9;"/></g>
+      </symbol>
+      <g id="spark">
+        <path d="M50 6 C54 36 64 46 94 50 C64 54 54 64 50 94 C46 64 36 54 6 50 C36 46 46 36 50 6 Z"
+              fill="#fff" opacity="0.95"/>
+      </g>
+    </defs>
+  </svg>
+
+  <div class="bar">
+    <button class="btn" id="dl">⬇ Download PNG (1080×1080)</button>
+  </div>
+  <div class="hint" id="hint">Tip: if the download looks blank, just take a screenshot of the square — local images can block canvas export when opened straight from a folder.</div>
+
+<script>
+  // fit the 1080 board into whatever width the stage gets, for on-screen preview
+  function fit(){
+    var stage=document.getElementById('stage');
+    var s=stage.clientWidth/1080;
+    document.getElementById('artboard').style.transform='scale('+s+')';
+  }
+  window.addEventListener('resize',fit); window.addEventListener('load',fit); fit();
+
+  document.getElementById('dl').addEventListener('click',function(){
+    var node=document.getElementById('artboard');
+    var prev=node.style.transform; node.style.transform='none';
+    html2canvas(node,{width:1080,height:1080,scale:1,backgroundColor:null,useCORS:true,allowTaint:false})
+      .then(function(c){
+        node.style.transform=prev; fit();
+        var a=document.createElement('a');
+        a.download='eggie-x-beplan-1080.png'; a.href=c.toDataURL('image/png'); a.click();
+      }).catch(function(){
+        node.style.transform=prev; fit();
+        document.getElementById('hint').textContent='Export blocked by the browser for local files — please screenshot the square instead (or open this via a local server).';
+      });
+  });
+</script>
+</body>
+</html>

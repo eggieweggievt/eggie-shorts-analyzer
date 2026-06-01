@@ -1192,8 +1192,8 @@ function renderBrandKitBody(kit){
         <div class="bk-card-imgs">
           ${imgs.map(b => `
             <div class="bk-card-img-wrap" title="${escape(b.label || '')}">
-              <a href="${escape(b.url)}" target="_blank" rel="noreferrer">
-                <img src="${escape(b.url)}" alt="${escape(b.label || 'Branding image')}" loading="lazy" onerror="this.parentElement.parentElement.innerHTML='<div style=&quot;padding:24px;font-size:12px;color:var(--ink-soft);text-align:center&quot;>image link broken</div>'" />
+              <a href="${escape(safeUrl(b.url))}" target="_blank" rel="noreferrer">
+                <img src="${escape(safeUrl(b.url))}" alt="${escape(b.label || 'Branding image')}" loading="lazy" onerror="this.parentElement.parentElement.innerHTML='<div style=&quot;padding:24px;font-size:12px;color:var(--ink-soft);text-align:center&quot;>image link broken</div>'" />
               </a>
               ${b.label ? `<span class="bk-card-img-label">${escape(b.label)}</span>` : ''}
             </div>
@@ -1229,7 +1229,7 @@ function renderBrandKitBody(kit){
         <h4>📁 Asset folders</h4>
         <div class="bk-card-links">
           ${links.map(a => `
-            <a class="bk-card-link" href="${escape(a.url)}" target="_blank" rel="noreferrer">
+            <a class="bk-card-link" href="${escape(safeUrl(a.url))}" target="_blank" rel="noreferrer">
               <span class="bk-card-link-label">📁 ${escape(a.label || 'Asset folder')}</span>
               <span class="bk-card-link-url">${escape(a.url)}</span>
             </a>
@@ -1282,12 +1282,12 @@ function renderVideoEmbed(v){
   // Direct video file
   if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)){
     return { kind:'embed', html: `<div class="bk-card-video">
-      <video src="${escape(url)}" controls preload="metadata"></video>
+      <video src="${escape(safeUrl(url))}" controls preload="metadata"></video>
       ${labelBar}
     </div>` };
   }
   // Fallback — compact link card (TikTok / IG / X / generic). Reuses the asset folder row style.
-  return { kind:'link', html: `<a class="bk-card-link" href="${escape(url)}" target="_blank" rel="noreferrer">
+  return { kind:'link', html: `<a class="bk-card-link" href="${escape(safeUrl(url))}" target="_blank" rel="noreferrer">
     <span class="bk-card-link-label">🎬 ${escape(label || 'Reference')}</span>
     <span class="bk-card-link-url">${escape(url)}</span>
   </a>` };
@@ -1469,7 +1469,7 @@ function renderVtuberSection(ownerId, items, index, multi){
             : 'No batch link yet — use the per-video footage links on each card.'}</small>
         </span>
         ${deadlineChip}
-        ${batchUrl ? `<a class="vb-download" href="${escape(batchUrl)}" target="_blank" rel="noreferrer">⬇️ Download all</a>` : ''}
+        ${batchUrl ? `<a class="vb-download" href="${escape(safeUrl(batchUrl))}" target="_blank" rel="noreferrer">⬇️ Download all</a>` : ''}
       </div>`;
   }
 
@@ -1689,7 +1689,7 @@ function renderProjectCard(p){
   // ASSETS section — the visually heaviest block, so editors find the footage fast.
   const assetCards = [];
   if(p.footage_url){
-    assetCards.push(`<a class="pc-asset-card primary" href="${escape(p.footage_url)}" target="_blank" rel="noreferrer">
+    assetCards.push(`<a class="pc-asset-card primary" href="${escape(safeUrl(p.footage_url))}" target="_blank" rel="noreferrer">
       <span class="pc-asset-icon">🎬</span>
       <span class="pc-asset-info">
         <span class="pc-asset-label">Raw footage</span>
@@ -1698,7 +1698,7 @@ function renderProjectCard(p){
     </a>`);
   }
   if(p.editor_files_url){
-    assetCards.push(`<a class="pc-asset-card" href="${escape(p.editor_files_url)}" target="_blank" rel="noreferrer">
+    assetCards.push(`<a class="pc-asset-card" href="${escape(safeUrl(p.editor_files_url))}" target="_blank" rel="noreferrer">
       <span class="pc-asset-icon">📤</span>
       <span class="pc-asset-info">
         <span class="pc-asset-label">Editor folder</span>
@@ -1707,7 +1707,7 @@ function renderProjectCard(p){
     </a>`);
   }
   if(p.thumbnail_url){
-    assetCards.push(`<a class="pc-asset-card" href="${escape(p.thumbnail_url)}" target="_blank" rel="noreferrer">
+    assetCards.push(`<a class="pc-asset-card" href="${escape(safeUrl(p.thumbnail_url))}" target="_blank" rel="noreferrer">
       <span class="pc-asset-icon">🖼️</span>
       <span class="pc-asset-info">
         <span class="pc-asset-label">Thumbnail ref</span>
@@ -1716,7 +1716,7 @@ function renderProjectCard(p){
     </a>`);
   }
   additionalAssets.forEach(a => {
-    assetCards.push(`<a class="pc-asset-card" href="${escape(a.url)}" target="_blank" rel="noreferrer">
+    assetCards.push(`<a class="pc-asset-card" href="${escape(safeUrl(a.url))}" target="_blank" rel="noreferrer">
       <span class="pc-asset-icon">📦</span>
       <span class="pc-asset-info">
         <span class="pc-asset-label">${escape(a.label || 'Asset')}</span>
@@ -1736,7 +1736,7 @@ function renderProjectCard(p){
       <div class="pc-attach-list">
         ${attachments.map(a => `<div class="row">
           <span class="name">${a.uploaded_by_editor ? '⬆️' : '📄'} ${escape(a.name || 'file')}</span>
-          ${a.url ? `<a href="${escape(a.url)}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>'}
+          ${a.url ? `<a href="${escape(safeUrl(a.url))}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>'}
         </div>`).join('')}
       </div>
     </div>` : '';
@@ -1876,6 +1876,16 @@ function escape(s){
   return String(s == null ? '' : s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Scheme allow-list for URLs rendered into href/src. escape() stops attribute
+// breakout; safeUrl() blocks javascript:/data:/vbscript: code-execution links.
+function safeUrl(u){
+  const s = String(u == null ? '' : u).trim();
+  if(!s) return '';
+  if(/^(https?:|mailto:)/i.test(s)) return s;     // allowed schemes
+  if(/^[a-z][a-z0-9+.\-]*:/i.test(s)) return '';  // any other scheme → blocked
+  return s;                                       // scheme-less (relative) → safe
 }
 
 if(document.readyState === 'loading'){

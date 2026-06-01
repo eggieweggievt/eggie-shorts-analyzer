@@ -141,13 +141,14 @@
     <a class="back-link" href="planner.html">🗂️ Planner</a>
     <a class="back-link" href="review.html">🌸 Review</a>
     <a class="back-link active" href="ask.html">🔮 Ask</a>
+    <a class="back-link" href="brand-memory.html">🧠 Memory</a>
     <a class="back-link" href="finance.html">💰 Finance</a>
     <a class="back-link" href="growth.html">📚 Playbook</a>
   </div>
 
   <div class="hero">
     <h1>Ask My Planner 🔮</h1>
-    <p>Ask in plain words — I'll dig through your planner and hand back the cards that matter.</p>
+    <p>Ask in plain words — I'll dig through your planner and hand back the cards that matter, tuned to your Creator Memory.</p>
   </div>
 
   <div class="imp-banner hidden" id="impersonationBanner">
@@ -172,6 +173,7 @@
       <div class="user-bar" style="margin-bottom:14px">
         <span class="dot" id="connDot"></span>
         <span id="userEmail">—</span>
+        <span class="chip hidden" id="brandIndicator">🧠 tuned to your Creator Memory</span>
         <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
       </div>
 
@@ -181,6 +183,8 @@
       </div>
       <div class="chips" id="chips">
         <span class="chip" onclick="quick(this)">what should I film this week?</span>
+        <span class="chip" onclick="quick(this)">what fits my brand?</span>
+        <span class="chip" onclick="quick(this)">what's off-brand?</span>
         <span class="chip" onclick="quick(this)">which shorts are stuck in editing?</span>
         <span class="chip" onclick="quick(this)">what's overdue?</span>
         <span class="chip" onclick="quick(this)">what's ready to post?</span>
@@ -231,6 +235,70 @@ let sb = null;
 let currentUser = null;
 let manageOwnerId = null;     // set when a manager impersonates via ?manage=<id>
 let allItems = [];            // planner items fetched client-side, searched on-device
+
+// ---- Creator Memory (read-only here) — biases ranking + answers ----
+let brandMemory = null;       // { name, niche, nicheLabel, series[], tone[], always[], never[] }
+let brandTermSet = [];        // lowercase keywords to boost on (niche + series + always-words)
+let brandNeverSet = [];       // lowercase banned words to flag as off-brand
+const NICHE_LABEL = {gaming:'gaming',chatting:'just chatting',art:'art creative',music:'music',variety:'variety',tech:'tech',lifestyle:'lifestyle vlog',irl:'irl',asmr:'asmr',vrchat:'vrchat'};
+function bmArr(v){ return Array.isArray(v) ? v : []; }
+function bmReadLocal(){ try{ const r = localStorage.getItem('eggie.brandmemory.v1'); if(r) return JSON.parse(r); }catch(e){} return null; }
+async function loadBrandMemory(){
+  let row = null;
+  if(sb && currentUser){
+    try{
+      const ownerId = manageOwnerId || currentUser.id;   // manager mode → the creator's memory
+      const { data } = await sb.from('planner_brand_memory').select('*').eq('user_id', ownerId).maybeSingle();
+      if(data) row = data;
+    }catch(e){ /* table may not exist yet — fine */ }
+  }
+  if(!row && !manageOwnerId) row = bmReadLocal();         // own planner → this browser's copy
+  buildBrandSignals(row);
+}
+function buildBrandSignals(row){
+  const p = (row && row.profile) || {};
+  const series = bmArr(row && row.series).map(s => (s && s.name) || '').filter(Boolean);
+  brandMemory = row ? {
+    name: p.creator_name || '', niche: p.niche_primary || '',
+    nicheLabel: NICHE_LABEL[p.niche_primary] || '',
+    series, tone: bmArr(p.voice_tone), always: bmArr(p.always_words), never: bmArr(p.never_words)
+  } : null;
+  const terms = [];
+  if(brandMemory){
+    (brandMemory.nicheLabel || '').split(/[^a-z0-9]+/).forEach(t => terms.push(t));
+    series.forEach(s => String(s).toLowerCase().split(/[^a-z0-9]+/).forEach(t => terms.push(t)));
+    brandMemory.always.forEach(w => terms.push(String(w).toLowerCase()));
+  }
+  brandTermSet = [...new Set(terms.filter(t => t && t.length > 2 && !STOP.has(t)))];
+  brandNeverSet = brandMemory ? brandMemory.never.map(w => String(w).toLowerCase().trim()).filter(Boolean) : [];
+  updateBrandIndicator();
+}
+function updateBrandIndicator(){
+  const el = document.getElementById('brandIndicator');
+  if(!el) return;
+  el.classList.toggle('hidden', !brandMemory);
+  if(brandMemory){
+    const bits = [brandMemory.nicheLabel, ...(brandMemory.tone || []).slice(0,2)].filter(Boolean);
+    el.textContent = '🧠 tuned to your Creator Memory' + (bits.length ? ' · ' + bits.join(', ') : '');
+  }
+}
+function bmHay(it){ return `${it.title||''} ${it.hook||''} ${it.notes||''} ${(it.platforms||[]).join(' ')}`.toLowerCase(); }
+function brandScore(it){
+  if(!brandTermSet.length) return 0;
+  const hay = bmHay(it); let s = 0;
+  for(const t of brandTermSet){ if(hay.includes(t)) s++; }
+  return s;
+}
+function hasNever(it){
+  if(!brandNeverSet.length) return false;
+  const hay = bmHay(it);
+  return brandNeverSet.some(w => new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b').test(hay));
+}
+function byBrandThenPriority(a,b){ const d = brandScore(b) - brandScore(a); return d ? d : byPriorityThenDeadline(a,b); }
+function brandNudge(){
+  if(brandMemory && brandMemory.series.length) return `Backlog's thin — a “${brandMemory.series[0]}” episode is always a safe bet. 🌸`;
+  return null;
+}
 
 // ============================================================
 //  SUPABASE INIT + AUTH
@@ -284,6 +352,7 @@ async function onSignIn(user){
 
 function onSignOut(){
   currentUser = null; manageOwnerId = null; allItems = [];
+  brandMemory = null; brandTermSet = []; brandNeverSet = []; updateBrandIndicator();
   const pill = document.getElementById('authPill');
   pill.classList.remove('signed-in');
   pill.innerHTML = '🔓 Sign in';
@@ -316,8 +385,9 @@ async function loadItems(){
     .limit(500);
   if(manageOwnerId) q = q.eq('owner_id', manageOwnerId);
   const { data, error } = await q;
-  if(error){ console.warn('items load failed', error); allItems = []; return; }
-  allItems = data || [];
+  if(error){ console.warn('items load failed', error); allItems = []; }
+  else allItems = data || [];
+  await loadBrandMemory();   // pull the creator's profile so answers stay on-brand
 }
 
 // ---- Magic link ----
@@ -558,15 +628,32 @@ function answerQuestion(question){
                 .sort((a,b)=> +new Date(a.created_at) - +new Date(b.created_at));
     answer = pool.length ? `${pool.length} idea${plural(pool.length)} have been sitting 3+ weeks — revive or let go? 🍂` : `No stale ideas — your backlog is fresh. 🌱`;
   } else if(has('film','record','shoot','make','create','produce')){
-    pool = active.filter(it => ['idea','script','recording'].includes(S(it))).sort(byPriorityThenDeadline);
-    answer = pool.length ? `${pool.length} thing${plural(pool.length)} to film/make — priority + soonest deadline up top.`
-                         : `No ideas queued to film — time to brainstorm a few! 🌸`;
+    pool = active.filter(it => ['idea','script','recording'].includes(S(it))).sort(brandTermSet.length ? byBrandThenPriority : byPriorityThenDeadline);
+    answer = pool.length ? `${pool.length} thing${plural(pool.length)} to film/make — ${brandTermSet.length?'on-brand picks + ':''}priority + soonest deadline up top.`
+                         : (brandNudge() || `No ideas queued to film — time to brainstorm a few! 🌸`);
   } else if(has('idea','ideas','brainstorm','backlog')){
     pool = items.filter(it => S(it)==='idea').sort(byPriorityThenDeadline);
     answer = pool.length ? `${pool.length} idea${plural(pool.length)} in your backlog.` : `No ideas captured yet.`;
   } else if(has('priority','priorities','important','focus','matter')){
     pool = active.filter(it => it.is_priority).sort(byDeadlineAsc);
     answer = pool.length ? `${pool.length} starred priorit${pool.length===1?'y':'ies'} still open.` : `No priorities flagged right now.`;
+  } else if(has('on brand','on-brand','off brand','off-brand','my brand',' brand ','my voice','sounds like me','fits me','fits my','on niche','on-niche','my tone')){
+    if(!brandMemory){
+      pool = active.slice().sort(byPriorityThenDeadline);
+      answer = `Set up your Creator Memory and I'll rank cards by how well they fit your voice + niche. 🧠`;
+    } else if(has('off','avoid','banned','wrong','clash','not me')){
+      pool = active.filter(hasNever).sort(byPriorityThenDeadline);
+      answer = pool.length ? `${pool.length} card${plural(pool.length)} use words from your “never” list — worth a tweak to stay on-brand. 🧠`
+                           : `Nothing trips your never-words list — all on-brand. ✨`;
+    } else {
+      pool = active.filter(it => brandScore(it) > 0).sort(byBrandThenPriority);
+      if(pool.length){
+        answer = `Ranked by how well each fits your ${brandMemory.nicheLabel||'brand'} voice${brandMemory.series.length?' + series':''}. 🧠`;
+      } else {
+        pool = active.slice().sort(byPriorityThenDeadline);
+        answer = `Nothing obviously matches your ${brandMemory.nicheLabel||'niche'} keywords yet — here's everything active.`;
+      }
+    }
   } else if(has('posted','shipped','published','went out','post') && has('recent','recently','lately','last','latest')){
     pool = items.filter(it => it.posted_at).sort((a,b)=> +new Date(b.posted_at) - +new Date(a.posted_at)).slice(0,15);
     answer = pool.length ? `Your most recent posts, newest first. 🚀` : `Nothing posted yet.`;
@@ -583,7 +670,7 @@ function answerQuestion(question){
     pool = items.filter(it => {
       const hay = `${it.title||''} ${it.hook||''} ${it.notes||''} ${(it.platforms||[]).join(' ')}`.toLowerCase();
       return terms.length ? terms.some(t => hay.includes(t)) : false;
-    }).sort(byPriorityThenDeadline);
+    }).sort(brandTermSet.length ? byBrandThenPriority : byPriorityThenDeadline);
     answer = pool.length ? `Found ${pool.length} match${pool.length===1?'':'es'} for that.` : `No matches — try different words, or check the chips above.`;
   }
 

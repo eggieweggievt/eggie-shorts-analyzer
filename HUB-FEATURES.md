@@ -199,7 +199,7 @@ Key columns: `user_id` (PK), `habits` (JSONB), `logs` (JSONB), `settings` (JSONB
 
 ### `analyzer_user_prefs` — analyzer onboarding + bias
 
-Drives the analyzer's recommendation weighting.
+Drives the Optimizer's recommendation weighting.
 
 Key columns: `user_id` (PK), `sticky_tags[]`, `blocked_tags[]`, `niche_primary`, `niche_secondary`, `vtuber_type`, `content_forms[]`, `voice_tone[]`, `target_audience`, `platforms[]`, `goals[]`, `topic_synonyms` (JSONB), `candidate_tags[]`, `onboarded_at`.
 
@@ -247,7 +247,7 @@ The only analyzer table that's NOT owner-only. Readable by anyone signed in; wri
 - Welcome card (`#welcomeCard`, hidden until signed in) with "Sign out" button.
 - Habits widget (`#habitsWidget`): today's done / week total / longest streak / progress bar, "Open tracker →" link. Reads `localStorage.eggie.habits.v1`; allows 1 missed day before breaking a streak.
 - 8 tool tiles with hover translate-Y + CTA pills:
-  1. **Shorts Analyzer** → `analyzer.html`
+  1. **Optimizer** → `analyzer.html`
   2. **Growth Playbook** → `growth.html`
   3. **Thumbnail Checker** → `thumbnail.html`
   4. **Content Planner** → `planner.html`
@@ -298,8 +298,8 @@ Fields:
 - Thumbnail URL, Footage URL, Editor output URL.
 - File uploads (5 GB cap each) → Supabase Storage `planner-files/{owner_id}/{item_id}/`.
 - Additional assets — dynamic labeled link rows (`+ Add asset link`).
-- **Quick title score** inline panel (calls the analyzer engine on the title as you type) + `Open full analyzer` button (passes title via URL param).
-- Analyzer score + Analyzer link (when saved from analyzer.html).
+- **Quick title score** inline panel (calls the Optimizer engine on the title as you type) + `Open full Optimizer` button (passes title via URL param).
+- Optimizer score + Optimizer link (when saved from analyzer.html).
 - Notes.
 - **Comments thread** — role-tagged (`authorRole()` returns `manager` when impersonating, `owner` otherwise).
 - Delete / Cancel / Save buttons.
@@ -535,7 +535,7 @@ todo.html doesn't yet support manager impersonation — comments posted from thi
 
 ---
 
-## `analyzer.html` — shorts analyzer
+## `analyzer.html` — Optimizer
 
 7,600+ lines. The biggest file in the hub by a wide margin.
 
@@ -620,7 +620,7 @@ localStorage: `PROFILE_KEY` (legacy VTuber checkbox), `TEMPLATE_KEY` (descriptio
 
 ## `growth.html` — growth playbook
 
-**Purpose.** The master long-form reference behind everything the analyzer scores. Rules, thresholds, tactics.
+**Purpose.** The master long-form reference behind everything the Optimizer scores. Rules, thresholds, tactics.
 
 **Who can use it.** Anyone. No sign-in, no database.
 
@@ -634,7 +634,7 @@ Each is a `<details class="growth-section">` with collapsible body:
 4. 📺 YouTube Shorts specifics
 5. 💬 Driving more comments
 6. 📱 Platform-specific posting rules
-7. 🏷️ The hashtag formula (built into the analyzer)
+7. 🏷️ The hashtag formula (built into the Optimizer)
 8. 🌱 Growing on Twitch (the real strategy)
 9. 📝 Title strategy
 10. 🗣️ Getting chatters engaged
@@ -732,7 +732,7 @@ BlazeFace doesn't reliably detect 2D VTuber model faces. Explicit design decisio
 
 ## `about.html` — about + niche list
 
-**Purpose.** Explains the analyzer, lists every game/genre/content-type/identity tag it knows about, and provides a contact form.
+**Purpose.** Explains the Optimizer, lists every game/genre/content-type/identity tag it knows about, and provides a contact form.
 
 **Who can use it.** Anyone. No auth.
 

@@ -18,7 +18,7 @@
   var HOME = { emoji: '🏠', name: 'Home', href: 'index.html' };
   var CATS = [
     { emoji: '🎬', name: 'Make & Optimize', items: [
-      { emoji: '🎬', name: 'Shorts Analyzer', href: 'analyzer.html' },
+      { emoji: '🎯', name: 'Optimizer', href: 'analyzer.html' },
       { emoji: '🖼️', name: 'Thumbnail Checker', href: 'thumbnail.html' }
     ]},
     { emoji: '🗂️', name: 'Plan & Organize', items: [

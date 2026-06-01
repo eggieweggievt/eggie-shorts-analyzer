@@ -350,6 +350,16 @@
     background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.4);
   }
   .habits-widget .hw-link:hover{background:rgba(255,255,255,0.95)}
+  /* Creator Memory / profile summary card — reuses .habits-widget chrome */
+  .profile-widget{background:linear-gradient(135deg, rgba(144,165,255,0.4), rgba(107,228,234,0.32))}
+  .profile-widget .pw-body{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:14px}
+  .profile-widget .pw-name{font-weight:800;color:var(--deep)}
+  .profile-widget .pw-chip{
+    display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.72);
+    border:1px solid rgba(144,165,255,0.4);color:var(--deep);font-weight:700;font-size:12.5px;
+    padding:4px 11px;border-radius:999px;
+  }
+  .profile-widget .pw-vibe{color:var(--ink-soft);font-size:13px}
   .habits-widget .hw-row{display:grid;gap:14px;grid-template-columns:repeat(3, auto) 1fr;align-items:center}
   @media(max-width:680px){.habits-widget .hw-row{grid-template-columns:1fr 1fr 1fr;gap:10px}.habits-widget .hw-bar-wrap{grid-column:1/-1}}
   .habits-widget .hw-stat{text-align:center}
@@ -484,6 +494,16 @@
     </div>
   </div>
 
+  <!-- Creator Memory summary (renders if you've set up your profile) -->
+  <div id="profileWidget" class="habits-widget profile-widget hidden">
+    <div class="hw-head">
+      <span class="hw-icon">🧠</span>
+      <span class="hw-label">Your creator profile</span>
+      <a href="brand-memory.html" class="hw-link">Edit in Creator Memory →</a>
+    </div>
+    <div class="pw-body" id="pwBody"></div>
+  </div>
+
   <!-- ===== SEARCH + FILTER TOOLBAR ===== -->
   <div class="toolbar">
     <div class="search-wrap">
@@ -507,11 +527,11 @@
       <h2 class="group-title anim"><span class="gt-emoji">🎬</span> Make &amp; Optimize <span class="gt-count"></span></h2>
       <div class="group-grid">
 
-        <a class="tile anim" href="analyzer.html" data-name="Shorts Analyzer" data-search="shorts analyzer score scoring hashtags hashtag post pack caption title tweet platforms youtube tiktok instagram x florence whisper video optimize">
-          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(107,228,234,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">🎬</span>
+        <a class="tile anim" href="analyzer.html" data-name="Optimizer" data-search="optimizer optimize score scoring hashtags hashtag post pack caption title titles tags description stream short long-form youtube tiktok twitch instagram x florence whisper video generate">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(107,228,234,0.55), rgba(199,210,255,0.5), rgba(255,219,247,0.55))">🎯</span>
           <span class="tile-text">
-            <span class="tile-name">Shorts Analyzer</span>
-            <span class="tile-line">Score a short, get smart hashtags + a post pack for every platform.</span>
+            <span class="tile-name">Optimizer</span>
+            <span class="tile-line">Score a short, or generate titles, tags &amp; a description for any short, stream, or video.</span>
           </span>
           <span class="tile-arrow" aria-hidden="true">→</span>
         </a>
@@ -555,6 +575,15 @@
           <span class="tile-text">
             <span class="tile-name">Sustainable Habits</span>
             <span class="tile-line">A gentle, spoon-theory habit tracker built for creators.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tile anim" href="brand-memory.html" data-name="Creator Memory" data-search="creator memory profile brand voice tone niche vtuber audience word bank signature phrases series links facts identity ai briefing personalize">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(144,165,255,0.55), rgba(107,228,234,0.45), rgba(255,219,247,0.5))">🧠</span>
+          <span class="tile-text">
+            <span class="tile-name">Creator Memory</span>
+            <span class="tile-line">Your voice, niche, and brand in one place — powers every tool.</span>
           </span>
           <span class="tile-arrow" aria-hidden="true">→</span>
         </a>
@@ -1006,6 +1035,33 @@
   }catch(e){
     console.warn('Habits widget render failed:', e);
   }
+})();
+</script>
+
+<script>
+// Creator Memory summary — reads localStorage written by brand-memory.html.
+(function profileWidget(){
+  const STORAGE_KEY = 'eggie.brandmemory.v1';
+  const NICHE = {gaming:'🎮 Gaming',chatting:'💬 Just Chatting',art:'🎨 Art / Creative',music:'🎵 Music',variety:'✨ Variety',tech:'💻 Tech',lifestyle:'🌿 Lifestyle',irl:'📱 IRL',asmr:'🌙 ASMR',vrchat:'🕶️ VRChat'};
+  const VT = {pngtuber:'🖼️ PNGtuber','2d_live2d':'✨ 2D Live2D','3d':'🪩 3D',irl:'📷 IRL'};
+  const TONE = {chaotic:'⚡ Chaotic',chill:'🌊 Chill',energetic:'🔥 Energetic',wholesome:'💗 Wholesome',edgy:'🌑 Edgy','dry-humor':'☕ Dry humor',sweet:'🍰 Sweet',sharp:'🗡️ Sharp'};
+  const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const st = JSON.parse(raw);
+    const p = (st && st.profile) || {};
+    const bits = [];
+    const name = p.creator_name;
+    if(name) bits.push(`<span class="pw-name">🐙 ${esc(name)}</span>`);
+    if(p.niche_primary && NICHE[p.niche_primary]) bits.push(`<span class="pw-chip">${esc(NICHE[p.niche_primary])}</span>`);
+    if(p.vtuber_type && VT[p.vtuber_type]) bits.push(`<span class="pw-chip">${esc(VT[p.vtuber_type])}</span>`);
+    (Array.isArray(p.voice_tone)?p.voice_tone:[]).slice(0,3).forEach(v => { if(TONE[v]) bits.push(`<span class="pw-chip">${esc(TONE[v])}</span>`); });
+    if(p.vibe) bits.push(`<span class="pw-vibe">“${esc(p.vibe)}”</span>`);
+    if(!bits.length) return;   // nothing meaningful saved yet → stay hidden
+    document.getElementById('pwBody').innerHTML = bits.join('');
+    document.getElementById('profileWidget').classList.remove('hidden');
+  }catch(e){ console.warn('Profile widget render failed:', e); }
 })();
 </script>
 

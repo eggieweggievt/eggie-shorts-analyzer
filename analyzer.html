@@ -4,15 +4,15 @@
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Eggie's Shorts Analyzer 🐙 — Score your short-form video</title>
-<meta name="description" content="Paste your YouTube Short, TikTok, or Instagram Reel and find out what's working and what's not. A simple checker for anyone who wants their shorts to actually do well." />
+<title>Optimizer 🐙 — titles, tags & descriptions that fit your channel</title>
+<meta name="description" content="Score a short, or generate titles, tags, hashtags and a paste-ready description for a short, stream, or long-form video — all tuned to your channel, all in your browser." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <!-- Open Graph / Facebook / Discord / LinkedIn -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://shortsanalyzer.eggieweggie.ca/analyzer.html" />
-<meta property="og:title" content="Eggie's Shorts Analyzer 🐙" />
-<meta property="og:description" content="Find out what's working in your short and what isn't — a beginner-friendly scorer built on the real growth rubric." />
+<meta property="og:title" content="Optimizer 🐙" />
+<meta property="og:description" content="Score your short, or generate titles, tags and a paste-ready description for any short, stream, or video — tuned to your channel." />
 <meta property="og:image" content="preview.png" />
 <meta property="og:image:width" content="1100" />
 <meta property="og:image:height" content="550" />
@@ -21,8 +21,8 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@EggieWeggieVT" />
 <meta name="twitter:creator" content="@EggieWeggieVT" />
-<meta name="twitter:title" content="Eggie's Shorts Analyzer 🐙" />
-<meta name="twitter:description" content="Find out what's working in your short and what isn't — a beginner-friendly scorer built on the real growth rubric." />
+<meta name="twitter:title" content="Optimizer 🐙" />
+<meta name="twitter:description" content="Score your short, or generate titles, tags and a paste-ready description for any short, stream, or video — tuned to your channel." />
 <meta name="twitter:image" content="preview.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -688,6 +688,17 @@
     opacity:0;transition:opacity .25s ease;
   }
   .creator-profile .saved-pill.show{opacity:1}
+  .creator-profile .cp-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:14px}
+  .creator-profile .cp-summary .cp-name{font-weight:800;color:var(--deep)}
+  .creator-profile .cp-summary .cp-chip{
+    display:inline-flex;align-items:center;gap:5px;
+    background:rgba(144,165,255,0.16);border:1px solid rgba(144,165,255,0.3);
+    color:var(--deep);font-weight:700;font-size:12.5px;padding:4px 11px;border-radius:999px;
+  }
+  .creator-profile .cp-summary .cp-loading{color:var(--ink-soft)}
+  .creator-profile .profile-open-btn.cp-secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);border:2px solid rgba(144,165,255,0.4);
+  }
 
   /* Step cards */
   .step-card{position:relative;padding-top:24px;padding-bottom:24px}
@@ -1057,7 +1068,7 @@
   <!-- V3.3 — Top nav, mirrors planner / habits / thumbnail / playbook for consistency -->
   <div class="back-row">
     <a href="index.html" class="back-link">🏠 Hub</a>
-    <a href="analyzer.html" class="back-link current" aria-current="page">🛠️ Analyzer</a>
+    <a href="analyzer.html" class="back-link current" aria-current="page">🎯 Optimizer</a>
     <a href="thumbnail.html" class="back-link">🖼️ Thumbnail</a>
     <a href="planner.html" class="back-link">📅 Planner</a>
     <a href="todo.html" class="back-link">✓ Tasks</a>
@@ -1138,11 +1149,31 @@
       </g>
     </svg>
 
-    <h1 class="logo">Eggie's <img class="octo" src="accent.png" alt="" aria-hidden="true" /> Shorts Analyzer</h1>
-    <p class="tag">Paste a link or fill in the details, and I'll tell you <em>what's working and what isn't</em>. Use it before you post to plan it out, or after to figure out why something didn't pop off. <span class="sparkle">✨</span></p>
+    <h1 class="logo">Optimizer <img class="octo" src="accent.png" alt="" aria-hidden="true" /></h1>
+    <p class="tag">Pick what you're working on — a <em>short</em>, a <em>stream</em>, or a <em>long-form video</em> — and I'll help you score it, name it, tag it, and write the description. <span class="sparkle">✨</span></p>
   </header>
 
-  <!-- WIZARD PROGRESS BAR — shows where you are in the 3-step flow -->
+  <!-- CONTENT-TYPE SELECTOR — the single front door: Short / Stream / Long-form -->
+  <style>
+    #ctypeBar{max-width:560px;margin:0 auto 6px;text-align:center}
+    #ctypeBar .ctype-q{font-weight:700;font-size:13.5px;color:var(--ink-soft,#6b5f8a);margin:0 0 8px}
+    #ctypeBar .ctype-pills{display:inline-flex;gap:6px;background:rgba(144,165,255,0.14);padding:5px;border-radius:999px;flex-wrap:wrap;justify-content:center}
+    #ctypeBar .ctype-pill{border:0;background:transparent;font:inherit;font-weight:800;color:var(--ink-soft,#6b5f8a);padding:9px 20px;border-radius:999px;cursor:pointer;transition:background .12s,color .12s}
+    #ctypeBar .ctype-pill:hover{color:var(--deep,#4D5BC0)}
+    #ctypeBar .ctype-pill.active{background:var(--pink-hot,#FFB2F0);color:#fff;box-shadow:0 2px 10px rgba(255,178,240,0.5)}
+    #ctypeBar .ctype-tagline{font-size:12.5px;color:var(--ink-soft,#6b5f8a);margin:9px 0 0;min-height:18px}
+  </style>
+  <div id="ctypeBar">
+    <p class="ctype-q">What are you working on?</p>
+    <div class="ctype-pills" role="group" aria-label="Content type">
+      <button type="button" class="ctype-pill active" data-ctype="short">📱 Short</button>
+      <button type="button" class="ctype-pill" data-ctype="stream">🔴 Stream</button>
+      <button type="button" class="ctype-pill" data-ctype="long">📺 Long-form</button>
+    </div>
+    <p class="ctype-tagline" id="ctypeTagline">Upload a finished short to score it — or just generate titles, tags &amp; a caption.</p>
+  </div>
+
+  <!-- WIZARD PROGRESS BAR — shows where you are in the 3-step flow (Short only) -->
   <nav class="wizard-progress" id="wizardProgress" aria-label="Analyzer steps">
     <ol>
       <li class="active" data-step="1" tabindex="0"><span class="step-dot"><span>1</span></span><span class="step-label">Upload</span></li>
@@ -1159,20 +1190,19 @@
     <div class="ab-detail" id="abDetail"></div>
   </div>
 
-  <!-- CREATOR PROFILE — saved in browser so identity tags travel with every short -->
-  <details class="creator-profile" id="creatorProfile">
-    <summary>
-      🐙 Your creator profile
-      <span class="profile-tag">saved in your browser</span>
-      <span class="saved-pill" id="profileSavedPill">Saved ✓</span>
-    </summary>
-    <div class="profile-body">
-      <p class="profile-blurb">Your niche, voice, and audience &mdash; saved to your account and folded into every short you score. Open your full profile to edit it.</p>
-      <div class="profile-grid">
-        <button type="button" class="profile-open-btn" id="openFullProfileBtn">🌸 Open your creator profile</button>
+  <!-- CREATOR PROFILE SUMMARY — your profile now lives in Creator Memory; shown here read-only -->
+  <div class="creator-profile" id="creatorProfile">
+    <div class="profile-body" style="padding:14px 20px">
+      <div id="cpSummaryContent" class="cp-summary">
+        <span class="cp-loading">🐙 Your creator profile &mdash; folded into every short you score.</span>
+      </div>
+      <p class="profile-blurb" style="margin:10px 0 0">Your niche, voice, and audience live in <strong>Creator Memory</strong> now — edit them once there and every tool stays in sync.</p>
+      <div class="profile-grid" style="margin-top:12px">
+        <a class="profile-open-btn" href="brand-memory.html">🧠 Edit your profile in Creator Memory</a>
+        <button type="button" class="profile-open-btn cp-secondary" id="openTagTuningBtn">🏷️ Tag tuning</button>
       </div>
     </div>
-  </details>
+  </div>
 
   <!-- STEP 1: UPLOAD VIDEO -->
   <section class="card step-card" id="step1">
@@ -1486,6 +1516,60 @@
       <button class="btn" id="againBtn">🐙 Analyze another short</button>
       <button class="btn secondary" id="copyBtn">Copy the whole report</button>
     </div>
+  </section>
+
+  <!-- ============================================================
+       OPTIMIZE — generate titles, tags, descriptions from Creator Memory
+       (no API; everything is template + your saved profile)
+       ============================================================ -->
+  <style>
+    #optimizeCard .opt-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    #optimizeCard .opt-sub{color:var(--ink-soft,#6b5f8a);font-size:13.5px;margin:8px 0 14px}
+    #optimizeCard .opt-mem-banner{font-size:12.5px;margin:0 0 14px;padding:9px 13px;border-radius:14px;background:rgba(107,228,234,0.16);color:var(--deep,#4D5BC0);font-weight:600;display:none}
+    #optimizeCard .opt-mem-banner.show{display:block}
+    #optimizeCard .opt-mem-banner.warn{background:rgba(255,178,240,0.22)}
+    #optimizeCard .opt-fields{display:flex;flex-direction:column;gap:6px}
+    #optimizeCard .opt-label{font-weight:700;font-size:13px;color:var(--ink,#3a2a5a);margin-top:8px}
+    #optimizeCard .opt-hint{font-weight:500;color:var(--ink-soft,#6b5f8a)}
+    #optimizeCard input[type=text],#optimizeCard textarea,#optimizeCard select{width:100%;border:1.5px solid rgba(144,165,255,0.4);border-radius:13px;padding:11px 13px;font:inherit;color:var(--ink,#3a2a5a);background:rgba(255,255,255,0.75)}
+    #optimizeCard input[type=text]:focus,#optimizeCard textarea:focus,#optimizeCard select:focus{outline:none;border-color:var(--periwinkle,#90A5FF)}
+    #optimizeCard .opt-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    #optimizeCard #optGoBtn{margin-top:14px;align-self:flex-start}
+    #optimizeCard .opt-out{margin-top:6px}
+    #optimizeCard .opt-block{margin-top:18px}
+    #optimizeCard .opt-block-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+    #optimizeCard .opt-block-head .lbl{font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--deep,#4D5BC0)}
+    #optimizeCard .opt-copy{border:1.5px solid rgba(144,165,255,0.4);background:rgba(255,255,255,0.7);border-radius:999px;font:inherit;font-size:12px;font-weight:700;color:var(--deep,#4D5BC0);padding:4px 12px;cursor:pointer}
+    #optimizeCard .opt-copy:hover{background:#fff}
+    #optimizeCard .opt-copy.copied{background:var(--mint,#6BE4EA);color:#fff;border-color:transparent}
+    #optimizeCard .opt-titles{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+    #optimizeCard .opt-titles li{background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.28);border-radius:13px;padding:10px 13px;cursor:pointer;font-weight:600;transition:background .12s}
+    #optimizeCard .opt-titles li:hover{background:#fff;border-color:var(--periwinkle,#90A5FF)}
+    #optimizeCard .opt-titles li.copied{background:var(--mint,#6BE4EA);color:#fff}
+    #optimizeCard .opt-pre{white-space:pre-wrap;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.28);border-radius:13px;padding:13px;font-size:13px;line-height:1.55;color:var(--ink,#3a2a5a)}
+    #optimizeCard .opt-chiprow{display:flex;flex-wrap:wrap;gap:6px}
+    #optimizeCard .opt-tag{background:rgba(144,165,255,0.16);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--deep,#4D5BC0)}
+    #optimizeCard .opt-tip{font-size:13px;color:var(--ink,#3a2a5a);background:rgba(255,178,240,0.16);border-radius:13px;padding:10px 13px;margin-top:7px;line-height:1.5}
+  </style>
+  <section class="card" id="optimizeCard">
+    <div class="opt-head">
+      <h2 style="margin:0" id="optHeading">🎯 Generate — titles, tags &amp; description</h2>
+    </div>
+    <p class="opt-sub" id="optSub">Get stream titles, a paste-ready description with your links + sponsors, tags, hashtags, a Twitch title and a going-live post. Built from your <a href="brand-memory.html">Creator Memory</a>.</p>
+
+    <div class="opt-mem-banner" id="optMemBanner"></div>
+
+    <div class="opt-fields">
+      <label class="opt-label" id="optFocusLabel" for="optFocus">Game / stream focus</label>
+      <input type="text" id="optFocus" placeholder="e.g. Stardew Valley — cozy first playthrough" />
+
+      <label class="opt-label" for="optSpecial">Anything special? <span class="opt-hint">(vibe, goal, milestone)</span></label>
+      <textarea id="optSpecial" rows="2" placeholder="subathon, first playthrough, chill vibes, charity goal…"></textarea>
+
+      <button type="button" class="btn" id="optGoBtn">✨ Generate</button>
+    </div>
+
+    <div class="opt-out" id="optOut" aria-live="polite"></div>
   </section>
 
   <footer>
@@ -4424,9 +4508,9 @@ function describeDetection(d){
     // Captures their context + creates a mailto link so submissions actually reach Eggie.
     const userContext = (document.getElementById('quickContext')?.value || '').slice(0, 200);
     const userTitle = (document.getElementById('title')?.value || '').slice(0, 200);
-    const subject = encodeURIComponent('Suggest a niche for the analyzer');
+    const subject = encodeURIComponent('Suggest a niche for the Optimizer');
     const body = encodeURIComponent(
-      `Hi Eggie!\n\nThe analyzer didn't recognize this niche:\n\n` +
+      `Hi Eggie!\n\nThe Optimizer didn't recognize this niche:\n\n` +
       `What is it about: ${userContext || '(not filled in)'}\n` +
       `Title: ${userTitle || '(not filled in)'}\n\n` +
       `Suggested niche name: \n` +
@@ -4436,7 +4520,7 @@ function describeDetection(d){
     return `
       <div class="suggest-niche-box">
         <div class="suggest-head">🐙 I didn't recognize this niche — wanna teach me?</div>
-        <p>I couldn't match this short to any game, vibe, or content type I know about. That means my hashtag picks won't be as sharp as they could be. <strong>Tell me what this niche is</strong> and I'll add it to the analyzer for everyone.</p>
+        <p>I couldn't match this to any game, vibe, or content type I know about. That means my hashtag picks won't be as sharp as they could be. <strong>Tell me what this niche is</strong> and I'll add it to the Optimizer for everyone.</p>
         <a class="suggest-niche-btn" href="mailto:eggieweggievt@gmail.com?subject=${subject}&body=${body}" target="_blank" rel="noreferrer">📬 Suggest this niche</a>
         <p class="suggest-help">Or just add the game / topic to the title or description above and re-analyze — that often solves it.</p>
       </div>
@@ -5478,7 +5562,7 @@ if(document.readyState === 'loading'){
 
 // ============================================================
 //  Planner integration — read URL hash params and pre-fill fields
-//  Triggered by the planner's "Open full analyzer with this title" button.
+//  Triggered by the planner's "Open the full Optimizer with this title" button.
 //  URL shape: analyzer.html#title=...&hashtags=...
 // ============================================================
 function applyPlannerParams(){
@@ -7082,43 +7166,20 @@ function renderVideoVerdict(v){
     document.body.appendChild(profilePill);
 
     // Inline "Open your creator profile" button (in the page's creator-profile dropdown)
-    const inlineProfileBtn = $byId('openFullProfileBtn');
-    if(inlineProfileBtn) inlineProfileBtn.addEventListener('click', () => openProfileModal(false));
+    const tagTuningBtn = $byId('openTagTuningBtn');
+    if(tagTuningBtn) tagTuningBtn.addEventListener('click', () => openProfileModal(false));
 
     // V3.1 — Creator profile / onboarding modal (single screen)
     const profile = document.createElement('div');
     profile.id = 'ebProfileModal';
     profile.className = 'eb-modal-bg';
     profile.innerHTML = `
-      <div class="eb-modal" style="max-width:720px">
-        <h2 id="ebProfileTitle">🌸 Your creator profile</h2>
-        <div id="ebProfileBanner" class="eb-onboard-banner" style="display:none">
-          <strong>Welcome!</strong> Take 30 seconds to tell me about your channel — niche, voice, audience. Every analysis after this gets <em>biased toward you</em> instead of generic advice. Skip if you're in a hurry; you can always edit from the 🌸 pill.
-        </div>
-
-        <label class="eb-form-label" for="ebProfDisplayName">Display name <span class="eb-form-hint" style="display:inline">(what should I call you?)</span></label>
-        <input id="ebProfDisplayName" type="text" placeholder="e.g. Eggie" maxlength="40" />
-
-        <label class="eb-form-label">Primary niche <span class="eb-form-hint" style="display:inline">(pick one — your main lane)</span></label>
-        <div class="eb-chip-row" id="ebProfNicheRow" data-field="niche_primary" data-mode="single"></div>
-
-        <label class="eb-form-label">VTuber style <span class="eb-form-hint" style="display:inline">(if applicable)</span></label>
-        <div class="eb-chip-row" id="ebProfVtuberRow" data-field="vtuber_type" data-mode="single"></div>
-
-        <label class="eb-form-label">Content forms <span class="eb-form-hint" style="display:inline">(pick all that fit)</span></label>
-        <div class="eb-chip-row" id="ebProfFormsRow" data-field="content_forms" data-mode="multi"></div>
-
-        <label class="eb-form-label">Voice / tone <span class="eb-form-hint" style="display:inline">(pick 1-3 that fit your vibe)</span></label>
-        <div class="eb-chip-row" id="ebProfVoiceRow" data-field="voice_tone" data-mode="multi"></div>
-
-        <label class="eb-form-label" for="ebProfAudience">Who's your audience? <span class="eb-form-hint" style="display:inline">(free text — vibe, interests, age, anything)</span></label>
-        <textarea id="ebProfAudience" rows="2" placeholder="e.g. cozy night-owls who love anime + soulslikes, early 20s, mostly NA + EU"></textarea>
-
-        <label class="eb-form-label">Platforms <span class="eb-form-hint" style="display:inline">(where you post)</span></label>
-        <div class="eb-chip-row" id="ebProfPlatformsRow" data-field="platforms" data-mode="multi"></div>
-
-        <label class="eb-form-label">What are you working toward? <span class="eb-form-hint" style="display:inline">(optional)</span></label>
-        <div class="eb-chip-row" id="ebProfGoalsRow" data-field="goals" data-mode="multi"></div>
+      <div class="eb-modal" style="max-width:640px">
+        <h2 id="ebProfileTitle">🏷️ Tag tuning</h2>
+        <p style="font-size:13.5px;color:var(--ink-soft,#6b5f8a);margin:0 0 14px;line-height:1.55">
+          Fine-tune the hashtags this analyzer suggests for you. Your identity, voice, niche and audience now live in
+          <a href="brand-memory.html" style="color:var(--deep,#4D5BC0);font-weight:700">Creator Memory</a> — edit them there and every tool stays in sync.
+        </p>
 
         <!-- V3.2 — Candidate tag library (always considered, not forced) -->
         <label class="eb-form-label">📚 My tag library <span class="eb-form-hint" style="display:inline">(tags I prefer — surfaced when relevant, not forced)</span></label>
@@ -7136,9 +7197,8 @@ function renderVideoVerdict(v){
         <div id="ebProfStatus" class="eb-status" style="display:none"></div>
 
         <div class="eb-modal-actions">
-          <button class="eb-btn secondary pull-left" id="ebProfSkip">Skip for now</button>
           <button class="eb-btn secondary" id="ebProfCancel">Cancel</button>
-          <button class="eb-btn" id="ebProfSave">💾 Save profile</button>
+          <button class="eb-btn" id="ebProfSave">💾 Save</button>
         </div>
       </div>`;
     document.body.appendChild(profile);
@@ -7181,9 +7241,7 @@ function renderVideoVerdict(v){
     $byId('ebPerfSave').addEventListener('click', savePerformance);
     // V3.1 — profile modal handlers
     $byId('ebProfCancel').addEventListener('click', () => closeModal('ebProfileModal'));
-    $byId('ebProfSkip').addEventListener('click', skipOnboarding);
     $byId('ebProfSave').addEventListener('click', saveProfileFromModal);
-    populateProfileChips();
     // V3.2 — candidate tag library + synonym handlers
     $byId('ebProfCandidateAdd').addEventListener('click', addCandidateTagFromInput);
     $byId('ebProfCandidateInput').addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); addCandidateTagFromInput(); } });
@@ -7281,28 +7339,8 @@ function renderVideoVerdict(v){
   }
 
   function loadProfileIntoModal(){
-    const p = userPrefs || {};
-    $byId('ebProfDisplayName').value = p.display_name || '';
-    $byId('ebProfAudience').value = p.target_audience || '';
-    // Apply selections to chip rows
-    const applySingle = (rowId, value) => {
-      const row = $byId(rowId);
-      if(!row) return;
-      row.querySelectorAll('.eb-chip').forEach(c => c.classList.toggle('active', c.dataset.val === value));
-    };
-    const applyMulti = (rowId, values) => {
-      const row = $byId(rowId);
-      if(!row) return;
-      const set = new Set(Array.isArray(values) ? values : []);
-      row.querySelectorAll('.eb-chip').forEach(c => c.classList.toggle('active', set.has(c.dataset.val)));
-    };
-    applySingle('ebProfNicheRow', p.niche_primary || '');
-    applySingle('ebProfVtuberRow', p.vtuber_type || '');
-    applyMulti('ebProfFormsRow', p.content_forms || []);
-    applyMulti('ebProfVoiceRow', p.voice_tone || []);
-    applyMulti('ebProfPlatformsRow', p.platforms || []);
-    applyMulti('ebProfGoalsRow', p.goals || []);
-    // V3.2 — Render candidate tags + synonym rows from current prefs
+    // Identity/voice/niche moved to Creator Memory. This modal now only tunes
+    // the analyzer's learned tags + topic synonyms (stored in analyzer_user_prefs).
     renderCandidateTags();
     renderSynonymRows();
   }
@@ -7420,9 +7458,7 @@ function renderVideoVerdict(v){
   // Public — open the modal. isOnboarding=true shows the welcome banner.
   function openProfileModal(isOnboarding){
     if(!currentUser){ openSignInModal(); return; }
-    $byId('ebProfileTitle').textContent = isOnboarding ? '🌸 Welcome — tell me about your channel' : '🌸 Your creator profile';
-    $byId('ebProfileBanner').style.display = isOnboarding ? 'block' : 'none';
-    $byId('ebProfSkip').style.display = isOnboarding ? '' : 'none';
+    $byId('ebProfileTitle').textContent = '🏷️ Tag tuning';
     $byId('ebProfStatus').style.display = 'none';
     loadProfileIntoModal();
     openModal('ebProfileModal');
@@ -7431,31 +7467,23 @@ function renderVideoVerdict(v){
   async function saveProfileFromModal(){
     if(!currentUser || !userPrefs){ closeModal('ebProfileModal'); return; }
     // V3.2 — Read synonym rows from DOM into userPrefs.topic_synonyms before save.
+    //         candidate_tags are already mutated live by their add/remove handlers.
     readSynonymRowsToPrefs();
-    const data = readProfileFromModal();
-    Object.assign(userPrefs, data);
-    userPrefs.onboarded_at = userPrefs.onboarded_at || new Date().toISOString();
     const btn = $byId('ebProfSave');
     btn.disabled = true; btn.textContent = 'Saving…';
     const ok = await saveUserPrefs();
-    btn.disabled = false; btn.innerHTML = '💾 Save profile';
+    btn.disabled = false; btn.innerHTML = '💾 Save';
     if(!ok){
       const s = $byId('ebProfStatus');
       s.className = 'eb-status error';
-      s.textContent = "Save failed — your profile couldn't be saved. Try again in a moment, or sign out and back in.";
+      s.textContent = "Save failed — couldn't save your tag settings. Try again in a moment, or sign out and back in.";
       s.style.display = '';
       return;
     }
-    // Reflect into the pill + window globals
-    renderProfilePill();
-    window.__eggieProfile = userPrefs;
-    closeModal('ebProfileModal');
-  }
-
-  async function skipOnboarding(){
-    if(userPrefs){
-      userPrefs.onboarded_at = new Date().toISOString();
-      await saveUserPrefs();
+    // Keep the live engine profile's learned tags in sync (identity stays from Creator Memory)
+    if(window.__eggieProfile){
+      window.__eggieProfile.candidate_tags = userPrefs.candidate_tags;
+      window.__eggieProfile.topic_synonyms = userPrefs.topic_synonyms;
     }
     closeModal('ebProfileModal');
   }
@@ -7464,7 +7492,7 @@ function renderVideoVerdict(v){
     const pill = $byId('ebProfilePill');
     if(!pill) return;
     if(!currentUser){ pill.classList.remove('visible'); return; }
-    const p = userPrefs || {};
+    const p = window.__eggieProfile || userPrefs || {};
     const name = p.display_name || (currentUser.email || '').split('@')[0] || 'You';
     const nicheOpt = (PROFILE_OPTIONS.niche_primary.find(o => o.v === p.niche_primary) || {}).l;
     const vtuberOpt = (PROFILE_OPTIONS.vtuber_type.find(o => o.v === p.vtuber_type) || {}).l;
@@ -7574,14 +7602,10 @@ function renderVideoVerdict(v){
       pill.innerHTML = `🐙 ${user.email.split('@')[0]}`;
     }
     closeModal('ebAuthModal');
-    await loadUserPrefs();
-    // V3.1 — Show profile pill + auto-open onboarding modal for first-timers
+    await loadUserPrefs();                  // learned data (tags, synonyms, weights) → window.__eggieProfile
+    await loadBrandMemoryProfileFromCloud(); // overlay identity/voice/niche from Creator Memory
     renderProfilePill();
-    window.__eggieProfile = userPrefs;
-    if(userPrefs && !userPrefs.onboarded_at){
-      // Slight delay so the user sees the page render first
-      setTimeout(() => openProfileModal(true), 400);
-    }
+    renderInlineProfileSummary();
   }
 
   function onSignOut(){
@@ -7595,7 +7619,9 @@ function renderVideoVerdict(v){
     // V3.1 — hide profile pill
     const profilePill = $byId('ebProfilePill');
     if(profilePill) profilePill.classList.remove('visible');
-    window.__eggieProfile = null;
+    // Keep personalization from local Creator Memory even when signed out
+    window.__eggieProfile = brandMemoryToEngine(readBrandMemoryLocal());
+    renderInlineProfileSummary();
   }
 
   function openMenu(pill){
@@ -8033,12 +8059,85 @@ function renderVideoVerdict(v){
     isSignedIn: () => !!currentUser
   };
 
+  // ---------- CREATOR MEMORY BRIDGE ----------
+  // The single creator profile lives in Creator Memory (planner_brand_memory /
+  // localStorage 'eggie.brandmemory.v1'). The analyzer READS it; it no longer
+  // edits identity/voice/niche. Learned tags + synonyms stay in analyzer_user_prefs.
+  const BRAND_MEMORY_LS = 'eggie.brandmemory.v1';
+  function brandMemoryToEngine(src){
+    if(!src || typeof src !== 'object') return {};
+    const p = src.profile && typeof src.profile === 'object' ? src.profile : src;  // accept full row OR profile obj
+    const arr = v => Array.isArray(v) ? v : [];
+    return {
+      display_name: p.creator_name || undefined,
+      creator_name: p.creator_name || undefined,
+      tagline: p.tagline || undefined,
+      vibe: p.vibe || undefined,
+      target_audience: p.audience || undefined,
+      niche_primary: p.niche_primary || '',
+      vtuber_type: p.vtuber_type || '',
+      content_forms: arr(p.content_forms),
+      platforms: arr(p.platforms),
+      goals: arr(p.goals),
+      voice_tone: arr(p.voice_tone),
+      always_words: arr(p.always_words),
+      never_words: arr(p.never_words),
+      signature_phrases: arr(p.signature_phrases)
+    };
+  }
+  function readBrandMemoryLocal(){
+    try{ const raw = localStorage.getItem(BRAND_MEMORY_LS); if(raw) return JSON.parse(raw); }catch(e){}
+    return null;
+  }
+  function applyBrandProfileToEngine(src){
+    // Merge identity/voice/niche over whatever learned data is already on the engine profile
+    window.__eggieProfile = Object.assign({}, window.__eggieProfile || {}, brandMemoryToEngine(src));
+    // Expose the FULL raw row (profile + links) for the Optimizer, which needs
+    // schedule / sponsors / links that the engine-subset profile doesn't carry.
+    try{ window.__eggieBrandRaw = src || readBrandMemoryLocal() || null; }catch(e){}
+    try{ window.dispatchEvent(new CustomEvent('eggie:brandmemory')); }catch(e){}
+    renderProfilePill();
+    renderInlineProfileSummary();
+  }
+  async function loadBrandMemoryProfileFromCloud(){
+    if(sb && currentUser){
+      try{
+        const { data, error } = await sb.from('planner_brand_memory').select('*').eq('user_id', currentUser.id).maybeSingle();
+        if(!error && data){ applyBrandProfileToEngine(data); return; }
+      }catch(e){}
+    }
+    applyBrandProfileToEngine(readBrandMemoryLocal());  // fall back to this browser's copy
+  }
+  function ebProfChip(label){ return `<span class="cp-chip">${escapeHTML(label)}</span>`; }
+  function renderInlineProfileSummary(){
+    const box = $byId('cpSummaryContent');
+    if(!box) return;
+    const p = (window.__eggieProfile && (window.__eggieProfile.niche_primary || window.__eggieProfile.creator_name || (window.__eggieProfile.voice_tone||[]).length))
+      ? window.__eggieProfile
+      : brandMemoryToEngine(readBrandMemoryLocal());
+    const labelOf = (field, v) => { const o = (PROFILE_OPTIONS[field]||[]).find(x => x.v === v); return o ? o.l : v; };
+    const bits = [];
+    const name = p.creator_name || p.display_name;
+    if(name) bits.push(`<span class="cp-name">🐙 ${escapeHTML(name)}</span>`);
+    if(p.niche_primary) bits.push(ebProfChip(labelOf('niche_primary', p.niche_primary)));
+    if(p.vtuber_type && p.vtuber_type !== 'none') bits.push(ebProfChip(labelOf('vtuber_type', p.vtuber_type)));
+    (p.voice_tone || []).slice(0,3).forEach(v => bits.push(ebProfChip(labelOf('voice_tone', v))));
+    if(p.vibe) bits.push(`<span style="color:var(--ink-soft,#6b5f8a);font-size:13px">“${escapeHTML(p.vibe)}”</span>`);
+    if(bits.length){
+      box.innerHTML = bits.join('');
+    } else {
+      box.innerHTML = `<span class="cp-loading">🌸 No profile yet — <a href="brand-memory.html" style="color:var(--deep,#4D5BC0);font-weight:700">set up your Creator Memory</a> so every score sounds like you.</span>`;
+    }
+  }
+
   // ---------- BOOT ----------
   function boot(){
     injectCSS();
     injectUI();
     watchTitleSuggestions();
     watchForResults();
+    // Personalize from this browser's Creator Memory immediately (works even signed out)
+    applyBrandProfileToEngine(readBrandMemoryLocal());
     // Init Supabase lazily — first auth-pill click triggers SDK load if not already.
     // But still attempt silent restore-from-session in the background.
     initSupabase();
@@ -8053,5 +8152,333 @@ function renderVideoVerdict(v){
 </script>
 <script src="focus-widget.js" defer></script>
 <script src="hub-nav.js?v=5"></script>
+<script>
+/* ============================================================
+   EGGIE OPTIMIZER — no-API title / tag / description generator
+   Reads Creator Memory (window.__eggieBrandRaw, set by the analyzer's
+   brand-memory loader, or localStorage 'eggie.brandmemory.v1'), then
+   assembles paste-ready output from templates + niche tag pools.
+   ============================================================ */
+(function(){
+  'use strict';
+  var card = document.getElementById('optimizeCard');
+  if(!card) return;
+  var BRAND_LS = 'eggie.brandmemory.v1';
+  // Driven by the top content-type selector: 'short' | 'stream' | 'long'.
+  // 'mode' is the legacy generator switch: stream => livestream blocks, else video blocks.
+  var ctype = 'short';
+  var mode = 'video';
+
+  // ---- niche tag pools (canonical niche_primary keys) ----
+  var NICHE_TAGS = {
+    gaming:   ['FirstPlaythrough','NoSpoilers','Chill','Chatty','PlayingWithViewers','CozyGaming','CoOp','Casual'],
+    chatting: ['AMA','Chatty','GoodVibes','Interactive','CommunityFocused','Cozy','Storytime','Yapping'],
+    art:      ['DigitalArt','Drawing','ArtCommissions','CharacterDesign','Sketching','Live2D','Cozy','Chatty'],
+    music:    ['Singing','Karaoke','Cover','OriginalMusic','LiveMusic','AnimeSongs','Chatty','Cozy'],
+    variety:  ['VarietyStreamer','Chatty','Chill','Funny','CommunityFocused','PlayingWithViewers','GoodVibes','HighEnergy'],
+    tech:     ['Coding','Programming','Tutorial','LiveCoding','StudyWithMe','TechTalk','BeginnerFriendly','Chatty'],
+    lifestyle:['Vlog','Cozy','Chatty','GoodVibes','DayInTheLife','Crafting','CommunityFocused','Chill'],
+    irl:      ['IRL','Chatty','GoodVibes','Travel','CommunityFocused','HighEnergy','WalkAndTalk','Vlog'],
+    asmr:     ['ASMR','Relaxing','Tingles','WhisperASMR','Cozy','Comfy','Wholesome','Calm'],
+    vrchat:   ['VRChat','SocialVR','Funny','Chatty','HighEnergy','CommunityFocused','Chill','RolePlay']
+  };
+  var NICHE_LABEL = {gaming:'cozy gaming',chatting:'just chatting',art:'art',music:'music',variety:'variety',tech:'tech',lifestyle:'lifestyle',irl:'IRL',asmr:'ASMR',vrchat:'VRChat'};
+
+  // ---- title hook banks ----
+  var HOOKS_FIRST = [
+    "I've NEVER Played This Before… | {G}",
+    "Starting {G} With ZERO Clue What I'm Doing",
+    "first time touching {G} — do NOT spoil me",
+    "Will I Survive?? {G} (First Playthrough)",
+    "{G} but I have no idea what I'm doing"
+  ];
+  var HOOKS_GENERAL = [
+    "cozy {G} arc begins 🌱",
+    "we're playing {G} until something goes wrong",
+    "{G} — chaos mode engaged",
+    "{G} first impressions !!",
+    "back on {G} — come hang"
+  ];
+  var HOOKS_NICHE = {
+    chatting:["just chatting & vibing — ask me anything","let's talk about EVERYTHING tonight","yap session: come hang in chat"],
+    art:["cozy art stream — taking it slow today","drawing until my hand gives out 🎨","art commissions + chill chat"],
+    music:["karaoke night — request something cursed 🎵","singing until my voice gives out","cover song chaos — you pick"],
+    asmr:["soft ASMR to melt your stress 🌙","whispers + tingles for a calm night","cozy ASMR wind-down"],
+    irl:["out and about — come walk with me","IRL hang — touching grass live","day in the life, live"],
+    vrchat:["meeting strangers in VRChat (chaos)","VRChat worlds + new friends","full body tracking shenanigans"]
+  };
+  var TWITCH_CMDS = ['!discord','!socials','!lurk','!commands'];
+  var DEFAULT_EMOJI = ['🐙','🌸','✨','🌱','💗','🌙'];
+
+  // ---- helpers ----
+  function getMem(){
+    var raw = window.__eggieBrandRaw;
+    if(!raw){ try{ var s = localStorage.getItem(BRAND_LS); if(s) raw = JSON.parse(s); }catch(e){} }
+    if(!raw) return null;
+    var p = (raw.profile && typeof raw.profile==='object') ? raw.profile : raw;
+    return {
+      name: (p.creator_name||'').trim(),
+      niche: (p.niche_primary||'').trim(),
+      vtuber: (p.vtuber_type||'').trim(),
+      emoji: (p.emoji_style||''),
+      schedule: (p.stream_schedule||'').trim(),
+      sponsors: (p.sponsors||'').trim(),
+      platforms: Array.isArray(p.platforms)?p.platforms:[],
+      neverWords: Array.isArray(p.never_words)?p.never_words:[],
+      links: Array.isArray(raw.links)?raw.links:[]
+    };
+  }
+  function emojis(mem){
+    var found = mem && mem.emoji ? (mem.emoji.match(/\p{Extended_Pictographic}/gu)||[]) : [];
+    return found.length ? found : DEFAULT_EMOJI;
+  }
+  function pick(arr,i){ return arr[i % arr.length]; }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function gameOf(focus){ return (focus||'').split(/[—\-|:·]/)[0].trim() || (focus||'').trim(); }
+  function titleCase(s){ return s.replace(/\b\w/g, function(c){return c.toUpperCase();}); }
+  function isFirst(focus, special){ return /first|blind|never|new to|day 1|day one/i.test((focus||'')+' '+(special||'')); }
+  function identityTags(mem){
+    if(mem && (mem.vtuber==='none')) return [];
+    return ['VTuber','ENVTuber'];
+  }
+  function platLabel(mem){
+    var map={youtube:'YouTube',twitch:'Twitch',tiktok:'TikTok',instagram:'Instagram',x:'X',kick:'Kick'};
+    var ps=(mem&&mem.platforms||[]).map(function(v){return map[v]||v;});
+    return ps.length ? ps.join(' + ') : 'YouTube + Twitch';
+  }
+
+  // ---- builders ----
+  function buildTitles(focus, special, mem){
+    var G = gameOf(focus) || 'today\'s stream';
+    var em = emojis(mem);
+    var pool = (isFirst(focus,special) ? HOOKS_FIRST : []).concat(HOOKS_GENERAL);
+    var nicheHooks = (mem && HOOKS_NICHE[mem.niche]) || [];
+    // For non-game niches, prefer niche-flavored hooks
+    if((mem && ['chatting','art','music','asmr','irl','vrchat'].indexOf(mem.niche)>-1) && nicheHooks.length){
+      pool = nicheHooks.concat(pool);
+    }
+    var out = [];
+    for(var i=0;i<4 && i<pool.length;i++){
+      var hook = pool[i].replace(/\{G\}/g, titleCase(G));
+      out.push(pick(em,i) + ' ' + hook);
+    }
+    return out;
+  }
+  function ytTags(focus, mem){
+    var G = gameOf(focus);
+    var tags = [];
+    if(G){ tags.push(G, G+' first playthrough', G+' gameplay', G+' beginner'); }
+    var niche = (mem && NICHE_LABEL[mem.niche]) || '';
+    if(niche){ tags.push(niche, niche+' livestream'); }
+    tags = tags.concat(['vtuber','vtuber live','vtuber livestream','english vtuber','vtuber first playthrough','livestream']);
+    if(mem && mem.name) tags.push(mem.name);
+    // de-dupe, cap ~15
+    var seen={}, res=[];
+    tags.forEach(function(t){ t=t.trim(); var k=t.toLowerCase(); if(t && !seen[k]){ seen[k]=1; res.push(t); } });
+    return res.slice(0,15);
+  }
+  function twitchTags(mem){
+    var pool = (mem && NICHE_TAGS[mem.niche]) ? NICHE_TAGS[mem.niche].slice() : NICHE_TAGS.gaming.slice();
+    return identityTags(mem).concat(pool).slice(0,10);
+  }
+  function hashtags(focus, mem){
+    var G = gameOf(focus).replace(/\s+/g,'');
+    var h = [];
+    if(G) h.push('#'+G);
+    h.push('#VTuber', ctype==='stream'?'#Livestream':(ctype==='short'?'#Shorts':'#YouTube'));
+    return h.slice(0,3).join(' ');
+  }
+  function linkBlock(mem){
+    if(!mem || !mem.links.length) return '';
+    return mem.links.filter(function(l){return (l.url||'').trim();})
+      .map(function(l){ return '▸ ' + ((l.label||'Link').trim()) + ': ' + l.url.trim(); }).join('\n');
+  }
+  function sponsorBlock(mem){
+    if(!mem || !mem.sponsors) return '';
+    var lines = mem.sponsors.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    if(!lines.length) return '';
+    var code='';
+    var rows = lines.map(function(line){
+      var parts = line.split('|').map(function(x){return x.trim();});
+      if(parts[2] && !code) code = parts[2];
+      return '▸ ' + parts[0] + (parts[1]?': '+parts[1]:'') ;
+    });
+    var head = code ? ('💜 Sponsors — code '+code+':') : '💜 Sponsors:';
+    return head + '\n' + rows.join('\n');
+  }
+  function description(focus, special, mem){
+    var G = gameOf(focus) || 'today';
+    var em = emojis(mem);
+    var firstly = isFirst(focus,special);
+    var lines = [];
+    // Shorts get a tight caption — no link/sponsor wall.
+    if(ctype==='short'){
+      lines.push((firstly?('First time playing '+titleCase(G)+'! '):'') + (special?special.trim()+' — ':'') + 'come watch a VTuber lose the plot ' + pick(em,0));
+      lines.push('drop a follow if this made you smile 🐙');
+      return lines.join('\n');
+    }
+    // Stream + long-form share the rich, paste-ready block with a tailored opener.
+    if(ctype==='stream'){
+      lines.push((firstly ? ('First time ever playing '+titleCase(G)+' — no guides, no spoilers, full chaos. ') : ('We\'re back on '+titleCase(G)+'! ')) + pick(em,0));
+      lines.push('');
+      lines.push('Come hang out, backseat (gently), and watch a VTuber slowly lose the plot. '+ (special?('Tonight: '+special.trim()+'. '):'') + 'Chat\'s where the fun is — say hi when you get here. ' + pick(em,1));
+    } else { // long-form
+      lines.push((firstly ? ('My first time with '+titleCase(G)+'! ') : ('Today on the channel: '+titleCase(G)+'. ')) + pick(em,0));
+      lines.push('');
+      lines.push((special?(special.trim()+'. '):'') + 'Settle in, and let me know what you think in the comments. ' + pick(em,1));
+    }
+    lines.push('');
+    if(mem && mem.schedule){ lines.push('📅 ' + mem.schedule); }
+    lines.push('🔔 Subscribe & hit the bell so you never miss ' + (ctype==='stream'?'a stream!':'a video!'));
+    var lb = linkBlock(mem), sb = sponsorBlock(mem);
+    if(lb || sb){ lines.push(''); lines.push('────────────────────────────'); }
+    if(lb) lines.push(lb);
+    if(sb){ lines.push(''); lines.push(sb); }
+    return lines.join('\n');
+  }
+  function twitchTitle(focus, special, mem){
+    var G = gameOf(focus) || 'cozy stream';
+    var em = emojis(mem);
+    var lead = isFirst(focus,special) ? ('FIRST TIME '+titleCase(G)+' — do NOT tell me what to do') : (titleCase(G)+' — come vibe');
+    return pick(em,0) + ' ' + lead + ' ' + pick(TWITCH_CMDS,0);
+  }
+  function xPost(focus, special, mem){
+    var G = gameOf(focus) || 'a stream';
+    var lead = isFirst(focus,special) ? ('first ever '+G+' playthrough and i already don\'t know what i\'m doing') : ('live now playing '+G);
+    return 'going live: ' + lead + ' — ' + platLabel(mem) + ' all at once 🐙';
+  }
+  function reminders(focus, special, mem){
+    var out = [];
+    if(isFirst(focus,special)) out.push('Drop a soft spoiler-ban in chat before you start ("no guides, no hints, chaos only 🙏") — it primes engagement AND protects your first-playthrough magic, your biggest retention hook.');
+    if(mem && mem.niche==='asmr') out.push('ASMR is moderation-heavy — keep mods active and double-check your Content Classification Labels (they carry over between streams).');
+    if(ctype==='stream') out.push('Re-check your tags every stream so they match what you\'re actually doing — Twitch penalises mismatches, and stale tags waste slots.');
+    if(ctype==='stream') out.push('On YouTube, hit "Go Live" only once gameplay is on screen — idling on a waiting screen tanks VOD discoverability.');
+    if(ctype!=='stream') out.push('Lead your title with the strongest hook — most viewers decide from the first few words before they ever click.');
+    return out.slice(0,3);
+  }
+
+  // ---- render ----
+  function blockTitles(label, titles){
+    var lis = titles.map(function(t){ return '<li data-copytext="'+esc(t)+'">'+esc(t)+'</li>'; }).join('');
+    return '<div class="opt-block"><div class="opt-block-head"><span class="lbl">'+esc(label)+'</span><span class="opt-copy-note" style="font-size:11px;color:var(--ink-soft,#6b5f8a)">tap to copy</span></div><ul class="opt-titles">'+lis+'</ul></div>';
+  }
+  function blockCopy(label, text, pre){
+    var body = pre ? '<div class="opt-pre">'+esc(text)+'</div>' : '<div class="opt-chiprow">'+text.split(', ').map(function(t){return '<span class="opt-tag">'+esc(t)+'</span>';}).join('')+'</div>';
+    return '<div class="opt-block"><div class="opt-block-head"><span class="lbl">'+esc(label)+'</span><button type="button" class="opt-copy" data-copy="'+esc(text)+'">copy</button></div>'+body+'</div>';
+  }
+  function blockTips(label, tips){
+    return '<div class="opt-block"><div class="opt-block-head"><span class="lbl">'+esc(label)+'</span></div>'+tips.map(function(t){return '<div class="opt-tip">'+esc(t)+'</div>';}).join('')+'</div>';
+  }
+
+  function run(){
+    var mem = getMem();
+    var focus = (document.getElementById('optFocus').value||'').trim();
+    var special = (document.getElementById('optSpecial').value||'').trim();
+    var out = document.getElementById('optOut');
+    if(!focus){ out.innerHTML = '<div class="opt-tip">Tell me the game or focus first 🐙</div>'; return; }
+    var html = '';
+    if(mode==='livestream'){
+      html += blockTitles('YouTube stream titles', buildTitles(focus, special, mem));
+      html += blockCopy('YouTube description', description(focus, special, mem), true);
+      html += blockCopy('YouTube tags', ytTags(focus, mem).join(', '), false);
+      html += blockCopy('YouTube hashtags', hashtags(focus, mem), false);
+      html += blockCopy('Twitch title', twitchTitle(focus, special, mem), false);
+      html += blockCopy('Twitch tags', twitchTags(mem).join(', '), false);
+      html += blockCopy('Twitter / X going-live post', xPost(focus, special, mem), true);
+      html += blockTips('Stream reminders 🌸', reminders(focus, special, mem));
+    } else {
+      var titleLabel = ctype==='short' ? 'Short title ideas' : 'Video title ideas';
+      var descLabel  = ctype==='short' ? 'Caption' : 'Description';
+      html += blockTitles(titleLabel, buildTitles(focus, special, mem));
+      html += blockCopy(descLabel, description(focus, special, mem), true);
+      html += blockCopy('Tags', ytTags(focus, mem).join(', '), false);
+      html += blockCopy('Hashtags', hashtags(focus, mem), false);
+      html += blockTips(ctype==='short'?'Before you post 🌸':'Before you publish 🌸', reminders(focus, special, mem));
+    }
+    out.innerHTML = html;
+    wireCopies(out);
+  }
+
+  function flash(el, ok){
+    var orig = el.classList.contains('opt-copy') ? el.textContent : null;
+    el.classList.add('copied');
+    if(orig!=null) el.textContent = '✓ copied';
+    setTimeout(function(){ el.classList.remove('copied'); if(orig!=null) el.textContent = orig; }, 1600);
+  }
+  function copyText(t, el){
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){flash(el);}, function(){}); }
+    else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); flash(el); }
+  }
+  function wireCopies(scope){
+    scope.querySelectorAll('.opt-copy').forEach(function(b){ b.addEventListener('click', function(){ copyText(b.getAttribute('data-copy'), b); }); });
+    scope.querySelectorAll('.opt-titles li').forEach(function(li){ li.addEventListener('click', function(){ copyText(li.getAttribute('data-copytext'), li); }); });
+  }
+
+  // ---- memory banner ----
+  function refreshBanner(){
+    var mem = getMem();
+    var b = document.getElementById('optMemBanner');
+    if(!b) return;
+    if(mem && (mem.niche || mem.name)){
+      var nm = mem.name ? mem.name : 'your channel';
+      var ni = mem.niche ? (NICHE_LABEL[mem.niche]||mem.niche) : '';
+      b.className = 'opt-mem-banner show';
+      b.innerHTML = '🧠 Tuned to '+esc(nm)+(ni?(' · '+esc(ni)):'')+(mem.schedule?' · schedule loaded':'')+(mem.sponsors?' · sponsors loaded':'')+' — edit in <a href="brand-memory.html">Creator Memory</a>.';
+    } else {
+      b.className = 'opt-mem-banner show warn';
+      b.innerHTML = '🌸 No Creator Memory yet — set it up in <a href="brand-memory.html">Creator Memory</a> so descriptions auto-fill your schedule, links & sponsors.';
+    }
+  }
+
+  // ---- content-type wiring (driven by the top #ctypeBar selector) ----
+  // The wizard (upload + ML scoring) is shown for SHORT only. Stream + Long-form
+  // are generate-only, so we hide the wizard and float this generator to the top.
+  var WIZARD_IDS = ['wizardProgress','step1','step2','step3','analyzingBanner','resultsCard'];
+  var COPY = {
+    short:  { heading:'🎯 Generate short copy', sub:'Title ideas, tags, hashtags and a paste-ready caption — no upload needed. Built from your Creator Memory.',
+              focusLabel:'Short topic / hook', focusPh:'e.g. I almost died in the Elden Ring DLC',
+              tagline:'Upload a finished short to score it — or just generate titles, tags & a caption.' },
+    stream: { heading:'🎯 Optimize your stream', sub:'Stream titles, a paste-ready description with your links + sponsors, tags, hashtags, a Twitch title and a going-live post. Built from your Creator Memory.',
+              focusLabel:'Game / stream focus', focusPh:'e.g. Stardew Valley — cozy first playthrough',
+              tagline:'No upload — generate stream titles, tags, a description, a Twitch title & a going-live post.' },
+    long:   { heading:'🎯 Optimize your video', sub:'Title ideas, tags, hashtags and a paste-ready YouTube description. Built from your Creator Memory.',
+              focusLabel:'Video topic / working title', focusPh:'e.g. I tried VTubing on a $0 budget',
+              tagline:'No upload — generate video titles, tags, hashtags & a YouTube description.' }
+  };
+  var SAVED = {}; var inited = false;
+  function hideEl(id){ var el=document.getElementById(id); if(!el) return; if(!(id in SAVED)) SAVED[id]=el.style.display; el.style.display='none'; }
+  function restoreEl(id){ var el=document.getElementById(id); if(!el) return; if(id in SAVED){ el.style.display=SAVED[id]; delete SAVED[id]; } }
+  function positionCard(){
+    var wrap = card.parentNode; if(!wrap) return;
+    if(ctype==='short'){ var footer = wrap.querySelector('footer'); if(footer) wrap.insertBefore(card, footer); }
+    else { var profile = document.getElementById('creatorProfile'); if(profile && profile.parentNode) profile.parentNode.insertBefore(card, profile.nextSibling); }
+  }
+  function applyType(ct){
+    if(!COPY[ct]) ct = 'short';
+    ctype = ct; mode = (ct==='stream') ? 'livestream' : 'video';
+    var bar = document.getElementById('ctypeBar');
+    if(bar) bar.querySelectorAll('.ctype-pill').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-ctype')===ct); });
+    var tl = document.getElementById('ctypeTagline'); if(tl) tl.textContent = COPY[ct].tagline;
+    // Wizard visibility — leave the default 'short' layout untouched on first run.
+    if(ct==='short'){ if(inited) WIZARD_IDS.forEach(restoreEl); }
+    else { WIZARD_IDS.forEach(hideEl); }
+    inited = true;
+    var h=document.getElementById('optHeading'); if(h) h.textContent = COPY[ct].heading;
+    var s=document.getElementById('optSub'); if(s) s.textContent = COPY[ct].sub;
+    var fl=document.getElementById('optFocusLabel'); if(fl) fl.textContent = COPY[ct].focusLabel;
+    var f=document.getElementById('optFocus'); if(f) f.placeholder = COPY[ct].focusPh;
+    document.getElementById('optOut').innerHTML = '';
+    positionCard();
+  }
+
+  var ctypeBar = document.getElementById('ctypeBar');
+  if(ctypeBar) ctypeBar.querySelectorAll('.ctype-pill').forEach(function(b){ b.addEventListener('click', function(){ applyType(b.getAttribute('data-ctype')); }); });
+  document.getElementById('optGoBtn').addEventListener('click', run);
+  document.getElementById('optFocus').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); run(); } });
+  window.addEventListener('eggie:brandmemory', refreshBanner);
+  refreshBanner();
+  applyType('short');
+})();
+</script>
 </body>
 </html>

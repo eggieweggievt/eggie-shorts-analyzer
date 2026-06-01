@@ -25,11 +25,11 @@ You can be three different kinds of person on this site. Pick yours.
 Eggie's Creator Hub is a collection of small browser tools stitched together with a shared Supabase backend. The pieces:
 
 - A **content planner** with kanban, list, and calendar views, plus an embedded todo widget, a teleprompter, a brand kit, and a stream schedule.
-- A **shorts analyzer** that scores a video out of 100 using on-device ML (vision + speech + audio + semantic matching).
+- An **Optimizer** that scores a short out of 100 with on-device ML (vision + speech + audio + semantic matching), and generates titles, tags & descriptions for shorts, streams & long-form.
 - A **thumbnail checker** that grades thumbnails for click-through across every YouTube/Twitch size.
 - A **todo list** with recurring tasks, subtasks, a focus timer, and a daily review.
 - A **habits tracker** that uses spoon-theory energy levels and pauses streaks instead of resetting them.
-- A **growth playbook** — the master long-form reference behind everything the analyzer scores.
+- A **growth playbook** — the master long-form reference behind everything the Optimizer scores.
 
 Sign-in is by **magic link** (email-based, no passwords). Most of the tools work without signing in; sign-in is the thing that gives you persistence and sharing.
 
@@ -59,11 +59,11 @@ Twelve pages (eleven HTML + one set of SQL migrations). Each one has a one-liner
 | Page | What it does |
 |---|---|
 | [`index.html`](./index.html) | Hub homepage. Tile grid linking to every tool. Shows a welcome card + habits widget when signed in. |
-| [`analyzer.html`](./analyzer.html) | Shorts analyzer. Upload a video → score + critique + hashtags + ready-to-paste post pack. Sign-in optional. |
+| [`analyzer.html`](./analyzer.html) | Optimizer. Score a short (upload → critique + hashtags + post pack), or generate titles, tags & a description for a short, stream, or long-form video. Sign-in optional. |
 | [`thumbnail.html`](./thumbnail.html) | Thumbnail checker. Drop a thumb → multi-size preview + score + fix list. No sign-in. |
 | [`growth.html`](./growth.html) | Long-form growth playbook. 18 chapters of VTuber/streamer growth rules. No sign-in. |
 | [`habits.html`](./habits.html) | Spoon-theory habit tracker. Works locally; sign-in syncs across devices. |
-| [`about.html`](./about.html) | What the analyzer knows about (game/genre/identity database) + contact form. |
+| [`about.html`](./about.html) | What the Optimizer knows about (game/genre/identity database) + contact form. |
 | [`media-kit.html?u=<slug>`](./media-kit.html) | A creator's public sponsor-facing media kit. Anonymous read when the owner has toggled it public. |
 
 ### Tools that need sign-in
@@ -89,7 +89,7 @@ Twelve pages (eleven HTML + one set of SQL migrations). Each one has a one-liner
 | [`planner-manager-hub-v2.sql`](./planner-manager-hub-v2.sql) | Per-manager client profiles + polymorphic comments. | 5th |
 | [`planner-sponsor-kit.sql`](./planner-sponsor-kit.sql) | Media kit (public-readable) + sponsor pitches + slug RPCs + all V4.1 fields (aggregate stats, cadence, stream schedule, content rating, active partnerships, group, management clients, merch, Discord, creator collabs). One idempotent file. | 6th |
 | [`habits-supabase.sql`](./habits-supabase.sql) | Habit-state sync table (standalone). | any time |
-| [`analyzer-supabase.sql`](./analyzer-supabase.sql) | Analyzer preferences, saved runs, ratings, trends cache. | any time |
+| [`analyzer-supabase.sql`](./analyzer-supabase.sql) | Optimizer preferences, saved runs, ratings, trends cache. | any time |
 
 All migrations are **idempotent** — safe to re-run.
 
