@@ -1,5 +1,5 @@
 {
-  "lastRefreshed": "2026-05-25",
+  "lastRefreshed": "2026-06-01",
   "source": "VidIQ outliers — top VTuber Shorts by breakout score (last 3 months)",
   "note": "Real titles from proven breakout VTuber Shorts. The analyzer uses `templates` as reference shapes for suggestTitles, and `high_performers` as inspiration when the user asks for examples. Refresh weekly via scheduled task.",
   "totalSamples": 50,
@@ -12,7 +12,7 @@
         "This VTuber {weird_thing}?!",
         "This vtuber {strong_emotion}",
         "This VTuber Just {past_action}",
-        "This Voice Actress is Becoming a VTuber!"
+        "This VTuber will {action} for the content!?"
       ],
       "real_examples": [
         "This VTuber Customization Option Is Insane",
@@ -25,22 +25,27 @@
       ]
     },
     "vtuber_statement": {
-      "description": "Declarative '{VTuber} {action}' shape — like reporting an event the viewer NEEDS to see.",
+      "description": "Declarative '{VTuber} {action}' shape — like reporting an event the viewer NEEDS to see. The single highest-volume category this week.",
       "patterns": [
         "VTuber {dramatic_event}",
         "VTuber Finds {surprising_thing} In {game}?!",
-        "VTuber drama gets completely out of hand",
         "VTuber {trait_or_skill}?!",
-        "VTuber can't be stopped... {context}"
+        "VTuber can't be stopped... {context}",
+        "Vtuber encounters a wild {thing}",
+        "{vtuber} could {extreme_consequence}"
       ],
       "real_examples": [
-        "VTuber drama gets completely out of hand",
+        "Vtuber Design Controversy!!",
+        "vtuber can't be stopped... lamar gta5",
+        "A Vtuber Voice Actor?!",
         "VTuber Finds New Science In Subnautica 2?!",
+        "VTuber drama gets completely out of hand",
+        "Vtuber Is A Martial Artist?!",
         "VTuber realized what this could mean?",
         "VTuber has a CREEPY experience",
-        "vtuber can't be stopped... lamar gta5",
-        "Vtuber Is A Martial Artist?!",
-        "Vtuber Design Controversy!! 🎨‼️"
+        "Vtuber encounters a wild Warwick",
+        "WD-40 could KILL a VTuber",
+        "Sinder Might ACTUALLY Be The Smartest Vtuber"
       ]
     },
     "how_to": {
@@ -50,14 +55,15 @@
         "How I {past_action} {result}",
         "How to Make a Vtuber {capability}",
         "How to Set Up {feature} for Vtuber Models",
-        "HOW TO BE A {niche} VTUBER TUTORIAL"
+        "HOW TO BE A {niche} VTUBER TUTORIAL",
+        "{topic} EXPLAINED for dummies!"
       ],
       "real_examples": [
         "How to Make a Vtuber Speak Sign Language",
         "How to Set Up Hand Toggles for Vtuber Models",
         "How I Use The Former Bird App",
-        "How I Accidentally Became a VTuber",
-        "HOW TO BE A SIMRACING VTUBER TUTORIAL"
+        "HOW TO BE A SIMRACING VTUBER TUTORIAL",
+        "Vtubers EXPLAINED for dummies!"
       ]
     },
     "pov": {
@@ -78,54 +84,63 @@
         "What even is {thing}?",
         "Why is {subject} doing {action}?",
         "{niche} NEVER show their {hidden_thing}",
-        "What no one tells you about {topic}"
+        "What no one tells you about {topic}",
+        "Lots of Vtubers do {this_thing}"
       ],
       "real_examples": [
         "Nobody Can Guess Where This VTuber Is From…",
         "What even is Vtuber physics?",
-        "#vtuber NEVER show their FINAL FORMS",
-        "Midwestern VTuber has a secret obsession"
+        "NEVER show their FINAL FORMS",
+        "Midwestern VTuber has a secret obsession",
+        "Lots of Vtubers do this"
       ]
     },
     "comparison": {
       "description": "'X vs Y' framing — invites debate, drives comments.",
       "patterns": [
         "{thing_a} vs {thing_b} VTuber Energy",
-        "Male vs Female VTuber {something}"
+        "Male vs Female VTuber {something}",
+        "Cheap vs Expensive VTuber {item}!"
       ],
       "real_examples": [
-        "Male vs Female VTuber Energy"
+        "Male vs Female VTuber Energy",
+        "Cheap vs Expensive VTuber Designs!"
       ]
     },
     "shock_reaction": {
-      "description": "Strong emotional reaction — 'I'm SCARED', exclamations, single-word hooks.",
+      "description": "Strong emotional reaction or punchy single-phrase hook — 'I'm SCARED', exclamations, two-word meme captions. Massive breakout potential when the clip carries it.",
       "patterns": [
         "{emotion}!",
         "Unfortunate",
-        "Works everytime {emoji}",
+        "Good Luck",
+        "Touch Grass",
         "{niche} {emotional_state}"
       ],
       "real_examples": [
+        "FACE VERIFICATION",
         "I'm SCARED",
-        "Unfortunate",
-        "Works everytime 😏",
-        "FACE VERIFICATION"
+        "Good Luck",
+        "Touch Grass",
+        "Evil Advisor",
+        "Unfortunate"
       ]
     },
     "setup_tutorial": {
-      "description": "Budget / setup content — proven CTR with concrete numbers.",
+      "description": "Budget / setup content — proven CTR with concrete numbers and gear advice.",
       "patterns": [
         "Build a Full VTuber Setup for UNDER ${amount}!",
         "{number} VTuber {item} mistakes you're making",
+        "You CAN Have TOO MUCH {thing} on a VTuber Model",
         "Making the Perfect VTuber {thing}"
       ],
       "real_examples": [
-        "Build a Full VTuber Setup for UNDER $80! #ad",
-        "Making the Perfect VTuber Intro"
+        "Build a Full VTuber Setup for UNDER $80!",
+        "You CAN Have TOO MUCH Motion on a VTuber Model",
+        "How to Set Up Hand Toggles for Vtuber Models"
       ]
     },
     "self_deprecating": {
-      "description": "Humble / honest framing — viewers love a creator being real.",
+      "description": "Humble / honest framing — viewers love a creator being real about the grind or their own flaws.",
       "patterns": [
         "My VTuber {asset} is {flaw}… But It Somehow Works",
         "Vtuber {activity} is not for the weak",
@@ -133,8 +148,7 @@
       ],
       "real_examples": [
         "My VTuber Design is Lazy… But It Somehow Works 💀",
-        "Vtuber model making is not for the weak 🫩",
-        "Average Parasocial Vtuber"
+        "Vtuber model making is not for the weak 🫩"
       ]
     },
     "face_or_reveal": {
@@ -148,49 +162,63 @@
         "Face Reveal AND How I Control My Vtuber",
         "How I Accidentally Became a VTuber"
       ]
+    },
+    "origin_story": {
+      "description": "NEW this week — the 'how/why I became a VTuber' origin hook. Personal, identity-driven, and recurring across 3+ breakouts. Pairs storytime energy with a built-in open loop (viewers stay to hear the journey).",
+      "patterns": [
+        "WHY I BECAME A VTUBER",
+        "How I Accidentally Became a VTuber",
+        "This {profession} is Becoming a VTuber!",
+        "How I Became a VTuber {timeframe_or_twist}"
+      ],
+      "real_examples": [
+        "WHY I BECAME A VTUBER",
+        "How I Accidentally Became a VTuber",
+        "This Voice Actress is Becoming a VTuber!"
+      ]
     }
   },
 
   "high_performers": [
-    {"title": "FACE VERIFICATION #vtuber",                                                    "breakoutScore": 646.89, "views": 1449753, "channel": "SinniDesu"},
-    {"title": "Pov: making with vtuber move is your job!",                                    "breakoutScore": 136.71, "views": 1267101, "channel": "Hooli Live2D"},
-    {"title": "Vtuber Design Controversy!! 🎨‼️",                                              "breakoutScore": 94.88,  "views": 602714,  "channel": "SnerlineArt"},
-    {"title": "vtuber can't be stopped... lamar gta5",                                        "breakoutScore": 64.53,  "views": 1136728, "channel": "Gameplay Arena"},
-    {"title": "HOW TO BE A SIMRACING VTUBER TUTORIAL",                                        "breakoutScore": 61.70,  "views": 102975,  "channel": "blxebxrry3"},
-    {"title": "How to Make a Vtuber Speak Sign Language",                                     "breakoutScore": 32.11,  "views": 288700,  "channel": "BlubbrMuffins"},
-    {"title": "Male vs Female VTuber Energy",                                                 "breakoutScore": 23.33,  "views": 30143,   "channel": "JonnyRyushi"},
-    {"title": "This VTuber Customization Option Is Insane",                                   "breakoutScore": 23.09,  "views": 71700,   "channel": "Rayshii"},
-    {"title": "I'm SCARED  #vtuber  #vtuberclips #warhammer40k",                              "breakoutScore": 22.92,  "views": 723654,  "channel": "Aurelia Tempris"},
-    {"title": "Face Reveal AND How I Control My Vtuber",                                      "breakoutScore": 22.48,  "views": 34642,   "channel": "ODISeth"},
-    {"title": "A Vtuber Voice Actor?!",                                                       "breakoutScore": 21.97,  "views": 622793,  "channel": "Dragondog Ch."},
-    {"title": "VTuber Finds New Science In Subnautica 2?!",                                   "breakoutScore": 19.94,  "views": 22508,   "channel": "Larxa"},
-    {"title": "VTuber drama gets completely out of hand",                                     "breakoutScore": 16.43,  "views": 40495,   "channel": "OhItsPiper"},
-    {"title": "How I Use The Former Bird App",                                                "breakoutScore": 15.38,  "views": 19262,   "channel": "trillestial"},
-    {"title": "This vtuber SUCKS man",                                                        "breakoutScore": 14.39,  "views": 24329,   "channel": "LALA ☆ LULU ☆ TIME"},
-    {"title": "VTUBER sees viewers INSTAGRAM",                                                "breakoutScore": 14.14,  "views": 26638,   "channel": "Lumo"},
-    {"title": "Average Parasocial Vtuber",                                                    "breakoutScore": 13.78,  "views": 22545,   "channel": "Minorikyun"},
-    {"title": "Evil Advisor",                                                                 "breakoutScore": 12.62,  "views": 210800,  "channel": "AroWrites"},
-    {"title": "How to Set Up Hand Toggles for Vtuber Models",                                 "breakoutScore": 12.27,  "views": 25582,   "channel": "BlubbrMuffins"},
-    {"title": "This VTuber will bark for the content!?",                                      "breakoutScore": 11.68,  "views": 22817,   "channel": "Ramaea"},
-    {"title": "WD-40 could KILL a VTuber",                                                    "breakoutScore": 11.48,  "views": 24971,   "channel": "Vixie"},
-    {"title": "This Voice Actress is Becoming a VTuber!",                                     "breakoutScore": 11.20,  "views": 148292,  "channel": "Yui Tachibana Ch."},
-    {"title": "Vtubers EXPLAINED for dummies!",                                               "breakoutScore": 10.25,  "views": 19795,   "channel": "Lumi"},
-    {"title": "#vtuber NEVER show their FINAL FORMS",                                         "breakoutScore": 9.79,   "views": 96882,   "channel": "Kaori Lupine"},
-    {"title": "Vtuber Is A Martial Artist?!",                                                 "breakoutScore": 9.77,   "views": 23831,   "channel": "pandalily"},
-    {"title": "Vtuber model making is not for the weak 🫩",                                    "breakoutScore": 8.75,   "views": 28637,   "channel": "Cocoa's Art"},
-    {"title": "My VTuber Design is Lazy… But It Somehow Works 💀",                            "breakoutScore": 7.69,   "views": 16821,   "channel": "snommot"},
-    {"title": "Vtuber encounters a wild Warwick",                                             "breakoutScore": 7.39,   "views": 318127,  "channel": "bluwunk"},
-    {"title": "Nobody Can Guess Where This VTuber Is From…",                                  "breakoutScore": 6.85,   "views": 24667,   "channel": "Rayshii"},
-    {"title": "This VTuber prefers being what!?",                                             "breakoutScore": 5.69,   "views": 16125,   "channel": "Ramaea"},
-    {"title": "This VTuber went BALD!",                                                       "breakoutScore": 5.50,   "views": 29671,   "channel": "FayeTale"},
-    {"title": "Build a Full VTuber Setup for UNDER $80!",                                     "breakoutScore": 4.11,   "views": 29932,   "channel": "OhItsPiper"},
-    {"title": "Midwestern VTuber has a secret obsession",                                     "breakoutScore": 3.89,   "views": 10008,   "channel": "Vixie"},
-    {"title": "I turned this Vtuber into a Gremlin! Art Challenge",                           "breakoutScore": 3.81,   "views": 19314,   "channel": "p00ji"},
-    {"title": "You CAN Have TOO MUCH Motion on a VTuber Model",                               "breakoutScore": 3.73,   "views": 11051,   "channel": "BlubbrMuffins"},
-    {"title": "How I Accidentally Became a VTuber",                                           "breakoutScore": 3.69,   "views": 22841,   "channel": "Rayshii"},
-    {"title": "What even is Vtuber physics?",                                                 "breakoutScore": 3.59,   "views": 51387,   "channel": "Cayn Coldstar"},
-    {"title": "Sinder Might ACTUALLY Be The Smartest Vtuber 🧠",                              "breakoutScore": 3.27,   "views": 74915,   "channel": "Sinder"},
-    {"title": "This VTuber Just Became Lost Media. We Have Lost History",                     "breakoutScore": 2.19,   "views": 38840,   "channel": "Yui Tachibana Ch."},
-    {"title": "Making the Perfect VTuber Intro",                                              "breakoutScore": 2.00,   "views": 20450,   "channel": "Grinding Gear"}
+    {"title": "FACE VERIFICATION #vtuber",                                                                                  "breakoutScore": 643.93, "views": 1450139, "channel": "SinniDesu"},
+    {"title": "Pov: making with vtuber move is your job!🤸🏻‍♀️#vtuber #live2d #animation #rigging #digitalart",                "breakoutScore": 135.26, "views": 1274427, "channel": "Hooli Live2D"},
+    {"title": "Vtuber Design Controversy!! 🎨‼️",                                                                            "breakoutScore": 93.62,  "views": 627377,  "channel": "SnerlineArt"},
+    {"title": "vtuber can't be stopped... lamar gta5 #funny #fyp",                                                           "breakoutScore": 64.54,  "views": 1137083, "channel": "Gameplay Arena"},
+    {"title": "HOW TO BE A SIMRACING VTUBER TUTORIAL",                                                                       "breakoutScore": 61.71,  "views": 102998,  "channel": "blxebxrry3"},
+    {"title": "GiaicuuMilliele #vtuberuprising #vtuber #viral #vtuberclips",                                                 "breakoutScore": 60.97,  "views": 110731,  "channel": "Millie Lê"},
+    {"title": "How to Make a Vtuber Speak Sign Language",                                                                    "breakoutScore": 38.44,  "views": 321512,  "channel": "BlubbrMuffins"},
+    {"title": "Male vs Female VTuber Energy #vtuber #shorts #meme",                                                          "breakoutScore": 23.33,  "views": 30143,   "channel": "JonnyRyushi"},
+    {"title": "This VTuber Customization Option Is Insane",                                                                  "breakoutScore": 23.04,  "views": 71716,   "channel": "Rayshii"},
+    {"title": "Face Reveal AND How I Control My Vtuber",                                                                     "breakoutScore": 22.44,  "views": 34649,   "channel": "ODISeth"},
+    {"title": "A Vtuber Voice Actor?! #vtuber #indie #music #jpop #voiceacting",                                             "breakoutScore": 21.95,  "views": 622873,  "channel": "Dragondog Ch."},
+    {"title": "VTuber Finds New Science In Subnautica 2?! #subnautica2",                                                     "breakoutScore": 19.88,  "views": 22548,   "channel": "Larxa"},
+    {"title": "I'm SCARED  #vtuber  #vtuberclips #warhammer40k",                                                             "breakoutScore": 18.75,  "views": 755196,  "channel": "Aurelia Tempris"},
+    {"title": "Good Luck #vtuber #vtuberclips #warhammer",                                                                   "breakoutScore": 18.12,  "views": 234421,  "channel": "Aurelia Tempris"},
+    {"title": "Touch Grass #vtuber #vtuberclips #warhammer",                                                                 "breakoutScore": 16.68,  "views": 261589,  "channel": "Aurelia Tempris"},
+    {"title": "VTuber drama gets completely out of hand",                                                                   "breakoutScore": 16.43,  "views": 40515,   "channel": "OhItsPiper【HEIRS】"},
+    {"title": "How I Use The Former Bird App #vtuber",                                                                       "breakoutScore": 15.39,  "views": 19278,   "channel": "trillestial"},
+    {"title": "This vtuber SUCKS man #vtuber #vtuberclip",                                                                   "breakoutScore": 14.29,  "views": 24343,   "channel": "LALA ☆ LULU ☆ TIME"},
+    {"title": "How to Set Up Hand Toggles for Vtuber Models",                                                               "breakoutScore": 12.28,  "views": 25615,   "channel": "BlubbrMuffins"},
+    {"title": "Evil Advisor | #dnd #vtuber #ttrpg",                                                                         "breakoutScore": 12.26,  "views": 212638,  "channel": "AroWrites"},
+    {"title": "This VTuber will bark for the content!? #vtuber #memes #shorts",                                             "breakoutScore": 11.65,  "views": 22827,   "channel": "Ramaea"},
+    {"title": "WD-40 could KILL a VTuber | VTuber Funny Clip #vtuber #envtuber",                                            "breakoutScore": 11.5,   "views": 25001,   "channel": "Vixie"},
+    {"title": "This Voice Actress is Becoming a VTuber! #vtuber",                                                            "breakoutScore": 11.17,  "views": 149682,  "channel": "Yui Tachibana Ch. (VTuber)"},
+    {"title": "VTuber realized what this could mean? #memes #vtuberclips #shortsfeed",                                      "breakoutScore": 10.64,  "views": 24471,   "channel": "SuliaDH"},
+    {"title": "Vtubers EXPLAINED for dummies! °•.*- #vtuber",                                                               "breakoutScore": 10.02,  "views": 19850,   "channel": "Lumi"},
+    {"title": "#vtuber NEVER show their FINAL FORMS",                                                                       "breakoutScore": 9.79,   "views": 96906,   "channel": "Kaori Lupine"},
+    {"title": "vtuber almost uninstalls 😔🥀 #vtuber #treeshateyou #envtuber #vtuberclips",                                   "breakoutScore": 9.3,    "views": 19144,   "channel": "Devi de Vaux | CIESTE"},
+    {"title": "100% | @KumiVT |  #vtuber #envtuber #vtuberclips",                                                           "breakoutScore": 9.23,   "views": 38151,   "channel": "Raydee Bites"},
+    {"title": "Vtuber Is A Martial Artist?!",                                                                               "breakoutScore": 9.07,   "views": 23353,   "channel": "pandalily"},
+    {"title": "Vtuber model making is not for the weak 🫩 #art #pngtuber #vtuber",                                          "breakoutScore": 8.71,   "views": 28712,   "channel": "Cocoa's Art"},
+    {"title": "Vtuber creates their true selves #Vtuber #VtuberClip #Pokemon #Pokopia",                                     "breakoutScore": 7.78,   "views": 24205,   "channel": "webemez"},
+    {"title": "This VTuber Just Became Lost Media. We Have Lost History #vtuber",                                           "breakoutScore": 7.66,   "views": 151049,  "channel": "Yui Tachibana Ch. (VTuber)"},
+    {"title": "Vtuber encounters a wild Warwick",                                                                           "breakoutScore": 7.37,   "views": 320695,  "channel": "bluwunk"},
+    {"title": "Nobody Can Guess Where This VTuber Is From…",                                                                "breakoutScore": 6.84,   "views": 24675,   "channel": "Rayshii"},
+    {"title": "My VTuber Design is Lazy… But It Somehow Works 💀",                                                          "breakoutScore": 6.25,   "views": 17097,   "channel": "snommot"},
+    {"title": "Lots of Vtubers do this #vtuber #envtuber",                                                                  "breakoutScore": 5.98,   "views": 11620,   "channel": "Chawawaa"},
+    {"title": "This VTuber prefers being what!? #vtuber #memes #shorts",                                                    "breakoutScore": 5.64,   "views": 16140,   "channel": "Ramaea"},
+    {"title": "This VTuber went BALD!  #vtuber #storytime #memes",                                                          "breakoutScore": 5.5,    "views": 29698,   "channel": "FayeTale"},
+    {"title": "You CAN Have TOO MUCH Motion on a VTuber Model",                                                             "breakoutScore": 4.62,   "views": 11072,   "channel": "BlubbrMuffins"},
+    {"title": "Build a Full VTuber Setup for UNDER $80! #ad",                                                               "breakoutScore": 4.11,   "views": 29974,   "channel": "OhItsPiper【HEIRS】"}
   ]
 }
