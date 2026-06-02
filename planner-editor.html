@@ -231,6 +231,7 @@
   .project-card[data-status="recording"] {border-left-color:#90A5FF}
   .project-card[data-status="editing"]   {border-left-color:#C9A8FF}
   .project-card[data-status="scheduled"] {border-left-color:#6BE4EA}
+  .project-card[data-status="edited"]    {border-left-color:#7BD88F}
   .project-card[data-status="posted"]    {border-left-color:#A8E6BE}
   .project-card[data-status="archived"]  {border-left-color:rgba(144,165,255,0.3);opacity:.6}
   .project-card .pc-title{
@@ -490,6 +491,7 @@
   .pc-status-strip .pc-status-current.script   {background:rgba(255,176,122,0.35);color:#a35c00}
   .pc-status-strip .pc-status-current.recording{background:rgba(144,165,255,0.35);color:#4a3a8a}
   .pc-status-strip .pc-status-current.editing  {background:rgba(201,168,255,0.4);color:#5a3a8a}
+  .pc-status-strip .pc-status-current.edited   {background:rgba(123,216,143,0.4);color:#1f7a40}
   .pc-status-strip .pc-status-current.scheduled{background:rgba(107,228,234,0.4);color:#0b6a76}
   .pc-status-strip .pc-status-current.posted   {background:rgba(168,230,190,0.5);color:#1f6b35}
 
@@ -627,6 +629,43 @@
     transition:transform .12s,filter .12s;
   }
   .pc-upload-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+
+  /* "Mark as edited" handoff CTA — the editor's finish line. */
+  .pc-mark-edited-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding:12px 14px;margin:0 0 14px;
+    background:linear-gradient(135deg,rgba(123,216,143,0.2),rgba(107,228,234,0.15));
+    border:1.5px solid rgba(123,216,143,0.6);
+    border-radius:12px;
+  }
+  .pc-mark-edited-row .me-label{
+    flex:1;min-width:0;font-size:13px;color:#1f7a40;font-weight:700;
+  }
+  .pc-mark-edited-row .me-label small{
+    display:block;font-weight:500;color:#3a7a4a;font-size:11.5px;margin-top:2px;
+  }
+  .pc-mark-edited-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 18px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    background:linear-gradient(135deg,#6BC78A,#3FB8C0);
+    border:none;box-shadow:0 4px 12px rgba(91,168,117,0.32);
+    transition:transform .12s,filter .12s;
+  }
+  .pc-mark-edited-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+  /* Already-edited confirmation state — calmer, with a reopen option. */
+  .pc-mark-edited-row.done{
+    background:rgba(123,216,143,0.14);
+    border-style:dashed;
+  }
+  .pc-reopen-btn{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:7px 14px;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:12.5px;color:var(--ink-soft);
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.4);
+    transition:background .12s,color .12s;
+  }
+  .pc-reopen-btn:hover{background:#fff;color:var(--deep)}
 
   /* Editor notes box — the new feature, with a save button */
   .pc-editor-notes-section{
@@ -920,12 +959,14 @@ const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 
 const STATUS_LABELS = {
   idea:'💡 Idea', script:'📝 Script', recording:'🎙️ Recording',
-  editing:'✂️ Editing', scheduled:'📅 Scheduled', posted:'✅ Posted', archived:'📦 Archived'
+  editing:'✂️ Editing', edited:'🎞️ Edited', scheduled:'📅 Scheduled', posted:'✅ Posted', archived:'📦 Archived'
 };
 
 // What status transitions an editor is allowed to perform.
-// They can ship an item from editing → scheduled (handing it back to the creator).
-const EDITOR_STATUSES = ['recording','editing','scheduled'];
+// The editor's pipeline ends at "edited" — that's their handoff. Marking a cut
+// as edited drops the card into the creator's "Edited" column automatically;
+// the creator takes it from there (scheduling / posting).
+const EDITOR_STATUSES = ['recording','editing','edited'];
 
 const PLATFORM_LABELS = {
   youtube_shorts:'YT Shorts', youtube_long:'YT Long', tiktok:'TikTok',
@@ -1397,6 +1438,13 @@ function renderProjects(){
   wrap.querySelectorAll('button[data-save-notes-id]').forEach(btn => {
     btn.addEventListener('click', () => saveEditorNotes(btn.dataset.saveNotesId, btn));
   });
+  // 🎞️ Mark-as-edited + reopen handoff buttons
+  wrap.querySelectorAll('button[data-mark-edited]').forEach(btn => {
+    btn.addEventListener('click', () => markEdited(btn.dataset.markEdited));
+  });
+  wrap.querySelectorAll('button[data-reopen-edit]').forEach(btn => {
+    btn.addEventListener('click', () => reopenEdit(btn.dataset.reopenEdit));
+  });
   // V3 — Wire up per-VTuber brand kit collapse toggles
   wrap.querySelectorAll('.vtuber-section .brand-kit-card').forEach(card => {
     const head = card.querySelector('.bk-card-head');
@@ -1518,7 +1566,7 @@ function bucketItems(items){
   }
   const ready = [], pending = [], done = [];
   items.forEach(p => {
-    if(['scheduled','posted','archived'].includes(p.status)){
+    if(['edited','scheduled','posted','archived'].includes(p.status)){
       done.push(p);
     } else if(p.status === 'editing' || (p.status === 'recording' && hasFootage(p))){
       ready.push(p);
@@ -1591,9 +1639,9 @@ function renderReadinessBuckets(items){
       <div class="project-bucket done">
         <div class="bucket-head">
           <span class="bucket-icon">✅</span>
-          <h4>Already shipped</h4>
+          <h4>Done &amp; handed off</h4>
           <span class="bucket-count">${done.length}</span>
-          <div class="bucket-hint">Scheduled, posted, or archived. Reference material — no action needed.</div>
+          <div class="bucket-hint">Marked edited, scheduled, posted, or archived. Reopen an edited one below if you need another pass.</div>
         </div>
         ${done.map(renderProjectCard).join('')}
       </div>
@@ -1741,6 +1789,31 @@ function renderProjectCard(p){
       </div>
     </div>` : '';
 
+  // 🎞️ Mark-as-edited handoff CTA.
+  //  - status === 'edited'  → show the "sent" confirmation + a reopen button.
+  //  - already shipped further (scheduled/posted/archived) → nothing (creator owns it now).
+  //  - otherwise            → show the "Mark as edited" button.
+  const _hasFootage = !!(p.footage_url || (Array.isArray(p.attachments) && p.attachments.length > 0));
+  const _readyToEdit = p.status === 'editing' || (p.status === 'recording' && _hasFootage);
+  let markEditedHtml = '';
+  if(p.status === 'edited'){
+    markEditedHtml = `
+      <div class="pc-mark-edited-row done">
+        <span class="me-label">🎞️ Sent to your creator as <strong>edited</strong>.
+          <small>It's waiting in their “Edited” column for review. Clicked too soon? Reopen it.</small>
+        </span>
+        <button class="pc-reopen-btn" data-reopen-edit="${escape(p.id)}">↩ Reopen (back to editing)</button>
+      </div>`;
+  } else if(_readyToEdit){
+    markEditedHtml = `
+      <div class="pc-mark-edited-row">
+        <span class="me-label">🎞️ Cut finished?
+          <small>Marks this done and drops it into your creator's “Edited” column automatically.</small>
+        </span>
+        <button class="pc-mark-edited-btn" data-mark-edited="${escape(p.id)}">🎞️ Mark as edited</button>
+      </div>`;
+  }
+
   // Editor notes — display "last updated" hint if present
   let notesUpdatedHtml = '';
   if(p.editor_notes_updated_at){
@@ -1783,6 +1856,9 @@ function renderProjectCard(p){
         <input id="upload-${escape(p.id)}" type="file" data-upload-id="${escape(p.id)}" style="display:none" />
       </div>
 
+      <!-- 🎞️ Mark as edited — the handoff. Drops this card into the creator's "Edited" column. -->
+      ${markEditedHtml}
+
       <!-- Hook — always visible (it's a quick read and sets the tone for the edit) -->
       ${p.hook ? `
         <div class="pc-section pc-hook">
@@ -1818,6 +1894,27 @@ function renderProjectCard(p){
 
     </div>
   `;
+}
+
+// 🎞️ Mark an item as edited — the editor's handoff. Sets status to 'edited',
+// which surfaces it in the creator's "Edited" column automatically (no new table,
+// no extra column — it rides the existing status pipeline). RLS already lets an
+// editor update items assigned to them.
+async function markEdited(itemId){
+  if(isPreview){ alert('👁 Preview mode is read-only. The editor marks their own work as edited on their dashboard.'); return; }
+  if(!confirm('Mark this as edited? It moves into your creator\'s “Edited” column so they know the cut is ready to review.')) return;
+  const { error } = await sb.from('planner_items').update({ status:'edited' }).eq('id', itemId);
+  if(error){ alert('Couldn\'t mark as edited: ' + error.message); return; }
+  await loadProjects();
+}
+
+// Reopen an edited item back to ✂️ Editing (un-mark, for when it was sent too soon).
+async function reopenEdit(itemId){
+  if(isPreview){ alert('👁 Preview mode is read-only.'); return; }
+  if(!confirm('Reopen this project? It moves back to ✂️ Editing and leaves your creator\'s “Edited” column.')) return;
+  const { error } = await sb.from('planner_items').update({ status:'editing' }).eq('id', itemId);
+  if(error){ alert('Couldn\'t reopen: ' + error.message); return; }
+  await loadProjects();
 }
 
 async function updateStatus(itemId, nextStatus){

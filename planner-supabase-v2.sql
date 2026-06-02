@@ -11,7 +11,7 @@
 CREATE TABLE IF NOT EXISTS planner_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  status text NOT NULL DEFAULT 'idea',                  -- idea | script | recording | editing | scheduled | posted | archived
+  status text NOT NULL DEFAULT 'idea',                  -- idea | script | recording | editing | edited | scheduled | posted | archived  (free text, no CHECK; 'edited' = editor marked their cut done, handed back to creator)
   position int DEFAULT 0,                                -- ordering within status column
   title text,
   platforms jsonb DEFAULT '[]'::jsonb,                   -- ['youtube_shorts','tiktok',...]

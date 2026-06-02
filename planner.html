@@ -498,6 +498,7 @@
   .kanban-col[data-status="script"]    .kanban-col-head{color:#a35c00}
   .kanban-col[data-status="recording"] .kanban-col-head{color:#1f6580}
   .kanban-col[data-status="editing"]   .kanban-col-head{color:#4a3a8a}
+  .kanban-col[data-status="edited"]    .kanban-col-head{color:#1f8a4a}
   .kanban-col[data-status="scheduled"] .kanban-col-head{color:#3FB8C0}
   .kanban-col[data-status="posted"]    .kanban-col-head{color:#1f6b35}
   .kanban-col[data-status="archived"]  .kanban-col-head{color:#6b5f8a}
@@ -544,6 +545,9 @@
   .kanban-col[data-status="script"]    .item-card{border-left-color:#FFB07A}
   .kanban-col[data-status="recording"] .item-card{border-left-color:#90A5FF}
   .kanban-col[data-status="editing"]   .item-card{border-left-color:#C9A8FF}
+  /* Editor just finished these — give the column a soft "fresh handoff" tint + glow so it's noticeable */
+  .kanban-col[data-status="edited"]    .item-card{border-left-color:#7BD88F;box-shadow:0 0 0 1.5px rgba(123,216,143,0.4),0 4px 12px rgba(123,216,143,0.18)}
+  .kanban-col[data-status="edited"]    .kanban-col-head{background:linear-gradient(135deg,rgba(123,216,143,0.18),rgba(107,228,234,0.12))}
   .kanban-col[data-status="scheduled"] .item-card{border-left-color:#6BE4EA}
   .kanban-col[data-status="posted"]    .item-card{border-left-color:#A8E6BE}
   .kanban-col[data-status="archived"]  .item-card{border-left-color:rgba(144,165,255,0.3);opacity:.7}
@@ -589,6 +593,7 @@
   .list-view .status-tag.script   {background:rgba(255,176,122,0.3);color:#a35c00}
   .list-view .status-tag.recording{background:rgba(144,165,255,0.3);color:#4a3a8a}
   .list-view .status-tag.editing  {background:rgba(201,168,255,0.35);color:#5a3a8a}
+  .list-view .status-tag.edited   {background:rgba(123,216,143,0.32);color:#1f7a40}
   .list-view .status-tag.scheduled{background:rgba(107,228,234,0.35);color:#0b6a76}
   .list-view .status-tag.posted   {background:rgba(168,230,190,0.45);color:#1f6b35}
   .list-view .status-tag.archived {background:rgba(144,165,255,0.15);color:var(--ink-soft)}
@@ -2194,6 +2199,7 @@
             <option value="script">📝 Script</option>
             <option value="recording">🎙️ Recording</option>
             <option value="editing">✂️ Editing</option>
+            <option value="edited">🎞️ Edited</option>
             <option value="scheduled">📅 Scheduled</option>
             <option value="posted">✅ Posted</option>
             <option value="archived">📦 Archived</option>
@@ -2997,6 +3003,7 @@ const STATUSES = [
   {value:'script',    label:'📝 Script',    visible:true},
   {value:'recording', label:'🎙️ Recording', visible:true},
   {value:'editing',   label:'✂️ Editing',   visible:true},
+  {value:'edited',    label:'🎞️ Edited',    visible:true},  // editor marked their cut done → handed back to creator
   {value:'scheduled', label:'📅 Scheduled', visible:true},
   {value:'posted',    label:'✅ Posted',    visible:true},
   {value:'archived',  label:'📦 Archived',  visible:false}  // hidden from kanban by default
@@ -4377,7 +4384,7 @@ function openEditorPreview(){
   editorItems.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
   const STATUS_LABELS = {
     idea:'💡 Idea', script:'📝 Script', recording:'🎙️ Recording',
-    editing:'✂️ Editing', scheduled:'📅 Scheduled', posted:'✅ Posted', archived:'📦 Archived'
+    editing:'✂️ Editing', edited:'🎞️ Edited', scheduled:'📅 Scheduled', posted:'✅ Posted', archived:'📦 Archived'
   };
   $('previewProjectsSummary').innerHTML = Object.entries(STATUS_LABELS)
     .filter(([k]) => counts[k])
