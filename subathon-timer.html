@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Subathon Timer — OBS Widget</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================================
+     OBS BROWSER-SOURCE TIMER WIDGET — "megathon" style
+     - Transparent background (OBS composites it over your scene)
+     - Add as Browser Source, suggested 820×500 (timer-only: 820×220)
+     - Modular: stats bar · timer · progress dots · milestone/goal pills.
+       Sections appear automatically when there's data; pick exactly which
+       ones with &sections=stats,timer,progress,goals
+     - URL params:
+         t=TOKEN        (required — from subathon.html → Go Live)
+         accent=ffb2f0  (hex — highlight color)
+         fg=ffffff      (hex — main digits color)
+         scale=1.2      (multiply the whole widget size)
+         align=left|center|right    (default center)
+         sections=timer,goals       (default: all)
+         maxgoals=4     (how many goal pills to show)
+     ========================================================================== */
+  html,body{
+    margin:0;padding:0;background:transparent;overflow:hidden;
+    font-family:'Fredoka','Quicksand',system-ui,sans-serif;
+  }
+  .stage{
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    gap:14px;min-height:100vh;padding:10px 16px;box-sizing:border-box;
+  }
+  .stage.left{align-items:flex-start}
+  .stage.right{align-items:flex-end}
+
+  /* ---- stats bar ---- */
+  .stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:600;font-size:20px;line-height:1;
+    color:#fff;
+    padding:9px 18px;border-radius:999px;
+    border:2.5px solid rgba(255,255,255,0.75);
+    box-shadow:0 3px 10px rgba(40,28,80,0.25);
+    text-shadow:0 1px 3px rgba(40,28,80,0.35);
+  }
+  .chip .ic{font-size:18px}
+  .chip.c-subs{background:linear-gradient(135deg,#b48ae0cc,#9a6fd0cc)}
+  .chip.c-dollars{background:linear-gradient(135deg,#d9b552cc,#c9a23ecc)}
+  .chip.c-bits{background:linear-gradient(135deg,#7d96d8cc,#6a82c4cc)}
+  .chip.c-clock{background:linear-gradient(135deg,#7cc98fcc,#5fb87acc)}
+
+  /* ---- timer ---- */
+  .timer-row{
+    display:flex;align-items:center;gap:18px;position:relative;
+  }
+  .clock-ic{
+    width:64px;height:64px;border-radius:50%;
+    border:6px solid var(--accent);
+    position:relative;flex:0 0 auto;
+    background:rgba(255,255,255,0.12);
+    box-shadow:0 0 18px var(--accent-glow), inset 0 0 8px rgba(255,255,255,0.25);
+  }
+  .clock-ic::before, .clock-ic::after{
+    content:'';position:absolute;left:50%;top:50%;
+    background:var(--accent);border-radius:3px;transform-origin:bottom center;
+  }
+  .clock-ic::before{width:5px;height:18px;margin-left:-2.5px;margin-top:-18px;transform:rotate(40deg)}
+  .clock-ic::after{width:5px;height:13px;margin-left:-2.5px;margin-top:-13px;transform:rotate(-80deg)}
+  .pause-ic{
+    display:none;gap:7px;flex:0 0 auto;
+  }
+  .pause-ic span{
+    display:block;width:13px;height:46px;border-radius:7px;
+    background:var(--accent);
+    box-shadow:0 0 14px var(--accent-glow);
+  }
+  .paused .pause-ic{display:flex}
+  .paused .clock-ic{display:none}
+  .digits{
+    font-weight:700;font-size:104px;line-height:1;
+    color:var(--fg);letter-spacing:.02em;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 26px var(--accent-glow), 0 3px 10px rgba(40,28,80,0.45);
+    white-space:nowrap;
+  }
+  .digits .last{color:var(--accent)}
+  .paused .digits{animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .digits.over{color:var(--accent)}
+
+  /* +time bubble */
+  .bubble{
+    position:absolute;top:-26px;right:-14px;
+    background:var(--accent);color:#3a2a5a;
+    font-weight:700;font-size:22px;line-height:1;
+    padding:8px 16px;border-radius:999px;border-bottom-left-radius:4px;
+    box-shadow:0 4px 14px rgba(40,28,80,0.3);
+    opacity:0;transform:translateY(8px) scale(.8);
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    pointer-events:none;
+  }
+  .bubble.show{opacity:1;transform:translateY(0) scale(1)}
+
+  /* state line (paused / time's up) */
+  .state-chip{
+    font-size:19px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);text-shadow:0 0 10px rgba(40,28,80,0.4);
+    margin-top:-6px;
+  }
+
+  /* ---- progress dots ---- */
+  .progress{display:flex;align-items:center;gap:12px}
+  .dots{display:flex;gap:9px}
+  .dot{
+    width:17px;height:17px;border-radius:50%;
+    background:rgba(255,255,255,0.45);
+    box-shadow:0 2px 6px rgba(40,28,80,0.25);
+    transition:background .4s;
+  }
+  .dot.fill{background:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+  .prog-badge{
+    background:#2e2752;color:#fff;
+    font-weight:600;font-size:17px;line-height:1;
+    padding:7px 14px;border-radius:10px;
+    box-shadow:0 3px 10px rgba(40,28,80,0.35);
+  }
+  .prog-badge b{color:var(--accent)}
+
+  /* ---- goals ---- */
+  .goals{display:flex;flex-direction:column;gap:10px;width:min(560px,92vw)}
+  .goal{
+    display:flex;align-items:center;gap:14px;
+    background:#2e2752ee;
+    border-radius:999px;
+    padding:11px 12px 11px 16px;
+    box-shadow:0 4px 14px rgba(40,28,80,0.35);
+  }
+  .goal .gc{
+    width:26px;height:26px;border-radius:50%;flex:0 0 auto;
+    border:3px solid var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    color:#2e2752;font-weight:700;font-size:15px;line-height:1;
+  }
+  .goal.reached .gc{background:var(--accent)}
+  .goal .gl{
+    flex:1;color:#fff;font-weight:600;font-size:21px;line-height:1.2;
+    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .goal.reached .gl{
+    color:#a99bd6;text-decoration:line-through;text-decoration-thickness:2.5px;
+    text-decoration-color:#8d7fc0;
+  }
+  .goal .gt{
+    flex:0 0 auto;
+    border:2.5px solid var(--accent);color:#fff;
+    font-weight:600;font-size:18px;line-height:1;
+    padding:6px 16px;border-radius:999px;min-width:44px;text-align:center;
+  }
+  .goal.reached .gt{opacity:.55}
+  .goal.next{outline:3px solid var(--accent);outline-offset:2px}
+
+  .err{
+    font-family:'Quicksand',sans-serif;font-size:16px;font-weight:700;color:#fff;
+    background:rgba(20,12,40,0.75);border-radius:14px;
+    padding:14px 20px;display:inline-block;max-width:520px;line-height:1.5;
+  }
+  .err code{background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:6px}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <div class="stats hidden" id="stats"></div>
+
+  <div class="timer-row hidden" id="timerRow">
+    <div class="clock-ic"></div>
+    <div class="pause-ic"><span></span><span></span></div>
+    <div class="digits" id="digits">--:--:--</div>
+    <div class="bubble" id="bubble">+5m</div>
+  </div>
+  <div class="state-chip hidden" id="stateChip"></div>
+
+  <div class="progress hidden" id="progress">
+    <div class="dots" id="dots"></div>
+    <div class="prog-badge" id="progBadge"></div>
+  </div>
+
+  <div class="goals hidden" id="goals"></div>
+
+  <div class="err" id="err" style="display:none"></div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+const POLL_MS = 5000;
+const DOT_COUNT = 12;
+
+const params = new URLSearchParams(location.search);
+const TOKEN = (params.get('t') || '').trim();
+const MAX_GOALS = Math.max(1, parseInt(params.get('maxgoals'), 10) || 4);
+const SECTIONS = (params.get('sections') || 'stats,timer,progress,goals').toLowerCase().split(',').map(s => s.trim());
+
+function hex(v, fallback){
+  if(!v) return fallback;
+  v = String(v).replace(/^#/, '');
+  return /^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(v) ? '#' + v : fallback;
+}
+let theme = {
+  accent: hex(params.get('accent'), '#FFB2F0'),
+  fg: hex(params.get('fg'), '#FFFFFF'),
+  scale: parseFloat(params.get('scale')) || 1,
+  align: ['left','right','center'].includes(params.get('align')) ? params.get('align') : 'center'
+};
+const urlHasAccent = !!params.get('accent');
+
+function applyTheme(){
+  const root = document.documentElement;
+  root.style.setProperty('--accent', theme.accent);
+  root.style.setProperty('--fg', theme.fg);
+  root.style.setProperty('--accent-glow', theme.accent + 'aa');
+  const stage = document.getElementById('stage');
+  stage.classList.toggle('left', theme.align === 'left');
+  stage.classList.toggle('right', theme.align === 'right');
+  stage.style.transform = theme.scale !== 1 ? 'scale(' + theme.scale + ')' : '';
+  stage.style.transformOrigin = theme.align === 'left' ? 'left center' : theme.align === 'right' ? 'right center' : 'center';
+}
+
+// ============================================================
+//  STATE
+// ============================================================
+let timer = null;        // { endAt, pausedAt, running, addedMin, counts }
+let display = {};        // { label, goalText, accent, unit }
+let goals = [];          // [{ label, target, reached }]
+let lastFetchOk = false;
+let lastAddedMin = null; // for the "+Xm" bubble
+
+function remainingMs(){
+  if(!timer || !timer.endAt) return null;
+  const end = new Date(timer.endAt).getTime();
+  const ref = timer.pausedAt ? new Date(timer.pausedAt).getTime() : Date.now();
+  return Math.max(0, end - ref);
+}
+function fmtParts(ms){
+  const s = Math.floor(ms / 1000);
+  return [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60].map(n => String(n).padStart(2,'0'));
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function on(name){ return SECTIONS.includes(name); }
+
+function renderStats(){
+  const el = document.getElementById('stats');
+  if(!on('stats')){ el.classList.add('hidden'); return; }
+  const c = (timer && timer.counts) || {};
+  const chips = [];
+  if(c.subs)    chips.push('<span class="chip c-subs"><span class="ic">👥</span>' + c.subs + '</span>');
+  if(c.dollars) chips.push('<span class="chip c-dollars"><span class="ic">$</span>' + c.dollars + '</span>');
+  if(c.bits)    chips.push('<span class="chip c-bits"><span class="ic">🎁</span>' + c.bits + '</span>');
+  if(params.get('clock') !== '0'){
+    chips.push('<span class="chip c-clock"><span class="ic">☀️</span>' +
+      new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }) + '</span>');
+  }
+  el.innerHTML = chips.join('');
+  el.classList.toggle('hidden', chips.length === 0);
+}
+
+function renderTimer(){
+  const row = document.getElementById('timerRow');
+  const chip = document.getElementById('stateChip');
+  if(!on('timer')){ row.classList.add('hidden'); chip.classList.add('hidden'); return; }
+  row.classList.remove('hidden');
+  const digits = document.getElementById('digits');
+  const ms = remainingMs();
+  if(ms == null){
+    digits.innerHTML = '--:--:--';
+    chip.textContent = lastFetchOk ? 'starting soon' : '';
+    chip.classList.toggle('hidden', !lastFetchOk);
+    row.classList.remove('paused');
+    return;
+  }
+  const [h, m, s] = fmtParts(ms);
+  digits.innerHTML = h + ':' + m + ':<span class="last">' + s + '</span>';
+  digits.classList.toggle('over', ms <= 0);
+  row.classList.toggle('paused', !!timer.pausedAt);
+  if(timer.pausedAt){ chip.textContent = 'paused'; chip.classList.remove('hidden'); }
+  else if(ms <= 0){
+    chip.textContent = timer.running ? "🏁 time's up!" : 'event over — thank you!!';
+    chip.classList.remove('hidden');
+  }
+  else chip.classList.add('hidden');
+}
+
+function renderProgress(){
+  const el = document.getElementById('progress');
+  if(!on('progress')){ el.classList.add('hidden'); return; }
+  const unit = display.unit === '$' ? 'dollars' : 'subs';
+  const current = ((timer && timer.counts) || {})[unit] || 0;
+  const numericTargets = goals.map(g => parseFloat(g.target)).filter(n => !isNaN(n) && n > 0);
+  const target = numericTargets.length ? Math.max.apply(null, numericTargets) : 0;
+  if(!target){ el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  const frac = Math.min(1, current / target);
+  document.getElementById('dots').innerHTML = Array.from({ length: DOT_COUNT }, (_, i) =>
+    '<span class="dot ' + ((i + 1) / DOT_COUNT <= frac ? 'fill' : '') + '"></span>').join('');
+  document.getElementById('progBadge').innerHTML = '<b>' + (display.unit === '$' ? '$' : '') + current + '</b>/' + (display.unit === '$' ? '$' : '') + target;
+}
+
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function renderGoals(){
+  const el = document.getElementById('goals');
+  if(!on('goals') || !goals.length){ el.classList.add('hidden'); return; }
+  // Sort numeric targets ascending (non-numeric keep their order, after numerics)
+  const sorted = goals.slice().sort((a, b) => {
+    const an = parseFloat(a.target), bn = parseFloat(b.target);
+    if(isNaN(an) && isNaN(bn)) return 0;
+    if(isNaN(an)) return 1;
+    if(isNaN(bn)) return -1;
+    return an - bn;
+  });
+  // Window: last reached goal + the next unreached ones, MAX_GOALS total
+  let firstUnreached = sorted.findIndex(g => !g.reached);
+  if(firstUnreached === -1) firstUnreached = sorted.length;
+  const start = Math.max(0, Math.min(firstUnreached - 1, sorted.length - MAX_GOALS));
+  const visible = sorted.slice(start, start + MAX_GOALS);
+  el.innerHTML = visible.map(g => {
+    const isNext = sorted.indexOf(g) === firstUnreached;
+    const label = g.label || (g.target ? g.target + ' goal' : 'goal');
+    return '<div class="goal ' + (g.reached ? 'reached' : '') + (isNext ? ' next' : '') + '">' +
+      '<span class="gc">' + (g.reached ? '✓' : '') + '</span>' +
+      '<span class="gl">' + escapeHtml(label) + '</span>' +
+      (g.target ? '<span class="gt">' + escapeHtml(g.target) + '</span>' : '') +
+      '</div>';
+  }).join('');
+  el.classList.remove('hidden');
+}
+
+function maybeBubble(){
+  if(!timer) return;
+  const added = timer.addedMin || 0;
+  if(lastAddedMin != null && added > lastAddedMin){
+    const diff = added - lastAddedMin;
+    const b = document.getElementById('bubble');
+    b.textContent = '+' + diff + 'm';
+    b.classList.add('show');
+    clearTimeout(maybeBubble._t);
+    maybeBubble._t = setTimeout(() => b.classList.remove('show'), 4000);
+  }
+  lastAddedMin = added;
+}
+
+function render(){
+  renderStats();
+  renderTimer();
+  renderProgress();
+  renderGoals();
+}
+
+function showError(msg){
+  document.getElementById('err').style.display = 'inline-block';
+  document.getElementById('err').innerHTML = msg;
+  ['stats','timerRow','stateChip','progress','goals'].forEach(id => document.getElementById(id).classList.add('hidden'));
+}
+
+// ============================================================
+//  DATA — poll the anon-callable peek RPC
+// ============================================================
+let sb = null;
+function loadSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('SDK missing'));
+    s.onerror = () => reject(new Error('SDK fetch failed'));
+    document.head.appendChild(s);
+  });
+}
+
+async function poll(){
+  try{
+    const { data, error } = await sb.rpc('planner_subathon_peek', { p_token: TOKEN });
+    if(error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    if(!row){
+      if(!lastFetchOk) showError('Timer not found. Double-check the widget link in <code>Subathon Planner → Go Live</code> — it may have been regenerated.');
+      return;
+    }
+    lastFetchOk = true;
+    timer = row.timer || {};
+    display = row.display || {};
+    goals = Array.isArray(row.goals) ? row.goals : [];
+    if(!urlHasAccent && display.accent){
+      theme.accent = hex(display.accent, theme.accent);
+      applyTheme();
+    }
+    maybeBubble();
+    render();
+  }catch(e){
+    console.warn('poll failed', e);
+    // keep ticking on the last known state — a blip shouldn't blank the overlay
+  }
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+async function boot(){
+  applyTheme();
+  if(!TOKEN){
+    showError('No token in the URL. Get your widget link from <code>Subathon Planner → Go Live → Generate link</code>.');
+    return;
+  }
+  try{
+    const lib = await loadSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:false } });
+  }catch(e){
+    showError('Couldn\'t load — check the internet connection on the streaming PC.');
+    return;
+  }
+  await poll();
+  lastAddedMin = timer ? (timer.addedMin || 0) : null;  // don't bubble on first load
+  setInterval(poll, POLL_MS);
+  setInterval(render, 1000);  // smooth local tick between polls
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot, { once:true });
+} else {
+  boot();
+}
+</script>
+</body>
+</html>

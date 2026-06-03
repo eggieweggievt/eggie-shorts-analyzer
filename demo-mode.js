@@ -142,6 +142,47 @@
           { id: 'demo-fact-2', text: 'Keep heavy venting off the main account; sponsors audit socials.' }
         ],
         settings: {}, created_at: nowISO }
+    ],
+    // Subathon planner — pre-seeded with a live-looking event so the wizard,
+    // control panel, and the subathon-timer.html widget (?t=demo-token) all
+    // feel alive in the sandbox.
+    planner_subathon_state: [
+      { user_id: U,
+        data: {
+          setup: { name: 'Demo Redebut Subathon', type: 'subathon',
+                   startAt: '', timezone: 'EST', baseHours: 6 },
+          rules: { t1: 5, t2: 10, t3: 25, dono: 1, bits: 1, cap: 48 },
+          goals: [
+            { id: 'demo-g1', target: '10', label: '10 subs — hype emote wall', reached: true },
+            { id: 'demo-g2', target: '25', label: '25 subs — karaoke hour', reached: false },
+            { id: 'demo-g3', target: '50', label: '50 subs — art with chat', reached: false }
+          ],
+          incentives: [
+            { id: 'demo-i1', threshold: '5',  label: 'Name on model' },
+            { id: 'demo-i2', threshold: '10', label: 'Handwritten thank-you note' },
+            { id: 'demo-i3', threshold: '25', label: 'Voice message' }
+          ],
+          schedule: { days: [
+            { id: 'demo-d1', date: '', label: 'Day 1', slots: [
+              { id: 'demo-s1', time: '12:00', type: 'Chatting', activity: 'Intro + rules', collab: false, collabWith: '', setup: false },
+              { id: 'demo-s2', time: '12:30', type: 'Games', activity: 'Marvel Rivals', collab: true, collabWith: 'Van1llabeanz', setup: false },
+              { id: 'demo-s3', time: '17:30', type: 'Games', activity: 'Dead by Daylight', collab: true, collabWith: '', setup: false },
+              { id: 'demo-s4', time: '20:00', type: 'Karaoke', activity: 'Karaoke night', collab: false, collabWith: '', setup: true }
+            ]}
+          ]},
+          prep: { checklist: [
+            { id: 'demo-p1', text: 'Confirm mod coverage for every block', done: true },
+            { id: 'demo-p2', text: 'Meal plan + water at the desk', done: true },
+            { id: 'demo-p3', text: 'Test the timer widget in OBS', done: false }
+          ]}
+        },
+        timer: { endAt: new Date(Date.now() + 6 * 3600000).toISOString(),
+                 pausedAt: null, running: true, addedMin: 35,
+                 counts: { subs: 18, dollars: 60, bits: 125 },
+                 capAt: new Date(Date.now() + 48 * 3600000).toISOString() },
+        display: { label: 'DEMO SUBATHON', goalText: 'Next goal: 25 subs → karaoke!', accent: '#FFB2F0', unit: 'subs' },
+        share_token: 'demo-token',
+        created_at: nowISO }
     ]
     // Other tables (todos, finance, habits, media kit, etc.) intentionally
     // start empty — the pages handle empty state gracefully.
@@ -310,7 +351,25 @@
     planner_manager_claim_invite: function () { return { ok: false, reason: 'demo' }; },
     planner_is_manager_of: function () { return false; },
     planner_media_kit_peek: function () { return null; },
-    planner_media_kit_claim_slug: function () { return true; }
+    planner_media_kit_claim_slug: function () { return true; },
+    // Subathon timer widget — mirrors the real RPC: token → timer + display only.
+    planner_subathon_peek: function (params) {
+      var token = params && (params.p_token || params.token);
+      if (!token) return [];
+      var rows = loadTable('planner_subathon_state');
+      var out = [];
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].share_token && rows[i].share_token === String(token).trim()) {
+          out.push({
+            timer: rows[i].timer || {},
+            display: rows[i].display || {},
+            goals: (rows[i].data && rows[i].data.goals) || [],
+            updated_at: rows[i].updated_at || null
+          });
+        }
+      }
+      return out;
+    }
   };
   function rpc(name, params) {
     var h = RPC_HANDLERS[name];

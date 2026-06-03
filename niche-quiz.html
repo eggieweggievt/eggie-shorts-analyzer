@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Niche Finder 🔍 — Eggie's Creator Hub</title>
+<meta name="description" content="A short quiz that helps new streamers find the niche that actually fits them — based on energy, personality, and what you'd make even if nobody watched." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/niche-quiz.html" />
+<meta property="og:title" content="Niche Finder 🔍" />
+<meta property="og:description" content="Find the streaming niche that actually fits you." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px, 5.5vw, 48px);line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:14px auto 6px;padding:14px 12px 22px;display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:600px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 24px;margin:16px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+  .hidden{display:none !important}
+
+  /* Progress */
+  .quiz-prog{
+    display:flex;align-items:center;gap:12px;margin-bottom:14px;
+  }
+  .quiz-prog .bar-wrap{flex:1;height:10px;border-radius:999px;background:rgba(144,165,255,0.18);overflow:hidden}
+  .quiz-prog .bar{height:100%;border-radius:999px;width:0%;background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));transition:width .3s}
+  .quiz-prog .count{font-size:13px;font-weight:800;color:var(--deep);white-space:nowrap}
+
+  /* Question */
+  .q-text{
+    font-size:19px;font-weight:800;color:var(--ink);line-height:1.45;margin:4px 0 16px;
+  }
+  .q-sub{font-size:13px;color:var(--ink-soft);font-weight:600;margin:-10px 0 16px}
+  .answers{display:flex;flex-direction:column;gap:10px}
+  .answer{
+    display:flex;align-items:center;gap:12px;text-align:left;
+    background:rgba(255,255,255,0.85);
+    border:2px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:13px 16px;cursor:pointer;
+    font-family:inherit;font-size:14.5px;font-weight:600;color:var(--ink);
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .answer:hover{border-color:var(--periwinkle);background:#fff;transform:translateX(3px)}
+  .answer .a-emoji{font-size:22px;flex-shrink:0;width:30px;text-align:center}
+  .quiz-nav{display:flex;justify-content:space-between;margin-top:18px}
+
+  /* Results */
+  .result-hero{
+    text-align:center;padding:8px 0 4px;
+  }
+  .result-hero .big-emoji{font-size:56px;line-height:1}
+  .result-hero .r-name{
+    font-family:'Pacifico',cursive;font-size:34px;color:var(--deep);margin:8px 0 2px;
+  }
+  .result-hero .r-pct{
+    display:inline-flex;background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
+    color:var(--deep);font-weight:800;font-size:13px;padding:4px 14px;border-radius:999px;
+  }
+  .result-desc{font-size:14.5px;line-height:1.65;color:var(--ink);margin:14px 0}
+  .result-block{margin:14px 0;padding:14px 16px;background:rgba(255,255,255,0.6);border-radius:14px;border:1.5px solid rgba(144,165,255,0.2)}
+  .result-block h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--deep)}
+  .result-block ul{margin:0;padding-left:20px;font-size:13.5px;color:var(--ink);line-height:1.6}
+  .result-block li{margin-bottom:5px}
+  .runner-up{
+    display:flex;align-items:center;gap:12px;
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.2);
+    border-radius:14px;padding:12px 16px;margin-bottom:8px;
+  }
+  .runner-up .ru-emoji{font-size:26px}
+  .runner-up .ru-name{font-weight:800;color:var(--deep);font-size:14.5px}
+  .runner-up .ru-desc{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+  .runner-up .ru-pct{margin-left:auto;font-weight:800;font-size:13px;color:var(--deep);background:rgba(144,165,255,0.15);padding:3px 10px;border-radius:999px;white-space:nowrap}
+  .result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .status-banner{margin:10px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
+  .status-banner.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .status-banner.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+  .status-banner.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+
+  footer{text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5}
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="brand-memory.html" class="back-link">🧠 Creator Memory</a>
+    <a href="debut-checklist.html" class="back-link">🎭 Debut Checklist</a>
+    <a href="growth.html" class="back-link">🌱 Playbook</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Niche Finder 🔍</h1>
+    <p class="tag">Ten quick questions to find the streaming niche that <em>actually fits you</em> — not the one that's trending this week. No sign-in needed, nothing leaves your browser unless you save the result.</p>
+  </header>
+
+  <!-- INTRO -->
+  <section class="card" id="introCard">
+    <h2>🌷 Before you start</h2>
+    <p style="font-size:14.5px;line-height:1.65;margin:0 0 10px">
+      The best niche isn't the biggest one — it's the one you can show up for <strong>every week without dreading it</strong>. This quiz weighs what you actually enjoy, your energy style, and how you like to interact, then matches you against the ten niches the rest of the hub uses.
+    </p>
+    <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 14px">
+      Answer honestly, not aspirationally. There's no wrong result — and your top match comes with starter content ideas so you can test-drive it this week.
+    </p>
+    <button class="btn" id="startBtn" style="font-size:15px;padding:12px 28px">✨ Find my niche</button>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="card hidden" id="quizCard">
+    <div class="quiz-prog">
+      <div class="bar-wrap"><div class="bar" id="quizBar"></div></div>
+      <span class="count" id="quizCount">1 / 10</span>
+    </div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-sub" id="qSub"></div>
+    <div class="answers" id="answers"></div>
+    <div class="quiz-nav">
+      <button class="btn secondary" id="backBtn">← Back</button>
+      <span></span>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="card hidden" id="resultCard">
+    <div class="result-hero">
+      <div class="big-emoji" id="rEmoji"></div>
+      <div class="r-name" id="rName"></div>
+      <span class="r-pct" id="rPct"></span>
+    </div>
+    <p class="result-desc" id="rDesc"></p>
+    <div class="result-block">
+      <h4>🎬 Try these first</h4>
+      <ul id="rIdeas"></ul>
+    </div>
+    <div class="result-block">
+      <h4>💡 What makes this niche work</h4>
+      <ul id="rTips"></ul>
+    </div>
+    <h2 style="font-size:22px;margin-top:20px">🥈 Close behind</h2>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">Strong second matches — great as a secondary flavor, or for variety days.</p>
+    <div id="runnersUp"></div>
+    <div id="saveStatus" class="status-banner hidden"></div>
+    <div class="result-actions">
+      <button class="btn" id="saveBtn">🧠 Save to Creator Memory</button>
+      <button class="btn secondary" id="copyBtn">📋 Copy my result</button>
+      <button class="btn secondary" id="retakeBtn">↺ Retake quiz</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:12px 0 0;line-height:1.5">
+      Saving sets your <strong>primary niche</strong> in <a href="brand-memory.html" style="color:var(--deep)">Creator Memory</a>, which powers the Optimizer, your creator brief, and the home page. You'll need to be signed in.
+    </p>
+  </section>
+
+  <footer>
+    <a href="index.html">🏠 Hub</a> &middot; <a href="brand-memory.html">🧠 Creator Memory</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
+    Made with 💗 by Eggie
+  </footer>
+
+</div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+
+// Niche keys match Creator Memory / brand-memory.html exactly.
+const NICHES = {
+  gaming:    { emoji:'🎮', name:'Gaming',
+    desc:'You light up when you\'re playing — and your best moments happen mid-game, not between games. Gaming is the biggest pond, but niching down (one genre, one community, one vibe) is how small channels get found in it.',
+    ideas:['Pick ONE game or genre and stream it consistently for a month — algorithm + community both reward it','Clip your genuine reactions (wins, fails, jump scares) into 45–55s shorts','A "first playthrough, no spoilers" series of a beloved game'],
+    tips:['Niche genre > variety at the start: "the cozy farming-sim streamer" is findable, "plays everything" isn\'t','Your personality matters more than your skill — narrate your thinking, react out loud','Use category + tags strategically on Twitch; smaller game categories = easier discovery'] },
+  chatting:  { emoji:'💬', name:'Just Chatting',
+    desc:'Your superpower is conversation — you could fill an hour with a good topic and an empty room, and make the room feel full. Just Chatting rewards personalities who make every viewer feel personally welcomed.',
+    ideas:['Themed talk streams: story time, advice hour, hot-takes-with-chat','React content with real commentary (add your take, don\'t just watch)','"Get ready / cook / craft with me" hangout streams'],
+    tips:['Open-ended questions to chat are your retention engine — never let the room go quiet','A strong topic title beats "chilling" — give people a reason to click','This niche converts HARD to community (Discord) — set it up early'] },
+  art:       { emoji:'🎨', name:'Art / Creative',
+    desc:'You make things — and people love watching things get made. Art streams are cozy, loyal-audience builders, and every stream produces a finished piece you can post everywhere else.',
+    ideas:['Speedpaint shorts from stream footage (huge on YouTube + TikTok)','Emote / sub-badge commissions live on stream','A recurring "request night" where chat picks what you draw'],
+    tips:['Every stream ends with a portfolio piece — double-duty content is your edge','Timelapses are your shorts pipeline; record everything','Art Twitter/X + tags still work — share WIPs, finished pieces, process threads'] },
+  music:     { emoji:'🎵', name:'Music',
+    desc:'Whether it\'s singing, producing, or karaoke chaos, sound is your thing. Music streamers build some of the most devoted audiences — clips travel far, and one good cover can put you on the map.',
+    ideas:['Karaoke night with a consistent weekly slot','Short covers as vertical clips — 45–55s of your best moment','"Making a song from chat\'s prompts" streams'],
+    tips:['Audio quality is your thumbnail — invest there before anything else','Mind DMCA: originals, public domain, or licensed karaoke tracks on stream','Covers on YouTube = searchable evergreen content that feeds the stream'] },
+  variety:   { emoji:'✨', name:'Variety',
+    desc:'You\'re the buffet, not the single dish — and that\'s valid, but it means YOU are the niche. Variety works when your personality is the consistent thread across everything you touch.',
+    ideas:['A weekly anchor: same day, same format, so regulars can rely on something','Series-based variety ("Fridays are horror, Sundays are cozy") instead of random','Shorts that showcase your personality, not the game'],
+    tips:['Variety is a mid-game strategy — most channels grow faster starting focused, then widening','Your brand (name, look, catchphrases) has to carry the channel — invest in it','Schedule consistency replaces content consistency here'] },
+  tech:      { emoji:'💻', name:'Tech',
+    desc:'You\'re the person friends ask before buying anything with a power button. Tech content is search-driven and evergreen — a good explainer keeps pulling viewers for years.',
+    ideas:['"I tried X so you don\'t have to" review shorts','Setup tours + budget build guides (perpetually searched)','Live troubleshooting / build streams with chat'],
+    tips:['SEO is your superpower — title for what people actually search','Honesty builds the audience; affiliate links monetize it','Pair stream content with YouTube explainers — tech viewers binge'] },
+  lifestyle: { emoji:'🌿', name:'Lifestyle',
+    desc:'Your content is your life, curated — routines, cooking, fitness, organization, cozy vibes. Lifestyle audiences follow the person, which makes them incredibly loyal once they\'ve settled in.',
+    ideas:['"Reset day" / routine content — endlessly rewatchable','Cook-along or workout-along streams with chat','Day-in-the-life verticals with strong hooks'],
+    tips:['Aesthetic consistency matters more here than almost any other niche','Decide your privacy boundaries BEFORE you grow — what\'s never on camera','Brands love this niche — keep your media kit current from day one'] },
+  irl:       { emoji:'📱', name:'IRL',
+    desc:'The world is your set — exploring, traveling, events, street food, adventures. IRL is high-effort, high-uniqueness content: nobody can replicate your exact day.',
+    ideas:['Local exploration series ("rating every café in my city")','Event / convention vlogs and live streams','Walk-and-talk streams — IRL\'s answer to Just Chatting'],
+    tips:['Plan your tech: bandwidth, battery, backup — IRL dies by dead phone','Safety first: never show your location in real time at home areas','Edit IRL footage into shorts — it\'s the most clippable niche there is'] },
+  asmr:      { emoji:'🌙', name:'ASMR',
+    desc:'Calm is your craft. ASMR audiences are deeply loyal, watch for hours, and come back nightly — it\'s one of the best retention niches on any platform, and VTuber ASMR is its own beloved corner.',
+    ideas:['Sleep-aid streams with a consistent night slot','Trigger-sampler videos (let new viewers find their trigger)','Ambient "study with me" / rain + whispers loops'],
+    tips:['Your mic IS your channel — a binaural or decent condenser mic is the one non-negotiable','Consistency of vibe beats variety; people return for the exact feeling','Long-form VODs do incredible numbers — stream archives are content'] },
+  vrchat:    { emoji:'🕶️', name:'VRChat',
+    desc:'You come alive in virtual spaces — avatars, worlds, improvised chaos with strangers and friends. VRChat content is community-first and collab-rich, perfect if your favorite part of streaming is the people.',
+    ideas:['World-exploration tours with reactions','Collab bits + improv with other VTubers/VR creators','Avatar showcases and "VRChat after dark" stories (clipped!)'],
+    tips:['Collabs are your growth engine — every guest brings their audience','Clip relentlessly: VRChat moments are short-form gold','Build a recurring in-world event people can attend weekly'] }
+};
+
+// ============================================================
+//  QUESTIONS — each answer adds weighted points to niches
+// ============================================================
+const QUESTIONS = [
+  { q:'It\'s your day off and nobody\'s watching. What are you actually doing?',
+    sub:'Be honest — this is the single best predictor.',
+    a:[
+      { e:'🎮', t:'Deep in a game, hours gone, where did the time go', w:{gaming:3, vrchat:1} },
+      { e:'🎨', t:'Making something — drawing, crafting, composing, building', w:{art:3, music:1} },
+      { e:'📱', t:'Out somewhere — exploring, events, anywhere but my desk', w:{irl:3, lifestyle:1} },
+      { e:'💬', t:'Voice chat / hanging out — the talking IS the activity', w:{chatting:3, vrchat:1} }
+    ]},
+  { q:'Mid-stream, the game crashes. How do you feel about the next 10 minutes?',
+    sub:'',
+    a:[
+      { e:'😎', t:'Honestly? That\'s when my stream gets GOOD — pure chat time', w:{chatting:3, variety:1} },
+      { e:'😅', t:'Mild panic — I need the activity, the activity is the content', w:{gaming:2, art:1, music:1} },
+      { e:'🎭', t:'I\'d turn it into a bit — improv mode activated', w:{vrchat:2, variety:2} },
+      { e:'🧘', t:'Calmly fill it — I\'m the steady, soothing type', w:{asmr:3, lifestyle:1} }
+    ]},
+  { q:'What does your ideal stream energy feel like?',
+    sub:'',
+    a:[
+      { e:'🔥', t:'Hype — big reactions, loud moments, adrenaline', w:{gaming:2, irl:1, variety:1} },
+      { e:'🌙', t:'Cozy and calm — a warm blanket of a stream', w:{asmr:3, art:2, lifestyle:1} },
+      { e:'🤹', t:'Chaotic fun — bits, jokes, unpredictable', w:{vrchat:2, variety:2, chatting:1} },
+      { e:'📚', t:'Focused and useful — people leave knowing something', w:{tech:3, lifestyle:1} }
+    ]},
+  { q:'Which compliment would mean the most to you?',
+    sub:'',
+    a:[
+      { e:'🛌', t:'"Your streams help me fall asleep / calm down"', w:{asmr:3, lifestyle:1} },
+      { e:'😂', t:'"I\'ve never laughed so hard at a stream"', w:{variety:2, vrchat:2, gaming:1} },
+      { e:'🧠', t:'"I learned so much from you"', w:{tech:3, art:1} },
+      { e:'🏡', t:'"Your chat feels like home"', w:{chatting:3, music:1} }
+    ]},
+  { q:'How do you feel about talking when nothing is happening?',
+    sub:'Dead air is every new streamer\'s boss fight.',
+    a:[
+      { e:'🗣️', t:'I never stop talking, this is not a problem I have', w:{chatting:3, irl:1} },
+      { e:'🎶', t:'I\'d rather fill it with what I\'m making / playing', w:{art:2, music:2} },
+      { e:'🤝', t:'Easier with other people around to bounce off', w:{vrchat:3, variety:1} },
+      { e:'🤫', t:'Quiet is fine — my content doesn\'t need constant talk', w:{asmr:3, art:1} }
+    ]},
+  { q:'Pick the content you\'d binge at 1am:',
+    sub:'You make what you consume better than you think.',
+    a:[
+      { e:'🎮', t:'Playthroughs, esports, speedruns, game clips', w:{gaming:3} },
+      { e:'🏠', t:'Routines, room makeovers, cooking, day-in-the-life', w:{lifestyle:3, irl:1} },
+      { e:'⚙️', t:'Reviews, teardowns, "is it worth it" videos', w:{tech:3} },
+      { e:'🎤', t:'Covers, karaoke clips, music breakdowns', w:{music:3, asmr:1} }
+    ]},
+  { q:'Your dream collab looks like:',
+    sub:'',
+    a:[
+      { e:'🕶️', t:'A chaotic VRChat lobby full of friends', w:{vrchat:3, variety:1} },
+      { e:'🎮', t:'Duo queue with a streamer I admire', w:{gaming:3} },
+      { e:'🎨', t:'Art trade / drawing each other\'s characters live', w:{art:3} },
+      { e:'🎙️', t:'A podcast-style deep-dive conversation', w:{chatting:3, tech:1} }
+    ]},
+  { q:'How much of your real life are you comfortable showing?',
+    sub:'',
+    a:[
+      { e:'🌍', t:'Lots — my life and surroundings are part of the content', w:{irl:3, lifestyle:2} },
+      { e:'🪞', t:'My space and routines, carefully curated', w:{lifestyle:2, music:1, tech:1} },
+      { e:'🎭', t:'Just my persona — the model IS me, my life stays private', w:{vrchat:2, gaming:1, asmr:1, art:1} },
+      { e:'💬', t:'My thoughts and stories, but not my surroundings', w:{chatting:2, variety:1} }
+    ]},
+  { q:'Which "homework" sounds least painful?',
+    sub:'Every niche has upkeep — pick the one you\'d actually do.',
+    a:[
+      { e:'📰', t:'Keeping up with patch notes, metas, and game releases', w:{gaming:3, tech:1} },
+      { e:'🎚️', t:'Tweaking audio gear and testing mic setups', w:{asmr:2, music:2, tech:2} },
+      { e:'🖌️', t:'Practicing my craft a little every day', w:{art:3, music:1} },
+      { e:'🗺️', t:'Scouting places to go and things to try', w:{irl:3, lifestyle:1} }
+    ]},
+  { q:'A year from now, success looks like…',
+    sub:'',
+    a:[
+      { e:'🏆', t:'Being known as one of THE streamers for my game/genre', w:{gaming:2, tech:1, music:1} },
+      { e:'🫂', t:'A tight community that shows up for ME, whatever I do', w:{variety:2, chatting:2} },
+      { e:'💼', t:'My creative work paying for itself — commissions, music, brand deals', w:{art:2, music:2, lifestyle:1} },
+      { e:'🌙', t:'A loyal nightly crowd that needs my stream in their routine', w:{asmr:2, chatting:1, vrchat:1} }
+    ]}
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+let qIndex = 0;
+let picks = [];     // index of chosen answer per question
+let sb = null;
+let currentUser = null;
+let finalResult = null;
+
+// ============================================================
+//  QUIZ FLOW
+// ============================================================
+function showQuestion(){
+  const q = QUESTIONS[qIndex];
+  document.getElementById('quizBar').style.width = Math.round(qIndex / QUESTIONS.length * 100) + '%';
+  document.getElementById('quizCount').textContent = (qIndex + 1) + ' / ' + QUESTIONS.length;
+  document.getElementById('qText').textContent = q.q;
+  const sub = document.getElementById('qSub');
+  sub.textContent = q.sub || '';
+  sub.classList.toggle('hidden', !q.sub);
+  document.getElementById('answers').innerHTML = q.a.map((a, i) => `
+    <button class="answer" data-pick="${i}">
+      <span class="a-emoji">${a.e}</span>
+      <span>${a.t}</span>
+    </button>
+  `).join('');
+  document.getElementById('answers').querySelectorAll('[data-pick]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      picks[qIndex] = parseInt(btn.dataset.pick, 10);
+      if(qIndex < QUESTIONS.length - 1){ qIndex++; showQuestion(); }
+      else showResults();
+    });
+  });
+  document.getElementById('backBtn').style.visibility = qIndex === 0 ? 'hidden' : 'visible';
+}
+
+function computeScores(){
+  const scores = {};
+  Object.keys(NICHES).forEach(k => scores[k] = 0);
+  picks.forEach((pick, i) => {
+    const w = QUESTIONS[i].a[pick].w;
+    Object.keys(w).forEach(k => { scores[k] += w[k]; });
+  });
+  return scores;
+}
+
+function showResults(){
+  const scores = computeScores();
+  const total = Object.values(scores).reduce((a,b) => a+b, 0) || 1;
+  const ranked = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
+  const top = ranked[0];
+  finalResult = { key: top, ranked, scores };
+
+  const n = NICHES[top];
+  document.getElementById('rEmoji').textContent = n.emoji;
+  document.getElementById('rName').textContent = n.name;
+  document.getElementById('rPct').textContent = Math.round(scores[top] / total * 100) + '% match';
+  document.getElementById('rDesc').textContent = n.desc;
+  document.getElementById('rIdeas').innerHTML = n.ideas.map(i => `<li>${i}</li>`).join('');
+  document.getElementById('rTips').innerHTML = n.tips.map(t => `<li>${t}</li>`).join('');
+
+  document.getElementById('runnersUp').innerHTML = ranked.slice(1, 3).map(k => {
+    const r = NICHES[k];
+    return `
+      <div class="runner-up">
+        <span class="ru-emoji">${r.emoji}</span>
+        <div>
+          <div class="ru-name">${r.name}</div>
+          <div class="ru-desc">${r.desc.split('—')[0].split('.')[0]}.</div>
+        </div>
+        <span class="ru-pct">${Math.round(scores[k] / total * 100)}%</span>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('quizCard').classList.add('hidden');
+  document.getElementById('resultCard').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+//  SAVE TO CREATOR MEMORY
+// ============================================================
+async function saveToMemory(){
+  const status = document.getElementById('saveStatus');
+  status.classList.remove('hidden');
+  if(!finalResult){ return; }
+  if(!sb) await initAuth();
+  if(!currentUser){
+    status.textContent = '🔐 You\'re not signed in. Open Creator Memory, sign in there, then retake or revisit this page — or just set your niche manually in Creator Memory.';
+    status.className = 'status-banner info';
+    return;
+  }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    // Merge into the existing Creator Memory row — never clobber other fields.
+    const { data } = await sb.from('planner_brand_memory').select('*').eq('user_id', currentUser.id).maybeSingle();
+    const row = data || { user_id: currentUser.id, profile: {}, series: [], links: [], facts: [], settings: {} };
+    row.profile = { ...(row.profile || {}), niche_primary: finalResult.key };
+    const { error } = await sb.from('planner_brand_memory').upsert(row, { onConflict: 'user_id' });
+    if(error) throw error;
+    status.textContent = '✨ Saved! ' + NICHES[finalResult.key].name + ' is now your primary niche in Creator Memory — the Optimizer and your creator brief will use it.';
+    status.className = 'status-banner success';
+  }catch(e){
+    status.textContent = 'Save failed: ' + (e.message || e) + '. You can set it manually in Creator Memory.';
+    status.className = 'status-banner error';
+  }
+  btn.disabled = false; btn.innerHTML = '🧠 Save to Creator Memory';
+}
+
+function copyResult(){
+  if(!finalResult) return;
+  const scores = finalResult.scores;
+  const total = Object.values(scores).reduce((a,b) => a+b, 0) || 1;
+  const lines = ['My niche match — Eggie\'s Creator Hub Niche Finder', ''];
+  finalResult.ranked.slice(0, 3).forEach((k, i) => {
+    lines.push((i === 0 ? '🏆 ' : '   ') + NICHES[k].emoji + ' ' + NICHES[k].name + ' — ' + Math.round(scores[k] / total * 100) + '%');
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy my result'; }, 1600);
+  });
+}
+
+// ============================================================
+//  AUTH (silent — only needed for saving)
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user) currentUser = session.user;
+    sb.auth.onAuthStateChange((event, session) => {
+      currentUser = session?.user || null;
+    });
+  }catch(e){ console.warn('Supabase init failed', e); }
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+function boot(){
+  document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('introCard').classList.add('hidden');
+    document.getElementById('quizCard').classList.remove('hidden');
+    qIndex = 0; picks = [];
+    showQuestion();
+  });
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if(qIndex > 0){ qIndex--; showQuestion(); }
+  });
+  document.getElementById('retakeBtn').addEventListener('click', () => {
+    document.getElementById('resultCard').classList.add('hidden');
+    document.getElementById('saveStatus').classList.add('hidden');
+    document.getElementById('quizCard').classList.remove('hidden');
+    qIndex = 0; picks = []; finalResult = null;
+    showQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  document.getElementById('saveBtn').addEventListener('click', saveToMemory);
+  document.getElementById('copyBtn').addEventListener('click', copyResult);
+  initAuth();  // silent — restores session if present so saving "just works"
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot, { once:true });
+} else {
+  boot();
+}
+</script>
+<script src="hub-nav.js?v=6"></script>
+<script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
+</body>
+</html>

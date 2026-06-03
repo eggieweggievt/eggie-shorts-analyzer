@@ -1,0 +1,1407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Subathon Planner ⏱️ — Eggie's Creator Hub</title>
+<meta name="description" content="Plan a subathon, donothon, or stream marathon step by step — goals, incentives, timer rules, a day-by-day schedule, and a live countdown widget for OBS. Subathons for beginners, without the overwhelm." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/subathon.html" />
+<meta property="og:title" content="Subathon Planner ⏱️" />
+<meta property="og:description" content="Plan your subathon step by step — with a live OBS timer widget." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px, 5.5vw, 48px);line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:14px auto 6px;padding:14px 12px 22px;display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:700px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 24px;margin:16px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+  .card h3{font-size:16px;color:var(--deep);margin:16px 0 8px}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  .btn.danger{background:linear-gradient(135deg,#ff8aa8,#ffb2f0);box-shadow:0 6px 14px rgba(255,138,168,0.3)}
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+  .btn.mini{padding:6px 13px;font-size:12.5px}
+  input[type=text],input[type=number],input[type=email],input[type=date],input[type=time],input[type=datetime-local],select{
+    padding:9px 13px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14px;color:var(--ink);
+  }
+  input:focus,select:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  label.fld{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:var(--ink)}
+  label.fld small{font-weight:600;color:var(--ink-soft)}
+  .hidden{display:none !important}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+  @media(max-width:760px){.grid3{grid-template-columns:1fr}}
+
+  .auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+  }
+  .auth-pill.signed-in{
+    background:rgba(255,255,255,0.95);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);font-weight:700;
+  }
+
+  /* Step tabs */
+  .steps{
+    display:flex;gap:6px;flex-wrap:wrap;
+    background:rgba(255,255,255,0.6);
+    border-radius:18px;padding:10px 12px;margin:14px 0;
+    border:1px solid rgba(255,255,255,0.95);
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .step-tab{
+    display:inline-flex;align-items:center;gap:7px;
+    background:transparent;border:none;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);
+    padding:8px 14px;border-radius:999px;
+    transition:background .15s, color .15s;
+  }
+  .step-tab .s-num{
+    width:22px;height:22px;border-radius:50%;
+    background:rgba(144,165,255,0.18);color:var(--deep);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:800;
+  }
+  .step-tab.active{
+    background:linear-gradient(135deg,rgba(255,178,240,0.45),rgba(144,165,255,0.35));
+    color:var(--deep);
+  }
+  .step-tab.active .s-num{background:#fff}
+  .step-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3)}
+
+  /* Explainer */
+  .explain{
+    font-size:14px;line-height:1.65;color:var(--ink);
+  }
+  .explain .term{
+    display:inline-block;font-weight:800;color:var(--deep);
+    background:rgba(144,165,255,0.14);padding:0 8px;border-radius:7px;
+  }
+  .explain ol{padding-left:22px;margin:8px 0}
+  .explain li{margin-bottom:6px}
+
+  /* Goals + incentives rows */
+  .g-row{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    padding:8px 12px;background:rgba(255,255,255,0.85);
+    border:1px solid rgba(144,165,255,0.18);border-radius:12px;margin-bottom:6px;
+  }
+  .g-row input{font-size:13px;padding:6px 10px}
+  .g-row .g-label{flex:1;min-width:160px}
+  .g-row .g-target{width:90px}
+  .g-row.reached{
+    background:linear-gradient(135deg,rgba(168,230,190,0.3),rgba(107,228,234,0.25));
+    border-color:rgba(168,230,190,0.5);
+  }
+  .g-check{
+    width:28px;height:28px;border-radius:50%;border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.92);color:var(--deep);
+    cursor:pointer;font-size:14px;font-weight:800;line-height:1;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .g-check.done{background:linear-gradient(135deg,#A8E6BE,#6BE4EA);color:#fff;border-color:transparent}
+  .g-del{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:14px;padding:3px 6px;border-radius:6px}
+  .g-del:hover{background:rgba(255,138,168,0.18);color:#a23556}
+
+  /* Schedule */
+  .day-card{
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:18px;padding:14px 16px;margin:12px 0;
+  }
+  .day-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px dashed rgba(144,165,255,0.25)}
+  .day-head h3{font-family:'Pacifico',cursive;font-weight:400;font-size:19px;color:var(--deep);margin:0;flex:1}
+  .slot-row{
+    display:grid;gap:6px;align-items:center;
+    grid-template-columns:88px 120px minmax(140px,1fr) auto minmax(110px,0.8fr) auto auto;
+    padding:6px 10px;background:rgba(255,255,255,0.85);
+    border:1px solid rgba(144,165,255,0.18);border-radius:10px;margin-bottom:5px;
+  }
+  @media(max-width:860px){.slot-row{grid-template-columns:1fr 1fr;grid-auto-rows:auto}}
+  .slot-row input,.slot-row select{font-size:12.5px;padding:5px 8px;width:100%}
+  .slot-row .collab-wrap{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink-soft);white-space:nowrap}
+  .slot-row .setup-wrap{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink-soft);white-space:nowrap}
+
+  /* Prep checklist */
+  .prep-row{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;background:rgba(255,255,255,0.85);
+    border:1px solid rgba(144,165,255,0.18);border-radius:12px;margin-bottom:6px;
+  }
+  .prep-row.done{background:linear-gradient(135deg,rgba(168,230,190,0.3),rgba(107,228,234,0.25));border-color:rgba(168,230,190,0.5)}
+  .prep-row.done .prep-text{text-decoration:line-through;color:var(--ink-soft)}
+  .prep-text{flex:1;font-weight:600;font-size:14px}
+
+  /* Go live / control panel */
+  .live-preview{
+    text-align:center;padding:18px;
+    background:#1a1430;border-radius:18px;margin:10px 0;
+  }
+  .live-preview .lp-label{font-size:13px;font-weight:700;color:#cfc4f5;letter-spacing:.08em;text-transform:uppercase}
+  .live-preview .lp-time{
+    font-family:'Quicksand',monospace;font-weight:800;font-size:clamp(36px,8vw,58px);
+    color:#fff;letter-spacing:.04em;line-height:1.15;
+    text-shadow:0 0 24px rgba(255,178,240,0.55);
+  }
+  .live-preview .lp-state{font-size:12.5px;font-weight:700;color:#9fe8ee;margin-top:2px}
+  .quick-grid{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .url-box{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    background:rgba(144,165,255,0.1);border:1.5px dashed rgba(144,165,255,0.4);
+    border-radius:12px;padding:10px 14px;margin:10px 0;
+  }
+  .url-box code{
+    flex:1;min-width:200px;font-size:12px;color:var(--deep);font-weight:700;
+    word-break:break-all;font-family:ui-monospace,monospace;
+  }
+  .pill-note{
+    display:inline-block;font-size:11.5px;font-weight:800;
+    background:rgba(255,213,138,0.35);color:#7a5b16;
+    padding:3px 10px;border-radius:999px;
+  }
+
+  /* Event plan overview (step 7) */
+  .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:760px){.ov-grid{grid-template-columns:1fr}}
+  .ov-block{
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:16px;padding:14px 16px;
+  }
+  .ov-block.wide{grid-column:1 / -1}
+  .ov-block h4{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:18px;
+    color:var(--deep);margin:0 0 8px;
+  }
+  .ov-block table{width:100%;border-collapse:collapse;font-size:13px}
+  .ov-block td,.ov-block th{padding:4px 8px;text-align:left;vertical-align:top}
+  .ov-block th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
+  .ov-block tr + tr td{border-top:1px dashed rgba(144,165,255,0.25)}
+  .ov-kv{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:3px 0}
+  .ov-kv b{color:var(--deep)}
+  .ov-done{color:var(--ink-soft);text-decoration:line-through}
+  .ov-empty{font-size:12.5px;color:var(--ink-soft)}
+  @media print{
+    .back-row,.steps,.step-nav,.auth-pill,.quick-grid,footer,.hubnav,#resumeBanner{display:none !important}
+    .card:not([data-panel="7"]){display:none !important}
+    .step-panel[data-panel="7"]{display:block !important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ddd}
+  }
+
+  /* Modal + banners */
+  .modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .modal-bg.open{display:flex}
+  .modal{
+    background:rgba(255,255,255,0.97);border-radius:22px;
+    padding:24px 26px;max-width:560px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+  }
+  .modal h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;margin:0 0 10px;color:var(--deep)}
+  .modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap}
+  .status-banner{margin:10px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
+  .status-banner.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .status-banner.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+  .status-banner.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
+
+  footer{text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5}
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+
+<button id="authPill" class="auth-pill" title="Sign in to save your plan + power the live timer widget">🔓 Sign in to sync</button>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="planner.html" class="back-link">📅 Planner</a>
+    <a href="debut-checklist.html" class="back-link">🎭 Debut Checklist</a>
+    <a href="habits.html" class="back-link">🌸 Habits</a>
+    <a href="growth.html" class="back-link">🌱 Playbook</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Subathon Planner ⏱️</h1>
+    <p class="tag">Subathons are overwhelming — <em>this isn't.</em> Plan your event step by step: goals, incentives, timer rules, a day-by-day schedule, and a live countdown widget you can drop straight into OBS.</p>
+  </header>
+
+  <!-- EXPLAINER -->
+  <section class="card">
+    <h2>🥚 Subathons, explained like you're new (because everyone is once)</h2>
+    <div class="explain">
+      <p>A <span class="term">subathon</span> is a stream where <strong>viewers add time to a countdown clock</strong> — every sub, donation, or cheer extends the stream. When the timer hits zero, the stream ends. A <span class="term">donothon</span> is the same thing driven by donations, and a <span class="term">marathon</span> is a long multi-day stream with a fixed schedule and no timer. This page handles all three.</p>
+      <p>Why do one? Subathons compress weeks of community energy into one event — they're hype, they fund big goals, and they're a milestone your community builds <em>with</em> you. The flow is simple:</p>
+      <ol>
+        <li><strong>Set your rules</strong> — how much time each sub/dono adds, and (please) a hard cap.</li>
+        <li><strong>Set goals + incentives</strong> — what milestones unlock ("at 50 subs I do karaoke").</li>
+        <li><strong>Plan the schedule</strong> — blocks of games, chatting, art, collabs, breaks.</li>
+        <li><strong>Prep your body and your tech</strong> — food, sleep plan, mods, backups.</li>
+        <li><strong>Go live</strong> — add the timer widget to OBS and let chat take the wheel.</li>
+      </ol>
+      <p style="margin-bottom:0">Work through the steps below in order. Everything saves as you go.</p>
+    </div>
+  </section>
+
+  <!-- RESUME BANNER — appears when a saved timer is running so you can come
+       right back to a live event after closing the page -->
+  <div class="status-banner success hidden" id="resumeBanner" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span id="resumeText" style="flex:1;min-width:220px"></span>
+    <button class="btn mini" id="resumeBtn">⏱ Open timer controls</button>
+  </div>
+
+  <!-- STEP TABS -->
+  <div class="steps" id="stepTabs">
+    <button class="step-tab active" data-step="1"><span class="s-num">1</span> Basics</button>
+    <button class="step-tab" data-step="2"><span class="s-num">2</span> Timer rules</button>
+    <button class="step-tab" data-step="3"><span class="s-num">3</span> Goals &amp; incentives</button>
+    <button class="step-tab" data-step="4"><span class="s-num">4</span> Schedule</button>
+    <button class="step-tab" data-step="5"><span class="s-num">5</span> Prep &amp; safety</button>
+    <button class="step-tab" data-step="6"><span class="s-num">6</span> 🔴 Go live</button>
+    <button class="step-tab" data-step="7"><span class="s-num">7</span> 📋 Event plan</button>
+  </div>
+
+  <!-- STEP 1: BASICS -->
+  <section class="card step-panel" data-panel="1">
+    <h2>1 · The basics</h2>
+    <div class="grid2">
+      <div>
+        <label class="fld" for="evName">Event name</label>
+        <input type="text" id="evName" placeholder="e.g. Eggie's Birthday Subathon" style="width:100%" maxlength="60" />
+      </div>
+      <div>
+        <label class="fld" for="evType">Event type</label>
+        <select id="evType" style="width:100%">
+          <option value="subathon">⏱️ Subathon — subs/donos add time</option>
+          <option value="donothon">💝 Donothon — donations add time</option>
+          <option value="marathon">📅 Marathon — fixed schedule, no timer</option>
+        </select>
+      </div>
+      <div>
+        <label class="fld" for="evStart">Start date &amp; time</label>
+        <input type="datetime-local" id="evStart" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="evTz">Timezone <small>(shown to viewers on your schedule)</small></label>
+        <input type="text" id="evTz" placeholder="e.g. EST" style="width:100%" maxlength="24" />
+      </div>
+      <div>
+        <label class="fld" for="evBase">Starting timer <small>(hours on the clock when you go live)</small></label>
+        <input type="number" id="evBase" min="1" max="48" value="4" style="width:100%" />
+      </div>
+    </div>
+    <div class="status-banner info" style="margin-top:14px">
+      💡 <strong>First subathon?</strong> Start the clock at 4–6 hours and cap the whole event at one weekend. A great first subathon is one you finish feeling proud, not destroyed — you can always go bigger next time.
+    </div>
+    <div class="step-nav"><span></span><button class="btn" data-goto="2">Next: Timer rules →</button></div>
+  </section>
+
+  <!-- STEP 2: TIMER RULES -->
+  <section class="card step-panel hidden" data-panel="2">
+    <h2>2 · Timer rules</h2>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 6px;line-height:1.5">
+      How much time does each event add? These power the quick-add buttons on the Go Live control panel. Typical starting points are pre-filled — tune them to your community's size.
+    </p>
+    <div class="grid3">
+      <div>
+        <label class="fld" for="rT1">Tier 1 sub <small>(minutes)</small></label>
+        <input type="number" id="rT1" min="0" step="1" value="5" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="rT2">Tier 2 sub <small>(minutes)</small></label>
+        <input type="number" id="rT2" min="0" step="1" value="10" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="rT3">Tier 3 sub <small>(minutes)</small></label>
+        <input type="number" id="rT3" min="0" step="1" value="25" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="rDono">Per $1 donated <small>(minutes)</small></label>
+        <input type="number" id="rDono" min="0" step="0.5" value="1" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="rBits">Per 100 bits <small>(minutes)</small></label>
+        <input type="number" id="rBits" min="0" step="0.5" value="1" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="rCap">Hard cap <small>(max total hours — 0 = no cap)</small></label>
+        <input type="number" id="rCap" min="0" step="1" value="48" style="width:100%" />
+      </div>
+    </div>
+    <div class="status-banner info" style="margin-top:14px">
+      🛟 <strong>The cap is not optional</strong> (okay, technically it is — but don't). Endless subathons sound fun until you're 30 hours in with chat still adding time. A cap protects your health AND gives the event a finale moment people show up for. Announce it up front: "the clock can never exceed 48 hours."
+    </div>
+    <div class="step-nav"><button class="btn secondary" data-goto="1">← Back</button><button class="btn" data-goto="3">Next: Goals →</button></div>
+  </section>
+
+  <!-- STEP 3: GOALS + INCENTIVES -->
+  <section class="card step-panel hidden" data-panel="3">
+    <h2>3 · Goals &amp; incentives</h2>
+    <h3>🏆 Goal ladder</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;line-height:1.5">
+      Milestones for the event total (subs, dollars — your call). Check them off live as they're hit. Keep early goals easy so momentum starts fast: a goal hit in the first hour is worth three hit on day two.
+    </p>
+    <div id="goalRows"></div>
+    <div class="quick-grid">
+      <button class="btn secondary mini" id="addGoalBtn">+ Add goal</button>
+      <button class="btn secondary mini" id="seedGoalsBtn" title="Adds a starter ladder: 10 / 20 / 30 / 50 / 75 / 100">✨ Use a starter ladder</button>
+    </div>
+    <h3>🎁 Incentives</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;line-height:1.5">
+      What unlocks at each milestone — the reason people push the number. Mix free hype ("karaoke hour") with meaningful ones ("name on my model"). Only promise what you can actually deliver after the event.
+    </p>
+    <div id="incRows"></div>
+    <div class="quick-grid">
+      <button class="btn secondary mini" id="addIncBtn">+ Add incentive</button>
+      <button class="btn secondary mini" id="seedIncsBtn" title="Adds examples: karaoke, art with me, handwritten note, voice message">✨ Use examples</button>
+    </div>
+    <div class="step-nav"><button class="btn secondary" data-goto="2">← Back</button><button class="btn" data-goto="4">Next: Schedule →</button></div>
+  </section>
+
+  <!-- STEP 4: SCHEDULE -->
+  <section class="card step-panel hidden" data-panel="4">
+    <h2>4 · Day-by-day schedule</h2>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.5">
+      Block out each day in chunks: what you're doing, whether it's a collab, and whether it needs tech setup. You won't follow it perfectly — that's fine. The schedule exists so you <strong>never sit there at hour 9 wondering what to do next</strong>, and so collab partners know when to show up.
+    </p>
+    <div id="dayCards"></div>
+    <div class="quick-grid">
+      <button class="btn secondary" id="addDayBtn">+ Add a day</button>
+    </div>
+    <div class="status-banner info">
+      🧩 <strong>Block pattern that works:</strong> alternate high-energy (games, collabs) with low-energy (chatting, food breaks, "yap breaks"). Schedule real meal breaks ON the schedule — "dinner with chat" counts as content. End each day with something calm.
+    </div>
+    <div class="step-nav"><button class="btn secondary" data-goto="3">← Back</button><button class="btn" data-goto="5">Next: Prep →</button></div>
+  </section>
+
+  <!-- STEP 5: PREP -->
+  <section class="card step-panel hidden" data-panel="5">
+    <h2>5 · Prep &amp; safety</h2>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.5">
+      The unglamorous part that makes or breaks the event. Work through this in the week before.
+    </p>
+    <div id="prepRows"></div>
+    <div class="quick-grid">
+      <input type="text" id="prepInput" placeholder="+ Add your own prep item…" style="flex:1;min-width:200px" maxlength="120" />
+      <button class="btn secondary mini" id="addPrepBtn">Add</button>
+    </div>
+    <div class="status-banner error" style="margin-top:12px">
+      ❤️ <strong>Non-negotiable:</strong> if your event runs past ~16 hours, plan sleep. Sleeping on stream (timer paused or "sleep cam") is a beloved subathon tradition — your community will protect your rest. Pushing through multiple days without sleep isn't dedication, it's a health risk, and your viewers don't want it either.
+    </div>
+    <div class="step-nav"><button class="btn secondary" data-goto="4">← Back</button><button class="btn" data-goto="6">Next: Go live →</button></div>
+  </section>
+
+  <!-- STEP 6: GO LIVE -->
+  <section class="card step-panel hidden" data-panel="6">
+    <h2>6 · 🔴 Go live — timer + control panel</h2>
+
+    <div id="liveAuthNote" class="status-banner info hidden">
+      🔐 The live timer widget needs you <strong>signed in</strong> (top right) — that's what lets the widget read your timer from anywhere. Your plan above still saves locally either way.
+    </div>
+
+    <h3>🖥️ Your OBS timer widget</h3>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 8px;line-height:1.5">
+      Add this URL to OBS as a <strong>Browser Source</strong> (suggested size 800×220, transparent background built in). It updates within seconds when you add time below — from any device, even your phone.
+    </p>
+    <div class="url-box">
+      <code id="widgetUrl">Sign in + generate to get your widget link…</code>
+      <button class="btn mini" id="copyUrlBtn">📋 Copy</button>
+      <button class="btn secondary mini" id="genTokenBtn">🔑 Generate link</button>
+      <button class="btn secondary mini" id="openWidgetBtn">👀 Preview</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink-soft);margin:4px 0 0">
+      The link contains a private random token — anyone with it can <em>see</em> the timer (that's the point, it's your stream), but only you can control it. Regenerate any time to revoke the old link.
+    </p>
+
+    <h3>⏱️ Timer controls</h3>
+    <div class="live-preview">
+      <div class="lp-label" id="lpLabel">SUBATHON TIMER</div>
+      <div class="lp-time" id="lpTime">--:--:--</div>
+      <div class="lp-state" id="lpState">not started</div>
+    </div>
+    <div class="quick-grid">
+      <button class="btn" id="startTimerBtn">▶ Start timer</button>
+      <button class="btn secondary" id="pauseTimerBtn">⏸ Pause</button>
+      <button class="btn secondary" id="resumeTimerBtn">⏵ Resume</button>
+      <button class="btn danger" id="stopTimerBtn">⏹ End event</button>
+    </div>
+
+    <h3>➕ Add time <small style="font-weight:600;color:var(--ink-soft)">(uses your Step 2 rules)</small></h3>
+    <div class="quick-grid" id="quickAddBtns"></div>
+    <div class="quick-grid" style="align-items:center">
+      <input type="number" id="donoAmt" placeholder="$ amount" min="0" step="1" style="width:110px" />
+      <button class="btn secondary mini" id="addDonoBtn">💝 Add donation</button>
+      <input type="number" id="manualMin" placeholder="custom min" min="-999" step="1" style="width:110px" />
+      <button class="btn secondary mini" id="addManualBtn">➕ Add minutes</button>
+      <span class="pill-note" id="capNote" style="display:none"></span>
+    </div>
+
+    <h3>🎨 Widget display</h3>
+    <div class="grid3">
+      <div>
+        <label class="fld" for="dLabel">Label above the timer</label>
+        <input type="text" id="dLabel" placeholder="SUBATHON TIMER" maxlength="40" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="dGoal">Goal line under the timer <small>(optional)</small></label>
+        <input type="text" id="dGoal" placeholder="Next goal: 50 subs → karaoke!" maxlength="80" style="width:100%" />
+      </div>
+      <div>
+        <label class="fld" for="dAccent">Accent color</label>
+        <input type="text" id="dAccent" placeholder="#FFB2F0" maxlength="9" style="width:100%" />
+      </div>
+    </div>
+
+    <div id="liveStatus" class="status-banner hidden"></div>
+    <div class="step-nav"><button class="btn secondary" data-goto="5">← Back</button><button class="btn" data-goto="7">Next: Event plan →</button></div>
+  </section>
+
+  <!-- STEP 7: EVENT PLAN OVERVIEW -->
+  <section class="card step-panel hidden" data-panel="7">
+    <h2>7 · 📋 Your event plan, at a glance</h2>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">
+      Everything from the previous steps in one place — so you can sanity-check the whole event, and share it with your mods and collab partners. <strong>📋 Copy plan as text</strong> gives you a paste-ready version for Discord.
+    </p>
+    <div id="overview"></div>
+    <div class="quick-grid" style="margin-top:14px">
+      <button class="btn" id="copyPlanBtn">📋 Copy plan as text</button>
+      <button class="btn secondary" id="printPlanBtn">🖨️ Print / save as PDF</button>
+    </div>
+    <div class="step-nav"><button class="btn secondary" data-goto="6">← Back</button><span></span></div>
+  </section>
+
+  <footer>
+    <a href="index.html">🏠 Hub</a> &middot; <a href="planner.html">📅 Planner</a> &middot; <a href="habits.html">🌸 Habits</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
+    Made with 💗 by Eggie &middot; Your plan stays in your browser — sign in to sync + power the live widget.
+  </footer>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="authModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2>📬 Sign in to sync</h2>
+    <p style="font-size:14px;color:var(--ink);margin:0 0 10px;line-height:1.55">
+      Magic link, no password. Signing in saves your plan across devices and powers the live OBS timer widget.
+    </p>
+    <label for="emailInput">Email</label>
+    <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" style="width:100%" />
+    <div id="authStatus" class="status-banner hidden"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="authCancel">Cancel</button>
+      <button class="btn" id="authSend">📬 Send magic link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG + STATE
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+const STORAGE_KEY = 'eggie.subathon.v1';
+
+const SLOT_TYPES = ['Chatting','Games','Art','Music','Karaoke','Collab','Event','Food break','Sleep','Other'];
+
+const DEFAULT_PREP = [
+  'Confirm mod coverage for every block (especially overnight)',
+  'Meal plan: real food in the house, snacks at the desk, water ALWAYS',
+  'Sleep plan: when, how (timer paused? sleep cam?), announced to chat',
+  'Backup content list for when energy dips (videos to react to, easy games)',
+  'Test every alert + the timer widget in OBS, full dress rehearsal',
+  'Tell your household what\'s happening (and what days)',
+  'Check VOD storage space + local recording settings',
+  'Confirm collab partners: date, time, game, and how they join',
+  'Announce the event 1–2 weeks out with rules + cap clearly stated',
+  'Decide your emergency exit plan — what happens if you\'re sick or tech dies',
+  'Prep your incentive tracking (who earned what, so you can deliver after)',
+  'Clear your calendar for the recovery day AFTER the event (you\'ll need it)'
+];
+
+function uid(){ return 's-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7); }
+
+let state = {
+  setup: { name:'', type:'subathon', startAt:'', timezone:'', baseHours:4 },
+  rules: { t1:5, t2:10, t3:25, dono:1, bits:1, cap:48 },
+  goals: [],
+  incentives: [],
+  schedule: { days: [] },
+  prep: { checklist: DEFAULT_PREP.map(t => ({ id: uid(), text: t, done: false })) },
+  timer: { endAt:null, pausedAt:null, running:false, addedMin:0, capAt:null },
+  display: { label:'', goalText:'', accent:'' },
+  shareToken: null
+};
+let sb = null;
+let currentUser = null;
+let currentStep = 1;
+
+// ============================================================
+//  PERSISTENCE
+// ============================================================
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const p = JSON.parse(raw);
+      state = {
+        ...state, ...p,
+        setup:{ ...state.setup, ...(p.setup||{}) },
+        rules:{ ...state.rules, ...(p.rules||{}) },
+        schedule: p.schedule && Array.isArray(p.schedule.days) ? p.schedule : state.schedule,
+        prep: p.prep && Array.isArray(p.prep.checklist) && p.prep.checklist.length ? p.prep : state.prep,
+        timer:{ ...state.timer, ...(p.timer||{}) },
+        display:{ ...state.display, ...(p.display||{}) }
+      };
+    }
+  }catch(e){ console.warn('localStorage load failed', e); }
+}
+function saveLocal(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn('localStorage save failed', e); }
+}
+
+async function loadSupabase(){
+  if(!sb || !currentUser) return;
+  const { data, error } = await sb.from('planner_subathon_state').select('*').eq('user_id', currentUser.id).maybeSingle();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('subathon table missing — run planner-subathon.sql to enable sync + the live widget.');
+      return;
+    }
+    console.error('Subathon load failed', error);
+    return;
+  }
+  if(!data){ await saveSupabase(true); return; }
+  const d = data.data || {};
+  state = {
+    ...state,
+    setup:{ ...state.setup, ...(d.setup||{}) },
+    rules:{ ...state.rules, ...(d.rules||{}) },
+    goals: d.goals || state.goals,
+    incentives: d.incentives || state.incentives,
+    schedule: d.schedule && Array.isArray(d.schedule.days) ? d.schedule : state.schedule,
+    prep: d.prep && Array.isArray(d.prep.checklist) ? d.prep : state.prep,
+    timer:{ ...state.timer, ...(data.timer||{}) },
+    display:{ ...state.display, ...(data.display||{}) },
+    shareToken: data.share_token || state.shareToken
+  };
+  saveLocal();
+  render();
+}
+
+let saveTimerHandle = null;
+async function saveSupabase(immediate){
+  if(!sb || !currentUser) return;
+  clearTimeout(saveTimerHandle);
+  const doSave = async () => {
+    const payload = {
+      user_id: currentUser.id,
+      data: { setup: state.setup, rules: state.rules, goals: state.goals,
+              incentives: state.incentives, schedule: state.schedule, prep: state.prep },
+      timer: state.timer,
+      // unit tells the widget which counter drives the goal progress bar
+      display: { ...state.display, unit: state.setup.type === 'donothon' ? '$' : 'subs' },
+      share_token: state.shareToken,
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await sb.from('planner_subathon_state').upsert(payload, { onConflict: 'user_id' });
+    if(error) console.error('Subathon sync failed', error);
+  };
+  if(immediate) return doSave();
+  saveTimerHandle = setTimeout(doSave, 600);
+}
+function persist(){ saveLocal(); saveSupabase(); }
+// Timer changes must hit the server fast — the OBS widget is polling.
+function persistTimerNow(){ saveLocal(); saveSupabase(true); }
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function setStatus(msg, kind){
+  const el = document.getElementById('liveStatus');
+  el.textContent = msg;
+  el.className = 'status-banner ' + (kind || 'info');
+  el.classList.remove('hidden');
+  clearTimeout(setStatus._t);
+  setStatus._t = setTimeout(() => el.classList.add('hidden'), 5000);
+}
+
+// ============================================================
+//  STEPS
+// ============================================================
+function gotoStep(n){
+  currentStep = n;
+  document.querySelectorAll('.step-tab').forEach(b => b.classList.toggle('active', b.dataset.step == n));
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.toggle('hidden', p.dataset.panel != n));
+  if(n === 7) renderOverview();        // overview compiles from live state — refresh on open
+  renderResumeBanner();                // hide the resume nudge while you're on the controls
+  window.scrollTo({ top: document.getElementById('stepTabs').offsetTop - 12, behavior: 'smooth' });
+}
+
+// ============================================================
+//  STEP 1 + 2 — simple field binding
+// ============================================================
+const FIELD_MAP = [
+  ['evName',  () => state.setup.name,      v => state.setup.name = v],
+  ['evType',  () => state.setup.type,      v => state.setup.type = v],
+  ['evStart', () => state.setup.startAt,   v => state.setup.startAt = v],
+  ['evTz',    () => state.setup.timezone,  v => state.setup.timezone = v],
+  ['evBase',  () => state.setup.baseHours, v => state.setup.baseHours = Number(v) || 4],
+  ['rT1',     () => state.rules.t1,        v => state.rules.t1 = Number(v) || 0],
+  ['rT2',     () => state.rules.t2,        v => state.rules.t2 = Number(v) || 0],
+  ['rT3',     () => state.rules.t3,        v => state.rules.t3 = Number(v) || 0],
+  ['rDono',   () => state.rules.dono,      v => state.rules.dono = Number(v) || 0],
+  ['rBits',   () => state.rules.bits,      v => state.rules.bits = Number(v) || 0],
+  ['rCap',    () => state.rules.cap,       v => state.rules.cap = Number(v) || 0],
+  ['dLabel',  () => state.display.label,   v => state.display.label = v],
+  ['dGoal',   () => state.display.goalText,v => state.display.goalText = v],
+  ['dAccent', () => state.display.accent,  v => state.display.accent = v]
+];
+function bindFields(){
+  FIELD_MAP.forEach(([id, get, set]) => {
+    const el = document.getElementById(id);
+    el.addEventListener('change', () => {
+      set(el.value);
+      // Display fields power the live widget → push immediately
+      if(id === 'dLabel' || id === 'dGoal' || id === 'dAccent') persistTimerNow();
+      else persist();
+      renderQuickAdds();
+      renderTimerPreview();
+    });
+  });
+}
+function fillFields(){
+  FIELD_MAP.forEach(([id, get]) => {
+    const el = document.getElementById(id);
+    const v = get();
+    if(el.value !== String(v ?? '')) el.value = v ?? '';
+  });
+}
+
+// ============================================================
+//  STEP 3 — GOALS + INCENTIVES
+// ============================================================
+function renderGoals(){
+  const wrap = document.getElementById('goalRows');
+  wrap.innerHTML = state.goals.map(g => `
+    <div class="g-row ${g.reached ? 'reached' : ''}" data-id="${g.id}">
+      <button class="g-check ${g.reached ? 'done' : ''}" data-gcheck title="Mark reached">${g.reached ? '✓' : ''}</button>
+      <input type="text" class="g-target" data-gfield="target" value="${escapeHtml(g.target || '')}" placeholder="50" title="The number (subs, $, etc.)" />
+      <input type="text" class="g-label" data-gfield="label" value="${escapeHtml(g.label || '')}" placeholder="What this goal is (e.g. 50 subs)" />
+      <button class="g-del" data-gdel title="Remove">🗑</button>
+    </div>
+  `).join('') || '<p style="font-size:12.5px;color:var(--ink-soft);margin:4px 0">No goals yet — add one or use the starter ladder.</p>';
+  wrap.querySelectorAll('.g-row').forEach(row => {
+    const g = state.goals.find(x => x.id === row.dataset.id);
+    if(!g) return;
+    row.querySelector('[data-gcheck]').addEventListener('click', () => { g.reached = !g.reached; persist(); renderGoals(); });
+    row.querySelectorAll('[data-gfield]').forEach(inp => inp.addEventListener('change', () => { g[inp.dataset.gfield] = inp.value; persist(); }));
+    row.querySelector('[data-gdel]').addEventListener('click', () => { state.goals = state.goals.filter(x => x.id !== g.id); persist(); renderGoals(); });
+  });
+}
+function renderIncs(){
+  const wrap = document.getElementById('incRows');
+  wrap.innerHTML = state.incentives.map(g => `
+    <div class="g-row" data-id="${g.id}">
+      <input type="text" class="g-target" data-ifield="threshold" value="${escapeHtml(g.threshold || '')}" placeholder="25" title="Unlocks at" />
+      <input type="text" class="g-label" data-ifield="label" value="${escapeHtml(g.label || '')}" placeholder="What unlocks (e.g. karaoke hour)" />
+      <button class="g-del" data-idel title="Remove">🗑</button>
+    </div>
+  `).join('') || '<p style="font-size:12.5px;color:var(--ink-soft);margin:4px 0">No incentives yet — add one or use the examples.</p>';
+  wrap.querySelectorAll('.g-row').forEach(row => {
+    const g = state.incentives.find(x => x.id === row.dataset.id);
+    if(!g) return;
+    row.querySelectorAll('[data-ifield]').forEach(inp => inp.addEventListener('change', () => { g[inp.dataset.ifield] = inp.value; persist(); }));
+    row.querySelector('[data-idel]').addEventListener('click', () => { state.incentives = state.incentives.filter(x => x.id !== g.id); persist(); renderIncs(); });
+  });
+}
+
+// ============================================================
+//  STEP 4 — SCHEDULE
+// ============================================================
+function addDay(){
+  const dayNum = state.schedule.days.length + 1;
+  state.schedule.days.push({ id: uid(), date:'', label:'Day ' + dayNum, slots: [] });
+  persist(); renderSchedule();
+}
+function addSlot(dayId){
+  const day = state.schedule.days.find(d => d.id === dayId);
+  if(!day) return;
+  // Smart default: 30 min after the previous slot, or 12:00
+  let time = '12:00';
+  const last = day.slots[day.slots.length - 1];
+  if(last && /^\d{2}:\d{2}$/.test(last.time)){
+    const [h, m] = last.time.split(':').map(Number);
+    const t = (h * 60 + m + 30) % (24 * 60);
+    time = String(Math.floor(t / 60)).padStart(2,'0') + ':' + String(t % 60).padStart(2,'0');
+  }
+  day.slots.push({ id: uid(), time, type:'Chatting', activity:'', collab:false, collabWith:'', setup:false });
+  persist(); renderSchedule();
+}
+function renderSchedule(){
+  const wrap = document.getElementById('dayCards');
+  wrap.innerHTML = state.schedule.days.map((day, di) => `
+    <div class="day-card" data-day="${day.id}">
+      <div class="day-head">
+        <h3>${escapeHtml(day.label || ('Day ' + (di+1)))}</h3>
+        <input type="date" data-dfield="date" value="${escapeHtml(day.date || '')}" title="Date" />
+        <button class="g-del" data-ddel title="Remove this day">🗑</button>
+      </div>
+      ${day.slots.map(s => `
+        <div class="slot-row" data-slot="${s.id}">
+          <input type="time" data-sfield="time" value="${escapeHtml(s.time || '')}" title="Start time" />
+          <select data-sfield="type" title="Block type">
+            ${SLOT_TYPES.map(t => `<option ${s.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          <input type="text" data-sfield="activity" value="${escapeHtml(s.activity || '')}" placeholder="What's happening (game, topic…)" />
+          <span class="collab-wrap"><input type="checkbox" data-sfield="collab" ${s.collab ? 'checked' : ''} id="cb-${s.id}" /><label for="cb-${s.id}">collab</label></span>
+          <input type="text" data-sfield="collabWith" value="${escapeHtml(s.collabWith || '')}" placeholder="with…" ${s.collab ? '' : 'style="opacity:.45"'} />
+          <span class="setup-wrap"><input type="checkbox" data-sfield="setup" ${s.setup ? 'checked' : ''} id="su-${s.id}" /><label for="su-${s.id}" title="Needs tech setup beforehand">setup</label></span>
+          <button class="g-del" data-sdel title="Remove">🗑</button>
+        </div>
+      `).join('')}
+      <button class="btn secondary mini" data-addslot style="margin-top:6px">+ Add time block</button>
+    </div>
+  `).join('') || '<p style="font-size:13px;color:var(--ink-soft)">No days yet — add your first day below.</p>';
+
+  wrap.querySelectorAll('.day-card').forEach(card => {
+    const day = state.schedule.days.find(d => d.id === card.dataset.day);
+    if(!day) return;
+    card.querySelector('[data-dfield="date"]').addEventListener('change', e => { day.date = e.target.value; persist(); });
+    card.querySelector('[data-ddel]').addEventListener('click', () => {
+      if(!confirm('Remove ' + day.label + ' and all its blocks?')) return;
+      state.schedule.days = state.schedule.days.filter(d => d.id !== day.id);
+      persist(); renderSchedule();
+    });
+    card.querySelector('[data-addslot]').addEventListener('click', () => addSlot(day.id));
+    card.querySelectorAll('.slot-row').forEach(row => {
+      const slot = day.slots.find(s => s.id === row.dataset.slot);
+      if(!slot) return;
+      row.querySelectorAll('[data-sfield]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          if(inp.type === 'checkbox') slot[inp.dataset.sfield] = inp.checked;
+          else slot[inp.dataset.sfield] = inp.value;
+          persist();
+          if(inp.dataset.sfield === 'collab') renderSchedule();
+        });
+      });
+      row.querySelector('[data-sdel]').addEventListener('click', () => {
+        day.slots = day.slots.filter(s => s.id !== slot.id);
+        persist(); renderSchedule();
+      });
+    });
+  });
+}
+
+// ============================================================
+//  STEP 5 — PREP CHECKLIST
+// ============================================================
+function renderPrep(){
+  const wrap = document.getElementById('prepRows');
+  wrap.innerHTML = state.prep.checklist.map(p => `
+    <div class="prep-row ${p.done ? 'done' : ''}" data-id="${p.id}">
+      <button class="g-check ${p.done ? 'done' : ''}" data-pcheck>${p.done ? '✓' : ''}</button>
+      <span class="prep-text">${escapeHtml(p.text)}</span>
+      <button class="g-del" data-pdel title="Remove">🗑</button>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.prep-row').forEach(row => {
+    const p = state.prep.checklist.find(x => x.id === row.dataset.id);
+    if(!p) return;
+    row.querySelector('[data-pcheck]').addEventListener('click', () => { p.done = !p.done; persist(); renderPrep(); });
+    row.querySelector('[data-pdel]').addEventListener('click', () => {
+      state.prep.checklist = state.prep.checklist.filter(x => x.id !== p.id);
+      persist(); renderPrep();
+    });
+  });
+}
+
+// ============================================================
+//  STEP 6 — TIMER ENGINE
+// ============================================================
+function timerRemainingMs(){
+  const t = state.timer;
+  if(!t.endAt) return 0;
+  const end = new Date(t.endAt).getTime();
+  const ref = t.pausedAt ? new Date(t.pausedAt).getTime() : Date.now();
+  return Math.max(0, end - ref);
+}
+function fmtMs(ms){
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+}
+function startTimer(){
+  const hours = Number(state.setup.baseHours) || 4;
+  const now = Date.now();
+  state.timer = {
+    endAt: new Date(now + hours * 3600000).toISOString(),
+    pausedAt: null,
+    running: true,
+    addedMin: 0,
+    counts: { subs: 0, dollars: 0, bits: 0 },   // running totals — shown on the widget's stats bar
+    capAt: state.rules.cap > 0 ? new Date(now + state.rules.cap * 3600000).toISOString() : null
+  };
+  persistTimerNow();
+  setStatus('▶ Timer started — ' + hours + 'h on the clock. The widget updates within a few seconds.', 'success');
+}
+function addMinutes(min, label, counts){
+  const t = state.timer;
+  if(!t.endAt || !t.running){ setStatus('Start the timer first!', 'error'); return; }
+  let end = new Date(t.endAt).getTime() + min * 60000;
+  let capped = false;
+  if(t.capAt){
+    const cap = new Date(t.capAt).getTime();
+    if(end > cap){ end = cap; capped = true; }
+  }
+  t.endAt = new Date(end).toISOString();
+  t.addedMin = (t.addedMin || 0) + min;
+  if(counts){
+    t.counts = t.counts || { subs: 0, dollars: 0, bits: 0 };
+    Object.keys(counts).forEach(k => { t.counts[k] = (t.counts[k] || 0) + counts[k]; });
+  }
+  persistTimerNow();
+  setStatus((min >= 0 ? '+' : '') + min + ' min' + (label ? ' (' + label + ')' : '') + (capped ? ' — ⚠️ hit your hard cap!' : ''), capped ? 'info' : 'success');
+}
+function pauseTimer(){
+  const t = state.timer;
+  if(!t.endAt || !t.running || t.pausedAt) return;
+  t.pausedAt = new Date().toISOString();
+  persistTimerNow();
+  setStatus('⏸ Paused — the clock is frozen (sleep well!).', 'info');
+}
+function resumeTimer(){
+  const t = state.timer;
+  if(!t.pausedAt) return;
+  const pausedFor = Date.now() - new Date(t.pausedAt).getTime();
+  t.endAt = new Date(new Date(t.endAt).getTime() + pausedFor).toISOString();
+  if(t.capAt) t.capAt = new Date(new Date(t.capAt).getTime() + pausedFor).toISOString();
+  t.pausedAt = null;
+  persistTimerNow();
+  setStatus('⏵ Resumed — paused time didn\'t count against the clock.', 'success');
+}
+function stopTimer(){
+  if(!confirm('End the event? The widget will show 00:00:00.')) return;
+  state.timer = { endAt: new Date().toISOString(), pausedAt: null, running: false, addedMin: state.timer.addedMin, capAt: null };
+  persistTimerNow();
+  setStatus('⏹ Event ended. You did the thing!! Now go sleep. 💗', 'success');
+}
+
+function renderTimerPreview(){
+  const t = state.timer;
+  document.getElementById('lpLabel').textContent = (state.display.label || (state.setup.type === 'donothon' ? 'DONOTHON TIMER' : 'SUBATHON TIMER')).toUpperCase();
+  const timeEl = document.getElementById('lpTime');
+  const stateEl = document.getElementById('lpState');
+  if(!t.endAt){ timeEl.textContent = '--:--:--'; stateEl.textContent = 'not started'; }
+  else {
+    timeEl.textContent = fmtMs(timerRemainingMs());
+    const c = t.counts || {};
+    const statBits = [];
+    if(c.subs) statBits.push(c.subs + ' subs');
+    if(c.dollars) statBits.push('$' + c.dollars);
+    if(c.bits) statBits.push(c.bits + ' bits');
+    const stats = statBits.length ? ' · ' + statBits.join(' · ') : '';
+    stateEl.textContent = t.pausedAt ? '⏸ paused' + stats : (t.running ? (timerRemainingMs() <= 0 ? '🏁 time\'s up!' : '🔴 live · +' + (t.addedMin || 0) + ' min added' + stats) : 'ended');
+  }
+  const capNote = document.getElementById('capNote');
+  if(t.capAt && t.running){
+    capNote.style.display = 'inline-block';
+    capNote.textContent = '⛑ hard cap: ' + new Date(t.capAt).toLocaleString([], { weekday:'short', hour:'numeric', minute:'2-digit' });
+  } else capNote.style.display = 'none';
+}
+
+function renderQuickAdds(){
+  const r = state.rules;
+  const btns = [
+    { label:'🟣 Tier 1 sub', min: r.t1, counts:{ subs:1 } },
+    { label:'🟪 Tier 2 sub', min: r.t2, counts:{ subs:1 } },
+    { label:'👑 Tier 3 sub', min: r.t3, counts:{ subs:1 } },
+    { label:'🎁 5 gift subs', min: r.t1 * 5, counts:{ subs:5 } },
+    { label:'💎 100 bits', min: r.bits, counts:{ bits:100 } }
+  ].filter(b => b.min > 0);
+  const wrap = document.getElementById('quickAddBtns');
+  wrap.innerHTML = btns.map((b, i) => `<button class="btn secondary mini" data-qadd="${b.min}" data-qcounts='${JSON.stringify(b.counts)}' data-qlabel="${escapeHtml(b.label)}">${b.label} <strong>+${b.min}m</strong></button>`).join('');
+  wrap.querySelectorAll('[data-qadd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      let counts = null;
+      try{ counts = JSON.parse(btn.dataset.qcounts || 'null'); }catch(e){}
+      addMinutes(Number(btn.dataset.qadd), btn.dataset.qlabel.replace(/^[^ ]+ /,''), counts);
+    });
+  });
+}
+
+// ---- Widget link ----
+function makeToken(){
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let t = '';
+  const buf = new Uint8Array(24);
+  (window.crypto || {}).getRandomValues ? crypto.getRandomValues(buf) : buf.forEach((_, i) => buf[i] = Math.floor(Math.random() * 256));
+  buf.forEach(b => { t += chars[b % chars.length]; });
+  return t;
+}
+function widgetUrl(){
+  if(!state.shareToken) return null;
+  // Demo sandbox: keep the widget link local + flagged so previewing never
+  // leaves the sandbox or touches the live site.
+  let inDemo = /[?&]demo=1\b/.test(location.search);
+  try{ inDemo = inDemo || sessionStorage.getItem('__eggie_demo_mode') === '1'; }catch(e){}
+  if(inDemo) return 'subathon-timer.html?demo=1&t=' + state.shareToken;
+  const base = location.origin === 'null' || location.protocol === 'file:'
+    ? 'https://creatorhub.eggieweggie.ca/subathon-timer.html'
+    : location.href.replace(/[^/]*$/, '') + 'subathon-timer.html';
+  return base + '?t=' + state.shareToken;
+}
+function renderWidgetUrl(){
+  const el = document.getElementById('widgetUrl');
+  const url = widgetUrl();
+  el.textContent = url || (currentUser ? 'Click "Generate link" to create your widget URL.' : 'Sign in (top right), then generate your widget link.');
+  document.getElementById('liveAuthNote').classList.toggle('hidden', !!currentUser);
+}
+async function genToken(){
+  if(!currentUser){ setStatus('Sign in first (top right) — the widget reads your timer from the cloud.', 'error'); return; }
+  if(state.shareToken && !confirm('Generate a NEW link? The old widget URL will stop working (update OBS afterwards).')) return;
+  state.shareToken = makeToken();
+  await saveSupabase(true);
+  saveLocal();
+  renderWidgetUrl();
+  setStatus('🔑 Widget link ready — copy it into an OBS browser source.', 'success');
+}
+
+// ============================================================
+//  STEP 7 — EVENT PLAN OVERVIEW
+// ============================================================
+const TYPE_LABELS = { subathon:'⏱️ Subathon', donothon:'💝 Donothon', marathon:'📅 Marathon' };
+function fmtStart(){
+  if(!state.setup.startAt) return '—';
+  try{
+    return new Date(state.setup.startAt).toLocaleString([], { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
+      + (state.setup.timezone ? ' ' + state.setup.timezone : '');
+  }catch(e){ return state.setup.startAt; }
+}
+function renderOverview(){
+  const s = state.setup, r = state.rules;
+  const prepDone = state.prep.checklist.filter(p => p.done).length;
+  const goalsHtml = state.goals.length
+    ? state.goals.map(g => `<div class="ov-kv ${g.reached ? 'ov-done' : ''}"><span>${escapeHtml(g.label || 'Goal')}</span><b>${escapeHtml(g.target || '')}${g.reached ? ' ✓' : ''}</b></div>`).join('')
+    : '<p class="ov-empty">No goals yet — set them in step 3.</p>';
+  const incsHtml = state.incentives.length
+    ? state.incentives.map(i => `<div class="ov-kv"><span>${escapeHtml(i.label || '')}</span><b>at ${escapeHtml(i.threshold || '?')}</b></div>`).join('')
+    : '<p class="ov-empty">No incentives yet — set them in step 3.</p>';
+  const schedHtml = state.schedule.days.length
+    ? state.schedule.days.map((d, i) => `
+        <h4 style="margin-top:${i ? '12px' : '0'}">${escapeHtml(d.label || ('Day ' + (i+1)))}${d.date ? ' · ' + escapeHtml(d.date) : ''}</h4>
+        ${d.slots.length ? `<table>
+          <tr><th>Time</th><th>Type</th><th>What</th><th>Collab</th><th>Setup</th></tr>
+          ${d.slots.map(sl => `<tr>
+            <td>${escapeHtml(sl.time || '')}</td>
+            <td>${escapeHtml(sl.type || '')}</td>
+            <td>${escapeHtml(sl.activity || '')}</td>
+            <td>${sl.collab ? '✓ ' + escapeHtml(sl.collabWith || '') : ''}</td>
+            <td>${sl.setup ? '⚙️' : ''}</td>
+          </tr>`).join('')}
+        </table>` : '<p class="ov-empty">No blocks planned for this day yet.</p>'}
+      `).join('')
+    : '<p class="ov-empty">No days scheduled yet — build it in step 4.</p>';
+  document.getElementById('overview').innerHTML = `
+    <div class="ov-grid">
+      <div class="ov-block">
+        <h4>🥚 Event</h4>
+        <div class="ov-kv"><span>Name</span><b>${escapeHtml(s.name || 'Untitled event')}</b></div>
+        <div class="ov-kv"><span>Type</span><b>${TYPE_LABELS[s.type] || s.type}</b></div>
+        <div class="ov-kv"><span>Starts</span><b>${fmtStart()}</b></div>
+        <div class="ov-kv"><span>Starting timer</span><b>${s.baseHours || '?'}h</b></div>
+        <div class="ov-kv"><span>Hard cap</span><b>${r.cap > 0 ? r.cap + 'h total' : '⚠️ none set'}</b></div>
+      </div>
+      <div class="ov-block">
+        <h4>⏱️ Timer rules</h4>
+        <div class="ov-kv"><span>Tier 1 / 2 / 3 sub</span><b>+${r.t1} / +${r.t2} / +${r.t3} min</b></div>
+        <div class="ov-kv"><span>Per $1 donated</span><b>+${r.dono} min</b></div>
+        <div class="ov-kv"><span>Per 100 bits</span><b>+${r.bits} min</b></div>
+        <div class="ov-kv"><span>Prep checklist</span><b>${prepDone} / ${state.prep.checklist.length} done</b></div>
+      </div>
+      <div class="ov-block">
+        <h4>🏆 Goal ladder</h4>
+        ${goalsHtml}
+      </div>
+      <div class="ov-block">
+        <h4>🎁 Incentives</h4>
+        ${incsHtml}
+      </div>
+      <div class="ov-block wide">
+        ${schedHtml}
+      </div>
+    </div>
+  `;
+}
+function buildPlanText(){
+  const s = state.setup, r = state.rules;
+  const L = [];
+  L.push('═══ ' + (s.name || 'My subathon') + ' ═══');
+  L.push((TYPE_LABELS[s.type] || s.type).replace(/^[^ ]+ /,'') + ' · starts ' + fmtStart() + ' · clock starts at ' + (s.baseHours || '?') + 'h' + (r.cap > 0 ? ' · hard cap ' + r.cap + 'h' : ''));
+  L.push('');
+  L.push('TIMER RULES');
+  L.push('• Tier 1 sub: +' + r.t1 + ' min · Tier 2: +' + r.t2 + ' min · Tier 3: +' + r.t3 + ' min');
+  L.push('• $1 donated: +' + r.dono + ' min · 100 bits: +' + r.bits + ' min');
+  if(state.goals.length){
+    L.push('');
+    L.push('GOALS');
+    state.goals.forEach(g => L.push('• ' + (g.target ? g.target + ' — ' : '') + (g.label || 'goal') + (g.reached ? ' ✓' : '')));
+  }
+  if(state.incentives.length){
+    L.push('');
+    L.push('INCENTIVES');
+    state.incentives.forEach(i => L.push('• at ' + (i.threshold || '?') + ': ' + (i.label || '')));
+  }
+  state.schedule.days.forEach((d, di) => {
+    L.push('');
+    L.push((d.label || ('DAY ' + (di+1))).toUpperCase() + (d.date ? ' — ' + d.date : ''));
+    d.slots.forEach(sl => {
+      L.push('• ' + (sl.time || '??:??') + ' — ' + (sl.type || '') + (sl.activity ? ': ' + sl.activity : '')
+        + (sl.collab ? ' [collab' + (sl.collabWith ? ' w/ ' + sl.collabWith : '') + ']' : '')
+        + (sl.setup ? ' [needs setup]' : ''));
+    });
+  });
+  L.push('');
+  L.push('— planned with Eggie\'s Creator Hub · creatorhub.eggieweggie.ca —');
+  return L.join('\n');
+}
+
+// ============================================================
+//  RESUME BANNER — a saved timer survives closing the page;
+//  this makes that obvious the moment you come back.
+// ============================================================
+function renderResumeBanner(){
+  const banner = document.getElementById('resumeBanner');
+  const t = state.timer;
+  if(!t.endAt || !t.running || currentStep === 6){ banner.classList.add('hidden'); return; }
+  const ms = timerRemainingMs();
+  const text = document.getElementById('resumeText');
+  if(t.pausedAt){
+    text.textContent = '⏸ Your saved event timer is paused with ' + fmtMs(ms) + ' left. It picks up exactly where you left it.';
+  } else if(ms > 0){
+    text.textContent = '🔴 Your event timer is saved and running — ' + fmtMs(ms) + ' left (ends ~' +
+      new Date(t.endAt).toLocaleString([], { weekday:'short', hour:'numeric', minute:'2-digit' }) +
+      '). It keeps counting even when this page is closed.';
+  } else {
+    text.textContent = '🏁 Your saved timer hit zero! Open the controls to wrap up or add time.';
+  }
+  banner.classList.remove('hidden');
+}
+
+// ============================================================
+//  RENDER ROOT
+// ============================================================
+function render(){
+  fillFields();
+  renderGoals();
+  renderIncs();
+  renderSchedule();
+  renderPrep();
+  renderQuickAdds();
+  renderTimerPreview();
+  renderWidgetUrl();
+  renderOverview();
+  renderResumeBanner();
+}
+
+// ============================================================
+//  AUTH
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user) onSignIn(session.user);
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user);
+      else onSignOut();
+    });
+  }catch(e){ console.warn('Supabase init failed', e); }
+}
+async function sendMagicLink(){
+  const email = (document.getElementById('emailInput').value || '').trim().toLowerCase();
+  const status = document.getElementById('authStatus');
+  status.classList.remove('hidden');
+  if(!email || !email.includes('@')){
+    status.textContent = 'Please enter a valid email.'; status.className = 'status-banner error';
+    return;
+  }
+  if(window.location.protocol === 'file:'){
+    status.textContent = '⚠️ Magic links require http(s). Open the file via a local server or on your live site.';
+    status.className = 'status-banner error';
+    return;
+  }
+  if(!sb) await initAuth();
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    status.textContent = `⏳ Wait ${wait}s before sending another link — rapid retries trigger Supabase's hourly rate limit.`;
+    status.className = 'status-banner error';
+    return;
+  }
+  const btn = document.getElementById('authSend');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const redirectTo = window.location.origin + window.location.pathname;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  btn.disabled = false; btn.innerHTML = '📬 Send magic link';
+  if(error){
+    status.textContent = 'Sign-in failed: ' + error.message;
+    status.className = 'status-banner error';
+  } else {
+    localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
+    status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`;
+    status.className = 'status-banner success';
+  }
+}
+let lastSignedInId = null;  // guard: onAuthStateChange re-fires on tab refocus — don't reload + re-render over live edits
+async function onSignIn(user){
+  const isSameSession = lastSignedInId === user.id;
+  lastSignedInId = user.id;
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · syncing`;
+  document.getElementById('authModal').classList.remove('open');
+  renderWidgetUrl();
+  if(!isSameSession) await loadSupabase();
+}
+function onSignOut(){
+  currentUser = null;
+  lastSignedInId = null;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in to sync';
+  renderWidgetUrl();
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+function boot(){
+  loadLocal();
+  bindFields();
+
+  document.querySelectorAll('.step-tab').forEach(b => b.addEventListener('click', () => gotoStep(parseInt(b.dataset.step, 10))));
+  document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => gotoStep(parseInt(b.dataset.goto, 10))));
+
+  // Goals / incentives
+  document.getElementById('addGoalBtn').addEventListener('click', () => {
+    state.goals.push({ id: uid(), target:'', label:'', reached:false });
+    persist(); renderGoals();
+  });
+  document.getElementById('seedGoalsBtn').addEventListener('click', () => {
+    [10,20,30,50,75,100].forEach(n => state.goals.push({ id: uid(), target:String(n), label:'', reached:false }));
+    persist(); renderGoals();
+  });
+  document.getElementById('addIncBtn').addEventListener('click', () => {
+    state.incentives.push({ id: uid(), threshold:'', label:'' });
+    persist(); renderIncs();
+  });
+  document.getElementById('seedIncsBtn').addEventListener('click', () => {
+    [['10','Karaoke hour 🎤'],['25','Voice message for every sub 💌'],['50','Art with me stream 🎨'],['75','Handwritten thank-you notes ✍️'],['100','24h added + special finale 🎆']]
+      .forEach(([t, l]) => state.incentives.push({ id: uid(), threshold:t, label:l }));
+    persist(); renderIncs();
+  });
+
+  // Schedule
+  document.getElementById('addDayBtn').addEventListener('click', addDay);
+
+  // Prep
+  document.getElementById('addPrepBtn').addEventListener('click', () => {
+    const inp = document.getElementById('prepInput');
+    const text = (inp.value || '').trim();
+    if(!text) return;
+    state.prep.checklist.push({ id: uid(), text, done:false });
+    inp.value = '';
+    persist(); renderPrep();
+  });
+  document.getElementById('prepInput').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('addPrepBtn').click(); });
+
+  // Timer controls
+  document.getElementById('startTimerBtn').addEventListener('click', () => {
+    if(state.timer.endAt && state.timer.running && !confirm('Restart the timer from your base hours? This resets added time.')) return;
+    startTimer(); renderTimerPreview();
+  });
+  document.getElementById('pauseTimerBtn').addEventListener('click', () => { pauseTimer(); renderTimerPreview(); });
+  document.getElementById('resumeTimerBtn').addEventListener('click', () => { resumeTimer(); renderTimerPreview(); });
+  document.getElementById('stopTimerBtn').addEventListener('click', () => { stopTimer(); renderTimerPreview(); });
+  document.getElementById('addDonoBtn').addEventListener('click', () => {
+    const amt = Number(document.getElementById('donoAmt').value) || 0;
+    if(amt <= 0) return;
+    addMinutes(Math.round(amt * state.rules.dono), '$' + amt + ' dono', { dollars: amt });
+    document.getElementById('donoAmt').value = '';
+    renderTimerPreview();
+  });
+  document.getElementById('addManualBtn').addEventListener('click', () => {
+    const min = Number(document.getElementById('manualMin').value) || 0;
+    if(!min) return;
+    addMinutes(min, 'manual');
+    document.getElementById('manualMin').value = '';
+    renderTimerPreview();
+  });
+
+  // Event plan (step 7)
+  document.getElementById('copyPlanBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(buildPlanText()).then(() => {
+      const btn = document.getElementById('copyPlanBtn');
+      btn.textContent = '✓ Copied — paste it in Discord!';
+      setTimeout(() => { btn.innerHTML = '📋 Copy plan as text'; }, 2000);
+    });
+  });
+  document.getElementById('printPlanBtn').addEventListener('click', () => window.print());
+
+  // Resume banner
+  document.getElementById('resumeBtn').addEventListener('click', () => gotoStep(6));
+
+  // Widget link
+  document.getElementById('genTokenBtn').addEventListener('click', genToken);
+  document.getElementById('copyUrlBtn').addEventListener('click', () => {
+    const url = widgetUrl();
+    if(!url){ setStatus('Generate the link first.', 'error'); return; }
+    navigator.clipboard.writeText(url).then(() => setStatus('📋 Widget URL copied — paste it into an OBS browser source (800×220).', 'success'));
+  });
+  document.getElementById('openWidgetBtn').addEventListener('click', () => {
+    const url = widgetUrl();
+    if(!url){ setStatus('Generate the link first.', 'error'); return; }
+    window.open(url, '_blank');
+  });
+
+  // Auth
+  document.getElementById('authPill').addEventListener('click', () => {
+    if(currentUser){
+      if(confirm('Sign out? Your local plan stays safe.')) sb.auth.signOut();
+    } else {
+      document.getElementById('authModal').classList.add('open');
+    }
+  });
+  document.getElementById('authCancel').addEventListener('click', () => document.getElementById('authModal').classList.remove('open'));
+  document.getElementById('authSend').addEventListener('click', sendMagicLink);
+  document.getElementById('authModal').addEventListener('click', e => { if(e.target.id === 'authModal') e.currentTarget.classList.remove('open'); });
+  document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendMagicLink(); });
+
+  render();
+  setInterval(() => { renderTimerPreview(); renderResumeBanner(); }, 1000);
+  initAuth();
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot, { once:true });
+} else {
+  boot();
+}
+</script>
+<script src="hub-nav.js?v=6"></script>
+<script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
+</body>
+</html>

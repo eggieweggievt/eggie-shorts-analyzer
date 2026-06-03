@@ -26,7 +26,9 @@
       { emoji: '✓', name: 'To-Do List', href: 'todo.html' },
       { emoji: '🌸', name: 'Sustainable Habits', href: 'habits.html' },
       { emoji: '🪞', name: 'Weekly Review', href: 'review.html' },
-      { emoji: '🔮', name: 'Ask My Planner', href: 'ask.html' }
+      { emoji: '🔮', name: 'Ask My Planner', href: 'ask.html' },
+      { emoji: '🎭', name: 'Debut Checklist', href: 'debut-checklist.html' },
+      { emoji: '⏱️', name: 'Subathon Planner', href: 'subathon.html' }
     ]},
     { emoji: '💰', name: 'Grow & Earn', items: [
       { emoji: '💌', name: 'Media Kit', href: 'media-kit.html' },
@@ -34,7 +36,8 @@
       { emoji: '💰', name: 'Finance & Tax', href: 'finance.html' }
     ]},
     { emoji: '📚', name: 'Learn', items: [
-      { emoji: '📚', name: 'Growth Playbook', href: 'growth.html' }
+      { emoji: '📚', name: 'Growth Playbook', href: 'growth.html' },
+      { emoji: '🔍', name: 'Niche Finder', href: 'niche-quiz.html' }
     ]},
     { emoji: '✨', name: 'More', items: [
       { emoji: '❓', name: 'FAQ & About', href: 'faq.html' },

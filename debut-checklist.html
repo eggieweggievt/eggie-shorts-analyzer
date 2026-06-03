@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Debut Checklist 🎭 — Eggie's Creator Hub</title>
+<meta name="description" content="Every commission, asset, and setup task you need before debut day — with costs, artist links, payment tracking, and a countdown. Built from a real VTuber debut." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://creatorhub.eggieweggie.ca/debut-checklist.html" />
+<meta property="og:title" content="Debut Checklist 🎭" />
+<meta property="og:description" content="Track every commission + setup task before debut day." />
+<meta property="og:image" content="preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-hot:#FFB2F0;
+    --blue:#63AAF4;
+    --mint:#6BE4EA;
+    --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF;
+    --deep:#4D5BC0;
+    --ink:#3a2a5a;
+    --ink-soft:#6b5f8a;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;line-height:1.6;
+  }
+  .wrap{max-width:1150px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+  .back-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,0.7);border:2px solid rgba(144,165,255,0.4);
+    padding:8px 16px;border-radius:999px;
+    color:var(--deep);font-weight:700;font-size:14px;
+  }
+  .back-link:hover{background:rgba(255,255,255,0.95)}
+
+  header.hero{text-align:center;padding:14px 0 8px}
+  .logo{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px, 5.5vw, 48px);line-height:1.4;
+    background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:14px auto 6px;padding:14px 12px 22px;display:block;
+  }
+  header.hero p.tag{
+    font-weight:600;color:var(--ink-soft);font-size:15.5px;
+    margin:0 auto;max-width:680px;line-height:1.5;padding:0 12px;
+  }
+  header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 24px;margin:16px 0;
+  }
+  .card h2{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
+    margin:0 0 10px;color:var(--deep);
+  }
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    box-shadow:0 6px 14px rgba(144,165,255,0.3);
+    transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.secondary{
+    background:rgba(255,255,255,0.7);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.4);box-shadow:none;
+  }
+  input[type=text],input[type=number],input[type=email],input[type=date],input[type=url],select{
+    padding:9px 13px;border-radius:10px;
+    border:2px solid rgba(144,165,255,0.35);
+    background:rgba(255,255,255,0.92);
+    font-family:inherit;font-size:14px;color:var(--ink);
+  }
+  input:focus,select:focus{outline:none;border-color:var(--periwinkle);background:#fff}
+  .hidden{display:none !important}
+
+  /* Auth pill */
+  .auth-pill{
+    position:fixed;top:14px;right:14px;z-index:300;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    color:#fff;font-weight:800;font-size:13px;border:none;font-family:inherit;
+    box-shadow:0 6px 16px rgba(144,165,255,0.32);
+  }
+  .auth-pill.signed-in{
+    background:rgba(255,255,255,0.95);color:var(--deep);
+    border:2px solid rgba(144,165,255,0.45);font-weight:700;
+  }
+
+  /* Dashboard */
+  .dash{
+    display:flex;gap:18px;flex-wrap:wrap;align-items:stretch;
+    background:rgba(255,255,255,0.6);
+    border-radius:18px;padding:16px 18px;margin-bottom:14px;
+    border:1px solid rgba(255,255,255,0.95);
+    box-shadow:0 4px 14px rgba(99,170,244,0.12);
+  }
+  .dash-block{flex:1;min-width:180px}
+  .dash-block .num{
+    font-family:'Pacifico',cursive;font-size:32px;color:var(--deep);line-height:1.1;
+  }
+  .dash-block .lbl{font-size:12.5px;color:var(--ink-soft);font-weight:700}
+  .dash-prog{
+    width:100%;height:12px;border-radius:999px;margin-top:8px;
+    background:rgba(144,165,255,0.18);overflow:hidden;
+  }
+  .dash-prog .bar{
+    height:100%;border-radius:999px;width:0%;
+    background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));
+    transition:width .3s;
+  }
+  .debut-date-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .countdown-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
+    color:var(--deep);font-weight:800;font-size:13px;
+    padding:5px 14px;border-radius:999px;
+  }
+
+  /* Category sections */
+  .category{
+    background:rgba(255,255,255,0.7);
+    border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:18px;padding:16px 18px;margin:12px 0;
+  }
+  .category-head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-bottom:10px;padding-bottom:8px;
+    border-bottom:1.5px dashed rgba(144,165,255,0.25);
+  }
+  .category-head h3{
+    font-family:'Pacifico',cursive;font-weight:400;font-size:20px;
+    color:var(--deep);margin:0;flex:1;
+  }
+  .category-head .cat-progress{
+    font-size:12px;color:var(--ink-soft);font-weight:700;
+    background:rgba(144,165,255,0.18);padding:3px 10px;border-radius:999px;
+  }
+  .category-head .cat-progress.full{
+    background:linear-gradient(135deg,rgba(168,230,190,0.45),rgba(107,228,234,0.4));
+    color:#1f6580;
+  }
+  .category-head .cat-cost{
+    font-size:12px;color:var(--deep);font-weight:800;
+    background:rgba(255,213,138,0.3);padding:3px 10px;border-radius:999px;
+  }
+
+  /* Task rows */
+  .task-row{
+    display:grid;gap:8px;align-items:center;
+    grid-template-columns:auto minmax(160px,1.4fr) minmax(120px,1fr) 92px auto auto auto auto;
+    padding:9px 12px;
+    background:rgba(255,255,255,0.85);
+    border:1px solid rgba(144,165,255,0.18);
+    border-radius:12px;margin-bottom:6px;
+  }
+  @media(max-width:900px){
+    .task-row{grid-template-columns:auto 1fr auto;grid-auto-rows:auto}
+    .task-row .t-artist,.task-row .t-cost,.task-row .t-pay,.task-row .t-due{grid-column:span 1}
+  }
+  .task-row.complete{
+    background:linear-gradient(135deg,rgba(168,230,190,0.3),rgba(107,228,234,0.25));
+    border-color:rgba(168,230,190,0.5);
+  }
+  .task-row.complete .t-name{text-decoration:line-through;color:var(--ink-soft)}
+  .t-check{
+    width:30px;height:30px;border-radius:50%;border:2px solid rgba(144,165,255,0.4);
+    background:rgba(255,255,255,0.92);color:var(--deep);
+    cursor:pointer;font-size:16px;font-weight:800;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .t-check.done{background:linear-gradient(135deg,#A8E6BE,#6BE4EA);color:#fff;border-color:transparent}
+  .t-name{font-weight:700;font-size:14px;color:var(--ink);min-width:0;word-break:break-word}
+  .t-name small{display:block;font-weight:600;font-size:11px;color:var(--ink-soft)}
+  .task-row input,.task-row select{font-size:12.5px;padding:6px 9px;width:100%}
+  .t-status{min-width:118px}
+  .status-pill{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .t-pay select{min-width:86px}
+  .pay-paid{border-color:rgba(168,230,190,0.7) !important;background:rgba(168,230,190,0.18) !important}
+  .pay-deposit{border-color:rgba(255,213,138,0.8) !important;background:rgba(255,213,138,0.15) !important}
+  .t-del{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;
+    font-size:14px;padding:3px 6px;border-radius:6px;
+  }
+  .t-del:hover{background:rgba(255,138,168,0.18);color:#a23556}
+  .t-due input{min-width:120px}
+  .t-due.overdue input{border-color:rgba(255,138,168,0.7);background:rgba(255,138,168,0.1)}
+
+  .add-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .add-row input,.add-row select{font-size:13px}
+
+  /* Tips card */
+  .tips{font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+  .tips li{margin-bottom:7px}
+  .tips strong{color:var(--deep)}
+
+  /* Modal */
+  .modal-bg{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(60,40,90,0.45);backdrop-filter:blur(6px);
+    align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+  }
+  .modal-bg.open{display:flex}
+  .modal{
+    background:rgba(255,255,255,0.97);border-radius:22px;
+    padding:24px 26px;max-width:560px;width:100%;
+    box-shadow:0 28px 80px rgba(99,170,244,0.35);margin:auto;
+  }
+  .modal h2{font-family:'Pacifico',cursive;font-weight:400;font-size:26px;margin:0 0 10px;color:var(--deep)}
+  .modal label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+  .modal-actions{
+    display:flex;gap:10px;justify-content:flex-end;
+    margin-top:18px;padding-top:14px;
+    border-top:1.5px dashed rgba(144,165,255,0.3);flex-wrap:wrap;
+  }
+  .status-banner{margin:10px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
+  .status-banner.success{background:rgba(168,230,190,0.4);color:#1f6b35;border:1px solid rgba(168,230,190,0.65)}
+  .status-banner.error{background:rgba(255,138,168,0.18);color:#7a2a3e;border:1px solid rgba(255,138,168,0.4)}
+
+  footer{text-align:center;padding:24px 0 12px;color:var(--ink-soft);font-size:13.5px;line-height:1.5}
+  footer a{color:var(--deep);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+
+<button id="authPill" class="auth-pill" title="Sign in to save your checklist across devices">🔓 Sign in to sync</button>
+
+<div class="wrap">
+
+  <div class="back-row">
+    <a href="index.html" class="back-link">🏠 Hub</a>
+    <a href="planner.html" class="back-link">📅 Planner</a>
+    <a href="niche-quiz.html" class="back-link">🔍 Niche Finder</a>
+    <a href="subathon.html" class="back-link">⏱️ Subathon</a>
+    <a href="growth.html" class="back-link">🌱 Playbook</a>
+  </div>
+
+  <header class="hero">
+    <h1 class="logo">Debut Checklist 🎭</h1>
+    <p class="tag">Every commission, asset, and setup task standing between you and debut day — with <em>costs, artist links, payment tracking,</em> and a countdown. Built from a real debut, so nothing gets forgotten at 2am the night before.</p>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="dash">
+    <div class="dash-block">
+      <div class="num" id="dashDone">0/0</div>
+      <div class="lbl">tasks complete</div>
+      <div class="dash-prog"><div class="bar" id="dashBar"></div></div>
+    </div>
+    <div class="dash-block">
+      <div class="num" id="dashCost">$0</div>
+      <div class="lbl">total budget · <span id="dashPaid">$0 paid</span></div>
+    </div>
+    <div class="dash-block">
+      <div class="lbl" style="margin-bottom:4px">🗓️ Debut date</div>
+      <div class="debut-date-row">
+        <input type="date" id="debutDate" />
+        <span class="countdown-chip hidden" id="countdownChip"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <section class="card">
+    <h2>💡 Debut prep tips</h2>
+    <ul class="tips">
+      <li><strong>Commission your model + rigging first.</strong> They have the longest queues — good riggers book out 2–6 months. Everything else (panels, emotes, overlays) can be made while you wait.</li>
+      <li><strong>Always check the artist's Terms of Service</strong> before paying — turnaround time, revision count, commercial use rights, and whether streaming the WIP is okay.</li>
+      <li><strong>Budget tip:</strong> you don't need everything at debut. Model, one overlay set, panels, a PFP, and a schedule graphic are plenty. Emotes and sub badges unlock after affiliate anyway.</li>
+      <li><strong>Pay with tracked methods</strong> (PayPal invoice, not friends &amp; family) so you're protected if a commission falls through.</li>
+      <li><strong>Do a full tech rehearsal</strong> a few days early: model tracking, alerts, transitions, audio — the whole stream, recorded, watched back. Debut-day surprises are the worst surprises.</li>
+      <li><strong>Announce 2–3 weeks out</strong> with a teaser, then countdown posts. Your debut works best as a small event people can plan to attend.</li>
+    </ul>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="card">
+    <h2>🎀 The checklist</h2>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">
+      Check tasks off as they're delivered. Track who's making each piece, what it costs, and whether the artist has been paid. Anything that doesn't apply to you — just delete it. Add your own rows at the bottom of any section.
+    </p>
+    <div id="categories"></div>
+  </section>
+
+  <footer>
+    <a href="index.html">🏠 Hub</a> &middot; <a href="niche-quiz.html">🔍 Niche Finder</a> &middot; <a href="growth.html">🌱 Playbook</a><br/>
+    Made with 💗 by Eggie &middot; Your checklist stays in your browser — sign in only if you want to sync.
+  </footer>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="authModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2>📬 Sign in to sync</h2>
+    <p style="font-size:14px;color:var(--ink);margin:0 0 10px;line-height:1.55">
+      Magic link, no password. Your checklist will sync automatically once you're in — pick up where you left off on any device.
+    </p>
+    <label for="emailInput">Email</label>
+    <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" style="width:100%" />
+    <div id="authStatus" class="status-banner hidden"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="authCancel">Cancel</button>
+      <button class="btn" id="authSend">📬 Send magic link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG + STATE
+// ============================================================
+const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+const STORAGE_KEY = 'eggie.debut.v1';
+
+const CATEGORIES = [
+  { id:'model',   label:'🎨 Model & Design' },
+  { id:'twitch',  label:'💜 Twitch / Channel Setup' },
+  { id:'obs',     label:'🎛️ OBS & Stream Tech' },
+  { id:'debut',   label:'🎭 Debut Day Content' },
+  { id:'socials', label:'📣 Socials & Announcements' },
+  { id:'extra',   label:'✨ Extras (nice-to-have, not launch-blocking)' }
+];
+
+// The default list — straight from a real VTuber debut checklist.
+const DEFAULT_TASKS = [
+  // Model & Design
+  { name:'Character design',            cat:'model' },
+  { name:'Reference sheet',             cat:'model' },
+  { name:'Model art',                   cat:'model' },
+  { name:'Model rigging',               cat:'model' },
+  { name:'Logo',                        cat:'model' },
+  { name:'VTube Studio model setup',    cat:'model' },
+  // Twitch / channel
+  { name:'Twitch profile picture',      cat:'twitch' },
+  { name:'Twitch main banner',          cat:'twitch' },
+  { name:'Twitch offline banner',       cat:'twitch' },
+  { name:'Twitch panels',               cat:'twitch' },
+  { name:'Twitch emotes',               cat:'twitch' },
+  { name:'Twitch sub badges',           cat:'twitch' },
+  { name:'Twitch bit badges',           cat:'twitch' },
+  { name:'Animated alerts',             cat:'twitch' },
+  // OBS & tech
+  { name:'Starting Soon overlay / scene',  cat:'obs' },
+  { name:'Be Right Back overlay / scene',  cat:'obs' },
+  { name:'Ending Soon overlay / scene',    cat:'obs' },
+  { name:'Just Chatting overlay / scene',  cat:'obs' },
+  { name:'In-Game overlay / scene',        cat:'obs' },
+  { name:'Stinger transition',             cat:'obs' },
+  { name:'Stream deck setup',              cat:'obs' },
+  { name:'Full tech rehearsal (record + watch back)', cat:'obs' },
+  // Debut day content
+  { name:'Lore video',                          cat:'debut' },
+  { name:'Debut info panels / slides',          cat:'debut' },
+  { name:'Model teaser / debut announcement video', cat:'debut' },
+  { name:'Debut stream run-of-show (what happens, in order)', cat:'debut' },
+  // Socials
+  { name:'Socials link page (Carrd / Linktree)', cat:'socials' },
+  { name:'Twitter / X profile picture',          cat:'socials' },
+  { name:'Twitter / X banner',                   cat:'socials' },
+  { name:'Twitter / X pinned post',              cat:'socials' },
+  { name:'Schedule graphic',                     cat:'socials' },
+  // Extras
+  { name:'Custom background music',   cat:'extra' },
+  { name:'Stream avatars',            cat:'extra' },
+  { name:'Stream pet setup',          cat:'extra' },
+  { name:'Donothon / goal sheet',     cat:'extra' },
+  { name:'Merch',                     cat:'extra' },
+  { name:'Extra art (promo pieces)',  cat:'extra' }
+];
+
+const STATUSES = [
+  { id:'unstarted', label:'Unstarted' },
+  { id:'searching', label:'Finding artist' },
+  { id:'commissioned', label:'Commissioned' },
+  { id:'wip', label:'In progress' },
+  { id:'delivered', label:'Delivered ✓' }
+];
+const PAY_STATES = [
+  { id:'unpaid', label:'Unpaid' },
+  { id:'deposit', label:'Deposit' },
+  { id:'paid', label:'Paid' }
+];
+
+let state = {
+  tasks: [],            // [{id, name, cat, status, artist, cost, pay, due}]
+  settings: { debutDate: '' }
+};
+let sb = null;
+let currentUser = null;
+
+function uid(){ return 't-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7); }
+
+// ============================================================
+//  PERSISTENCE — localStorage + optional Supabase sync
+// ============================================================
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state = { ...state, ...parsed, settings:{ ...state.settings, ...(parsed.settings || {}) } };
+    }
+  }catch(e){ console.warn('localStorage load failed', e); }
+}
+function saveLocal(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn('localStorage save failed', e); }
+}
+
+async function loadSupabase(){
+  if(!sb || !currentUser) return;
+  const { data, error } = await sb.from('planner_debut_state').select('*').eq('user_id', currentUser.id).maybeSingle();
+  if(error){
+    if(/relation.*does not exist/i.test(error.message || '')){
+      console.warn('debut table missing — run planner-debut-checklist.sql to enable sync.');
+      return;
+    }
+    console.error('Debut checklist load failed', error);
+    return;
+  }
+  if(!data){ await saveSupabase(); return; }
+  state = {
+    tasks: data.data?.tasks || state.tasks,
+    settings: { ...state.settings, ...(data.data?.settings || {}) }
+  };
+  saveLocal();
+  render();
+}
+
+let saveTimer = null;
+async function saveSupabase(){
+  if(!sb || !currentUser) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const payload = {
+      user_id: currentUser.id,
+      data: { tasks: state.tasks, settings: state.settings },
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await sb.from('planner_debut_state').upsert(payload, { onConflict: 'user_id' });
+    if(error) console.error('Debut checklist sync failed', error);
+  }, 600);
+}
+function persist(){ saveLocal(); saveSupabase(); }
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function money(n){
+  const v = Number(n) || 0;
+  return '$' + v.toLocaleString(undefined, { minimumFractionDigits:0, maximumFractionDigits:2 });
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+// ============================================================
+//  RENDER
+// ============================================================
+function render(){
+  renderDash();
+  renderCategories();
+}
+
+function renderDash(){
+  const total = state.tasks.length;
+  const done = state.tasks.filter(t => t.status === 'delivered').length;
+  document.getElementById('dashDone').textContent = done + '/' + total;
+  document.getElementById('dashBar').style.width = total ? Math.round(done / total * 100) + '%' : '0%';
+
+  let cost = 0, paid = 0;
+  state.tasks.forEach(t => {
+    const c = Number(t.cost) || 0;
+    cost += c;
+    if(t.pay === 'paid') paid += c;
+    else if(t.pay === 'deposit') paid += c / 2;
+  });
+  document.getElementById('dashCost').textContent = money(cost);
+  document.getElementById('dashPaid').textContent = money(paid) + ' paid';
+
+  const dateInput = document.getElementById('debutDate');
+  if(dateInput.value !== (state.settings.debutDate || '')) dateInput.value = state.settings.debutDate || '';
+  const chip = document.getElementById('countdownChip');
+  if(state.settings.debutDate){
+    const diff = Math.ceil((new Date(state.settings.debutDate + 'T00:00:00') - new Date()) / 86400000);
+    chip.classList.remove('hidden');
+    if(diff > 1) chip.textContent = '🎉 ' + diff + ' days to debut';
+    else if(diff === 1) chip.textContent = '🎉 Debut is TOMORROW';
+    else if(diff === 0) chip.textContent = '🎉 DEBUT DAY!!';
+    else chip.textContent = '💐 Debuted ' + Math.abs(diff) + ' day' + (Math.abs(diff)===1?'':'s') + ' ago';
+  } else {
+    chip.classList.add('hidden');
+  }
+}
+
+function renderCategories(){
+  const wrap = document.getElementById('categories');
+  wrap.innerHTML = CATEGORIES.map(cat => {
+    const tasks = state.tasks.filter(t => t.cat === cat.id);
+    const done = tasks.filter(t => t.status === 'delivered').length;
+    const cost = tasks.reduce((s,t) => s + (Number(t.cost) || 0), 0);
+    const fullClass = tasks.length && done === tasks.length ? 'full' : '';
+    return `
+      <div class="category" data-cat="${cat.id}">
+        <div class="category-head">
+          <h3>${cat.label}</h3>
+          <span class="cat-progress ${fullClass}">${done} / ${tasks.length}</span>
+          ${cost > 0 ? `<span class="cat-cost">${money(cost)}</span>` : ''}
+        </div>
+        ${tasks.map(taskRow).join('') || '<p style="font-size:12.5px;color:var(--ink-soft);margin:4px 0">Nothing here — add a row below if you need one.</p>'}
+        <div class="add-row">
+          <input type="text" placeholder="+ Add a task to this section…" data-add-input="${cat.id}" style="flex:1;min-width:180px" maxlength="90" />
+          <button class="btn secondary" data-add-btn="${cat.id}" style="padding:7px 16px;font-size:13px">Add</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  wireRows(wrap);
+}
+
+function taskRow(t){
+  const isDone = t.status === 'delivered';
+  const overdue = t.due && !isDone && t.due < todayISO();
+  return `
+    <div class="task-row ${isDone ? 'complete' : ''}" data-id="${t.id}">
+      <button class="t-check ${isDone ? 'done' : ''}" data-check title="${isDone ? 'Mark not delivered' : 'Mark delivered'}">${isDone ? '✓' : ''}</button>
+      <div class="t-name">${escapeHtml(t.name)}</div>
+      <div class="t-artist"><input type="text" data-field="artist" value="${escapeHtml(t.artist || '')}" placeholder="artist @ / link" title="Who's making this? Paste their handle or commission link." /></div>
+      <div class="t-cost"><input type="number" data-field="cost" value="${t.cost != null && t.cost !== '' ? escapeHtml(t.cost) : ''}" placeholder="$" min="0" step="1" title="Cost" /></div>
+      <div class="t-status">
+        <select data-field="status" title="Commission status">
+          ${STATUSES.map(s => `<option value="${s.id}" ${t.status === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="t-pay">
+        <select data-field="pay" class="${t.pay === 'paid' ? 'pay-paid' : t.pay === 'deposit' ? 'pay-deposit' : ''}" title="Payment status">
+          ${PAY_STATES.map(p => `<option value="${p.id}" ${ (t.pay || 'unpaid') === p.id ? 'selected' : ''}>${p.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="t-due ${overdue ? 'overdue' : ''}"><input type="date" data-field="due" value="${escapeHtml(t.due || '')}" title="${overdue ? 'Past due!' : 'Due date'}" /></div>
+      <button class="t-del" data-del title="Remove this task">🗑</button>
+    </div>
+  `;
+}
+
+function wireRows(wrap){
+  wrap.querySelectorAll('.task-row').forEach(row => {
+    const id = row.dataset.id;
+    const task = state.tasks.find(t => t.id === id);
+    if(!task) return;
+    row.querySelector('[data-check]').addEventListener('click', () => {
+      task.status = task.status === 'delivered' ? 'wip' : 'delivered';
+      persist(); render();
+    });
+    row.querySelectorAll('[data-field]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        task[inp.dataset.field] = inp.value;
+        persist(); render();
+      });
+    });
+    row.querySelector('[data-del]').addEventListener('click', () => {
+      if(!confirm('Remove "' + task.name + '" from your checklist?')) return;
+      state.tasks = state.tasks.filter(t => t.id !== id);
+      persist(); render();
+    });
+  });
+  wrap.querySelectorAll('[data-add-btn]').forEach(btn => {
+    btn.addEventListener('click', () => addTask(btn.dataset.addBtn));
+  });
+  wrap.querySelectorAll('[data-add-input]').forEach(inp => {
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter') addTask(inp.dataset.addInput); });
+  });
+}
+
+function addTask(catId){
+  const inp = document.querySelector(`[data-add-input="${catId}"]`);
+  const name = (inp.value || '').trim();
+  if(!name) return;
+  state.tasks.push({ id: uid(), name, cat: catId, status:'unstarted', artist:'', cost:'', pay:'unpaid', due:'' });
+  inp.value = '';
+  persist(); render();
+}
+
+// ============================================================
+//  AUTH (same pattern as the rest of the hub)
+// ============================================================
+function loadSupabaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.supabase) return resolve(window.supabase);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload = () => window.supabase ? resolve(window.supabase) : reject(new Error('Supabase SDK missing'));
+    s.onerror = () => reject(new Error('Failed to fetch Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth(){
+  try{
+    const lib = await loadSupabaseSDK();
+    sb = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session?.user) onSignIn(session.user);
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session?.user) onSignIn(session.user);
+      else onSignOut();
+    });
+  }catch(e){ console.warn('Supabase init failed', e); }
+}
+
+async function sendMagicLink(){
+  const email = (document.getElementById('emailInput').value || '').trim().toLowerCase();
+  const status = document.getElementById('authStatus');
+  status.classList.remove('hidden');
+  if(!email || !email.includes('@')){
+    status.textContent = 'Please enter a valid email.'; status.className = 'status-banner error';
+    return;
+  }
+  if(window.location.protocol === 'file:'){
+    status.textContent = '⚠️ Magic links require http(s). Open the file via a local server or on your live site.';
+    status.className = 'status-banner error';
+    return;
+  }
+  if(!sb) await initAuth();
+  const AUTH_COOLDOWN_KEY = 'eggie:authLastSendTs';
+  const AUTH_COOLDOWN_MS = 30 * 1000;
+  const lastTs = parseInt(localStorage.getItem(AUTH_COOLDOWN_KEY) || '0', 10);
+  if(Date.now() - lastTs < AUTH_COOLDOWN_MS){
+    const wait = Math.ceil((AUTH_COOLDOWN_MS - (Date.now() - lastTs)) / 1000);
+    status.textContent = `⏳ Wait ${wait}s before sending another link — rapid retries trigger Supabase's hourly rate limit.`;
+    status.className = 'status-banner error';
+    return;
+  }
+  const btn = document.getElementById('authSend');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const redirectTo = window.location.origin + window.location.pathname;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo } });
+  btn.disabled = false; btn.innerHTML = '📬 Send magic link';
+  if(error){
+    status.textContent = 'Sign-in failed: ' + error.message;
+    status.className = 'status-banner error';
+  } else {
+    localStorage.setItem(AUTH_COOLDOWN_KEY, String(Date.now()));
+    status.textContent = `✨ Magic link sent to ${email}! Check inbox + spam.`;
+    status.className = 'status-banner success';
+  }
+}
+
+let lastSignedInId = null;  // guard: onAuthStateChange re-fires on tab refocus — don't reload + re-render over live edits
+async function onSignIn(user){
+  const isSameSession = lastSignedInId === user.id;
+  lastSignedInId = user.id;
+  currentUser = user;
+  const pill = document.getElementById('authPill');
+  pill.classList.add('signed-in');
+  pill.innerHTML = `🐙 ${user.email.split('@')[0]} · syncing`;
+  document.getElementById('authModal').classList.remove('open');
+  if(!isSameSession) await loadSupabase();
+}
+
+function onSignOut(){
+  currentUser = null;
+  lastSignedInId = null;
+  const pill = document.getElementById('authPill');
+  pill.classList.remove('signed-in');
+  pill.innerHTML = '🔓 Sign in to sync';
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+function boot(){
+  loadLocal();
+  // First run — seed the default checklist
+  if(!Array.isArray(state.tasks) || state.tasks.length === 0){
+    state.tasks = DEFAULT_TASKS.map(d => ({
+      id: uid(), name: d.name, cat: d.cat,
+      status:'unstarted', artist:'', cost:'', pay:'unpaid', due:''
+    }));
+    saveLocal();
+  }
+  document.getElementById('debutDate').addEventListener('change', e => {
+    state.settings.debutDate = e.target.value;
+    persist(); render();
+  });
+  document.getElementById('authPill').addEventListener('click', () => {
+    if(currentUser){
+      if(confirm('Sign out? Your local checklist stays safe.')) sb.auth.signOut();
+    } else {
+      document.getElementById('authModal').classList.add('open');
+    }
+  });
+  document.getElementById('authCancel').addEventListener('click', () => document.getElementById('authModal').classList.remove('open'));
+  document.getElementById('authSend').addEventListener('click', sendMagicLink);
+  document.getElementById('authModal').addEventListener('click', e => { if(e.target.id === 'authModal') e.currentTarget.classList.remove('open'); });
+  document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendMagicLink(); });
+  render();
+  initAuth();
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot, { once:true });
+} else {
+  boot();
+}
+</script>
+<script src="hub-nav.js?v=6"></script>
+<script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
+</body>
+</html>
