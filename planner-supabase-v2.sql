@@ -11,7 +11,7 @@
 CREATE TABLE IF NOT EXISTS planner_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  status text NOT NULL DEFAULT 'idea',                  -- idea | script | recording | editing | edited | scheduled | posted | archived  (free text, no CHECK; 'edited' = editor marked their cut done, handed back to creator)
+  status text NOT NULL DEFAULT 'idea',                  -- idea | script | recording | editing | edited | scheduled | posted | archived  ('edited' = editor marked their cut done, handed back to creator). NOTE: the live DB enforces these via a CHECK constraint (planner_items_status_check) — adding a new status needs planner-status-edited.sql.
   position int DEFAULT 0,                                -- ordering within status column
   title text,
   platforms jsonb DEFAULT '[]'::jsonb,                   -- ['youtube_shorts','tiktok',...]
