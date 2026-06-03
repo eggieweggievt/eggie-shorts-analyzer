@@ -100,6 +100,13 @@
   .stat .n.pos{color:var(--green)}.stat .n.neg{color:var(--red)}
   .stat .l{font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:3px}
 
+  .modeswitch{display:inline-flex;background:rgba(144,165,255,0.14);border:1.5px solid rgba(144,165,255,0.35);border-radius:999px;padding:4px;gap:4px}
+  .modeswitch button{border:none;background:transparent;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:800;font-size:14px;color:var(--ink-soft);padding:9px 22px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;transition:background .15s,color .15s,box-shadow .15s}
+  .modeswitch button.on{color:#fff;box-shadow:0 4px 12px rgba(144,165,255,0.4)}
+  .modeswitch button.on[data-mode="business"]{background:linear-gradient(135deg,var(--periwinkle),var(--blue))}
+  .modeswitch button.on[data-mode="personal"]{background:linear-gradient(135deg,var(--pink-hot),#FF8AA8)}
+  .mode-note{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-top:8px}
+
   .tabs{display:inline-flex;background:rgba(144,165,255,0.12);border:1px solid rgba(144,165,255,0.3);border-radius:999px;padding:3px;gap:3px;margin:4px 0 0}
   .tabs button{border:none;background:transparent;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;font-size:13px;color:var(--ink-soft);padding:7px 16px;border-radius:999px}
   .tabs button.on{background:#fff;color:var(--deep);box-shadow:0 2px 8px rgba(144,165,255,0.3)}
@@ -200,6 +207,13 @@
         <span class="dot" id="connDot"></span><span id="userEmail">—</span>
         <button class="btn ghost small" style="margin-left:auto" onclick="doSignOut()">Sign out</button>
       </div>
+      <div style="text-align:center;margin:2px 0 14px">
+        <div class="modeswitch" id="modeSwitch">
+          <button data-mode="business" class="on" onclick="setMode('business')">💼 Business</button>
+          <button data-mode="personal" onclick="setMode('personal')">🏠 Personal</button>
+        </div>
+        <div class="mode-note" id="modeNote"></div>
+      </div>
       <div class="actions">
         <button class="btn income" onclick="openEntry('income')">＋ Income</button>
         <button class="btn expense" onclick="openEntry('expense')">－ Expense</button>
@@ -213,7 +227,7 @@
         <div class="stat"><div class="n pos" id="sIncome">—</div><div class="l">Income</div></div>
         <div class="stat"><div class="n neg" id="sExpense">—</div><div class="l">Expenses</div></div>
         <div class="stat"><div class="n" id="sNet">—</div><div class="l">Net</div></div>
-        <div class="stat"><div class="n" id="sSetaside">—</div><div class="l">Set aside (est.)</div></div>
+        <div class="stat"><div class="n" id="sSetaside">—</div><div class="l" id="sSetasideLabel">Set aside (est.)</div></div>
       </div>
       <div style="margin-top:14px;text-align:center">
         <div class="tabs" id="tabs">
@@ -233,9 +247,25 @@
           <option value="income">Income only</option>
           <option value="expense">Expenses only</option>
         </select>
+        <select id="fMonth" onchange="renderLedger()">
+          <option value="">All months</option>
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+          <option value="06">June</option>
+          <option value="07">July</option>
+          <option value="08">August</option>
+          <option value="09">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
         <select id="fCat" onchange="renderLedger()"><option value="">All categories</option></select>
         <input type="text" id="fSearch" placeholder="Search…" oninput="renderLedger()" style="flex:1;min-width:140px" />
       </div>
+      <div id="ledMonthTotals" class="muted" style="margin-bottom:8px"></div>
       <div class="led" id="ledList"></div>
     </div>
 
@@ -246,7 +276,7 @@
         <button class="btn ghost small" onclick="exportCSV()">⬇️ Export CSV</button>
       </div>
       <div id="repBody"></div>
-      <div class="disclaim">⚠️ Estimates only. Tax rules differ by country/province/state and change often — confirm with a local accountant before filing. Please look up your local tax laws.</div>
+      <div class="disclaim" id="repDisclaim">⚠️ Estimates only. Tax rules differ by country/province/state and change often — confirm with a local accountant before filing. Please look up your local tax laws.</div>
     </div>
 
     <!-- SAVINGS -->
@@ -303,6 +333,7 @@
   <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
     <button class="btn" id="eSave" onclick="saveEntry()">Save</button>
     <button class="btn ghost" onclick="closeModal('entryModal')">Cancel</button>
+    <button class="btn ghost small hidden" id="eDuplicate" onclick="duplicateEntry()">⧉ Duplicate</button>
     <button class="btn danger small hidden" id="eDelete" style="margin-left:auto" onclick="deleteEntry()">Delete</button>
   </div>
   <div class="status-banner" id="entryStatus"></div>
@@ -385,6 +416,28 @@ const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 let sb=null, currentUser=null, currentOwnerId=null, impersonating=false;
 let settings=null, cats=[], entries=[], goals=[];
 let tab='ledger', year=new Date().getFullYear(), editingEntry=null, editingGoal=null;
+let mode=(localStorage.getItem('eggie:financeMode')==='personal')?'personal':'business';
+
+// ---------- business / personal mode ----------
+function isPersonalMode(){ return mode==='personal'; }
+// Entries scoped to the active mode. Existing rows with no is_personal flag
+// count as business (back-compat with data created before modes existed).
+function scopeEntries(){ return yearEntries().filter(e=> !!e.is_personal === isPersonalMode()); }
+function setMode(m){
+  mode=(m==='personal')?'personal':'business';
+  localStorage.setItem('eggie:financeMode',mode);
+  applyModeUI();
+  renderAll();
+}
+function applyModeUI(){
+  document.querySelectorAll('#modeSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
+  const note=$('modeNote');
+  if(note) note.textContent = isPersonalMode()
+    ? '🏠 Personal — your own money. Simple budget, no business tax math.'
+    : '💼 Business — creator income & write-offs, with tax-ready reports.';
+  // Reports tab label + heading shift with the mode
+  const rt=$('tabReports'); if(rt) rt.textContent = isPersonalMode()?'📊 Budget':'📊 Reports';
+}
 
 const DEFAULT_INCOME = ['Ad / platform revenue','Sponsorships & brand deals','Memberships & subscriptions',
   'Tips & donations','Affiliate & commissions','Merch sales','Freelance / client work','Appearance & event fees','Other income'];
@@ -528,7 +581,7 @@ function inYear(e){ return year==='all' || (e.occurred_on && +e.occurred_on.slic
 function yearEntries(){ return entries.filter(inYear); }
 
 // ---------- summary + render ----------
-function renderAll(){ renderSummary(); populateCatFilter(); renderLedger(); if(tab==='reports')renderReports(); if(tab==='savings')renderGoals(); $('repYear').textContent=(year==='all'?'all time':year); }
+function renderAll(){ applyModeUI(); renderSummary(); populateCatFilter(); renderLedger(); if(tab==='reports')renderReports(); if(tab==='savings')renderGoals(); $('repYear').textContent=(year==='all'?'all time':year); }
 function totals(list){
   let inc=0,exp=0,ded=0;
   list.forEach(e=>{ const a=+e.amount||0;
@@ -538,11 +591,17 @@ function totals(list){
   return {inc,exp,ded,net:inc-exp,taxable:inc-ded};
 }
 function renderSummary(){
-  const t=totals(yearEntries());
+  const t=totals(scopeEntries());
   $('sIncome').textContent=money(t.inc); $('sExpense').textContent=money(t.exp);
   const net=$('sNet'); net.textContent=money(t.net); net.className='n '+(t.net>=0?'pos':'neg');
-  const pct=(settings&&+settings.tax_setaside_pct)||25;
-  $('sSetaside').textContent=money(Math.max(0,t.taxable)*pct/100);
+  if(isPersonalMode()){
+    // Personal: no tax set-aside — show total stashed in savings goals instead.
+    const saved=(goals||[]).reduce((s,g)=>s+(+g.saved_amount||0),0);
+    $('sSetasideLabel').textContent='Saved'; $('sSetaside').textContent=money(saved);
+  } else {
+    const pct=(settings&&+settings.tax_setaside_pct)||25;
+    $('sSetasideLabel').textContent='Set aside (est.)'; $('sSetaside').textContent=money(Math.max(0,t.taxable)*pct/100);
+  }
 }
 function populateCatFilter(){
   const sel=$('fCat'); const cur=sel.value; sel.innerHTML='<option value="">All categories</option>';
@@ -553,14 +612,23 @@ function populateCatFilter(){
 // ---------- ledger ----------
 function renderLedger(){
   const ft=$('fType').value, fc=$('fCat').value, fs=($('fSearch').value||'').toLowerCase();
-  const list=yearEntries().filter(e=>{
+  const fm=$('fMonth').value;
+  const list=scopeEntries().filter(e=>{
     if(ft!=='all' && e.kind!==ft) return false;
+    if(fm && (!e.occurred_on || e.occurred_on.slice(5,7)!==fm)) return false;
     if(fc && e.category_id!==fc) return false;
     if(fs){ const hay=`${e.category_name||''} ${e.counterparty||''} ${e.description||''} ${e.notes||''}`.toLowerCase(); if(!hay.includes(fs)) return false; }
     return true;
   });
+  // Filtered totals — handy when narrowing to a single month / type
+  const tot=$('ledMonthTotals');
+  if(fm || ft!=='all'){
+    let i=0,x=0; list.forEach(e=>{ if(e.kind==='income') i+=+e.amount||0; else x+=+e.amount||0; });
+    const monthName=fm?($('fMonth').options[$('fMonth').selectedIndex].text+' '):'';
+    tot.innerHTML=`📊 ${esc(monthName)}— income <b style="color:var(--green)">${money2(i)}</b> · expenses <b style="color:var(--red)">${money2(x)}</b> · net <b>${money2(i-x)}</b>`;
+  } else { tot.innerHTML=''; }
   const box=$('ledList'); box.innerHTML='';
-  if(!list.length){ box.innerHTML='<div class="empty">No entries yet — tap ＋ Income or － Expense to start. 🌱</div>'; return; }
+  if(!list.length){ box.innerHTML=`<div class="empty">No ${isPersonalMode()?'personal':'business'} entries yet — tap ＋ Income or － Expense to start. 🌱</div>`; return; }
   list.forEach(e=>{
     const row=document.createElement('div'); row.className='led-row'; row.onclick=()=>openEntry(e.kind,e);
     const lock=e.manager_visible?'':'<span class="lock" title="Hidden from managers">🔒</span>';
@@ -577,10 +645,11 @@ function renderLedger(){
 function catsFor(kind){ return cats.filter(c=>c.kind===kind); }
 function openEntry(kind, e){
   editingEntry=e||null;
-  $('entryTitle').textContent=(e?'Edit ':'Add ')+(kind==='income'?'income':'expense');
+  $('entryTitle').textContent=(e?'Edit ':'Add ')+(isPersonalMode()?'personal ':'')+(kind==='income'?'income':'expense');
   $('entryModal').dataset.kind=kind;
-  $('incomeFields').classList.toggle('hidden',kind!=='income');
-  $('expenseFields').classList.toggle('hidden',kind!=='expense');
+  // Business-only fields (GST, deduction, business-use %) only appear in Business mode.
+  $('incomeFields').classList.toggle('hidden', !(kind==='income' && !isPersonalMode()));
+  $('expenseFields').classList.toggle('hidden', !(kind==='expense' && !isPersonalMode()));
   $('ePartyLbl').textContent=kind==='income'?'Payer':'Vendor';
   const sel=$('eCat'); sel.innerHTML=''; catsFor(kind).forEach(c=>{ const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o); });
   $('eAmount').value=e?e.amount:''; $('eDate').value=e?e.occurred_on:todayKey();
@@ -594,8 +663,30 @@ function openEntry(kind, e){
   $('eTaxColl').value=e&&e.kind==='income'?(e.tax_amount||''):'';
   $('ePrivate').checked=e?!e.manager_visible:false;
   $('eDelete').classList.toggle('hidden',!e);
+  $('eDuplicate').classList.toggle('hidden',!e);
   $('entryStatus').textContent='';
   $('entryModal').classList.add('show');
+}
+// Copy the open entry into a brand-new, unsaved one (dated today) so repeat
+// income/expenses don't have to be retyped.
+function duplicateEntry(){
+  const kind=$('entryModal').dataset.kind;
+  const snap={
+    kind, amount:$('eAmount').value, occurred_on:todayKey(),
+    category_id:$('eCat').value||null,
+    category_name:(cats.find(c=>c.id===$('eCat').value)||{}).name||null,
+    counterparty:$('eParty').value, description:$('eDesc').value, notes:$('eNotes').value,
+    business_use_pct:$('eBiz').value, is_deductible:$('eDeduct').checked,
+    tax_amount:(kind==='expense'?$('eTaxPaid').value:$('eTaxColl').value),
+    gst_treatment:$('eGst').value, manager_visible:!$('ePrivate').checked
+  };
+  openEntry(kind, snap);
+  editingEntry=null;                       // force save-as-new
+  $('entryTitle').textContent='Add '+(kind==='income'?'income':'expense');
+  $('eDelete').classList.add('hidden');
+  $('eDuplicate').classList.add('hidden');
+  $('entryStatus').textContent='Copied — tweak anything and hit Save to add it as a new entry. ⧉';
+  $('entryStatus').className='status-banner';
 }
 async function saveEntry(){
   const kind=$('entryModal').dataset.kind;
@@ -606,16 +697,24 @@ async function saveEntry(){
   const priv=$('ePrivate').checked;
   // default manager visibility from category unless user marks private
   const managerVisible = priv ? false : (cat ? cat.manager_visible : true);
+  const personal=isPersonalMode();   // the active mode tags the entry
   const payload={
     owner_id:currentOwnerId, kind,
     category_id:catId, category_name:cat?cat.name:null,
     amount, occurred_on:$('eDate').value||todayKey(),
     counterparty:$('eParty').value.trim()||null, description:$('eDesc').value.trim()||null,
-    notes:$('eNotes').value.trim()||null, manager_visible:managerVisible
+    notes:$('eNotes').value.trim()||null, manager_visible:managerVisible, is_personal:personal
   };
-  if(kind==='expense'){ payload.business_use_pct=Math.max(0,Math.min(100,parseInt($('eBiz').value||'100',10)));
-    payload.is_deductible=$('eDeduct').checked; payload.tax_amount=parseFloat($('eTaxPaid').value)||0; payload.gst_treatment=null; }
-  else { payload.gst_treatment=$('eGst').value; payload.tax_amount=parseFloat($('eTaxColl').value)||0; payload.business_use_pct=100; payload.is_deductible=false; }
+  if(kind==='expense'){
+    if(personal){ payload.business_use_pct=100; payload.is_deductible=false; payload.tax_amount=0; payload.gst_treatment=null; }
+    else { payload.business_use_pct=Math.max(0,Math.min(100,parseInt($('eBiz').value||'100',10)));
+      payload.is_deductible=$('eDeduct').checked; payload.tax_amount=parseFloat($('eTaxPaid').value)||0; payload.gst_treatment=null; }
+  }
+  else { // income
+    if(personal){ payload.gst_treatment=null; payload.tax_amount=0; }
+    else { payload.gst_treatment=$('eGst').value; payload.tax_amount=parseFloat($('eTaxColl').value)||0; }
+    payload.business_use_pct=100; payload.is_deductible=false;
+  }
   let res;
   if(editingEntry) res=await sb.from('planner_finance_entries').update(payload).eq('id',editingEntry.id).select().maybeSingle();
   else res=await sb.from('planner_finance_entries').insert(payload).select().maybeSingle();
@@ -632,7 +731,7 @@ async function deleteEntry(){
 // ---------- reports ----------
 function quarterTotals(){
   const q=[0,0,0,0], qInc=[0,0,0,0];
-  yearEntries().forEach(e=>{ if(year==='all') return; const qi=qOf(e.occurred_on)-1; const a=+e.amount||0;
+  scopeEntries().forEach(e=>{ if(year==='all') return; const qi=qOf(e.occurred_on)-1; const a=+e.amount||0;
     if(e.kind==='income'){ qInc[qi]+=a; q[qi]+=a; }
     else if(e.is_deductible){ q[qi]-= a*((e.business_use_pct==null?100:e.business_use_pct)/100); }
   });
@@ -640,10 +739,12 @@ function quarterTotals(){
 }
 function groupByCat(kind){
   const map={};
-  yearEntries().filter(e=>e.kind===kind).forEach(e=>{
+  scopeEntries().filter(e=>e.kind===kind).forEach(e=>{
     const k=e.category_name||'Uncategorized';
-    const a = kind==='income' ? (+e.amount||0)
-            : (e.is_deductible ? (+e.amount||0)*((e.business_use_pct==null?100:e.business_use_pct)/100) : 0);
+    let a;
+    if(kind==='income') a=+e.amount||0;
+    else if(isPersonalMode()) a=+e.amount||0;                                                  // personal: full spend
+    else a = e.is_deductible ? (+e.amount||0)*((e.business_use_pct==null?100:e.business_use_pct)/100) : 0; // business: deductible portion
     if(a) map[k]=(map[k]||0)+a;
   });
   return Object.entries(map).sort((a,b)=>b[1]-a[1]);
@@ -653,8 +754,38 @@ function bars(rows,total){
   return rows.map(([n,v])=>{ const pct=total>0?Math.round(v/total*100):0;
     return `<div class="barline"><span class="nm">${esc(n)}</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span class="v">${money(v)}</span></div>`; }).join('');
 }
+// Personal mode = a plain budget. No tax math, GST, deductions, or set-aside.
+function renderPersonalReports(){
+  const dis=$('repDisclaim'); if(dis) dis.classList.add('hidden');
+  const t=totals(scopeEntries());
+  const incRows=groupByCat('income'), expRows=groupByCat('expense');
+  const incTotal=incRows.reduce((s,r)=>s+r[1],0), expTotal=expRows.reduce((s,r)=>s+r[1],0);
+  let html=`<div class="rep"><h3>At a glance</h3>
+    <div class="kv"><span>Money in</span><b>${money2(t.inc)}</b></div>
+    <div class="kv"><span>Money out</span><b>${money2(t.exp)}</b></div>
+    <div class="kv"><span>Net (what's left)</span><b>${money2(t.net)}</b></div></div>`;
+  html+=`<div class="rep"><h3>Where it went</h3><div class="twocol">
+    <div><div class="muted" style="font-weight:800;color:var(--deep)">Money in · ${money(incTotal)}</div>${bars(incRows,incTotal)}</div>
+    <div><div class="muted" style="font-weight:800;color:var(--deep)">Spending · ${money(expTotal)}</div>${bars(expRows,expTotal)}</div>
+  </div></div>`;
+  if(year!=='all'){
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mNet=new Array(12).fill(0);
+    scopeEntries().forEach(e=>{ if(!e.occurred_on) return; const mi=+e.occurred_on.slice(5,7)-1; const a=+e.amount||0; mNet[mi]+= e.kind==='income'?a:-a; });
+    let rows=mNet.map((v,i)=> (v!==0)?`<div class="kv"><span>${months[i]}</span><b style="color:${v>=0?'var(--green)':'var(--red)'}">${money2(v)}</b></div>`:'').join('');
+    if(!rows) rows='<div class="empty">No activity logged this year yet.</div>';
+    html+=`<div class="rep"><h3>Month by month</h3>${rows}</div>`;
+  }
+  html+=`<div class="rep"><div class="muted">💡 Personal mode is a simple budget — no tax write-offs, deductions, or GST. Switch to 💼 Business for tax-ready reports.</div></div>`;
+  $('repBody').innerHTML=html;
+}
 function renderReports(){
-  const t=totals(yearEntries());
+  const dis=$('repDisclaim'); if(dis) dis.classList.toggle('hidden', isPersonalMode());
+  // Heading shifts with the mode
+  const repH2=$('reportsCard').querySelector('h2');
+  if(repH2) repH2.innerHTML=(isPersonalMode()?'Budget':'Tax reports')+' <span class="muted">· <span id="repYear">'+(year==='all'?'all time':year)+'</span></span>';
+  if(isPersonalMode()){ renderPersonalReports(); return; }
+  const t=totals(scopeEntries());
   const pct=(settings&&+settings.tax_setaside_pct)||25;
   const setaside=Math.max(0,t.taxable)*pct/100;
   const incRows=groupByCat('income'), expRows=groupByCat('expense');
@@ -698,11 +829,34 @@ function renderReports(){
       <div class="muted" style="margin-top:6px">Form T2125 on your T1; pay income tax + CPP on net. File by Jun 15, balance due Apr 30. Keep records 6 years.</div>
       ${t.inc>=30000 && !(settings&&settings.gst_registered)?'<div class="flag">Over CAD $30k — you likely must register for GST/HST.</div>':''}
     </div></div></div>`;
-  // GST/HST
-  const taxable=yearEntries().filter(e=>e.kind==='income'&&e.gst_treatment==='taxable').reduce((s,e)=>s+(+e.amount||0),0);
-  const zero=yearEntries().filter(e=>e.kind==='income'&&e.gst_treatment==='zero_rated').reduce((s,e)=>s+(+e.amount||0),0);
-  const collected=yearEntries().filter(e=>e.kind==='income').reduce((s,e)=>s+(+e.tax_amount||0),0);
-  const itc=yearEntries().filter(e=>e.kind==='expense').reduce((s,e)=>s+(+e.tax_amount||0),0);
+  // US creator deductions cheat-sheet (collapsible — educational, no math)
+  html+=`<div class="rep"><h3>🇺🇸 Common US creator write-offs <span class="muted">· what usually counts</span></h3>
+    <p class="muted" style="margin-top:-2px">If you create as a business in the US, these are expenses creators commonly deduct on <b>Schedule C</b>. Log them as expenses here in <b>💼 Business mode</b> so they flow into your deductible total. This is a starting checklist, not tax advice — confirm anything unusual with a US tax pro.</p>
+    <div class="twocol" style="margin-top:8px">
+      <div>
+        <div class="kv"><span>🎥 Gear &amp; equipment</span><b>cameras, mic, lights, PC, capture card</b></div>
+        <div class="kv"><span>🖥️ Software &amp; subscriptions</span><b>editing, OBS plugins, Canva, storage</b></div>
+        <div class="kv"><span>🏠 Home office</span><b>% of rent/utilities for your studio space</b></div>
+        <div class="kv"><span>🌐 Internet &amp; phone</span><b>business-use portion</b></div>
+        <div class="kv"><span>🎨 Props, wardrobe &amp; assets</span><b>Live2D rigs, model art, emotes, overlays</b></div>
+        <div class="kv"><span>🤝 Contractors</span><b>editors, artists, mods, VAs (1099 them over $600)</b></div>
+      </div>
+      <div>
+        <div class="kv"><span>💳 Platform &amp; payment fees</span><b>Twitch cut, Stripe/PayPal, Ko-fi fees</b></div>
+        <div class="kv"><span>📣 Marketing &amp; ads</span><b>promos, giveaways, thumbnails</b></div>
+        <div class="kv"><span>✈️ Travel &amp; conventions</span><b>cons, meetups, collab travel + per-diem meals</b></div>
+        <div class="kv"><span>📚 Education</span><b>courses, coaching, books for the craft</b></div>
+        <div class="kv"><span>🏦 Bank &amp; merchant fees</span><b>business account + transaction fees</b></div>
+        <div class="kv"><span>🧾 Professional services</span><b>accountant, tax prep, legal</b></div>
+      </div>
+    </div>
+    <div class="flag" style="margin-top:8px">Keep receipts for everything. The IRS wants the expense to be <b>ordinary</b> (normal for creators) and <b>necessary</b> (helps your work). Mixed personal/business items? Deduct only the business-use % — that's what the Business-use % field is for.</div>
+  </div>`;
+  // GST/HST (business scope only — renderReports returns early in personal mode)
+  const taxable=scopeEntries().filter(e=>e.kind==='income'&&e.gst_treatment==='taxable').reduce((s,e)=>s+(+e.amount||0),0);
+  const zero=scopeEntries().filter(e=>e.kind==='income'&&e.gst_treatment==='zero_rated').reduce((s,e)=>s+(+e.amount||0),0);
+  const collected=scopeEntries().filter(e=>e.kind==='income').reduce((s,e)=>s+(+e.tax_amount||0),0);
+  const itc=scopeEntries().filter(e=>e.kind==='expense').reduce((s,e)=>s+(+e.tax_amount||0),0);
   html+=`<div class="rep"><h3>GST/HST (Canada)</h3>
     <div class="kv"><span>Taxable sales (Canadian clients)</span><b>${money2(taxable)}</b></div>
     <div class="kv"><span>Zero-rated sales (foreign / export, e.g. AdSense)</span><b>${money2(zero)}</b></div>
@@ -714,7 +868,7 @@ function renderReports(){
 }
 function exportCSV(){
   const rows=[['date','type','category','payer_or_vendor','description','amount','business_use_pct','deductible','gst_treatment','tax_amount','manager_hidden','notes']];
-  yearEntries().slice().sort((a,b)=>a.occurred_on<b.occurred_on?-1:1).forEach(e=>{
+  scopeEntries().slice().sort((a,b)=>a.occurred_on<b.occurred_on?-1:1).forEach(e=>{
     rows.push([e.occurred_on,e.kind,e.category_name||'',e.counterparty||'',(e.description||'').replace(/\n/g,' '),
       e.amount,(e.kind==='expense'?(e.business_use_pct==null?100:e.business_use_pct):''),
       (e.kind==='expense'?(e.is_deductible?'yes':'no'):''),e.gst_treatment||'',e.tax_amount||0,
@@ -722,7 +876,7 @@ function exportCSV(){
   });
   const csv=rows.map(r=>r.map(c=>{ const s=String(c==null?'':c); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=`finance-${year}.csv`; a.click(); URL.revokeObjectURL(url);
+  const a=document.createElement('a'); a.href=url; a.download=`finance-${mode}-${year}.csv`; a.click(); URL.revokeObjectURL(url);
   toast('CSV exported');
 }
 

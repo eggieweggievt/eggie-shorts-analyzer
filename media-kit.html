@@ -835,6 +835,7 @@
     <section class="card">
       <h2>📊 Channels & stats</h2>
       <p class="muted">Stats are manual — quick-paste a channel URL and I'll prefill what I can; you fill in subs / views from your dashboard.</p>
+      <p class="muted" style="background:rgba(144,165,255,0.1);border:1.5px dashed rgba(144,165,255,0.35);border-radius:12px;padding:10px 13px;margin-top:8px">🌱 Don't usually dig through your analytics? No worries — add a platform below and each one tells you exactly where to find its numbers. Round to roughly the right figure; sponsors care about the ballpark, not the decimal.</p>
 
       <div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn small secondary" onclick="addPlatform('youtube')">+ YouTube</button>
@@ -1207,13 +1208,25 @@ function blankKit(){
 //  PLATFORM META
 // ============================================================
 const PLATFORM_META = {
-  youtube:   { icon:'▶️', label:'YouTube',    handlePrefix:'@' },
-  twitch:    { icon:'🟣', label:'Twitch',     handlePrefix:'' },
-  tiktok:    { icon:'🎵', label:'TikTok',     handlePrefix:'@' },
-  instagram: { icon:'📸', label:'Instagram',  handlePrefix:'@' },
-  x:         { icon:'🐦', label:'X / Twitter',handlePrefix:'@' },
-  kick:      { icon:'🟢', label:'Kick',       handlePrefix:'' },
-  other:     { icon:'🌐', label:'Other',      handlePrefix:'' }
+  youtube:   { icon:'▶️', label:'YouTube',    handlePrefix:'@', noun:'Subscribers' },
+  twitch:    { icon:'🟣', label:'Twitch',     handlePrefix:'',  noun:'Followers' },
+  tiktok:    { icon:'🎵', label:'TikTok',     handlePrefix:'@', noun:'Followers' },
+  instagram: { icon:'📸', label:'Instagram',  handlePrefix:'@', noun:'Followers' },
+  x:         { icon:'🐦', label:'X / Twitter',handlePrefix:'@', noun:'Followers' },
+  kick:      { icon:'🟢', label:'Kick',       handlePrefix:'',  noun:'Followers' },
+  other:     { icon:'🌐', label:'Other',      handlePrefix:'',  noun:'Followers' }
+};
+
+// Plain-language "where do I find these numbers?" help — for creators who don't
+// live in their analytics dashboards. Shown under each platform's stat inputs.
+const STAT_HELP = {
+  youtube:   'YouTube Studio → <strong>Analytics → Overview</strong> for subscribers; the <strong>Content</strong> tab shows average views per video.',
+  twitch:    'Twitch → <strong>Creator Dashboard → Insights → Channel Analytics</strong> for followers and average viewers.',
+  tiktok:    'TikTok app → Profile → ☰ menu → <strong>Creator tools → Analytics</strong>. Followers is on Overview; tap a video for its views.',
+  instagram: 'Instagram → <strong>Professional dashboard</strong> (or Insights) → total followers and accounts reached.',
+  x:         'X → your profile header shows followers; <strong>Premium → Analytics</strong> shows post views.',
+  kick:      'Kick → <strong>Creator Dashboard → Analytics</strong> for followers and average viewers.',
+  other:     'Open that platform\'s creator or analytics dashboard — look for your follower/subscriber count and an average-views number.'
 };
 
 // ============================================================
@@ -1240,8 +1253,18 @@ async function initAuth(){
     if(session?.user){ await onSignIn(session.user); }
     else { await resolveOwnerAndLoad(); }   // signed out — could still be a public ?u= view
     sb.auth.onAuthStateChange((event, session) => {
-      if(session?.user) onSignIn(session.user);
-      else onSignOut();
+      // IMPORTANT: don't reload the kit on every auth event. Switching tabs and
+      // coming back fires TOKEN_REFRESHED / a fresh SIGNED_IN for the SAME user,
+      // and re-running onSignIn() reloads from the DB — which wipes any unsaved
+      // edits in the form. Only react to a genuine sign-in (new/changed user) or
+      // a real sign-out.
+      if(event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') return;
+      if(session?.user){
+        if(currentUser && currentUser.id === session.user.id) return; // already signed in — leave edits alone
+        onSignIn(session.user);
+      } else if(event === 'SIGNED_OUT'){
+        onSignOut();
+      }
     });
   }catch(e){
     console.warn('Supabase init failed', e);
@@ -2150,7 +2173,7 @@ function renderPlatformsEditor(){
       </div>
       <div class="field-row">
         <div>
-          <label>${p.platform==='twitch' || p.platform==='kick' ? 'Followers' : 'Subscribers'}</label>
+          <label>${meta.noun}</label>
           <input type="number" data-i="${i}" data-k="subscribers" value="${p.subscribers||''}" min="0" />
         </div>
         <div>
@@ -2158,6 +2181,7 @@ function renderPlatformsEditor(){
           <input type="number" data-i="${i}" data-k="${p.platform==='twitch'||p.platform==='kick'?'avg_live_viewers':'avg_views'}" value="${(p.platform==='twitch'||p.platform==='kick'?p.avg_live_viewers:p.avg_views)||''}" min="0" />
         </div>
       </div>
+      <p class="muted" style="font-size:12px;margin:2px 0 0">💡 <strong>Where do I find these?</strong> ${STAT_HELP[p.platform] || STAT_HELP.other}</p>
       <div class="field-row">
         <div>
           <label>Engagement rate (%) — optional</label>
@@ -2629,8 +2653,8 @@ function renderPublic(){
     sg.innerHTML = kit.platforms.map(p => {
       const meta = PLATFORM_META[p.platform] || PLATFORM_META.other;
       const main = (p.platform==='twitch'||p.platform==='kick')
-        ? [['Followers', fmtNum(p.subscribers)], ['Avg live', fmtNum(p.avg_live_viewers)]]
-        : [['Subscribers', fmtNum(p.subscribers)], ['Avg views', fmtNum(p.avg_views)]];
+        ? [[meta.noun, fmtNum(p.subscribers)], ['Avg live', fmtNum(p.avg_live_viewers)]]
+        : [[meta.noun, fmtNum(p.subscribers)], ['Avg views', fmtNum(p.avg_views)]];
       const eng = p.engagement_rate ? `<div class="pc-stat"><div class="stat-num">${p.engagement_rate}%</div><div class="stat-label">Engagement</div></div>` : '';
       const upd = p.last_updated ? `<span class="pc-updated">↻ ${niceDate(p.last_updated, true)}</span>` : '';
       const link = p.url ? `<a class="pc-link" href="${escapeAttr(safeUrl(p.url))}" target="_blank" rel="noopener">Open →</a>` : '';

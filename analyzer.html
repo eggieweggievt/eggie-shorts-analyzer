@@ -1212,11 +1212,11 @@
     </div>
     <p class="step-intro">Drop your video in and I'll watch the first 3 seconds &mdash; checking your motion, scene cuts, and audio to score your hook for you.</p>
 
-    <label class="drop-zone" id="dropZone" for="videoFile">
+    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload a video">
       <span class="big">🐙</span>
       <p><strong>Click here, or drag in your video</strong><br/>MP4, MOV, or WebM</p>
       <input type="file" id="videoFile" accept="video/*" />
-    </label>
+    </div>
     <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
       First time you upload a video, I download the full ML pipeline (~1.2GB total — Florence-2 vision, Whisper-medium speech, CLIP semantic matching, YAMNet audio classifier) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, <em>hear</em> what's being said with high accuracy, and classify the audio scene. After that they're cached forever and analysis is fast.
     </p>
@@ -1435,7 +1435,7 @@
           <h3>🎬 Editing &amp; assets</h3>
           <ul>
             <li><a href="https://www.youtube.com/@xSaandiEditing" target="_blank" rel="noreferrer">xSaandi Editing</a><span class="meta">Premiere Pro tutorials</span></li>
-            <li><a href="https://xsaandipresets.com" target="_blank" rel="noreferrer">xSaandi Presets</a><span class="meta">Free presets you can drop right in</span></li>
+            <li><a href="https://xsaandipresets.com/en-cad" target="_blank" rel="noreferrer">xSaandi Presets</a><span class="meta">Free presets you can drop right in</span></li>
             <li><a href="https://x.com/xSaandi/status/2047674610288677277" target="_blank" rel="noreferrer">More free assets from xSaandi</a></li>
           </ul>
         </div>
@@ -2193,40 +2193,43 @@ const TOOLS_FOR = {
   hook: {
     head: 'Tools that help',
     items: [
-      '<strong>CapCut</strong> (free, mobile + desktop) &mdash; easiest way to add zooms, snap-to-beat cuts, and animated text in the first second',
-      '<strong>StreamLadder</strong> &mdash; literally built for chopping streams into shorts with strong hooks',
+      '<a href="https://www.capcut.com" target="_blank" rel="noreferrer"><strong>CapCut</strong></a> (free, mobile + desktop) &mdash; easiest way to add zooms, snap-to-beat cuts, and animated text in the first second',
+      '<a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noreferrer"><strong>DaVinci Resolve</strong></a> (free, desktop) &mdash; same moves on a pro timeline: use the <strong>Inspector &rarr; Zoom</strong> keyframes for a punch-in and <strong>Fusion / Text+</strong> for animated text in the first second',
+      '<a href="https://filmora.wondershare.com" target="_blank" rel="noreferrer"><strong>Wondershare Filmora</strong></a> &mdash; beginner-friendly desktop editor with one-click zooms, auto-captions, and drag-in title presets',
+      '<a href="https://streamladder.com" target="_blank" rel="noreferrer"><strong>StreamLadder</strong></a> &mdash; literally built for chopping streams into shorts with strong hooks',
       '<a href="https://www.youtube.com/@xSaandiEditing" target="_blank" rel="noreferrer"><strong>xSaandi Editing</strong></a> &mdash; the Premiere Pro tutorials I learned a lot from',
-      '<a href="https://xsaandipresets.com" target="_blank" rel="noreferrer"><strong>xSaandi Presets</strong></a> &mdash; free editing presets you can drop right in',
-      '<strong>Submagic</strong> or <strong>Veed.io</strong> &mdash; auto captions + viral hook templates'
+      '<a href="https://xsaandipresets.com/en-cad" target="_blank" rel="noreferrer"><strong>xSaandi Presets</strong></a> &mdash; free editing presets you can drop right in',
+      'Captions hold attention &mdash; <a href="https://www.capcut.com" target="_blank" rel="noreferrer"><strong>CapCut</strong></a> and <a href="https://filmora.wondershare.com" target="_blank" rel="noreferrer"><strong>Filmora</strong></a> both auto-generate them in one click; turn them on for every short'
     ]
   },
   duration: {
     head: 'How to fix it',
     items: [
-      'In CapCut, drag the playhead to where the energy dips and hit <strong>Split</strong>. Delete that chunk. Repeat until you\'re in the 45-55s range.',
+      'In <a href="https://www.capcut.com" target="_blank" rel="noreferrer"><strong>CapCut</strong></a>, drag the playhead to where the energy dips and hit <strong>Split</strong>. Delete that chunk. Repeat until you\'re in the 45-55s range.',
+      'In <a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noreferrer"><strong>DaVinci Resolve</strong></a>, park the playhead on the dead moment, press <strong>B</strong> (blade) to cut both sides, select the dead clip and hit <strong>Delete</strong> &mdash; ripple-delete closes the gap. Repeat to land at 45-55s.',
       'Open <strong>YouTube Studio &rarr; Analytics &rarr; Audience retention</strong> — wherever the graph drops is exactly what to cut next time'
     ]
   },
   title: {
     head: 'Tools that help',
     items: [
-      '<strong>VidIQ</strong> &mdash; free title scoring and keyword suggestions inside YouTube',
-      '<strong>TubeBuddy</strong> &mdash; click-through predictions for titles before you publish',
-      '<strong>AnswerThePublic</strong> &mdash; type your topic, get the actual questions people search for'
+      '<a href="https://vidiq.com" target="_blank" rel="noreferrer"><strong>VidIQ</strong></a> &mdash; free title scoring and keyword suggestions inside YouTube',
+      '<a href="https://www.tubebuddy.com" target="_blank" rel="noreferrer"><strong>TubeBuddy</strong></a> &mdash; click-through predictions for titles before you publish',
+      '<a href="https://answerthepublic.com" target="_blank" rel="noreferrer"><strong>AnswerThePublic</strong></a> &mdash; type your topic, get the actual questions people search for'
     ]
   },
   hashtags: {
     head: 'Tools that help',
     items: [
-      '<strong>VidIQ</strong> &mdash; tag research with competition scores so you can pick small/medium/large properly',
-      '<strong>Display Purposes</strong> &mdash; IG-specific hashtag generator',
-      'Open TikTok, search your topic, and look at what hashtags the top videos use'
+      '<a href="https://vidiq.com" target="_blank" rel="noreferrer"><strong>VidIQ</strong></a> &mdash; tag research with competition scores so you can pick small/medium/large properly',
+      '<a href="https://www.tubebuddy.com" target="_blank" rel="noreferrer"><strong>TubeBuddy</strong></a> &mdash; tag &amp; keyword suggestions pulled from what\'s already ranking for your topic',
+      'Open TikTok (or Instagram), search your topic, and look at what hashtags the top videos are actually using'
     ]
   },
   caption: {
     head: 'How to fix it',
     items: [
-      '<strong>Hemingway Editor</strong> &mdash; pastes your caption back to you with weak words highlighted',
+      '<a href="https://hemingwayapp.com" target="_blank" rel="noreferrer"><strong>Hemingway Editor</strong></a> &mdash; pastes your caption back to you with weak words highlighted',
       'Write your first sentence as a question or a hot take. Re-read it. If it doesn\'t make you want to keep reading, rewrite it.'
     ]
   },
@@ -2241,14 +2244,15 @@ const TOOLS_FOR = {
     head: 'How to fix it',
     items: [
       'Pick your top 2 keywords. Put them in: title, first sentence of description, and one of your hashtags. That\'s it.',
-      '<strong>VidIQ</strong> can auto-suggest tags based on your title — way faster than doing it yourself'
+      '<a href="https://vidiq.com" target="_blank" rel="noreferrer"><strong>VidIQ</strong></a> can auto-suggest tags based on your title — way faster than doing it yourself'
     ]
   },
   niche: {
     head: 'How to fix it',
     items: [
       'Write your niche in one sentence: <em>"I [verb] [game/topic] as a [type of VTuber]"</em>. If you can\'t, you\'re too broad.',
-      '<strong>SocialBlade</strong> &mdash; check the top 5 channels in your specific niche to see what they actually do'
+      '<a href="https://socialblade.com" target="_blank" rel="noreferrer"><strong>SocialBlade</strong></a> &mdash; check the top 5 channels in your specific niche to see what they actually do',
+      'Stream on Twitch? <a href="https://sullygnome.com" target="_blank" rel="noreferrer"><strong>SullyGnome</strong></a> and <a href="https://twitchtracker.com" target="_blank" rel="noreferrer"><strong>TwitchTracker</strong></a> show which games &amp; categories are heating up and how similar streamers are growing &mdash; perfect for picking what to clip into shorts'
     ]
   },
   retention: {
@@ -2256,7 +2260,8 @@ const TOOLS_FOR = {
     items: [
       'Watch your own short at 2x speed. The second you\'d swipe &mdash; that\'s your problem spot. Cut it.',
       'Open YT Studio &rarr; Analytics &rarr; <strong>Audience retention</strong>. Every dip in the graph = a moment to fix in your next short.',
-      '<strong>CapCut\'s</strong> auto-captions keep people watching by default &mdash; subtitled shorts retain way better than unsubtitled ones',
+      '<a href="https://www.capcut.com" target="_blank" rel="noreferrer"><strong>CapCut\'s</strong></a> auto-captions keep people watching by default &mdash; subtitled shorts retain way better than unsubtitled ones',
+      'In <a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noreferrer"><strong>DaVinci Resolve</strong></a>, right-click your audio clip &rarr; <strong>Audio Transcription</strong>, then <strong>Create Subtitles from Audio</strong> &mdash; free captions baked in.',
       '<a href="https://www.youtube.com/watch?v=6Ouye9LyMgc" target="_blank" rel="noreferrer"><strong>Maxor\'s YouTube Workshop</strong></a> &mdash; this one will 1000% level up your shorts'
     ]
   }
@@ -5415,13 +5420,19 @@ function wireUpVideoUpload(){
       console.warn('Upload wiring: dropZone or videoFile not in the DOM yet.');
       return;
     }
-    // Defensive: clear any previous listeners by replacing the input clone trick? No — labels
-    // for a hidden input only work if the label *contains* the input. Our label does, so
-    // clicking the label fires the input click natively. But we also wire an explicit
-    // click handler in case the label/for relationship gets broken by future edits.
+    // The dropzone is a plain <div> (not a <label>) so a click opens the file
+    // picker exactly once — via this handler only. (It used to be a <label for>
+    // that ALSO contained the input, which fired the native picker a second time
+    // and popped the dialog twice.)
     dropZone.addEventListener('click', (e)=>{
-      // Don't double-fire when the click landed on the input itself (label naturally bubbles)
       if(e.target !== videoFile){
+        try{ videoFile.click(); }catch(err){ console.warn('input.click() failed:', err); }
+      }
+    });
+    // Keyboard activation, since it's now a role="button" div.
+    dropZone.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
         try{ videoFile.click(); }catch(err){ console.warn('input.click() failed:', err); }
       }
     });
@@ -6719,11 +6730,11 @@ function classifyHookFromVideo({motionScore, cuts, audioMax, brightnessDelta}){
   // Motion
   if(motionScore > 25){ pts+=3; bd.push({k:'motion', v:'high', t:`<strong>Lots of motion</strong> &mdash; a lot is happening on screen in the first 3 seconds.`}); }
   else if(motionScore > 12){ pts+=1; bd.push({k:'motion', v:'medium', t:`<strong>Some motion</strong> &mdash; things are happening, but could be more.`}); }
-  else { bd.push({k:'motion', v:'low', t:`<strong>Barely any motion</strong> &mdash; the opening is too static. In <strong>CapCut</strong>, try the zoom-in/zoom-out effect on your first clip, or add animated text that pops in within the first second.`}); }
+  else { bd.push({k:'motion', v:'low', t:`<strong>Barely any motion</strong> &mdash; the opening is too static. In <strong>CapCut</strong>, try the zoom-in/zoom-out effect on your first clip; in <strong>DaVinci Resolve</strong>, keyframe the Inspector &rarr; Zoom for a quick punch-in. Either way, add animated text that pops in within the first second.`}); }
   // Cuts
   if(cuts >= 3){ pts+=3; bd.push({k:'cuts', v:'high', t:`<strong>${cuts} scene cuts</strong> in the first 3 seconds &mdash; fast pacing keeps people watching.`}); }
   else if(cuts >= 1){ pts+=2; bd.push({k:'cuts', v:'medium', t:`<strong>${cuts} scene cut${cuts===1?'':'s'}</strong> &mdash; you've got some pacing going.`}); }
-  else { bd.push({k:'cuts', v:'low', t:`<strong>No cuts</strong> &mdash; it's one continuous shot. Use the <strong>Split</strong> tool in CapCut (or StreamLadder for stream clips) to cut to the punchline directly &mdash; skip the setup.`}); }
+  else { bd.push({k:'cuts', v:'low', t:`<strong>No cuts</strong> &mdash; it's one continuous shot. Use the <strong>Split</strong> tool in CapCut, the <strong>Blade (B)</strong> in DaVinci Resolve (or StreamLadder for stream clips) to cut to the punchline directly &mdash; skip the setup.`}); }
   // Audio
   if(audioMax !== null && audioMax !== undefined){
     if(audioMax > 0.4){ pts+=2; bd.push({k:'audio', v:'high', t:`<strong>Loud audio</strong> &mdash; probably a sound effect, music drop, or strong voice opener.`}); }

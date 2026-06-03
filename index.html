@@ -254,6 +254,28 @@
   }
   .coming-chip .icon{font-size:14px}
 
+  /* ===== CREATOR TOOLS & RESOURCES ===== */
+  .resources{
+    background:rgba(255,255,255,0.62);
+    border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:16px;padding:16px 20px;margin:0 0 22px;
+  }
+  .resources h3{
+    font-family:'Pacifico',cursive;font-weight:400;margin:0 0 4px;
+    font-size:18px;color:var(--deep);display:flex;align-items:center;gap:8px;
+  }
+  .resources .res-sub{margin:0 0 12px;font-size:12.5px;color:var(--ink-soft)}
+  .res-grid{display:flex;flex-wrap:wrap;gap:8px}
+  .res-link{
+    display:inline-flex;align-items:center;gap:7px;padding:8px 14px;
+    background:rgba(255,255,255,0.8);border:1.5px solid rgba(144,165,255,0.4);
+    border-radius:999px;color:var(--deep);font-weight:700;font-size:12.5px;
+    text-decoration:none;transition:background .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  .res-link:hover{background:rgba(255,255,255,0.97);border-color:var(--periwinkle);transform:translateY(-1px)}
+  .res-link .icon{font-size:14px}
+  .res-link small{font-weight:600;color:var(--ink-soft)}
+
   /* ===== SLIM ABOUT + SUPPORT ===== */
   .footer-band{
     background:linear-gradient(135deg, rgba(255,219,247,0.45), rgba(199,210,255,0.38));
@@ -667,6 +689,27 @@
     </div>
 
   </div>
+
+  <!-- Creator tools & resources — the off-site tools the optimizer recommends,
+       surfaced here so they're easy to find without digging into a tool. -->
+  <section class="resources">
+    <h3>🧰 Creator tools &amp; resources</h3>
+    <p class="res-sub">Free (or freemium) tools I actually point people to inside the optimizer — editing, captions, titles, hashtags, and research. Opens in a new tab.</p>
+    <div class="res-grid">
+      <a class="res-link" href="https://www.capcut.com" target="_blank" rel="noreferrer"><span class="icon">✂️</span> CapCut <small>· editing + captions</small></a>
+      <a class="res-link" href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noreferrer"><span class="icon">🎬</span> DaVinci Resolve <small>· pro editing (free)</small></a>
+      <a class="res-link" href="https://filmora.wondershare.com" target="_blank" rel="noreferrer"><span class="icon">🎚️</span> Wondershare Filmora <small>· beginner-friendly editor</small></a>
+      <a class="res-link" href="https://streamladder.com" target="_blank" rel="noreferrer"><span class="icon">🪜</span> StreamLadder <small>· stream → shorts</small></a>
+      <a class="res-link" href="https://vidiq.com" target="_blank" rel="noreferrer"><span class="icon">📊</span> VidIQ <small>· titles + tags</small></a>
+      <a class="res-link" href="https://www.tubebuddy.com" target="_blank" rel="noreferrer"><span class="icon">🛠️</span> TubeBuddy <small>· CTR predictions</small></a>
+      <a class="res-link" href="https://answerthepublic.com" target="_blank" rel="noreferrer"><span class="icon">❓</span> AnswerThePublic <small>· topic research</small></a>
+      <a class="res-link" href="https://hemingwayapp.com" target="_blank" rel="noreferrer"><span class="icon">✍️</span> Hemingway Editor <small>· tighter captions</small></a>
+      <a class="res-link" href="https://socialblade.com" target="_blank" rel="noreferrer"><span class="icon">📈</span> SocialBlade <small>· niche research</small></a>
+      <a class="res-link" href="https://sullygnome.com" target="_blank" rel="noreferrer"><span class="icon">🧙</span> SullyGnome <small>· Twitch stats</small></a>
+      <a class="res-link" href="https://twitchtracker.com" target="_blank" rel="noreferrer"><span class="icon">🟣</span> TwitchTracker <small>· Twitch analytics</small></a>
+      <a class="res-link" href="growth.html#resources"><span class="icon">📚</span> Full resource library <small>· on the hub</small></a>
+    </div>
+  </section>
 
   <!-- Slim coming-soon -->
   <section class="coming-soon">
