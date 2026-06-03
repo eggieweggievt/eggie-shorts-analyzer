@@ -904,6 +904,29 @@
     .cal-weekdays > div{font-size:10px;padding:3px 0}
     .cal-title{font-size:20px}
   }
+  /* Next-deadline countdown strip (shown above the list / board) */
+  .next-deadline{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:10px 14px;margin:0 0 14px;border-radius:12px;
+    background:linear-gradient(135deg,rgba(144,165,255,0.18),rgba(107,228,234,0.14));
+    border:1.5px solid rgba(144,165,255,0.4);
+  }
+  .next-deadline.overdue{
+    background:linear-gradient(135deg,rgba(255,138,168,0.2),rgba(255,176,122,0.16));
+    border-color:rgba(255,138,168,0.55);
+  }
+  .next-deadline .nd-icon{font-size:18px;line-height:1;flex-shrink:0}
+  .next-deadline .nd-text{flex:1;min-width:0;font-size:13.5px;color:var(--ink);font-weight:700;line-height:1.35}
+  .next-deadline .nd-text small{display:block;font-weight:500;color:var(--ink-soft);font-size:11.5px;margin-top:1px}
+  .next-deadline.overdue .nd-text strong{color:#a23556}
+  .next-deadline .nd-jump{
+    flex-shrink:0;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12.5px;color:#fff;
+    padding:7px 14px;border-radius:999px;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    box-shadow:0 4px 10px rgba(144,165,255,0.3);transition:transform .12s,filter .12s;
+  }
+  .next-deadline .nd-jump:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
   /* Flash a card when you jump to it from the calendar */
   .project-card.flash-highlight{animation:cardFlash 2.2s ease}
   @keyframes cardFlash{
@@ -989,6 +1012,7 @@
           </div>
         </div>
         <div class="status-summary" id="statusSummary"></div>
+        <div id="nextDeadline" class="next-deadline hidden"></div>
         <div class="project-list" id="projectList">
           <div class="empty-state">
             <h3>Loading…</h3>
@@ -1466,6 +1490,9 @@ function renderProjects(){
     .filter(([k]) => counts[k])
     .map(([k, lbl]) => `<span class="chip"><strong>${counts[k]}</strong>${lbl}</span>`).join('');
 
+  // Next-deadline countdown (self-hides in calendar view / when nothing's due).
+  renderNextDeadline();
+
   const wrap = $('projectList');
   if(projects.length === 0){
     wrap.innerHTML = `
@@ -1843,6 +1870,53 @@ function renderEditorCalendar(allItems){
     ${legend}
     ${hint}
   `;
+}
+
+// Soonest upcoming (or overdue) deadline on work the editor still owns — shown
+// as a small countdown strip above the list/board. Hidden in calendar view
+// (the grid already shows everything) and when nothing's due.
+function renderNextDeadline(){
+  const el = $('nextDeadline');
+  if(!el) return;
+  if(getViewMode() === 'calendar'){ el.classList.add('hidden'); el.innerHTML = ''; return; }
+
+  const ownerOrder = [];
+  projects.forEach(x => { const k = x.owner_id || 'unknown'; if(!ownerOrder.includes(k)) ownerOrder.push(k); });
+
+  const upcoming = projects
+    .filter(p => p.scheduled_at && !CAL_DONE_STATUSES.includes(p.status))
+    .map(p => ({ p, d: new Date(p.scheduled_at) }))
+    .filter(x => !isNaN(x.d))
+    .sort((a, b) => a.d - b.d);
+
+  if(!upcoming.length){ el.classList.add('hidden'); el.innerHTML = ''; return; }
+
+  const { p, d } = upcoming[0];
+  const now = new Date();
+  const dayMs = 86400000;
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startDue = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayDiff = Math.round((startDue - startToday) / dayMs);
+
+  let when, overdue = false;
+  if(dayDiff < 0){ overdue = true; const n = Math.abs(dayDiff); when = `Overdue by ${n} day${n === 1 ? '' : 's'}`; }
+  else if(dayDiff === 0) when = 'Due today';
+  else if(dayDiff === 1) when = 'Due tomorrow';
+  else when = `Due in ${dayDiff} days`;
+
+  const creator = ownerName(p.owner_id, ownerOrder.indexOf(p.owner_id));
+  const dateStr = d.toLocaleString(undefined, { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+
+  el.className = 'next-deadline' + (overdue ? ' overdue' : '');
+  el.innerHTML = `
+    <span class="nd-icon">${overdue ? '⚠️' : '⏰'}</span>
+    <span class="nd-text"><strong>${escape(when)}</strong> · ${escape(p.title || '(untitled)')}
+      <small>${escape(creator)} · ${escape(dateStr)}</small>
+    </span>
+    <button class="nd-jump" data-nd-jump="${escape(p.id)}">View →</button>`;
+  el.classList.remove('hidden');
+  const btn = el.querySelector('[data-nd-jump]');
+  if(btn) btn.addEventListener('click', () => jumpToItem(p.id));
 }
 
 // Jump from a calendar bubble to that project's card: switch to list view,
