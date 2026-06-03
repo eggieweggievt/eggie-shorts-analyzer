@@ -856,6 +856,60 @@
     padding:16px 12px;text-align:center;color:var(--ink-soft);font-style:italic;font-size:12.5px;
     background:rgba(255,255,255,0.5);border:1.5px dashed rgba(144,165,255,0.25);border-radius:10px;
   }
+
+  /* ===== Calendar view — every due date across all your creators, one month grid ===== */
+  .cal-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .cal-head .btn{padding:6px 12px;font-size:13px}
+  .cal-title{flex:1;text-align:center;min-width:160px;font-family:'Pacifico',cursive;font-size:24px;color:var(--deep);line-height:1.2}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}
+  .cal-weekdays > div{text-align:center;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);padding:4px 0}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-day{
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(255,255,255,0.95);
+    border-radius:10px;min-height:92px;padding:5px 6px 4px;
+    display:flex;flex-direction:column;gap:3px;position:relative;overflow:hidden;
+  }
+  .cal-day.other-month{background:rgba(255,255,255,0.32);opacity:.6}
+  .cal-day.today{
+    background:linear-gradient(135deg,rgba(255,178,240,0.25),rgba(144,165,255,0.18));
+    border-color:var(--periwinkle);box-shadow:0 0 0 2px rgba(144,165,255,0.35);
+  }
+  .cal-day-num{font-size:12.5px;font-weight:800;color:var(--deep);line-height:1;margin-bottom:2px}
+  .cal-day.other-month .cal-day-num{color:var(--ink-soft)}
+  .cal-item-bubble{
+    border-radius:5px;padding:2px 6px;font-size:10.5px;font-weight:700;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35;
+    cursor:pointer;color:var(--ink);border-left:3px solid rgba(0,0,0,0.12);
+  }
+  .cal-item-bubble:hover{filter:brightness(1.05) saturate(1.08)}
+  .cal-item-bubble.cal-done{opacity:.5}
+  .cal-item-bubble.cal-overdue{box-shadow:0 0 0 1.5px rgba(255,138,168,0.85)}
+  .cal-item-bubble.cal-overdue::before{content:"⚠️ "}
+  .cal-more{
+    font-size:10px;font-weight:700;color:var(--deep);
+    background:rgba(144,165,255,0.15);border-radius:5px;padding:1px 5px;text-align:center;cursor:pointer;
+  }
+  .cal-legend{
+    display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding:10px 4px 2px;
+    border-top:1.5px dashed rgba(144,165,255,0.25);
+    font-size:11.5px;color:var(--ink-soft);font-weight:700;
+  }
+  .cal-legend-item{display:inline-flex;align-items:center;gap:6px}
+  .cal-legend-dot{width:12px;height:12px;border-radius:4px;display:inline-block}
+  .cal-empty-hint{text-align:center;color:var(--ink-soft);font-style:italic;font-size:12.5px;margin-top:10px}
+  @media(max-width:680px){
+    .cal-day{min-height:62px;padding:3px 4px}
+    .cal-day-num{font-size:11px}
+    .cal-item-bubble{font-size:9.5px;padding:1px 3px}
+    .cal-weekdays > div{font-size:10px;padding:3px 0}
+    .cal-title{font-size:20px}
+  }
+  /* Flash a card when you jump to it from the calendar */
+  .project-card.flash-highlight{animation:cardFlash 2.2s ease}
+  @keyframes cardFlash{
+    0%,100%{box-shadow:0 6px 16px rgba(99,170,244,0.18)}
+    20%,60%{box-shadow:0 0 0 3px rgba(255,178,240,0.85),0 8px 22px rgba(144,165,255,0.4)}
+  }
 </style>
 </head>
 <body>
@@ -928,9 +982,10 @@
       <div class="card tasks-card">
         <div class="tasks-card-head">
           <h3>🎬 Your projects</h3>
-          <div class="view-toggle" id="viewToggle" title="Switch between a stacked list and a kanban board">
+          <div class="view-toggle" id="viewToggle" title="Switch between a stacked list, a kanban board, and a calendar of your due dates">
             <button type="button" data-view="list">☰ List</button>
             <button type="button" data-view="board">▦ Board</button>
+            <button type="button" data-view="calendar">📆 Calendar</button>
           </div>
         </div>
         <div class="status-summary" id="statusSummary"></div>
@@ -995,10 +1050,18 @@ function viewerEmail(){
 }
 
 // V3.1 — Editor view preferences, persisted locally in this editor's browser.
-const EDITOR_VIEW_KEY = 'eggie:editorViewMode';        // 'list' | 'board'
+const EDITOR_VIEW_KEY = 'eggie:editorViewMode';        // 'list' | 'board' | 'calendar'
 const EDITOR_COLLAPSE_KEY = 'eggie:editorCollapsedOwners'; // JSON array of owner ids
-function getViewMode(){ return localStorage.getItem(EDITOR_VIEW_KEY) === 'board' ? 'board' : 'list'; }
-function setViewMode(m){ localStorage.setItem(EDITOR_VIEW_KEY, m === 'board' ? 'board' : 'list'); }
+function getViewMode(){
+  const m = localStorage.getItem(EDITOR_VIEW_KEY);
+  return (m === 'board' || m === 'calendar') ? m : 'list';
+}
+function setViewMode(m){
+  localStorage.setItem(EDITOR_VIEW_KEY, (m === 'board' || m === 'calendar') ? m : 'list');
+}
+
+// Calendar view state — the month currently shown (1st of month).
+let editorCalMonth = new Date(); editorCalMonth.setDate(1);
 function getCollapsedOwners(){
   try{ return new Set(JSON.parse(localStorage.getItem(EDITOR_COLLAPSE_KEY) || '[]')); }
   catch(_){ return new Set(); }
@@ -1413,6 +1476,27 @@ function renderProjects(){
     return;
   }
 
+  // Calendar view — one month grid pooling every creator's deadlines together.
+  if(getViewMode() === 'calendar'){
+    wrap.innerHTML = renderEditorCalendar(projects);
+    wrap.querySelectorAll('[data-cal-nav]').forEach(b => b.addEventListener('click', () => {
+      const dir = b.dataset.calNav;
+      if(dir === 'prev')      editorCalMonth = new Date(editorCalMonth.getFullYear(), editorCalMonth.getMonth() - 1, 1);
+      else if(dir === 'next') editorCalMonth = new Date(editorCalMonth.getFullYear(), editorCalMonth.getMonth() + 1, 1);
+      else { const t = new Date(); editorCalMonth = new Date(t.getFullYear(), t.getMonth(), 1); }
+      renderProjects();
+    }));
+    wrap.querySelectorAll('[data-cal-item]').forEach(el => el.addEventListener('click', e => {
+      e.stopPropagation(); jumpToItem(el.dataset.calItem);
+    }));
+    wrap.querySelectorAll('[data-cal-more]').forEach(el => el.addEventListener('click', e => {
+      e.stopPropagation();
+      const list = projects.filter(p => p.scheduled_at && calYmdKey(new Date(p.scheduled_at)) === el.dataset.calMore);
+      if(list.length) jumpToItem(list[0].id);
+    }));
+    return;
+  }
+
   // V3 — Group projects by creator (owner_id), preserving first-seen order.
   // Each creator becomes its own "purple column" (VTuber section).
   const order = [];
@@ -1651,6 +1735,134 @@ function renderReadinessBuckets(items){
   return sections.join('');
 }
 
+// ============================================================
+//  CALENDAR VIEW — pools every creator's deadlines into one month grid so the
+//  editor sees all their due dates at a glance. Bubbles are color-coded per
+//  creator (stable hashed color + a legend), overdue ones get a ⚠️ ring, and
+//  already-handed-off items (edited/scheduled/posted/archived) dim down.
+//  Clicking a bubble jumps to that project's card in the list view.
+// ============================================================
+const CAL_OWNER_PALETTE = ['#FFB2F0','#90A5FF','#6BE4EA','#FFB07A','#C9A8FF','#A8E6BE','#63AAF4','#FF8AA8'];
+const CAL_DONE_STATUSES = ['edited','scheduled','posted','archived'];
+
+function calYmdKey(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+// Stable per-creator color so a creator keeps the same hue across months.
+function ownerColor(ownerId){
+  const s = String(ownerId || '');
+  let h = 0;
+  for(let i = 0; i < s.length; i++){ h = (h * 31 + s.charCodeAt(i)) >>> 0; }
+  return CAL_OWNER_PALETTE[h % CAL_OWNER_PALETTE.length];
+}
+function ownerName(ownerId, idx){
+  const kit = brandKitsByOwner[ownerId];
+  if(kit && kit.creator_name && kit.creator_name.trim()) return kit.creator_name.trim();
+  return 'Creator ' + (idx + 1);
+}
+function hexToRgba(hex, a){
+  if(!/^#[0-9a-f]{6}$/i.test(hex)) return `rgba(144,165,255,${a})`;
+  const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function renderEditorCalendar(allItems){
+  const year = editorCalMonth.getFullYear();
+  const month = editorCalMonth.getMonth();
+  const monthTitle = editorCalMonth.toLocaleDateString(undefined, { month:'long', year:'numeric' });
+
+  // Grid starts on the Sunday on/before the 1st; always 6 rows × 7 cols.
+  const firstOfMonth = new Date(year, month, 1);
+  const startDay = new Date(firstOfMonth);
+  startDay.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
+  const cells = [];
+  for(let i = 0; i < 42; i++){ const c = new Date(startDay); c.setDate(startDay.getDate() + i); cells.push(c); }
+
+  // First-seen owner order (for a stable legend).
+  const ownerOrder = [];
+  allItems.forEach(p => { const k = p.owner_id || 'unknown'; if(!ownerOrder.includes(k)) ownerOrder.push(k); });
+
+  // Bucket items by their deadline day.
+  const byDay = {};
+  allItems.forEach(p => {
+    if(!p.scheduled_at) return;
+    const d = new Date(p.scheduled_at);
+    if(isNaN(d)) return;
+    (byDay[calYmdKey(d)] = byDay[calYmdKey(d)] || []).push(p);
+  });
+
+  const todayKey = calYmdKey(new Date());
+  const now = new Date();
+  const MAX = 3;
+  const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const daysHtml = cells.map(d => {
+    const key = calYmdKey(d);
+    const otherMonth = d.getMonth() !== month;
+    const isToday = key === todayKey;
+    const bucket = (byDay[key] || []).slice().sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+    const visible = bucket.slice(0, MAX);
+    const bubbles = visible.map(p => {
+      const col = ownerColor(p.owner_id);
+      const done = CAL_DONE_STATUSES.includes(p.status);
+      const overdue = !done && new Date(p.scheduled_at) < now;
+      const cls = ['cal-item-bubble', done ? 'cal-done' : '', overdue ? 'cal-overdue' : ''].filter(Boolean).join(' ');
+      const t = new Date(p.scheduled_at).toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+      const title = p.title || '(untitled)';
+      return `<div class="${cls}" data-cal-item="${escape(p.id)}" style="background:${hexToRgba(col, 0.35)};border-left-color:${escape(col)}" title="${escape(title)} · ${escape(t)}">${escape(title)}</div>`;
+    }).join('');
+    const more = bucket.length > MAX ? `<div class="cal-more" data-cal-more="${key}">+${bucket.length - MAX} more</div>` : '';
+    return `
+      <div class="cal-day ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}" data-cal-day="${key}">
+        <div class="cal-day-num"><span>${d.getDate()}</span></div>
+        ${bubbles}${more}
+      </div>`;
+  }).join('');
+
+  const legend = ownerOrder.length ? `
+    <div class="cal-legend">
+      ${ownerOrder.map((o, i) => `<span class="cal-legend-item"><span class="cal-legend-dot" style="background:${escape(ownerColor(o))}"></span>${escape(ownerName(o, i))}</span>`).join('')}
+      <span class="cal-legend-item"><span class="cal-legend-dot" style="background:rgba(255,138,168,0.85)"></span>⚠️ overdue</span>
+    </div>` : '';
+
+  const hasDeadlines = Object.keys(byDay).length > 0;
+  const hint = hasDeadlines ? '' : `<div class="cal-empty-hint">No deadlines set yet — your creators haven't added due dates. They'll appear here as soon as they do.</div>`;
+
+  return `
+    <div class="cal-head">
+      <button class="btn secondary" data-cal-nav="prev" title="Previous month">◀</button>
+      <div class="cal-title">${escape(monthTitle)}</div>
+      <button class="btn secondary" data-cal-nav="next" title="Next month">▶</button>
+      <button class="btn secondary" data-cal-nav="today" title="Jump to today">Today</button>
+    </div>
+    <div class="cal-weekdays">${weekdays.map(w => `<div>${w}</div>`).join('')}</div>
+    <div class="cal-grid">${daysHtml}</div>
+    ${legend}
+    ${hint}
+  `;
+}
+
+// Jump from a calendar bubble to that project's card: switch to list view,
+// make sure its creator column is expanded, then scroll + flash it.
+function jumpToItem(id){
+  const item = projects.find(p => p.id === id);
+  if(item) setOwnerCollapsed(item.owner_id, false);
+  setViewMode('list');
+  applyViewToggleUI();
+  renderProjects();
+  setTimeout(() => {
+    const card = document.querySelector('.project-card[data-item-id="' + cssEscape(id) + '"]');
+    if(card){
+      card.scrollIntoView({ behavior:'smooth', block:'center' });
+      card.classList.add('flash-highlight');
+      setTimeout(() => card.classList.remove('flash-highlight'), 2200);
+    }
+  }, 80);
+}
+
 // V2.14 — Save free-text notes the editor leaves for the creator on a project.
 // Uses the RLS update policy ("editors update assigned items") so editors can
 // write but only to items already assigned to them.
@@ -1822,7 +2034,7 @@ function renderProjectCard(p){
   }
 
   return `
-    <div class="project-card" data-status="${escape(p.status)}">
+    <div class="project-card" data-status="${escape(p.status)}" data-item-id="${escape(p.id)}">
 
       <div class="pc-title">${escape(p.title || '(untitled)')}</div>
 

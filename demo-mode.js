@@ -77,6 +77,8 @@
   // starts empty and fills in as you use it. Add more here anytime.
   var U = DEMO_USER.id;
   var nowISO = new Date().toISOString();
+  // Relative deadline helper so demo due dates land near "today" on the calendar.
+  var daysISO = function (n) { var d = new Date(); d.setDate(d.getDate() + n); d.setHours(18, 0, 0, 0); return d.toISOString(); };
   var SEEDS = {
     planner_items: [
       { id: 'seed-1', owner_id: U, title: 'Why I switched to a sustainable upload schedule', status: 'idea',
@@ -90,12 +92,13 @@
       { id: 'seed-3', owner_id: U, title: '3 thumbnail mistakes that killed my CTR', status: 'editing',
         platforms: ['youtube', 'instagram'], hook: 'Number 2 cost me thousands of views.',
         description: 'Educational short, paired with the thumbnail checker.', is_priority: false,
-        assignee_email: 'editor@example.com', attachments: [], additional_assets: [], sort: 0, created_at: nowISO },
+        assignee_email: 'editor@example.com', scheduled_at: daysISO(3),
+        attachments: [], additional_assets: [], sort: 0, created_at: nowISO },
       { id: 'seed-6', owner_id: U, title: 'Gremlin energy: my chaotic ranked grind 🎮', status: 'edited',
         platforms: ['youtube', 'tiktok'], hook: 'I promise I\'m normally calm. This is not that stream.',
         description: 'Stream-to-short — editor just marked this done, waiting on Eggie to schedule.',
         is_priority: false, assignee_email: 'editor@example.com', footage_url: 'https://example.com/footage/gremlin-raw',
-        attachments: [], additional_assets: [], sort: 0, created_at: nowISO },
+        scheduled_at: daysISO(1), attachments: [], additional_assets: [], sort: 0, created_at: nowISO },
       { id: 'seed-4', owner_id: U, title: 'Cozy late-night art stream highlights', status: 'scheduled',
         platforms: ['tiktok'], hook: 'POV: it\'s 2am and we\'re still painting.',
         description: 'Stream-to-short edit.', is_priority: false, scheduled_at: nowISO,
