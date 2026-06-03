@@ -4,8 +4,8 @@
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Weekly Review 🌸 — Eggie's Creator Hub</title>
-<meta name="description" content="A gentle weekly retro for creators — what shipped, what slipped, and the three things that matter next week." />
+<title>Creator Check-In 🌿 — Eggie's Creator Hub</title>
+<meta name="description" content="A gentle weekly check-in for creators — wins, content, community, mental check, and the one goal that matters next week." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <meta property="og:type" content="website" />
@@ -189,6 +189,30 @@
   @media(max-width:720px){.fields{grid-template-columns:1fr}}
   .field label{display:block;font-weight:800;color:var(--deep);font-size:14px;margin-bottom:6px}
   .field .hint{font-weight:600;color:var(--ink-soft);font-size:12px}
+
+  /* Check-in sections */
+  .checkin{display:flex;flex-direction:column;gap:18px}
+  .ck-sec label{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--deep);font-size:15px;margin-bottom:4px}
+  .ck-num{
+    flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
+    color:#fff;font-size:13px;font-weight:800;
+  }
+  .ck-q{font-size:12.5px;color:var(--ink-soft);font-weight:600;line-height:1.5;margin:0 0 7px 35px}
+  .ck-sec textarea, .ck-sec input[type=text]{margin-left:0}
+  .goal-callout{
+    margin:0 0 8px 35px;padding:9px 14px;border-radius:12px;
+    background:linear-gradient(135deg,rgba(255,178,240,0.22),rgba(144,165,255,0.18));
+    border:1.5px dashed rgba(144,165,255,0.45);
+    font-size:13px;font-weight:700;color:var(--deep);
+  }
+  .legacy-notes{
+    margin-top:16px;padding-top:14px;border-top:1.5px dashed rgba(144,165,255,0.3);
+  }
+  .legacy-notes h3{margin:0 0 6px;font-size:13px;color:var(--ink-soft);font-weight:800}
+  .legacy-notes .ln-row{font-size:13px;color:var(--ink-soft);font-weight:600;margin:3px 0}
+  .legacy-notes .ln-row b{color:var(--deep)}
   .next3{display:flex;flex-direction:column;gap:10px}
   .next3 .row{display:flex;align-items:center;gap:10px}
   .next3 .num{
@@ -228,8 +252,8 @@
   </div>
 
   <div class="hero">
-    <h1>Weekly Review 🌸</h1>
-    <p>A gentle retro — what shipped, what slipped, and the three things that matter next week.</p>
+    <h1>Creator Check-In 🌿</h1>
+    <p>A gentle weekly check-in — short answers are totally fine.</p>
   </div>
 
   <!-- Impersonation banner -->
@@ -291,50 +315,76 @@
       <div class="ship-list" id="shipList"></div>
     </div>
 
-    <!-- Reflection fields -->
+    <!-- Creator check-in -->
     <div class="card">
-      <h2>Reflection</h2>
-      <div class="fields">
-        <div class="field">
-          <label>🌟 Wins this week</label>
-          <textarea id="f_wins" placeholder="What went well? Big or small — both count."></textarea>
-        </div>
-        <div class="field">
-          <label>🥀 What slipped</label>
-          <textarea id="f_slipped" placeholder="What didn't happen, and is that okay?"></textarea>
-        </div>
-        <div class="field">
-          <label>🔓 Open loops</label>
-          <textarea id="f_open_loops" placeholder="Half-finished things still on your mind."></textarea>
-        </div>
-        <div class="field">
-          <label>💬 People to follow up with</label>
-          <textarea id="f_follow_ups" placeholder="Collabs, editors, sponsors, mods…"></textarea>
-        </div>
-        <div class="field">
-          <label>📝 Content notes</label>
-          <textarea id="f_content_notes" placeholder="Ideas, what resonated, what to try next."></textarea>
-        </div>
-        <div class="field">
-          <label>💖 Energy &amp; wellbeing <span class="hint">— spoons check</span></label>
-          <textarea id="f_energy_notes" placeholder="How were your spoons this week? Sleep, rest, burnout signals."></textarea>
-        </div>
-      </div>
-    </div>
+      <h2>Creator Check-In 🌿</h2>
+      <p class="muted" style="margin-top:-6px">Short answers are totally fine! Just checking in on how things are going 💗</p>
+      <div class="checkin" style="margin-top:14px">
 
-    <!-- Next week top 3 -->
-    <div class="card">
-      <h2>Next week — top 3 🎯</h2>
-      <p class="muted" style="margin-top:-6px">If only three things happen next week, what should they be?</p>
-      <div class="next3">
-        <div class="row"><span class="num">1</span><input type="text" id="nw0" placeholder="The one that matters most…" /></div>
-        <div class="row"><span class="num">2</span><input type="text" id="nw1" placeholder="Second priority…" /></div>
-        <div class="row"><span class="num">3</span><input type="text" id="nw2" placeholder="Third priority…" /></div>
+        <div class="ck-sec">
+          <label><span class="ck-num">1</span> Last Week Recap</label>
+          <div class="ck-q">• Did you hit the goal you set last week?<br/>• What got in the way, if anything?</div>
+          <div class="goal-callout hidden" id="lastGoalBox">🎯 Last check-in's goal: <span id="lastGoalText"></span></div>
+          <textarea id="f_last_week_recap" placeholder="Did it happen? What got in the way?"></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">2</span> Biggest Win</label>
+          <div class="ck-q">• What felt good this week?<br/>• Even something small counts!</div>
+          <textarea id="f_wins" placeholder="Big or small — both count. 🌟"></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">3</span> Content Check</label>
+          <div class="ck-q">• What did you post this week?<br/>• What performed better or worse than you expected?<br/>• Anything you'd do differently?</div>
+          <textarea id="f_content_notes" placeholder="The 🚀 list above can jog your memory."></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">4</span> Community Check</label>
+          <div class="ck-q">• How has chat/community been?<br/>• Any moments that stood out — good or bad?</div>
+          <textarea id="f_community" placeholder="Chat vibes, Discord moments, new regulars…"></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">5</span> Mental Check</label>
+          <div class="ck-q">• How are you feeling compared to last week?<br/>• Better, worse, about the same?</div>
+          <textarea id="f_energy_notes" placeholder="Honest answer — this one's just for you. 💖"></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">6</span> Current Struggles</label>
+          <div class="ck-q">• What's still feeling hard?<br/>• Anything new come up this week?</div>
+          <textarea id="f_slipped" placeholder="Naming it is half the battle."></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">7</span> Next Week</label>
+          <div class="ck-q">• What's the plan?<br/>• Anything you're nervous or excited about?</div>
+          <textarea id="f_next_plan" placeholder="Rough shape is fine — it's not a contract."></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">8</span> Support Check</label>
+          <div class="ck-q">• What would actually help you right now?</div>
+          <textarea id="f_support" placeholder="Mod help? An editor? Accountability? A nap?"></textarea>
+        </div>
+
+        <div class="ck-sec">
+          <label><span class="ck-num">9</span> One Main Goal</label>
+          <div class="ck-q">• What's the ONE thing you want to have done by next check-in?</div>
+          <input type="text" id="f_main_goal" placeholder="One thing. Make it count. 🎯" />
+        </div>
+
       </div>
-      <div class="seal-row">
+
+      <div class="seal-row" style="margin-top:18px">
         <button class="btn" id="sealBtn" onclick="toggleSeal()">✓ Seal week</button>
+        <button class="btn ghost" onclick="copyCheckin()">📋 Copy as Discord post</button>
         <span class="muted" id="sealNote">Sealing marks the week done and keeps your streak going. You can still edit after.</span>
       </div>
+
+      <div class="legacy-notes hidden" id="legacyNotes"></div>
     </div>
 
     <div class="footer">
@@ -546,6 +596,7 @@ function doSignOut(){ if(sb && confirm('Sign out?')) sb.auth.signOut(); }
 function blankRow(){
   return { user_id: currentOwnerId, week_start: localDateKey(weekStart),
     wins:'', slipped:'', open_loops:'', follow_ups:'', content_notes:'', energy_notes:'',
+    last_week_recap:'', community_notes:'', next_week_plan:'', support_needs:'', main_goal:'',
     next_week:[], sealed_at:null };
 }
 
@@ -569,27 +620,63 @@ async function loadWeek(){
   row = data || blankRow();
   fillFields(row);
 
-  // 2) auto stats + shipped list from the planner
+  // 2) last check-in's "One Main Goal" → shown in section 1 so the recap has context
+  await loadLastGoal();
+
+  // 3) auto stats + shipped list from the planner
   await loadStats();
   await computeStreak();
   refreshNav();
 }
 
+async function loadLastGoal(){
+  const box = document.getElementById('lastGoalBox');
+  box.classList.add('hidden');
+  try{
+    const prevKey = localDateKey(addDays(weekStart,-7));
+    const { data } = await sb
+      .from('planner_weekly_reviews')
+      .select('main_goal')
+      .eq('user_id', currentOwnerId)
+      .eq('week_start', prevKey)
+      .maybeSingle();
+    if(data && data.main_goal){
+      document.getElementById('lastGoalText').textContent = data.main_goal;
+      box.classList.remove('hidden');
+    }
+  }catch(e){ /* older DB without main_goal column — quietly skip */ }
+}
+
 function fillFields(r){
   suppressSave = true;
   dirty = false;
+  document.getElementById('f_last_week_recap').value = r.last_week_recap || '';
   document.getElementById('f_wins').value = r.wins || '';
-  document.getElementById('f_slipped').value = r.slipped || '';
-  document.getElementById('f_open_loops').value = r.open_loops || '';
-  document.getElementById('f_follow_ups').value = r.follow_ups || '';
   document.getElementById('f_content_notes').value = r.content_notes || '';
+  document.getElementById('f_community').value = r.community_notes || '';
   document.getElementById('f_energy_notes').value = r.energy_notes || '';
-  const nw = Array.isArray(r.next_week) ? r.next_week : [];
-  document.getElementById('nw0').value = nw[0] || '';
-  document.getElementById('nw1').value = nw[1] || '';
-  document.getElementById('nw2').value = nw[2] || '';
+  document.getElementById('f_slipped').value = r.slipped || '';
+  document.getElementById('f_next_plan').value = r.next_week_plan || '';
+  document.getElementById('f_support').value = r.support_needs || '';
+  document.getElementById('f_main_goal').value = r.main_goal || '';
+  renderLegacyNotes(r);
   renderSeal();
   suppressSave = false;
+}
+
+// Old-format fields (open loops, follow-ups, top-3) are read-only history now.
+// If a week was written in the old format, show what it said.
+function renderLegacyNotes(r){
+  const box = document.getElementById('legacyNotes');
+  const bits = [];
+  if(r.open_loops)  bits.push(['🔓 Open loops', r.open_loops]);
+  if(r.follow_ups)  bits.push(['💬 Follow-ups', r.follow_ups]);
+  const nw = Array.isArray(r.next_week) ? r.next_week.filter(Boolean) : [];
+  if(nw.length)     bits.push(['🎯 Old top-3', nw.join(' · ')]);
+  if(!bits.length){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  box.innerHTML = '<h3>Notes from the older review format</h3>'
+    + bits.map(([k,v]) => `<div class="ln-row"><b>${k}:</b> ${escapeHtml(v)}</div>`).join('');
+  box.classList.remove('hidden');
 }
 
 async function loadStats(){
@@ -705,17 +792,19 @@ function collect(){
   return {
     user_id: currentOwnerId,
     week_start: localDateKey(weekStart),
+    last_week_recap: document.getElementById('f_last_week_recap').value,
     wins: document.getElementById('f_wins').value,
-    slipped: document.getElementById('f_slipped').value,
-    open_loops: document.getElementById('f_open_loops').value,
-    follow_ups: document.getElementById('f_follow_ups').value,
     content_notes: document.getElementById('f_content_notes').value,
+    community_notes: document.getElementById('f_community').value,
     energy_notes: document.getElementById('f_energy_notes').value,
-    next_week: [
-      document.getElementById('nw0').value.trim(),
-      document.getElementById('nw1').value.trim(),
-      document.getElementById('nw2').value.trim()
-    ].filter(s => s.length),
+    slipped: document.getElementById('f_slipped').value,
+    next_week_plan: document.getElementById('f_next_plan').value,
+    support_needs: document.getElementById('f_support').value,
+    main_goal: document.getElementById('f_main_goal').value,
+    // Legacy fields: not editable in the new UI — pass through untouched
+    open_loops: (row && row.open_loops) || '',
+    follow_ups: (row && row.follow_ups) || '',
+    next_week: (row && Array.isArray(row.next_week)) ? row.next_week : [],
     sealed_at: row ? row.sealed_at : null
   };
 }
@@ -787,6 +876,48 @@ function renderSeal(){
 }
 
 // ============================================================
+//  COPY AS DISCORD POST
+//  Filled answers → your check-in, ready to paste.
+//  Empty form → the blank question template (handy for posting
+//  the check-in prompt for your community).
+// ============================================================
+const CHECKIN_SECTIONS = [
+  ['1. Last Week Recap',   'f_last_week_recap', ['Did you hit the goal you set last week?','What got in the way, if anything?']],
+  ['2. Biggest Win',       'f_wins',            ['What felt good this week?','Even something small counts!']],
+  ['3. Content Check',     'f_content_notes',   ['What did you post this week?','What performed better or worse than you expected?','Anything you\'d do differently?']],
+  ['4. Community Check',   'f_community',       ['How has chat/community been?','Any moments that stood out — good or bad?']],
+  ['5. Mental Check',      'f_energy_notes',    ['How are you feeling compared to last week?','Better, worse, about the same?']],
+  ['6. Current Struggles', 'f_slipped',         ['What\'s still feeling hard?','Anything new come up this week?']],
+  ['7. Next Week',         'f_next_plan',       ['What\'s the plan?','Anything you\'re nervous or excited about?']],
+  ['8. Support Check',     'f_support',         ['What would actually help you right now?']],
+  ['9. One Main Goal',     'f_main_goal',       ['What\'s the ONE thing you want to have done by next check-in?']]
+];
+function copyCheckin(){
+  const lines = [];
+  lines.push(`🌿 Creator Check-In — Week ${isoWeekNumber(weekStart)}`);
+  lines.push('Short answers are totally fine! Just checking in on how things are going 💗');
+  CHECKIN_SECTIONS.forEach(([title, id, questions]) => {
+    lines.push(`**${title}**`);
+    const v = (document.getElementById(id).value || '').trim();
+    if(v) v.split('\n').forEach(l => lines.push(l));
+    else questions.forEach(q => lines.push(`• ${q}`));
+  });
+  const text = lines.join('\n');
+  const done = () => flashToast('Check-in copied — paste it into Discord 📋');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }
+  catch(e){ flashToast('Copy failed — select and copy manually'); }
+  document.body.removeChild(ta);
+}
+
+// ============================================================
 //  HELPERS
 // ============================================================
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c =>
@@ -800,7 +931,8 @@ function flashToast(msg){
 }
 
 // Wire inputs → debounced save
-['f_wins','f_slipped','f_open_loops','f_follow_ups','f_content_notes','f_energy_notes','nw0','nw1','nw2']
+['f_last_week_recap','f_wins','f_content_notes','f_community','f_energy_notes',
+ 'f_slipped','f_next_plan','f_support','f_main_goal']
   .forEach(id => document.getElementById(id).addEventListener('input', scheduleSave));
 
 // Save pending edits if the tab is closed/hidden mid-typing

@@ -5,13 +5,13 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Niche Finder 🔍 — Eggie's Creator Hub</title>
-<meta name="description" content="A short quiz that helps new streamers find the niche that actually fits them — based on energy, personality, and what you'd make even if nobody watched." />
+<meta name="description" content="Your niche isn't just what you play — it's what you do × the energy you bring. A two-part quiz that finds your content niche AND your stream vibe." />
 <link rel="icon" type="image/png" href="BADGE 1.png" />
 
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://creatorhub.eggieweggie.ca/niche-quiz.html" />
 <meta property="og:title" content="Niche Finder 🔍" />
-<meta property="og:description" content="Find the streaming niche that actually fits you." />
+<meta property="og:description" content="Find your content niche AND your stream vibe — they're not the same thing." />
 <meta property="og:image" content="preview.png" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,7 +64,7 @@
   }
   header.hero p.tag{
     font-weight:600;color:var(--ink-soft);font-size:15.5px;
-    margin:0 auto;max-width:600px;line-height:1.5;padding:0 12px;
+    margin:0 auto;max-width:620px;line-height:1.5;padding:0 12px;
   }
   header.hero p.tag em{color:var(--deep);font-style:normal;font-weight:700}
 
@@ -97,17 +97,19 @@
   .hidden{display:none !important}
 
   /* Progress */
-  .quiz-prog{
-    display:flex;align-items:center;gap:12px;margin-bottom:14px;
-  }
+  .quiz-prog{display:flex;align-items:center;gap:12px;margin-bottom:8px}
   .quiz-prog .bar-wrap{flex:1;height:10px;border-radius:999px;background:rgba(144,165,255,0.18);overflow:hidden}
   .quiz-prog .bar{height:100%;border-radius:999px;width:0%;background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle),var(--mint));transition:width .3s}
   .quiz-prog .count{font-size:13px;font-weight:800;color:var(--deep);white-space:nowrap}
+  .part-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;font-weight:800;letter-spacing:.04em;
+    background:linear-gradient(135deg,rgba(255,178,240,0.35),rgba(144,165,255,0.28));
+    color:var(--deep);padding:4px 14px;border-radius:999px;margin-bottom:10px;
+  }
 
   /* Question */
-  .q-text{
-    font-size:19px;font-weight:800;color:var(--ink);line-height:1.45;margin:4px 0 16px;
-  }
+  .q-text{font-size:19px;font-weight:800;color:var(--ink);line-height:1.45;margin:4px 0 16px}
   .q-sub{font-size:13px;color:var(--ink-soft);font-weight:600;margin:-10px 0 16px}
   .answers{display:flex;flex-direction:column;gap:10px}
   .answer{
@@ -123,29 +125,39 @@
   .quiz-nav{display:flex;justify-content:space-between;margin-top:18px}
 
   /* Results */
-  .result-hero{
+  .recipe{
     text-align:center;padding:8px 0 4px;
   }
-  .result-hero .big-emoji{font-size:56px;line-height:1}
-  .result-hero .r-name{
-    font-family:'Pacifico',cursive;font-size:34px;color:var(--deep);margin:8px 0 2px;
+  .recipe .recipe-label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .recipe .combo{
+    font-family:'Pacifico',cursive;font-size:clamp(24px,4.5vw,32px);color:var(--deep);
+    line-height:1.45;margin:6px 0 2px;
   }
-  .result-hero .r-pct{
-    display:inline-flex;background:linear-gradient(135deg,rgba(255,178,240,0.4),rgba(144,165,255,0.3));
-    color:var(--deep);font-weight:800;font-size:13px;padding:4px 14px;border-radius:999px;
+  .recipe .combo .x{color:var(--pink-hot);padding:0 6px}
+  .recipe .combo-sub{font-size:14px;font-weight:700;color:var(--ink-soft);max-width:520px;margin:6px auto 0;line-height:1.55}
+  .axis-card{
+    margin:16px 0;padding:16px 18px;border-radius:18px;
+    background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.22);
   }
-  .result-desc{font-size:14.5px;line-height:1.65;color:var(--ink);margin:14px 0}
-  .result-block{margin:14px 0;padding:14px 16px;background:rgba(255,255,255,0.6);border-radius:14px;border:1.5px solid rgba(144,165,255,0.2)}
-  .result-block h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--deep)}
-  .result-block ul{margin:0;padding-left:20px;font-size:13.5px;color:var(--ink);line-height:1.6}
-  .result-block li{margin-bottom:5px}
+  .axis-card .ax-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .axis-card .ax-emoji{font-size:34px;line-height:1}
+  .axis-card .ax-kicker{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .axis-card .ax-name{font-family:'Pacifico',cursive;font-size:24px;color:var(--deep);line-height:1.2}
+  .axis-card .ax-pct{
+    margin-left:auto;font-weight:800;font-size:13px;color:var(--deep);
+    background:rgba(144,165,255,0.15);padding:4px 12px;border-radius:999px;white-space:nowrap;
+  }
+  .axis-card p.ax-desc{font-size:14px;line-height:1.6;margin:6px 0 10px}
+  .axis-card h4{margin:10px 0 6px;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--deep)}
+  .axis-card ul{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6}
+  .axis-card li{margin-bottom:5px}
   .runner-up{
     display:flex;align-items:center;gap:12px;
     background:rgba(255,255,255,0.7);border:1.5px solid rgba(144,165,255,0.2);
-    border-radius:14px;padding:12px 16px;margin-bottom:8px;
+    border-radius:14px;padding:10px 16px;margin-bottom:8px;
   }
-  .runner-up .ru-emoji{font-size:26px}
-  .runner-up .ru-name{font-weight:800;color:var(--deep);font-size:14.5px}
+  .runner-up .ru-emoji{font-size:24px}
+  .runner-up .ru-name{font-weight:800;color:var(--deep);font-size:14px}
   .runner-up .ru-desc{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
   .runner-up .ru-pct{margin-left:auto;font-weight:800;font-size:13px;color:var(--deep);background:rgba(144,165,255,0.15);padding:3px 10px;border-radius:999px;white-space:nowrap}
   .result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
@@ -171,26 +183,30 @@
 
   <header class="hero">
     <h1 class="logo">Niche Finder 🔍</h1>
-    <p class="tag">Ten quick questions to find the streaming niche that <em>actually fits you</em> — not the one that's trending this week. No sign-in needed, nothing leaves your browser unless you save the result.</p>
+    <p class="tag">Your niche isn't just the game you play — it's <em>what you do × the energy you bring</em>. Two streamers can play the same game and be completely different channels. This quiz finds both halves of yours.</p>
   </header>
 
   <!-- INTRO -->
   <section class="card" id="introCard">
-    <h2>🌷 Before you start</h2>
+    <h2>🌷 The two halves of a niche</h2>
     <p style="font-size:14.5px;line-height:1.65;margin:0 0 10px">
-      The best niche isn't the biggest one — it's the one you can show up for <strong>every week without dreading it</strong>. This quiz weighs what you actually enjoy, your energy style, and how you like to interact, then matches you against the ten niches the rest of the hub uses.
+      <strong>Part 1 — your content:</strong> the thing you actually do on stream. Not just "gaming" — horror nights, retro deep-cuts, cozy farming sims, karaoke, cooking, study-with-me… the specific corner where people find you.
+    </p>
+    <p style="font-size:14.5px;line-height:1.65;margin:0 0 10px">
+      <strong>Part 2 — your vibe:</strong> the energy you give the room. Chaotic gremlin, cozy campfire, sparkly-wholesome, deadpan and dry, theatrical lore-keeper… the reason people <em>stay</em> after the game ends. The vibe is the part nobody can copy.
     </p>
     <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 14px">
-      Answer honestly, not aspirationally. There's no wrong result — and your top match comes with starter content ideas so you can test-drive it this week.
+      Twelve quick questions, answered honestly (not aspirationally). You'll get your stream recipe — content × vibe — with ideas to test-drive it this week. No sign-in needed.
     </p>
-    <button class="btn" id="startBtn" style="font-size:15px;padding:12px 28px">✨ Find my niche</button>
+    <button class="btn" id="startBtn" style="font-size:15px;padding:12px 28px">✨ Find my recipe</button>
   </section>
 
   <!-- QUIZ -->
   <section class="card hidden" id="quizCard">
+    <span class="part-chip" id="partChip"></span>
     <div class="quiz-prog">
       <div class="bar-wrap"><div class="bar" id="quizBar"></div></div>
-      <span class="count" id="quizCount">1 / 10</span>
+      <span class="count" id="quizCount">1 / 12</span>
     </div>
     <div class="q-text" id="qText"></div>
     <div class="q-sub" id="qSub"></div>
@@ -203,31 +219,27 @@
 
   <!-- RESULTS -->
   <section class="card hidden" id="resultCard">
-    <div class="result-hero">
-      <div class="big-emoji" id="rEmoji"></div>
-      <div class="r-name" id="rName"></div>
-      <span class="r-pct" id="rPct"></span>
+    <div class="recipe">
+      <div class="recipe-label">your stream recipe</div>
+      <div class="combo" id="comboLine"></div>
+      <p class="combo-sub" id="comboSub"></p>
     </div>
-    <p class="result-desc" id="rDesc"></p>
-    <div class="result-block">
-      <h4>🎬 Try these first</h4>
-      <ul id="rIdeas"></ul>
-    </div>
-    <div class="result-block">
-      <h4>💡 What makes this niche work</h4>
-      <ul id="rTips"></ul>
-    </div>
+
+    <div class="axis-card" id="vibeCard"></div>
+    <div class="axis-card" id="nicheCard"></div>
+
     <h2 style="font-size:22px;margin-top:20px">🥈 Close behind</h2>
-    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">Strong second matches — great as a secondary flavor, or for variety days.</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">Strong second matches on both axes — great for variety days, or to blend into your main recipe.</p>
     <div id="runnersUp"></div>
+
     <div id="saveStatus" class="status-banner hidden"></div>
     <div class="result-actions">
       <button class="btn" id="saveBtn">🧠 Save to Creator Memory</button>
-      <button class="btn secondary" id="copyBtn">📋 Copy my result</button>
+      <button class="btn secondary" id="copyBtn">📋 Copy my recipe</button>
       <button class="btn secondary" id="retakeBtn">↺ Retake quiz</button>
     </div>
     <p style="font-size:12.5px;color:var(--ink-soft);margin:12px 0 0;line-height:1.5">
-      Saving sets your <strong>primary niche</strong> in <a href="brand-memory.html" style="color:var(--deep)">Creator Memory</a>, which powers the Optimizer, your creator brief, and the home page. You'll need to be signed in.
+      Saving sets your <strong>primary niche</strong> in <a href="brand-memory.html" style="color:var(--deep)">Creator Memory</a> (and your vibe, if you haven't written one yet) — which powers the Optimizer, your creator brief, and the home page. You'll need to be signed in.
     </p>
   </section>
 
@@ -245,133 +257,235 @@
 const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 
-// Niche keys match Creator Memory / brand-memory.html exactly.
-const NICHES = {
-  gaming:    { emoji:'🎮', name:'Gaming',
-    desc:'You light up when you\'re playing — and your best moments happen mid-game, not between games. Gaming is the biggest pond, but niching down (one genre, one community, one vibe) is how small channels get found in it.',
-    ideas:['Pick ONE game or genre and stream it consistently for a month — algorithm + community both reward it','Clip your genuine reactions (wins, fails, jump scares) into 45–55s shorts','A "first playthrough, no spoilers" series of a beloved game'],
-    tips:['Niche genre > variety at the start: "the cozy farming-sim streamer" is findable, "plays everything" isn\'t','Your personality matters more than your skill — narrate your thinking, react out loud','Use category + tags strategically on Twitch; smaller game categories = easier discovery'] },
-  chatting:  { emoji:'💬', name:'Just Chatting',
-    desc:'Your superpower is conversation — you could fill an hour with a good topic and an empty room, and make the room feel full. Just Chatting rewards personalities who make every viewer feel personally welcomed.',
-    ideas:['Themed talk streams: story time, advice hour, hot-takes-with-chat','React content with real commentary (add your take, don\'t just watch)','"Get ready / cook / craft with me" hangout streams'],
-    tips:['Open-ended questions to chat are your retention engine — never let the room go quiet','A strong topic title beats "chilling" — give people a reason to click','This niche converts HARD to community (Discord) — set it up early'] },
-  art:       { emoji:'🎨', name:'Art / Creative',
-    desc:'You make things — and people love watching things get made. Art streams are cozy, loyal-audience builders, and every stream produces a finished piece you can post everywhere else.',
-    ideas:['Speedpaint shorts from stream footage (huge on YouTube + TikTok)','Emote / sub-badge commissions live on stream','A recurring "request night" where chat picks what you draw'],
-    tips:['Every stream ends with a portfolio piece — double-duty content is your edge','Timelapses are your shorts pipeline; record everything','Art Twitter/X + tags still work — share WIPs, finished pieces, process threads'] },
-  music:     { emoji:'🎵', name:'Music',
-    desc:'Whether it\'s singing, producing, or karaoke chaos, sound is your thing. Music streamers build some of the most devoted audiences — clips travel far, and one good cover can put you on the map.',
-    ideas:['Karaoke night with a consistent weekly slot','Short covers as vertical clips — 45–55s of your best moment','"Making a song from chat\'s prompts" streams'],
-    tips:['Audio quality is your thumbnail — invest there before anything else','Mind DMCA: originals, public domain, or licensed karaoke tracks on stream','Covers on YouTube = searchable evergreen content that feeds the stream'] },
-  variety:   { emoji:'✨', name:'Variety',
-    desc:'You\'re the buffet, not the single dish — and that\'s valid, but it means YOU are the niche. Variety works when your personality is the consistent thread across everything you touch.',
-    ideas:['A weekly anchor: same day, same format, so regulars can rely on something','Series-based variety ("Fridays are horror, Sundays are cozy") instead of random','Shorts that showcase your personality, not the game'],
-    tips:['Variety is a mid-game strategy — most channels grow faster starting focused, then widening','Your brand (name, look, catchphrases) has to carry the channel — invest in it','Schedule consistency replaces content consistency here'] },
-  tech:      { emoji:'💻', name:'Tech',
-    desc:'You\'re the person friends ask before buying anything with a power button. Tech content is search-driven and evergreen — a good explainer keeps pulling viewers for years.',
-    ideas:['"I tried X so you don\'t have to" review shorts','Setup tours + budget build guides (perpetually searched)','Live troubleshooting / build streams with chat'],
-    tips:['SEO is your superpower — title for what people actually search','Honesty builds the audience; affiliate links monetize it','Pair stream content with YouTube explainers — tech viewers binge'] },
-  lifestyle: { emoji:'🌿', name:'Lifestyle',
-    desc:'Your content is your life, curated — routines, cooking, fitness, organization, cozy vibes. Lifestyle audiences follow the person, which makes them incredibly loyal once they\'ve settled in.',
-    ideas:['"Reset day" / routine content — endlessly rewatchable','Cook-along or workout-along streams with chat','Day-in-the-life verticals with strong hooks'],
-    tips:['Aesthetic consistency matters more here than almost any other niche','Decide your privacy boundaries BEFORE you grow — what\'s never on camera','Brands love this niche — keep your media kit current from day one'] },
-  irl:       { emoji:'📱', name:'IRL',
-    desc:'The world is your set — exploring, traveling, events, street food, adventures. IRL is high-effort, high-uniqueness content: nobody can replicate your exact day.',
-    ideas:['Local exploration series ("rating every café in my city")','Event / convention vlogs and live streams','Walk-and-talk streams — IRL\'s answer to Just Chatting'],
-    tips:['Plan your tech: bandwidth, battery, backup — IRL dies by dead phone','Safety first: never show your location in real time at home areas','Edit IRL footage into shorts — it\'s the most clippable niche there is'] },
-  asmr:      { emoji:'🌙', name:'ASMR',
-    desc:'Calm is your craft. ASMR audiences are deeply loyal, watch for hours, and come back nightly — it\'s one of the best retention niches on any platform, and VTuber ASMR is its own beloved corner.',
-    ideas:['Sleep-aid streams with a consistent night slot','Trigger-sampler videos (let new viewers find their trigger)','Ambient "study with me" / rain + whispers loops'],
-    tips:['Your mic IS your channel — a binaural or decent condenser mic is the one non-negotiable','Consistency of vibe beats variety; people return for the exact feeling','Long-form VODs do incredible numbers — stream archives are content'] },
-  vrchat:    { emoji:'🕶️', name:'VRChat',
-    desc:'You come alive in virtual spaces — avatars, worlds, improvised chaos with strangers and friends. VRChat content is community-first and collab-rich, perfect if your favorite part of streaming is the people.',
-    ideas:['World-exploration tours with reactions','Collab bits + improv with other VTubers/VR creators','Avatar showcases and "VRChat after dark" stories (clipped!)'],
-    tips:['Collabs are your growth engine — every guest brings their audience','Clip relentlessly: VRChat moments are short-form gold','Build a recurring in-world event people can attend weekly'] }
+// ============================================================
+//  AXIS 1 — CONTENT NICHES
+//  Each has a `parent` matching the Creator Memory niche keys
+//  (gaming/chatting/art/music/variety/tech/lifestyle/irl/asmr/vrchat)
+//  so saving stays compatible with every other hub tool.
+// ============================================================
+const CONTENT = {
+  cozy_gaming: { emoji:'🌱', name:'Cozy & Indie Gaming', parent:'gaming',
+    desc:'Farming sims, indie gems, low-stakes adventures — games as a warm place to be, not a mountain to climb. One of the friendliest corners for small streamers: cozy-game communities actively seek out small, personal channels.',
+    ideas:['Pick one cozy game and make it "your" game for a month — cozy categories are way less saturated than big titles','Seasonal series: "decorating my farm for spring" type arcs people check back on','Clip gentle funny moments — cozy clips do shockingly well as shorts'] },
+  competitive: { emoji:'🏆', name:'Competitive & FPS', parent:'gaming',
+    desc:'Ranked grinds, aim, game sense, the climb. The biggest pond with the biggest sharks — but skill expression + personality is a proven combo, and educational angles ("why I made this play") cut through.',
+    ideas:['Narrate your decision-making — VOD-review-style commentary makes you watchable even mid-loss','"Road to [rank]" series with visible progress','Clip your best plays AND best tilts — both travel'] },
+  horror_gaming: { emoji:'👻', name:'Horror Gaming', parent:'gaming',
+    desc:'Jump scares, dread, screaming with friends. Horror is one of the most clippable niches in existence — your genuine reactions ARE the content, and co-op horror with proximity chat is a standout trend right now.',
+    ideas:['Weekly horror night with a consistent slot — appointment viewing works for horror','React-cam clips of your best scares → shorts gold','Co-op horror collabs: shared screaming = shared audiences'] },
+  retro: { emoji:'🕹️', name:'Retro & Nostalgia Gaming', parent:'gaming',
+    desc:'Classic consoles, childhood deep-cuts, "remember this?" energy. Retro streaming has grown from a niche hobby into a recognized pillar — nostalgia is an instant emotional hook and the communities are tight-knit.',
+    ideas:['"Beating every [console] classic" checklist series','Pair gameplay with stories — why this game mattered to you','Retro Tuesday: a reliable weekly slot for the nostalgia crowd'] },
+  story_rpg: { emoji:'🗡️', name:'Story & RPG Adventures', parent:'gaming',
+    desc:'Long-form journeys, big choices, getting emotionally destroyed by a plot twist on camera. Story streams build the deepest parasocial-in-a-good-way bonds — your audience experiences the story WITH you.',
+    ideas:['First-playthrough runs of beloved RPGs ("no spoilers!" communities are devoted)','Decision-point chat votes — let chat live the choices with you','Recap shorts: "the story so far" between sessions'] },
+  ttrpg: { emoji:'🎲', name:'TTRPG & Roleplay', parent:'gaming',
+    desc:'D&D actual plays, one-shots, collaborative storytelling. A fast-growing niche with famously loyal audiences — and as a VTuber you\'re already half in character.',
+    ideas:['A monthly one-shot with VTuber friends — low commitment, high chemistry','In-character intros/outros for your campaign episodes','Clip the table\'s best "no way that just happened" moments'] },
+  zatsudan: { emoji:'💬', name:'Talk Shows & Zatsudan', parent:'chatting',
+    desc:'Just Chatting is the single most-watched category on Twitch — pure personality-driven content. Zatsudan (casual talk) streams are where communities actually form: the conversation IS the show.',
+    ideas:['Themed talk nights: advice hour, story time, "rate my hot takes"','A strong topic title beats "chilling" — give every stream a hook','Open-ended questions are your retention engine; never let the room go quiet'] },
+  react: { emoji:'📺', name:'Reaction & Commentary', parent:'chatting',
+    desc:'Videos, drama recaps, trend commentary — with YOUR take as the value-add. Reaction thrives when you pause, argue, and add context; it dies when you just watch.',
+    ideas:['Pick a lane (niche news, weird internet finds, anime trailers) instead of reacting to everything','Pause often — your commentary minutes are the content','Respect fair use: transform, don\'t just replay'] },
+  art_stream: { emoji:'🎨', name:'Art & Illustration', parent:'art',
+    desc:'Live drawing, painting, design. Creative streams are exploding because they feel relaxing, educational, and community-driven — and every stream ends with a finished piece you can post everywhere else.',
+    ideas:['Speedpaint shorts from stream footage — huge on YouTube + TikTok','Emote/badge commissions live on stream (income + content at once)','Request nights where chat picks the subject'] },
+  crafts: { emoji:'🧶', name:'Crafts & Making', parent:'art',
+    desc:'Crochet, cosplay builds, miniatures, keyboards, dioramas — watching things get made is hypnotic, and craft niches are far less saturated than gaming. The process is the show; the reveal is the payoff.',
+    ideas:['Project arcs with a big reveal episode','Timelapse shorts of every build','"Craft along with me" community projects'] },
+  karaoke: { emoji:'🎤', name:'Singing & Karaoke', parent:'music',
+    desc:'Karaoke nights, covers, song requests. One good clip of a genuine voice travels FAR — singing VTubers are a beloved institution and karaoke streams are reliable community events.',
+    ideas:['A weekly karaoke slot people can plan around','45–55s cover clips as verticals — your best 30 seconds, not the whole song','Duet/collab karaoke for shared audiences'] },
+  music_prod: { emoji:'🎧', name:'Music Production & Covers', parent:'music',
+    desc:'Making beats, mixing covers, writing originals live. Production streams attract aspiring artists who stay for hours — it\'s part performance, part masterclass.',
+    ideas:['"Making a song from chat\'s prompts" streams','Before/after mixing shorts — instantly satisfying content','Document one original song start-to-finish as a series'] },
+  edu: { emoji:'🧪', name:'Teaching & Deep Dives', parent:'tech',
+    desc:'Coding, language learning, science, history, game design breakdowns — educational streaming is expanding fast beyond entertainment. Evergreen and searchable: a good explainer keeps pulling viewers for years.',
+    ideas:['"Learn X with me" series — learning in public beats lecturing','Turn each session\'s best insight into a short','Title for what people actually search, not what sounds clever'] },
+  cooking: { emoji:'🍳', name:'Cooking & Food', parent:'lifestyle',
+    desc:'Cook-alongs, recipe experiments, rating snacks, "dinner with chat." Food content is universal — everyone eats — and cooking streams double as cozy hangouts with built-in structure.',
+    ideas:['Weekly cook-along with the recipe posted in Discord beforehand','"Rating cursed snack combos" — chaos + food = clips','Cultural deep-dives: the story behind the dish'] },
+  study: { emoji:'📖', name:'Study-With-Me & Co-working', parent:'lifestyle',
+    desc:'Pomodoro streams, lofi, shared focus. Co-working streams create a sense of accountability viewers genuinely rely on — low-energy to run, high-loyalty to watch, perfect as a second content lane.',
+    ideas:['Fixed daily/weekly focus blocks — reliability IS the product here','Gentle check-ins at breaks; the timer does the heavy lifting','Aesthetic matters: overlay, lofi, ambient sounds'] },
+  irl_explore: { emoji:'📱', name:'IRL & Exploration', parent:'irl',
+    desc:'Exploring, travel, events, food crawls — nobody can replicate your exact day, which makes IRL the most unique-by-default niche. High effort, high memorability.',
+    ideas:['Local series: "rating every café/arcade/park in my city"','Convention + event vlogs (VTuber meetups especially)','Walk-and-talk streams — IRL\'s answer to zatsudan'] },
+  asmr_sub: { emoji:'🌙', name:'ASMR & Sleep Aid', parent:'asmr',
+    desc:'Triggers, ambience, soft-spoken company. ASMR audiences return nightly and watch for hours — one of the strongest retention niches anywhere, and VTuber ASMR is its own devoted corner.',
+    ideas:['A consistent night slot — you\'re part of people\'s sleep routine','Trigger-sampler videos so new viewers find their thing','Long VODs are content: "3 hours of rain + whispers" works'] },
+  vr_worlds: { emoji:'🕶️', name:'VRChat & Virtual Worlds', parent:'vrchat',
+    desc:'World tours, improv with strangers, full-body chaos with friends. VRChat content is collab-rich and endlessly clippable — perfect if your favorite part of streaming is the people.',
+    ideas:['Weekly world-exploration tour with reactions','Recurring in-world event people can attend','Clip relentlessly — VRChat moments are short-form gold'] }
 };
 
 // ============================================================
-//  QUESTIONS — each answer adds weighted points to niches
+//  AXIS 2 — VIBE / ENERGY ARCHETYPES
+//  The half nobody can copy. Based on how the community actually
+//  describes streams: gremlin, cozy, seiso, hype, deadpan, lore…
+// ============================================================
+const VIBES = {
+  cozy: { emoji:'🧸', name:'Cozy Campfire',
+    tagline:'warm, low-pressure, blanket-fort energy',
+    desc:'Your stream feels like a sleepover call with a best friend. People come to you to decompress — the game is almost an excuse. Cozy creators build some of the most loyal, gentle communities on any platform.',
+    lean:['Lean into ritual: same greeting, same wind-down, candle-lit overlay vibes','Titles like "cozy night, come say hi 🌙" filter for exactly your people','Protect the vibe — gentle mod rules keep the room feeling safe'] },
+  gremlin: { emoji:'🐉', name:'Chaotic Gremlin',
+    tagline:'feral, unpredictable, "no thoughts only chaos"',
+    desc:'Unhinged in the most lovable way. You commit to the bit, derail your own streams, and your chat\'s favorite moments are things you never planned. Gremlin energy is THE most clippable vibe in streaming.',
+    lean:['Never delete the chaos — your worst tech disaster is your best clip','Let chat fuel the bits; gremlin thrives on improv prompts','Contrast sells: occasional sincere moments hit 10x harder from a gremlin'] },
+  hype: { emoji:'🎉', name:'Hype Engine',
+    tagline:'loud, celebratory, contagious energy',
+    desc:'You make everything feel like an event. Wins are EXPLOSIVE, losses are dramatic, and your energy physically transfers through the screen. Hype creators turn ordinary moments into appointment viewing.',
+    lean:['Celebrate EVERYTHING — first-time chatters, small goals, tiny wins','Your victory screams are your brand: clip them, soundboard them','Pace yourself: schedule calm segments so the hype stays special (and your voice survives)'] },
+  soothing: { emoji:'🍵', name:'Gentle & Soothing',
+    tagline:'soft-spoken, calming, healing presence',
+    desc:'People literally fall asleep to you — and that\'s the highest compliment. Your steadiness is the product: a calm voice, no sudden spikes, a stream that lowers heart rates. Soothing creators own the night-time hours.',
+    lean:['Audio quality is your everything — invest in the mic first','Consistent late slots: you\'re part of people\'s wind-down routine','Whisper-adjacent content (ASMR, ambience) is a natural expansion'] },
+  seiso: { emoji:'🌸', name:'Sparkly Wholesome',
+    tagline:'sweet, pure, sunshine-coded (seiso!)',
+    desc:'Wholesome, sincere, and somehow always positive without being fake. "Seiso" energy makes viewers protective of you — your community self-moderates because nobody wants to be the one who ruined the vibe.',
+    lean:['Sincerity is the brand: celebrate chat\'s wins, remember the regulars','The occasional accidental innuendo you don\'t notice? Iconic. Don\'t force it','Family-friendly content rating opens sponsor + raid doors others can\'t use'] },
+  deadpan: { emoji:'😶', name:'Deadpan & Dry',
+    tagline:'understated, sharp, devastating one-liners',
+    desc:'You don\'t chase laughs — they come to you. Flat delivery, perfect timing, and the mute-the-mic-and-stare move. Dry humor builds cult followings: harder to find, impossible to leave.',
+    lean:['Trust the silence — your pauses are punchlines','Clip your one-liners with zero context; deadpan clips thrive on confusion','Your chat will be funnier than average. Feature them.'] },
+  lorekeeper: { emoji:'🎭', name:'Theatrical Lore-Keeper',
+    tagline:'immersive, story-driven, always in character',
+    desc:'Your channel is a world, not just a stream. Character arcs, running mysteries, community roles — viewers don\'t just watch, they participate in the story. VTubers are uniquely built for this vibe.',
+    lean:['Seed small mysteries and pay them off weeks later — lore retention is real','Let the community write themselves into the world (named roles, recurring jokes)','Alt outfits/models = canon events. Milk every reveal'] },
+  professor: { emoji:'🤓', name:'Resident Expert',
+    tagline:'curious, infodump-prone, joyfully nerdy',
+    desc:'You can\'t help explaining things — and people love you for it. Tangents become mini-lectures, chat asks you questions like you\'re a search engine, and your enthusiasm makes any topic interesting.',
+    lean:['Embrace the tangent: "okay so FUN FACT—" is your catchphrase energy','Turn every infodump into a clipped short with a searchable title','"Explain it while playing" formats let you teach without lecturing'] }
+};
+
+// ============================================================
+//  QUESTIONS — part 1 scores CONTENT, part 2 scores VIBES
 // ============================================================
 const QUESTIONS = [
-  { q:'It\'s your day off and nobody\'s watching. What are you actually doing?',
+  // ---------- PART 1: CONTENT ----------
+  { part:1, q:'It\'s your day off and nobody\'s watching. What are you actually doing?',
     sub:'Be honest — this is the single best predictor.',
     a:[
-      { e:'🎮', t:'Deep in a game, hours gone, where did the time go', w:{gaming:3, vrchat:1} },
-      { e:'🎨', t:'Making something — drawing, crafting, composing, building', w:{art:3, music:1} },
-      { e:'📱', t:'Out somewhere — exploring, events, anywhere but my desk', w:{irl:3, lifestyle:1} },
-      { e:'💬', t:'Voice chat / hanging out — the talking IS the activity', w:{chatting:3, vrchat:1} }
+      { e:'🏆', t:'Grinding ranked / sweaty multiplayer with friends', w:{competitive:3} },
+      { e:'🗡️', t:'Hours deep in a story game, emotionally compromised', w:{story_rpg:3} },
+      { e:'🌱', t:'Comfy little games — farming, decorating, vibing', w:{cozy_gaming:3} },
+      { e:'🎨', t:'Making something — drawing, crafting, music', w:{art_stream:2, crafts:2, music_prod:1} },
+      { e:'🌍', t:'Out somewhere — exploring, food spots, little adventures', w:{irl_explore:3, cooking:1} },
+      { e:'🎧', t:'In voice chat / VRChat — the hanging out IS the activity', w:{zatsudan:2, vr_worlds:2} }
     ]},
-  { q:'Mid-stream, the game crashes. How do you feel about the next 10 minutes?',
+  { part:1, q:'Pick your 1am binge:',
+    sub:'You make what you consume, better than you think.',
+    a:[
+      { e:'👻', t:'Horror playthroughs and scary story compilations', w:{horror_gaming:3} },
+      { e:'🧠', t:'Video essays, drama recaps, deep-dive commentary', w:{edu:2, react:2} },
+      { e:'🍜', t:'Cooking videos, mukbangs, "I tested this recipe"', w:{cooking:3} },
+      { e:'🎤', t:'Karaoke clips, covers, song breakdowns', w:{karaoke:2, music_prod:2} },
+      { e:'🎲', t:'D&D actual plays and lore explainers', w:{ttrpg:3, story_rpg:1} },
+      { e:'🕹️', t:'Speedruns, retro retrospectives, "remember this game?"', w:{retro:3, competitive:1} }
+    ]},
+  { part:1, q:'You HAVE to host one weekly stream forever. Which one?',
     sub:'',
     a:[
-      { e:'😎', t:'Honestly? That\'s when my stream gets GOOD — pure chat time', w:{chatting:3, variety:1} },
-      { e:'😅', t:'Mild panic — I need the activity, the activity is the content', w:{gaming:2, art:1, music:1} },
-      { e:'🎭', t:'I\'d turn it into a bit — improv mode activated', w:{vrchat:2, variety:2} },
-      { e:'🧘', t:'Calmly fill it — I\'m the steady, soothing type', w:{asmr:3, lifestyle:1} }
+      { e:'☕', t:'Cozy Sunday hangout — tea, chat, soft music', w:{zatsudan:2, asmr_sub:1, cozy_gaming:1} },
+      { e:'🖌️', t:'Art night — requests, commissions, WIPs', w:{art_stream:3, crafts:1} },
+      { e:'😱', t:'Horror night with friends, screaming mandatory', w:{horror_gaming:2, vr_worlds:1} },
+      { e:'🎶', t:'Karaoke night, no skips, chat picks songs', w:{karaoke:3} },
+      { e:'👾', t:'Retro Tuesday — childhood games only', w:{retro:3} },
+      { e:'📚', t:'Morning co-work / study-with-me with lofi', w:{study:3} }
     ]},
-  { q:'What does your ideal stream energy feel like?',
-    sub:'',
-    a:[
-      { e:'🔥', t:'Hype — big reactions, loud moments, adrenaline', w:{gaming:2, irl:1, variety:1} },
-      { e:'🌙', t:'Cozy and calm — a warm blanket of a stream', w:{asmr:3, art:2, lifestyle:1} },
-      { e:'🤹', t:'Chaotic fun — bits, jokes, unpredictable', w:{vrchat:2, variety:2, chatting:1} },
-      { e:'📚', t:'Focused and useful — people leave knowing something', w:{tech:3, lifestyle:1} }
-    ]},
-  { q:'Which compliment would mean the most to you?',
-    sub:'',
-    a:[
-      { e:'🛌', t:'"Your streams help me fall asleep / calm down"', w:{asmr:3, lifestyle:1} },
-      { e:'😂', t:'"I\'ve never laughed so hard at a stream"', w:{variety:2, vrchat:2, gaming:1} },
-      { e:'🧠', t:'"I learned so much from you"', w:{tech:3, art:1} },
-      { e:'🏡', t:'"Your chat feels like home"', w:{chatting:3, music:1} }
-    ]},
-  { q:'How do you feel about talking when nothing is happening?',
-    sub:'Dead air is every new streamer\'s boss fight.',
-    a:[
-      { e:'🗣️', t:'I never stop talking, this is not a problem I have', w:{chatting:3, irl:1} },
-      { e:'🎶', t:'I\'d rather fill it with what I\'m making / playing', w:{art:2, music:2} },
-      { e:'🤝', t:'Easier with other people around to bounce off', w:{vrchat:3, variety:1} },
-      { e:'🤫', t:'Quiet is fine — my content doesn\'t need constant talk', w:{asmr:3, art:1} }
-    ]},
-  { q:'Pick the content you\'d binge at 1am:',
-    sub:'You make what you consume better than you think.',
-    a:[
-      { e:'🎮', t:'Playthroughs, esports, speedruns, game clips', w:{gaming:3} },
-      { e:'🏠', t:'Routines, room makeovers, cooking, day-in-the-life', w:{lifestyle:3, irl:1} },
-      { e:'⚙️', t:'Reviews, teardowns, "is it worth it" videos', w:{tech:3} },
-      { e:'🎤', t:'Covers, karaoke clips, music breakdowns', w:{music:3, asmr:1} }
-    ]},
-  { q:'Your dream collab looks like:',
-    sub:'',
-    a:[
-      { e:'🕶️', t:'A chaotic VRChat lobby full of friends', w:{vrchat:3, variety:1} },
-      { e:'🎮', t:'Duo queue with a streamer I admire', w:{gaming:3} },
-      { e:'🎨', t:'Art trade / drawing each other\'s characters live', w:{art:3} },
-      { e:'🎙️', t:'A podcast-style deep-dive conversation', w:{chatting:3, tech:1} }
-    ]},
-  { q:'How much of your real life are you comfortable showing?',
-    sub:'',
-    a:[
-      { e:'🌍', t:'Lots — my life and surroundings are part of the content', w:{irl:3, lifestyle:2} },
-      { e:'🪞', t:'My space and routines, carefully curated', w:{lifestyle:2, music:1, tech:1} },
-      { e:'🎭', t:'Just my persona — the model IS me, my life stays private', w:{vrchat:2, gaming:1, asmr:1, art:1} },
-      { e:'💬', t:'My thoughts and stories, but not my surroundings', w:{chatting:2, variety:1} }
-    ]},
-  { q:'Which "homework" sounds least painful?',
+  { part:1, q:'Which "homework" sounds least painful?',
     sub:'Every niche has upkeep — pick the one you\'d actually do.',
     a:[
-      { e:'📰', t:'Keeping up with patch notes, metas, and game releases', w:{gaming:3, tech:1} },
-      { e:'🎚️', t:'Tweaking audio gear and testing mic setups', w:{asmr:2, music:2, tech:2} },
-      { e:'🖌️', t:'Practicing my craft a little every day', w:{art:3, music:1} },
-      { e:'🗺️', t:'Scouting places to go and things to try', w:{irl:3, lifestyle:1} }
+      { e:'📰', t:'Patch notes, metas, tier lists', w:{competitive:3} },
+      { e:'🎚️', t:'Practicing vocals or learning the DAW', w:{music_prod:2, karaoke:1} },
+      { e:'🥘', t:'Testing recipes and planning a menu', w:{cooking:3} },
+      { e:'🗺️', t:'Writing a campaign / building lore docs', w:{ttrpg:2, story_rpg:1} },
+      { e:'🔬', t:'Researching a topic until you can teach it', w:{edu:3} },
+      { e:'🧭', t:'Scouting places to go and things to try', w:{irl_explore:3} }
     ]},
-  { q:'A year from now, success looks like…',
+  { part:1, q:'Your dream collab looks like:',
     sub:'',
     a:[
-      { e:'🏆', t:'Being known as one of THE streamers for my game/genre', w:{gaming:2, tech:1, music:1} },
-      { e:'🫂', t:'A tight community that shows up for ME, whatever I do', w:{variety:2, chatting:2} },
-      { e:'💼', t:'My creative work paying for itself — commissions, music, brand deals', w:{art:2, music:2, lifestyle:1} },
-      { e:'🌙', t:'A loyal nightly crowd that needs my stream in their routine', w:{asmr:2, chatting:1, vrchat:1} }
+      { e:'🕶️', t:'A chaotic VRChat lobby full of friends', w:{vr_worlds:3} },
+      { e:'🎮', t:'Duo queue with a streamer you admire', w:{competitive:2} },
+      { e:'🎨', t:'Art trade — drawing each other\'s characters live', w:{art_stream:2, crafts:1} },
+      { e:'👻', t:'Co-op horror, proximity chat, group screaming', w:{horror_gaming:2} },
+      { e:'🎙️', t:'A podcast-style deep conversation', w:{zatsudan:2, react:1} },
+      { e:'🎲', t:'A TTRPG one-shot with a great DM', w:{ttrpg:3} }
+    ]},
+  { part:1, q:'What part of streaming excites you most?',
+    sub:'',
+    a:[
+      { e:'📈', t:'Getting GOOD at something, visibly, over time', w:{competitive:2, retro:1} },
+      { e:'🎁', t:'Making things people can keep — art, songs, builds', w:{art_stream:2, crafts:2, music_prod:1} },
+      { e:'💬', t:'The conversations — chat is the content', w:{zatsudan:2, react:2} },
+      { e:'🕯️', t:'Making a calm corner of the internet (whisper-quiet included)', w:{asmr_sub:3, study:2} },
+      { e:'📖', t:'Stories — living them, telling them, playing them', w:{story_rpg:2, ttrpg:2} },
+      { e:'💡', t:'Sharing what I know and watching it click for someone', w:{edu:2, cooking:1} }
+    ]},
+
+  // ---------- PART 2: VIBE ----------
+  { part:2, q:'Mid-stream, the game crashes. The next ten minutes are…',
+    sub:'Now we find your energy. There are no wrong answers, only chaotic ones.',
+    a:[
+      { e:'🐉', t:'A BIT. Fake outrage, crash lore, chat spamming F', w:{gremlin:3} },
+      { e:'☕', t:'A soft little chat break — honestly, kind of nice?', w:{cozy:2, soothing:1} },
+      { e:'📣', t:'HYPE REDIRECT — "you know what this means… CHAT POLL"', w:{hype:3} },
+      { e:'😶', t:'One dry joke. Fix it calmly. Move on.', w:{deadpan:3} },
+      { e:'🎭', t:'Stay in character: "the simulation resists me again…"', w:{lorekeeper:3} },
+      { e:'🤓', t:'Teachable moment — explain what probably broke', w:{professor:3} }
+    ]},
+  { part:2, q:'The compliment that would make your whole week:',
+    sub:'',
+    a:[
+      { e:'🛌', t:'"Your streams help me fall asleep / calm down"', w:{soothing:3, cozy:1} },
+      { e:'😂', t:'"I have never laughed this hard at a stream"', w:{gremlin:2, deadpan:1} },
+      { e:'🏡', t:'"Your stream feels like a warm hug"', w:{cozy:2, seiso:1} },
+      { e:'⚡', t:'"Your energy is CONTAGIOUS, I was screaming too"', w:{hype:3} },
+      { e:'📜', t:'"I\'m genuinely invested in your lore"', w:{lorekeeper:3} },
+      { e:'🧠', t:'"I learned so much and didn\'t even notice"', w:{professor:3} }
+    ]},
+  { part:2, q:'Your natural speaking energy is closest to…',
+    sub:'',
+    a:[
+      { e:'☄️', t:'Morning radio host who had three espressos', w:{hype:2, gremlin:1} },
+      { e:'📚', t:'Librarian who whispers fun facts', w:{soothing:2, professor:1} },
+      { e:'🌙', t:'Best friend on a late-night sleepover call', w:{cozy:2, seiso:1} },
+      { e:'🎬', t:'Narrator who never fully breaks character', w:{lorekeeper:2, deadpan:1} },
+      { e:'🎪', t:'Stand-up comedian doing crowd work', w:{gremlin:2, deadpan:1} },
+      { e:'🌻', t:'Sparkly camp counselor — everyone\'s included!!', w:{seiso:2, hype:1} }
+    ]},
+  { part:2, q:'Your chat\'s inside jokes would mostly be about…',
+    sub:'',
+    a:[
+      { e:'🌀', t:'The unhinged things you say without noticing', w:{gremlin:2} },
+      { e:'🩷', t:'Your wholesome catchphrases and lil rituals', w:{seiso:2, cozy:1} },
+      { e:'🗝️', t:'The ongoing saga you\'ve all built together', w:{lorekeeper:2} },
+      { e:'🗿', t:'Your devastating deadpan one-liners', w:{deadpan:2} },
+      { e:'🔊', t:'Your victory screams (there are soundboards)', w:{hype:2} },
+      { e:'📊', t:'Your tangents that become full lectures', w:{professor:2} }
+    ]},
+  { part:2, q:'Chat is getting rowdy. You…',
+    sub:'',
+    a:[
+      { e:'😈', t:'Get rowdier. Obviously.', w:{gremlin:2, hype:1} },
+      { e:'🧹', t:'Gently herd everyone back — no hard feelings', w:{seiso:2, cozy:1} },
+      { e:'🫥', t:'Mute mic. Stare at camera. Wait.', w:{deadpan:3} },
+      { e:'🪄', t:'Fold the chaos into the bit / the story', w:{lorekeeper:2} },
+      { e:'🌊', t:'Ride the wave — rowdy chat is GOOD chat', w:{hype:2} },
+      { e:'🫖', t:'Stay steady; your calm settles the room on its own', w:{soothing:2, professor:1} }
+    ]},
+  { part:2, q:'Pick the stream title that feels most "you":',
+    sub:'',
+    a:[
+      { e:'🌙', t:'"cozy night… come say hi ☕"', w:{cozy:2, soothing:1} },
+      { e:'🔥', t:'"I WILL beat this boss or LOSE EVERYTHING"', w:{hype:2, gremlin:1} },
+      { e:'🦝', t:'"no thoughts. only chaos."', w:{gremlin:2} },
+      { e:'🕯️', t:'"chapter VII: the moth remembers"', w:{lorekeeper:2} },
+      { e:'⚙️', t:'"why this game\'s code is held together with tape (live analysis)"', w:{professor:2} },
+      { e:'🌸', t:'"a very pure stream! nothing weird will happen ( ´ ▽ ` )"', w:{seiso:2} }
     ]}
 ];
 
@@ -379,16 +493,17 @@ const QUESTIONS = [
 //  STATE
 // ============================================================
 let qIndex = 0;
-let picks = [];     // index of chosen answer per question
+let picks = [];
 let sb = null;
 let currentUser = null;
-let finalResult = null;
+let finalResult = null;   // { content, vibe, contentRanked, vibeRanked, cScores, vScores }
 
 // ============================================================
 //  QUIZ FLOW
 // ============================================================
 function showQuestion(){
   const q = QUESTIONS[qIndex];
+  document.getElementById('partChip').textContent = q.part === 1 ? '🎬 Part 1 · What you do' : '✨ Part 2 · The energy you bring';
   document.getElementById('quizBar').style.width = Math.round(qIndex / QUESTIONS.length * 100) + '%';
   document.getElementById('quizCount').textContent = (qIndex + 1) + ' / ' + QUESTIONS.length;
   document.getElementById('qText').textContent = q.q;
@@ -412,43 +527,86 @@ function showQuestion(){
 }
 
 function computeScores(){
-  const scores = {};
-  Object.keys(NICHES).forEach(k => scores[k] = 0);
+  const cScores = {}, vScores = {};
+  Object.keys(CONTENT).forEach(k => cScores[k] = 0);
+  Object.keys(VIBES).forEach(k => vScores[k] = 0);
   picks.forEach((pick, i) => {
-    const w = QUESTIONS[i].a[pick].w;
-    Object.keys(w).forEach(k => { scores[k] += w[k]; });
+    const q = QUESTIONS[i];
+    if(pick == null || !q.a[pick]) return;
+    const w = q.a[pick].w;
+    Object.keys(w).forEach(k => {
+      if(q.part === 1) cScores[k] += w[k];
+      else vScores[k] += w[k];
+    });
   });
-  return scores;
+  return { cScores, vScores };
+}
+
+function pct(scores, key){
+  const total = Object.values(scores).reduce((a,b) => a+b, 0) || 1;
+  return Math.round(scores[key] / total * 100);
 }
 
 function showResults(){
-  const scores = computeScores();
-  const total = Object.values(scores).reduce((a,b) => a+b, 0) || 1;
-  const ranked = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
-  const top = ranked[0];
-  finalResult = { key: top, ranked, scores };
+  const { cScores, vScores } = computeScores();
+  const contentRanked = Object.keys(cScores).sort((a,b) => cScores[b] - cScores[a]);
+  const vibeRanked = Object.keys(vScores).sort((a,b) => vScores[b] - vScores[a]);
+  const content = contentRanked[0], vibe = vibeRanked[0];
+  finalResult = { content, vibe, contentRanked, vibeRanked, cScores, vScores };
 
-  const n = NICHES[top];
-  document.getElementById('rEmoji').textContent = n.emoji;
-  document.getElementById('rName').textContent = n.name;
-  document.getElementById('rPct').textContent = Math.round(scores[top] / total * 100) + '% match';
-  document.getElementById('rDesc').textContent = n.desc;
-  document.getElementById('rIdeas').innerHTML = n.ideas.map(i => `<li>${i}</li>`).join('');
-  document.getElementById('rTips').innerHTML = n.tips.map(t => `<li>${t}</li>`).join('');
+  const C = CONTENT[content], V = VIBES[vibe];
+  document.getElementById('comboLine').innerHTML =
+    V.emoji + ' ' + V.name + '<span class="x">×</span>' + C.emoji + ' ' + C.name;
+  document.getElementById('comboSub').textContent =
+    'Anyone can stream ' + C.name.toLowerCase() + ' — but nobody does it with your ' + V.tagline + '. That combination is the niche.';
 
-  document.getElementById('runnersUp').innerHTML = ranked.slice(1, 3).map(k => {
-    const r = NICHES[k];
-    return `
-      <div class="runner-up">
-        <span class="ru-emoji">${r.emoji}</span>
-        <div>
-          <div class="ru-name">${r.name}</div>
-          <div class="ru-desc">${r.desc.split('—')[0].split('.')[0]}.</div>
-        </div>
-        <span class="ru-pct">${Math.round(scores[k] / total * 100)}%</span>
+  document.getElementById('vibeCard').innerHTML = `
+    <div class="ax-head">
+      <span class="ax-emoji">${V.emoji}</span>
+      <div>
+        <div class="ax-kicker">your vibe — the energy you bring</div>
+        <div class="ax-name">${V.name}</div>
       </div>
-    `;
-  }).join('');
+      <span class="ax-pct">${pct(vScores, vibe)}% match</span>
+    </div>
+    <p class="ax-desc">${V.desc}</p>
+    <h4>✨ How to lean into it</h4>
+    <ul>${V.lean.map(t => `<li>${t}</li>`).join('')}</ul>
+  `;
+  document.getElementById('nicheCard').innerHTML = `
+    <div class="ax-head">
+      <span class="ax-emoji">${C.emoji}</span>
+      <div>
+        <div class="ax-kicker">your content — what you do</div>
+        <div class="ax-name">${C.name}</div>
+      </div>
+      <span class="ax-pct">${pct(cScores, content)}% match</span>
+    </div>
+    <p class="ax-desc">${C.desc}</p>
+    <h4>🎬 Try these first</h4>
+    <ul>${C.ideas.map(t => `<li>${t}</li>`).join('')}</ul>
+  `;
+
+  const ru = [];
+  vibeRanked.slice(1, 3).forEach(k => {
+    const r = VIBES[k];
+    ru.push(`<div class="runner-up">
+      <span class="ru-emoji">${r.emoji}</span>
+      <div><div class="ru-name">${r.name} <small style="font-weight:600;color:var(--ink-soft)">· vibe</small></div>
+      <div class="ru-desc">${r.tagline}</div></div>
+      <span class="ru-pct">${pct(vScores, k)}%</span>
+    </div>`);
+  });
+  contentRanked.slice(1, 3).forEach(k => {
+    const r = CONTENT[k];
+    ru.push(`<div class="runner-up">
+      <span class="ru-emoji">${r.emoji}</span>
+      <div><div class="ru-name">${r.name} <small style="font-weight:600;color:var(--ink-soft)">· content</small></div>
+      <div class="ru-desc">${r.desc.split('.')[0]}.</div></div>
+      <span class="ru-pct">${pct(cScores, k)}%</span>
+    </div>`);
+  });
+  document.getElementById('runnersUp').innerHTML = ru.join('');
 
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('resultCard').classList.remove('hidden');
@@ -457,27 +615,39 @@ function showResults(){
 
 // ============================================================
 //  SAVE TO CREATOR MEMORY
+//  niche_primary uses the canonical parent key so every other
+//  hub tool keeps working; vibe text only fills in if empty
+//  (never clobbers something the user wrote themselves).
 // ============================================================
 async function saveToMemory(){
   const status = document.getElementById('saveStatus');
   status.classList.remove('hidden');
-  if(!finalResult){ return; }
+  if(!finalResult) return;
   if(!sb) await initAuth();
   if(!currentUser){
-    status.textContent = '🔐 You\'re not signed in. Open Creator Memory, sign in there, then retake or revisit this page — or just set your niche manually in Creator Memory.';
+    status.textContent = '🔐 You\'re not signed in. Open Creator Memory, sign in there, then come back — or set your niche manually in Creator Memory.';
     status.className = 'status-banner info';
     return;
   }
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = 'Saving…';
   try{
-    // Merge into the existing Creator Memory row — never clobber other fields.
+    const C = CONTENT[finalResult.content], V = VIBES[finalResult.vibe];
     const { data } = await sb.from('planner_brand_memory').select('*').eq('user_id', currentUser.id).maybeSingle();
     const row = data || { user_id: currentUser.id, profile: {}, series: [], links: [], facts: [], settings: {} };
-    row.profile = { ...(row.profile || {}), niche_primary: finalResult.key };
+    const profile = { ...(row.profile || {}) };
+    profile.niche_primary = C.parent;
+    let vibeNote = '';
+    if(!profile.vibe || !String(profile.vibe).trim()){
+      profile.vibe = V.tagline + ' (' + V.name + ')';
+      vibeNote = ' Your vibe ("' + V.name + '") was saved too.';
+    } else {
+      vibeNote = ' Your existing vibe text was left untouched.';
+    }
+    row.profile = profile;
     const { error } = await sb.from('planner_brand_memory').upsert(row, { onConflict: 'user_id' });
     if(error) throw error;
-    status.textContent = '✨ Saved! ' + NICHES[finalResult.key].name + ' is now your primary niche in Creator Memory — the Optimizer and your creator brief will use it.';
+    status.textContent = '✨ Saved! Primary niche set from ' + C.name + '.' + vibeNote + ' The Optimizer and your creator brief will use it.';
     status.className = 'status-banner success';
   }catch(e){
     status.textContent = 'Save failed: ' + (e.message || e) + '. You can set it manually in Creator Memory.';
@@ -488,16 +658,17 @@ async function saveToMemory(){
 
 function copyResult(){
   if(!finalResult) return;
-  const scores = finalResult.scores;
-  const total = Object.values(scores).reduce((a,b) => a+b, 0) || 1;
-  const lines = ['My niche match — Eggie\'s Creator Hub Niche Finder', ''];
-  finalResult.ranked.slice(0, 3).forEach((k, i) => {
-    lines.push((i === 0 ? '🏆 ' : '   ') + NICHES[k].emoji + ' ' + NICHES[k].name + ' — ' + Math.round(scores[k] / total * 100) + '%');
-  });
+  const { content, vibe, contentRanked, vibeRanked, cScores, vScores } = finalResult;
+  const lines = ['My stream recipe — Eggie\'s Creator Hub Niche Finder', ''];
+  lines.push('🏆 ' + VIBES[vibe].emoji + ' ' + VIBES[vibe].name + ' × ' + CONTENT[content].emoji + ' ' + CONTENT[content].name, '');
+  lines.push('Vibe:');
+  vibeRanked.slice(0, 3).forEach((k, i) => lines.push((i === 0 ? '  ★ ' : '    ') + VIBES[k].emoji + ' ' + VIBES[k].name + ' — ' + pct(vScores, k) + '%'));
+  lines.push('Content:');
+  contentRanked.slice(0, 3).forEach((k, i) => lines.push((i === 0 ? '  ★ ' : '    ') + CONTENT[k].emoji + ' ' + CONTENT[k].name + ' — ' + pct(cScores, k) + '%'));
   navigator.clipboard.writeText(lines.join('\n')).then(() => {
     const btn = document.getElementById('copyBtn');
     btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.innerHTML = '📋 Copy my result'; }, 1600);
+    setTimeout(() => { btn.innerHTML = '📋 Copy my recipe'; }, 1600);
   });
 }
 
