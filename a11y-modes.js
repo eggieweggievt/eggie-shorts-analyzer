@@ -53,6 +53,9 @@
     /* ===== 🌙 dark mode — smart invert with accent boost ===== */
     'html[' + ATTR.dark + ']{filter:invert(1) hue-rotate(180deg) saturate(1.35);background:#fff;color-scheme:dark}',
     'html[' + ATTR.dark + '] body{color-scheme:light}',
+    /* the pages' decorative white "sparkle" dots (body::before) invert into
+       dark specks that look like dead pixels — hide them in dark mode */
+    'html[' + ATTR.dark + '] body::before{content:none !important}',
     /* counter-invert real-color content so it keeps true colors */
     'html[' + ATTR.dark + '] img,' +
     'html[' + ATTR.dark + '] video,' +
