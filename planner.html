@@ -4568,7 +4568,9 @@ function renderAttachList(){
     <div class="attach-row">
       <span class="name" title="${escape(a.name)}">📄 ${escape(a.name)}</span>
       <span class="size">${formatFileSize(a.size)}</span>
-      ${a.url ? `<a class="attach-link" href="${escape(a.url)}" target="_blank" rel="noreferrer">Download</a>` : '<span style="font-size:11px;color:var(--ink-soft)">link expired</span>'}
+      ${a.path
+        ? `<a class="attach-link" href="#" data-path="${escape(a.path)}" onclick="dlAttach(event,this);return false;">Download</a>`
+        : (a.url ? `<a class="attach-link" href="${escape(a.url)}" target="_blank" rel="noreferrer">Download</a>` : '<span style="font-size:11px;color:var(--ink-soft)">link expired</span>')}
       <button class="rm" data-rm="${idx}" title="Remove">✕</button>
     </div>
   `).join('');
@@ -7084,9 +7086,9 @@ function openViewModal(item){
     body.push(`<div class="view-section">
       <h4>📎 Uploaded files</h4>
       <div class="view-links">
-        ${item.attachments.map(a => `<a class="view-link" href="${a.url ? escape(safeUrl(a.url)) : '#'}" target="_blank" rel="noreferrer"${!a.url ? ' data-expired="1"' : ''}>
+        ${item.attachments.map(a => `<a class="view-link" href="${a.path ? '#' : (a.url ? escape(safeUrl(a.url)) : '#')}"${a.path ? ` data-path="${escape(a.path)}" onclick="dlAttach(event,this);return false;"` : ' target="_blank" rel="noreferrer"'}${(!a.path && !a.url) ? ' data-expired="1"' : ''}>
           <span class="v-link-label">📄 ${escape(a.name || 'file')}</span>
-          <span class="v-link-url">${a.size ? formatFileSize(a.size) : (!a.url ? 'link expired — open the edit form to refresh' : '')}</span>
+          <span class="v-link-url">${a.size ? formatFileSize(a.size) : ((!a.path && !a.url) ? 'link expired — open the edit form to refresh' : '')}</span>
         </a>`).join('')}
       </div>
     </div>`);
@@ -7343,6 +7345,46 @@ async function handleDelete(){
 // ============================================================
 //  UTILS
 // ============================================================
+// Download a stored file by signing a FRESH URL at click time. Signed URLs only
+// live an hour, so any URL baked into the page at render goes stale if the modal
+// or card sits open — clicking a stale one returns Supabase's
+// "InvalidJWT: exp claim timestamp check failed". Signing on click (after making
+// sure the session is current) avoids that. Mirrors planner-editor.html.
+async function dlAttach(event, el){
+  if(event) event.preventDefault();
+  const path = el && el.getAttribute('data-path');
+  if(!path || !sb) return;
+  const win = window.open('', '_blank');   // open synchronously to keep the user gesture
+  try{
+    let { data: sess } = await sb.auth.getSession();
+    if(!sess || !sess.session){ const r = await sb.auth.refreshSession(); sess = r.data; }
+    const { data, error } = await sb.storage.from('planner-files').createSignedUrl(path, 600);
+    if(error || !data || !data.signedUrl){
+      if(win) win.close();
+      console.warn('signed-url failed', error);
+      dlToast('Couldn’t open that file — refresh the page, then try the download again.');
+      return;
+    }
+    if(win) win.location.href = data.signedUrl; else window.location.href = data.signedUrl;
+  }catch(e){
+    if(win) win.close();
+    console.warn('download failed', e);
+    dlToast('Download failed — refresh the page and try again.');
+  }
+}
+let _dlToastT = null;
+function dlToast(msg){
+  let t = document.getElementById('_dlToast');
+  if(!t){
+    t = document.createElement('div'); t.id = '_dlToast';
+    t.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#4D5BC0;color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:99999;max-width:90%;text-align:center;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(_dlToastT);
+  _dlToastT = setTimeout(() => { t.style.opacity = '0'; }, 4000);
+}
+
 function escape(s){
   return String(s == null ? '' : s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')

@@ -2071,7 +2071,9 @@ function renderProjectCard(p){
       <div class="pc-attach-list">
         ${attachments.map(a => `<div class="row">
           <span class="name">${a.uploaded_by_editor ? '⬆️' : '📄'} ${escape(a.name || 'file')}</span>
-          ${a.url ? `<a href="${escape(safeUrl(a.url))}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>'}
+          ${a.path
+            ? `<a href="#" data-path="${escape(a.path)}" data-name="${escape(a.name || 'file')}" onclick="dlAttach(event,this);return false;">Download</a>`
+            : (a.url ? `<a href="${escape(safeUrl(a.url))}" target="_blank" rel="noreferrer">Download</a>` : '<span style="color:var(--ink-soft)">link expired</span>')}
         </div>`).join('')}
       </div>
     </div>` : '';
@@ -2254,6 +2256,53 @@ async function uploadEditorFile(itemId, files){
   if(saveError){ alert('Saved file but couldn\'t update item: ' + saveError.message); }
   setConn(true, 'Live');
   await loadProjects();
+}
+
+// Download a shared file by signing a FRESH URL at click time.
+// Signed URLs only live an hour, so the ones generated at page load go stale if
+// the editor leaves the dashboard open — clicking a stale one returns Supabase's
+// "InvalidJWT: exp claim timestamp check failed". Signing on click (after making
+// sure the auth session is current) sidesteps that entirely.
+async function dlAttach(event, el){
+  if(event) event.preventDefault();
+  const path = el && el.getAttribute('data-path');
+  if(!path || !sb) return;
+  const label = el.textContent;
+  el.textContent = '…';
+  // Open the tab synchronously so the user gesture survives the await (no popup block).
+  const win = window.open('', '_blank');
+  try{
+    // Refresh the access token first — a long-open dashboard may hold an expired one.
+    let { data: sess } = await sb.auth.getSession();
+    if(!sess || !sess.session){ const r = await sb.auth.refreshSession(); sess = r.data; }
+    const { data, error } = await sb.storage.from('planner-files').createSignedUrl(path, 600);
+    if(error || !data || !data.signedUrl){
+      if(win) win.close();
+      console.warn('signed-url failed', error);
+      dlToast('Couldn’t open that file — try refreshing the page, then download again.');
+      return;
+    }
+    if(win) win.location.href = data.signedUrl; else window.location.href = data.signedUrl;
+  }catch(e){
+    if(win) win.close();
+    console.warn('download failed', e);
+    dlToast('Download failed — refresh the page and try again.');
+  }finally{
+    el.textContent = label;
+  }
+}
+// Tiny self-contained toast (this page had no toast helper).
+let _dlToastT = null;
+function dlToast(msg){
+  let t = document.getElementById('_dlToast');
+  if(!t){
+    t = document.createElement('div'); t.id = '_dlToast';
+    t.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#4D5BC0;color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;max-width:90%;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(_dlToastT);
+  _dlToastT = setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 4000);
 }
 
 function escape(s){
