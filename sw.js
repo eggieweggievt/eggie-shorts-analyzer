@@ -14,7 +14,7 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE).then((c) =>
       Promise.allSettled([
-        'index.html', 'hub-core.js?v=1', 'hub-nav.js?v=7', 'a11y-modes.js?v=4',
+        'index.html', 'hub-core.js?v=1', 'hub-nav.js?v=8', 'a11y-modes.js?v=4',
         'demo-mode.js', 'manifest.webmanifest', 'icon.svg'
       ].map((u) => c.add(u)))
     )

@@ -3,6 +3,17 @@
   "entries": [
     {
       "date": "2026-06-10",
+      "emoji": "🎯",
+      "title": "Optimizer V5 — one card, no steps",
+      "items": [
+        { "type": "improved", "text": "The Optimizer's 3-step wizard is gone. Everything is one card now: say what your short is about, optionally add a working title or your video, hit ✨ Optimize — score, critique, stronger titles, hashtag mix, and your post pack all come back in one flow." },
+        { "type": "improved", "text": "Results lost their tabs too — suggestions and the copy-paste post pack stack right under your score, with the full score breakdown and resource library tucked into expandable sections." },
+        { "type": "improved", "text": "Your inputs stay on screen next to the results, so you can tweak the title and re-optimize without starting over." },
+        { "type": "improved", "text": "Sending a title over from the Planner now lands directly in the card — no step-hopping." }
+      ]
+    },
+    {
+      "date": "2026-06-10",
       "emoji": "📱",
       "title": "The hub becomes an app",
       "items": [

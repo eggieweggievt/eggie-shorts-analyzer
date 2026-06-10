@@ -1181,14 +1181,7 @@
     <p class="ctype-tagline" id="ctypeTagline">Upload a finished short to score it — or just generate titles, tags &amp; a caption.</p>
   </div>
 
-  <!-- WIZARD PROGRESS BAR — shows where you are in the 3-step flow (Short only) -->
-  <nav class="wizard-progress" id="wizardProgress" aria-label="Analyzer steps">
-    <ol>
-      <li class="active" data-step="1" tabindex="0"><span class="step-dot"><span>1</span></span><span class="step-label">Upload</span></li>
-      <li data-step="2" tabindex="0"><span class="step-dot"><span>2</span></span><span class="step-label">Tell me about it</span></li>
-      <li data-step="3" tabindex="0"><span class="step-dot"><span>3</span></span><span class="step-label">Analyze</span></li>
-    </ol>
-  </nav>
+  <!-- (V5 streamline) The old 3-step wizard is now ONE card — see #step2 below. -->
 
   <!-- Consolidated "Analyzing..." banner — replaces stacked progress bars while ML runs -->
   <div class="analyzing-banner" id="analyzingBanner" aria-live="polite">
@@ -1212,56 +1205,23 @@
     </div>
   </div>
 
-  <!-- STEP 1: UPLOAD VIDEO -->
-  <section class="card step-card" id="step1">
-    <div class="step-head">
-      <span class="step-num">1</span>
-      <h2>Upload your video <span class="sub">(recommended)</span></h2>
-    </div>
-    <p class="step-intro">Drop your video in and I'll watch the first 3 seconds &mdash; checking your motion, scene cuts, and audio to score your hook for you.</p>
-
-    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload a video">
-      <span class="big">🐙</span>
-      <p><strong>Click here, or drag in your video</strong><br/>MP4, MOV, or WebM</p>
-      <input type="file" id="videoFile" accept="video/*" />
-    </div>
-    <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
-      First time you upload a video, I download the full ML pipeline (~1.2GB total — Florence-2 vision, Whisper-medium speech, CLIP semantic matching, YAMNet audio classifier) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, <em>hear</em> what's being said with high accuracy, and classify the audio scene. After that they're cached forever and analysis is fast.
-    </p>
-
-    <!-- CLIP + YAMNet are now on by default. No toggles — the analyzer always runs the full pipeline. -->
-
-    <div class="video-preview-wrap" id="videoPreviewWrap">
-      <video id="videoPreview" controls muted playsinline></video>
-      <div class="vid-progress"><div id="vidProgressBar"></div></div>
-      <div class="vid-status" id="vidStatus">Ready when you are</div>
-    </div>
-    <div class="whisper-progress" id="whisperProgress">
-      <div class="wp-head"><div class="wp-spinner"></div><span id="wpTitle">Loading transcription model…</span></div>
-      <div class="wp-stage" id="wpStage">Downloading audio recognition model. This only happens the first time.</div>
-      <div class="wp-bar"><div id="wpBar"></div></div>
-      <div class="wp-detail" id="wpDetail">Starting…</div>
-      <div class="wp-files" id="wpFiles"></div>
-    </div>
-    <div class="vid-result" id="vidResult"></div>
-
-    <div class="step-nav">
-      <span class="step-nav-counter">Step 1 of 3</span>
-      <button class="nav-btn next" type="button" data-go="next">Continue →</button>
-    </div>
-  </section>
-
-  <!-- STEP 2: POST DETAILS -->
+  <!-- ============================================================
+       THE ONE CARD (V5 streamline — Eggie-OS style)
+       Everything lives here: about + working title + type + optional
+       extras + optional video check + the Optimize button.
+       Keeps id="step2" so the stream/long content-type switch can
+       still hide it (WIZARD_IDS); step1/step3 no longer exist.
+       ============================================================ -->
   <section class="card step-card" id="step2">
-    <div class="step-head">
-      <span class="step-num">2</span>
-      <h2>Tell me about your post</h2>
-    </div>
-    <p class="step-intro">A single sentence is enough &mdash; I'll figure out hashtags, suggest titles, and write your post for you. Or fill in the details below for more accuracy.</p>
+    <h2 style="margin-top:0">🎯 Optimize your short</h2>
+    <p class="step-intro">One sentence is enough &mdash; I'll score it, suggest stronger titles, pick the hashtag mix, and write your post. Add the video or extra details below for more accuracy.</p>
 
     <label for="quickContext">What is your short about? <span class="opt">(required)</span></label>
     <input id="quickContext" type="text" placeholder="e.g. I almost died trying to beat Elden Ring DLC" />
     <span class="field-help">One specific sentence. The more concrete (game, topic, moment), the better the hashtag picks.</span>
+
+    <label for="title" style="margin-top:16px">Title / working title <span class="opt">(optional — I'll suggest stronger ones)</span></label>
+    <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
 
     <label style="margin-top:16px">What kind of short is this? <span class="req">(pick at least one)</span></label>
     <div class="short-type-row collapsed" id="shortTypeRow" role="group" aria-label="Short type">
@@ -1318,14 +1278,11 @@
       <input id="shortTypeCustom" type="text" placeholder="Type your own — e.g. cosplay reveal, art timelapse, oddly satisfying…" maxlength="80" />
     </div>
 
-    <details class="collapse-section">
+    <details class="collapse-section" id="postExtras">
       <summary>
-        <span>Add a title, description, or hashtags <span class="hint">— optional, boosts accuracy</span></span>
+        <span>Add a description, template, or hashtags <span class="hint">— optional, boosts accuracy</span></span>
       </summary>
       <div class="collapse-body">
-        <label for="title">Title <span class="opt">(I'll suggest some if blank)</span></label>
-        <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
-
         <label for="description">Description / caption</label>
         <textarea id="description" placeholder="One strong hook sentence + a few keywords / CTA"></textarea>
 
@@ -1347,10 +1304,39 @@
       </div>
     </details>
 
-    <div class="step-nav">
-      <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
-      <span class="step-nav-counter">Step 2 of 3</span>
-      <button class="nav-btn next" type="button" data-go="next">Continue →</button>
+    <details class="collapse-section" id="videoSection">
+      <summary>
+        <span>🎬 Add your video <span class="hint">— optional, I'll watch it and score your hook for you</span></span>
+      </summary>
+      <div class="collapse-body">
+        <p class="step-intro" style="margin-top:0">Drop your video in and I'll watch the first 3 seconds &mdash; checking your motion, scene cuts, and audio to score your hook.</p>
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload a video">
+          <span class="big">🐙</span>
+          <p><strong>Click here, or drag in your video</strong><br/>MP4, MOV, or WebM</p>
+          <input type="file" id="videoFile" accept="video/*" />
+        </div>
+        <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
+          First time you upload a video, I download the full ML pipeline (~1.2GB total — Florence-2 vision, Whisper-medium speech, CLIP semantic matching, YAMNet audio classifier) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, <em>hear</em> what's being said with high accuracy, and classify the audio scene. After that they're cached forever and analysis is fast.
+        </p>
+        <div class="video-preview-wrap" id="videoPreviewWrap">
+          <video id="videoPreview" controls muted playsinline></video>
+          <div class="vid-progress"><div id="vidProgressBar"></div></div>
+          <div class="vid-status" id="vidStatus">Ready when you are</div>
+        </div>
+        <div class="whisper-progress" id="whisperProgress">
+          <div class="wp-head"><div class="wp-spinner"></div><span id="wpTitle">Loading transcription model…</span></div>
+          <div class="wp-stage" id="wpStage">Downloading audio recognition model. This only happens the first time.</div>
+          <div class="wp-bar"><div id="wpBar"></div></div>
+          <div class="wp-detail" id="wpDetail">Starting…</div>
+          <div class="wp-files" id="wpFiles"></div>
+        </div>
+        <div class="vid-result" id="vidResult"></div>
+      </div>
+    </details>
+
+    <div class="big-cta" style="margin-top:18px">
+      <button class="btn" id="fetchBtn">✨ Optimize my short</button>
+      <button class="btn secondary" id="clearBtn" type="button">Clear all</button>
     </div>
   </section>
 
@@ -1361,26 +1347,6 @@
     <input id="retention" type="number" />
     <input id="viewedVsSwiped" type="number" />
   </div>
-
-  <!-- STEP 3: ANALYZE -->
-  <section class="card step-card" id="step3">
-    <div class="step-head">
-      <span class="step-num">3</span>
-      <h2>Ready to analyze?</h2>
-    </div>
-    <p class="step-intro">Click below to run the full pipeline &mdash; multi-frame vision, transcription, OCR, hook scoring, hashtags, the VidIQ-style second opinion, all of it. About 30 seconds after the models are cached.</p>
-
-    <div class="big-cta" style="margin-top:8px">
-      <button class="btn" id="fetchBtn">🐙 Analyze my short</button>
-      <button class="btn secondary" id="clearBtn" type="button">Clear all</button>
-    </div>
-
-    <div class="step-nav">
-      <button class="nav-btn prev" type="button" data-go="prev">← Back</button>
-      <span class="step-nav-counter">Step 3 of 3</span>
-      <span style="flex-shrink:0;font-size:12px;color:var(--ink-soft)">↑ click Analyze when ready</span>
-    </div>
-  </section>
 
   <!-- RESULTS -->
   <section class="card hidden" id="resultsCard">
@@ -1402,26 +1368,37 @@
       </div>
     </div>
 
-    <!-- TABS — split the dense results into focused views -->
-    <nav class="results-tabs" id="resultsTabs" aria-label="Results sections">
-      <button type="button" class="active" data-tab="overview">📊 Overview</button>
-      <button type="button" data-tab="suggestions">✨ Suggestions</button>
-      <button type="button" data-tab="postpack">📋 Post Pack</button>
-      <button type="button" data-tab="resources">📚 Resources</button>
-    </nav>
+    <!-- (V5 streamline) Tabs are gone — results stack in one flow, Eggie-OS style:
+         score → suggestions → post pack → breakdown (collapsed) → resources (collapsed).
+         Order is CSS-driven so the markup didn't have to move. -->
+    <style>
+      #resultsCard{display:flex;flex-direction:column}
+      #resultsCard > #safetySection{order:0}
+      #resultsCard > h2{order:1}
+      #resultsCard > .score-hero{order:2}
+      #resultsCard > [data-panel="suggestions"]{order:3}
+      #resultsCard > [data-panel="postpack"]{order:4}
+      #resultsCard > [data-panel="overview"]{order:6}
+      #resultsCard > [data-panel="resources"]{order:7}
+      #resultsCard > .again-row{order:9}
+      #resultsCard > details.results-panel{margin-top:14px}
+      #resultsCard > details.results-panel > summary{cursor:pointer;font-weight:800;color:var(--deep);font-size:15px;padding:10px 4px}
+      #resultsCard > details.results-panel > summary:hover{color:var(--pink-hot)}
+    </style>
 
-    <!-- OVERVIEW TAB — criteria + checklist (the "score breakdown" view) -->
-    <div class="results-panel" data-panel="overview">
+    <!-- SCORE BREAKDOWN — criteria + checklist (collapsed by default now) -->
+    <details class="results-panel" data-panel="overview">
+      <summary>📊 How the score breaks down — every factor, sorted by impact</summary>
       <h3>Here's how each part scored</h3>
       <p class="grid-intro">Sorted by how much each one moves your score. <strong>High-impact</strong> stuff at the top &mdash; fixing those first gives you the biggest jump.</p>
       <div class="criteria-grid" id="critGrid"></div>
 
       <h3 style="margin-top:24px">What's working, what's not</h3>
       <ul class="checklist" id="checklist"></ul>
-    </div>
+    </details>
 
-    <!-- SUGGESTIONS TAB — actionable fixes + title rewrites + hashtag picks -->
-    <div class="results-panel" data-panel="suggestions" data-tab-hidden="true">
+    <!-- SUGGESTIONS — actionable fixes + title rewrites + hashtag picks -->
+    <div class="results-panel" data-panel="suggestions">
     <div class="suggestions">
       <h3>How to make it better</h3>
       <div id="critique"></div>
@@ -1433,8 +1410,9 @@
     </div>
     <!-- /SUGGESTIONS TAB -->
 
-    <!-- RESOURCES TAB -->
-    <div class="results-panel" data-panel="resources" data-tab-hidden="true">
+    <!-- RESOURCES (collapsed by default now) -->
+    <details class="results-panel" data-panel="resources">
+      <summary>📚 Resources Eggie loves — creators &amp; tools to level up with</summary>
     <section class="resources">
       <h2>📚 Resources Eggie loves</h2>
       <p class="intro">Stuff to actually level up. These are creators, channels, and tools I&apos;ve personally learned from &mdash; bookmark whichever ones match what you&apos;re trying to fix. <a href="growth.html" style="color:var(--deep);font-weight:700;border-bottom:1.5px dashed var(--periwinkle);text-decoration:none">→ Read the full growth playbook here.</a></p>
@@ -1507,11 +1485,11 @@
 
       </div>
     </section>
-    </div>
-    <!-- /RESOURCES TAB -->
+    </details>
+    <!-- /RESOURCES -->
 
-    <!-- POST PACK TAB -->
-    <div class="results-panel" data-panel="postpack" data-tab-hidden="true">
+    <!-- POST PACK -->
+    <div class="results-panel" data-panel="postpack">
     <section class="post-pack">
       <h2>📋 Ready to copy and paste</h2>
       <p class="intro">Made for each app. Just hit copy and paste it in when you're uploading. Use it <strong>before you post</strong> to plan, or <strong>after</strong> to see how your existing post compares.</p>
@@ -4909,17 +4887,9 @@ function renderSafetySection(payload, analysis){
 
 function renderResults(r, payload){
   resultsCard.classList.remove('hidden');
-  // Hide the wizard flow when results take over the view — focus shifts to the score.
-  const wizard = document.getElementById('wizardProgress');
-  if(wizard) wizard.style.display = 'none';
-  for(let i = 1; i <= 3; i++){
-    const c = document.getElementById('step' + i);
-    if(c) c.setAttribute('data-wizard-hidden', 'true');
-  }
-  // Make sure the Overview tab is the default whenever results re-render
-  const overviewBtn = document.querySelector('#resultsTabs button[data-tab="overview"]');
-  if(overviewBtn) overviewBtn.click();
-  // Scroll up to the score
+  // (V5 streamline) The input card stays visible above the results, Eggie-OS
+  // style — tweak a field and hit Optimize again without resetting anything.
+  // Scroll down to the score
   setTimeout(() => resultsCard.scrollIntoView({behavior:'smooth', block:'start'}), 80);
 
   renderSafetySection(payload, r);
@@ -5372,14 +5342,12 @@ function renderPostPack(payload, analysis){
 
 $('againBtn').addEventListener('click', ()=>{
   clearAllInputs();
-  // Restore the wizard view and bring focus back to Step 1
-  const wizard = document.getElementById('wizardProgress');
-  if(wizard) wizard.style.display = '';
-  // Hide the results card again
+  // Hide the results card and hop back up to the (always-visible) input card
   if(resultsCard) resultsCard.classList.add('hidden');
-  // Reset wizard to step 1
-  if(typeof showStep === 'function') showStep(1);
-  else step1.scrollIntoView({behavior:'smooth'});
+  const card = document.getElementById('step2');
+  if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+  const qc = document.getElementById('quickContext');
+  if(qc) setTimeout(()=>qc.focus(), 450);
 });
 $('copyBtn').addEventListener('click', ()=>{
   const text = generatePlainTextReport();
@@ -5471,65 +5439,12 @@ if(document.readyState === 'loading'){
 // CLIP + YAMNet + Whisper-medium are all hardcoded ON now — no toggles to wire.
 
 // ============================================================
-//  WIZARD — step navigation, progress bar sync, show/hide
+//  WIZARD — RETIRED (V5 streamline). The 3-step flow is one card
+//  now, Eggie-OS style. showStep stays as a safe no-op because a
+//  few validation paths still call it behind a typeof guard; the
+//  field focus/flash they also do is all the user needs to see.
 // ============================================================
-let currentStep = 1;
-const TOTAL_STEPS = 3;
-function showStep(n){
-  n = Math.max(1, Math.min(TOTAL_STEPS, n));
-  currentStep = n;
-  // Hide non-active wizard step cards
-  for(let i = 1; i <= TOTAL_STEPS; i++){
-    const card = document.getElementById('step' + i);
-    if(card){
-      if(i === n) card.removeAttribute('data-wizard-hidden');
-      else card.setAttribute('data-wizard-hidden', 'true');
-    }
-  }
-  // Update progress bar
-  const items = document.querySelectorAll('#wizardProgress li');
-  items.forEach(li => {
-    const step = parseInt(li.dataset.step, 10);
-    li.classList.remove('active', 'done');
-    if(step === n) li.classList.add('active');
-    else if(step < n) li.classList.add('done');
-  });
-  // Scroll smoothly back to the wizard so users see the new step from the top
-  const card = document.getElementById('step' + n);
-  if(card){
-    card.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-}
-function wireWizard(){
-  // Per-step prev/next buttons
-  document.querySelectorAll('[data-go]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const dir = btn.dataset.go;
-      if(dir === 'next') showStep(currentStep + 1);
-      else if(dir === 'prev') showStep(currentStep - 1);
-    });
-  });
-  // Clicking on the progress bar items jumps to that step (only if it's a previously-visited step)
-  document.querySelectorAll('#wizardProgress li').forEach(li => {
-    li.addEventListener('click', () => {
-      const target = parseInt(li.dataset.step, 10);
-      if(target && target <= currentStep + 1) showStep(target); // allow jumping forward by 1 too
-    });
-    li.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        li.click();
-      }
-    });
-  });
-  // Initialize at step 1
-  showStep(1);
-}
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', wireWizard, {once:true});
-} else {
-  wireWizard();
-}
+function showStep(){ /* one-card layout — nothing to switch */ }
 
 // Wire the "Show more types ▾" toggle — flips .collapsed on the pill row.
 function wireShortTypeToggle(){
@@ -5555,29 +5470,10 @@ if(document.readyState === 'loading'){
 }
 
 // ============================================================
-//  RESULTS TABS — switch between Overview / Suggestions / Resources / Post Pack
+//  RESULTS TABS — RETIRED (V5 streamline). Panels now stack in one
+//  flow (CSS-ordered inside #resultsCard); breakdown + resources
+//  are collapsed <details> instead of tabs.
 // ============================================================
-function wireResultsTabs(){
-  const tabBar = document.getElementById('resultsTabs');
-  if(!tabBar) return;
-  tabBar.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-tab]');
-    if(!btn) return;
-    const tab = btn.dataset.tab;
-    // Highlight
-    tabBar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
-    // Show / hide panels
-    document.querySelectorAll('.results-panel').forEach(p => {
-      if(p.dataset.panel === tab) p.removeAttribute('data-tab-hidden');
-      else p.setAttribute('data-tab-hidden', 'true');
-    });
-  });
-}
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', wireResultsTabs, {once:true});
-} else {
-  wireResultsTabs();
-}
 
 // ============================================================
 //  Planner integration — read URL hash params and pre-fill fields
@@ -5605,13 +5501,16 @@ function applyPlannerParams(){
     if(hashField){ hashField.value = h; didFill = true; }
   }
   if(didFill){
-    // Jump the user to Step 2 (the content step) so they can see the pre-filled title.
-    // Step navigation uses the wizard step buttons — find Step 2 and click it.
-    const step2Btn = document.querySelector('[data-step-target="2"], [data-step="2"]');
-    if(step2Btn) step2Btn.click();
-    // Flash the title field so it's visible the value came from the planner
+    // (V5 streamline) Everything is one card now. If the planner sent a
+    // description or hashtags, pop open the optional-extras section so the
+    // pre-filled values are visible; then flash + scroll to the title.
+    if(d || h){
+      const extras = document.getElementById('postExtras');
+      if(extras) extras.setAttribute('open', '');
+    }
     const titleField = document.getElementById('title');
     if(titleField){
+      titleField.scrollIntoView({behavior:'smooth', block:'center'});
       titleField.style.boxShadow = '0 0 0 3px var(--periwinkle, #90A5FF)';
       setTimeout(() => { titleField.style.boxShadow = ''; }, 1800);
     }
@@ -8179,7 +8078,7 @@ function renderVideoVerdict(v){
 })();
 </script>
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=7"></script>
+<script src="hub-nav.js?v=8"></script>
 <script>
 /* ============================================================
    EGGIE OPTIMIZER — no-API title / tag / description generator
