@@ -3,6 +3,13 @@
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
+<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Creator Check-In 🌿 — Eggie's Creator Hub</title>
@@ -433,15 +440,7 @@ function localDateKey(d){
   const day = String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
-function mondayOf(d){
-  const x = new Date(d);
-  const dow = (x.getDay()+6)%7;     // 0=Mon … 6=Sun
-  x.setDate(x.getDate()-dow);
-  x.setHours(0,0,0,0);
-  return x;
-}
-function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-function fmtDay(d){ return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+// mondayOf / addDays / fmtDay come from hub-core.js (shared across the hub)
 function isoWeekNumber(d){
   const x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = (x.getUTCDay()+6)%7;
@@ -476,8 +475,15 @@ async function initAuth(){
     if(session?.user){ await onSignIn(session.user); }
     else { showAuthView(); }
     sb.auth.onAuthStateChange((event, session) => {
-      if(session?.user) onSignIn(session.user);
-      else onSignOut();
+      // Tab refocus re-fires SIGNED_IN/TOKEN_REFRESHED for the SAME user —
+      // skip those so we don't reload from the DB and wipe a half-written review.
+      if(event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') return;
+      if(session?.user){
+        if(currentUser && currentUser.id === session.user.id) return;
+        onSignIn(session.user);
+      } else if(event === 'SIGNED_OUT'){
+        onSignOut();
+      }
     });
   }catch(e){
     console.warn('Supabase init failed', e);
@@ -921,8 +927,7 @@ function fallbackCopy(text, done){
 // ============================================================
 //  HELPERS
 // ============================================================
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c =>
-  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// escapeHtml comes from hub-core.js (shared across the hub)
 let toastTimer = null;
 function flashToast(msg){
   const t = document.getElementById('toast');
@@ -943,7 +948,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden && dirt
 // Go
 initAuth();
 </script>
-<script src="hub-nav.js?v=6"></script>
+<script src="hub-nav.js?v=7"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

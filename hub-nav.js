@@ -41,7 +41,9 @@
     ]},
     { emoji: '✨', name: 'More', items: [
       { emoji: '❓', name: 'FAQ & About', href: 'faq.html' },
-      { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' }
+      { emoji: '📜', name: "What's New", href: 'changelog.html' },
+      { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' },
+      { emoji: '🐙', name: 'Eggie OS', href: 'https://eggieweggievt.github.io/Eggie-Personal-OS/', ext: true }
     ]}
   ];
 
@@ -101,6 +103,22 @@
       'text-transform:uppercase;color:#9a93cf;display:flex;align-items:center;gap:6px}',
     '.hubnav-cat .he{font-size:12px}',
     '.hubnav-sep{height:1px;margin:7px 4px 0;background:rgba(144,165,255,0.16)}',
+
+    /* ⚡ quick idea capture */
+    '.hubnav-quick{width:100%;border:none;background:rgba(255,178,240,0.14);cursor:pointer;text-align:left;',
+      'font-family:inherit;font-size:13.5px;font-weight:700;margin-top:2px}',
+    '.hubnav-quick:hover{background:rgba(255,178,240,0.28)}',
+    '.hubnav-qform{padding:7px 6px 4px;display:none}',
+    '.hubnav-qform.open{display:block}',
+    '.hubnav-qi{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:10px;',
+      'border:1.5px solid rgba(144,165,255,0.4);font-family:inherit;font-size:13px;font-weight:600;',
+      'color:var(--deep,#4a4490);background:#fff}',
+    '.hubnav-qi:focus{outline:none;border-color:rgba(255,178,240,0.9);box-shadow:0 0 0 3px rgba(255,178,240,0.25)}',
+    '.hubnav-qrow{display:flex;align-items:center;gap:8px;margin-top:6px}',
+    '.hubnav-qsave{border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;color:#fff;',
+      'padding:6px 14px;border-radius:999px;background:linear-gradient(135deg,#ff9ec8,#9aa6ff)}',
+    '.hubnav-qsave:disabled{opacity:.6;cursor:default}',
+    '.hubnav-qmsg{font-size:11.5px;font-weight:700;color:#6b5f8a}',
 
     '@media print{.hubnav,.back-row[data-hubnav]{display:none!important}}',
     'body.public-mode .hubnav{display:none!important}',
@@ -165,6 +183,13 @@
 
     var html = '';
     html += rowHTML(HOME, here, 'hubnav-home');
+    /* ⚡ quick idea capture — saves a title straight into the planner's Idea column */
+    html += '<button class="hubnav-row hubnav-quick" type="button" title="Save an idea straight to your planner">' +
+      '<span class="he" aria-hidden="true">⚡</span><span>Quick idea → Planner</span></button>';
+    html += '<div class="hubnav-qform">' +
+      '<input class="hubnav-qi" type="text" maxlength="140" placeholder="Idea title… (Enter to save)">' +
+      '<div class="hubnav-qrow"><button type="button" class="hubnav-qsave">Save idea</button>' +
+      '<span class="hubnav-qmsg" aria-live="polite"></span></div></div>';
     CATS.forEach(function (cat) {
       html += '<div class="hubnav-cat"><span class="he" aria-hidden="true">' + cat.emoji + '</span>' + esc(cat.name) + '</div>';
       cat.items.forEach(function (it) { html += rowHTML(it, here, ''); });
@@ -174,6 +199,7 @@
     wrap.appendChild(burger);
     wrap.appendChild(overlay);
     wrap.appendChild(panel);
+    initQuickCapture(panel);
 
     if (isBackRow) {
       /* mount as a SIBLING before the old pill row (which we hide), so page-level
@@ -217,11 +243,89 @@
     window.addEventListener('resize', function () { if (wrap.classList.contains('open')) place(); });
   }
 
+  /* ---- ⚡ quick idea capture → planner_items (status 'idea') ----
+     Uses its own lightweight Supabase client (same pattern as
+     account-menu.js). autoRefreshToken is OFF so it never races the
+     page's own client — it just reads the stored session. In demo
+     mode (?demo=1) window.supabase is the mock, so ideas land in the
+     sandbox planner, never the live one. */
+  var SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
+  var quickSb = null;
+  function quickClient() {
+    return new Promise(function (resolve, reject) {
+      if (quickSb) return resolve(quickSb);
+      function make() {
+        try {
+          quickSb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY,
+            { auth: { persistSession: true, autoRefreshToken: false } });
+          resolve(quickSb);
+        } catch (e) { reject(e); }
+      }
+      if (window.supabase && window.supabase.createClient) return make();
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      s.onload = make;
+      s.onerror = function () { reject(new Error('SDK load failed')); };
+      document.head.appendChild(s);
+    });
+  }
+  function initQuickCapture(panel) {
+    var btn = panel.querySelector('.hubnav-quick');
+    var form = panel.querySelector('.hubnav-qform');
+    var input = panel.querySelector('.hubnav-qi');
+    var save = panel.querySelector('.hubnav-qsave');
+    var msg = panel.querySelector('.hubnav-qmsg');
+    if (!btn || !form || !input || !save || !msg) return;
+    function setMsg(t) { msg.textContent = t || ''; }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      form.classList.toggle('open');
+      if (form.classList.contains('open')) setTimeout(function () { input.focus(); }, 60);
+    });
+    function saveIdea() {
+      var title = (input.value || '').trim();
+      if (!title) { setMsg('Type an idea first 🐣'); input.focus(); return; }
+      save.disabled = true; setMsg('Saving…');
+      quickClient().then(function (sb) {
+        return sb.auth.getSession().then(function (r) {
+          var user = r && r.data && r.data.session && r.data.session.user;
+          if (!user) { setMsg('Sign in on any tool page first 💗'); save.disabled = false; return; }
+          return sb.from('planner_items')
+            .insert({ owner_id: user.id, title: title, status: 'idea' })
+            .then(function (res) {
+              save.disabled = false;
+              if (res && res.error) {
+                console.warn('[Hub quick idea] save failed:', res.error);
+                setMsg('Save failed — try inside the Planner.');
+                return;
+              }
+              input.value = '';
+              setMsg('✨ Saved to your Idea column!');
+              setTimeout(function () { setMsg(''); }, 3500);
+            });
+        });
+      }).catch(function (e) {
+        console.warn('[Hub quick idea]', e);
+        save.disabled = false;
+        setMsg('Save failed — try inside the Planner.');
+      });
+    }
+    save.addEventListener('click', function (e) { e.stopPropagation(); saveIdea(); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); saveIdea(); }
+      e.stopPropagation();   // typing (incl. Escape) shouldn't close the menu
+    });
+    input.addEventListener('click', function (e) { e.stopPropagation(); });
+  }
+
   function rowHTML(item, here, extra) {
-    var active = fileOf(item.href) === here ? ' active' : '';
+    var active = !item.ext && fileOf(item.href) === here ? ' active' : '';
     var aria = active ? ' aria-current="page"' : '';
-    return '<a class="hubnav-row ' + extra + active + '" role="menuitem" href="' + esc(item.href) + '"' + aria + '>' +
-      '<span class="he" aria-hidden="true">' + item.emoji + '</span><span>' + esc(item.name) + '</span></a>';
+    var ext = item.ext ? ' target="_blank" rel="noopener"' : '';
+    var suffix = item.ext ? ' ↗' : '';
+    return '<a class="hubnav-row ' + extra + active + '" role="menuitem" href="' + esc(item.href) + '"' + aria + ext + '>' +
+      '<span class="he" aria-hidden="true">' + item.emoji + '</span><span>' + esc(item.name) + suffix + '</span></a>';
   }
 
   /* script sits at end of <body>, so the DOM is ready — run now (idempotent),

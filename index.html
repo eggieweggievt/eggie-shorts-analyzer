@@ -3,6 +3,13 @@
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
+<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Eggie's Creator Hub 🐙 — Tools + guides for VTubers + streamers</title>
@@ -603,7 +610,7 @@
           <span class="tile-arrow" aria-hidden="true">→</span>
         </a>
 
-        <a class="tile anim" href="brand-memory.html" data-name="Creator Memory" data-search="creator memory profile brand voice tone niche vtuber audience word bank signature phrases series links facts identity ai briefing personalize">
+        <a class="tile anim" href="brand-memory.html" data-name="Creator Memory" data-search="creator memory profile brand voice tone niche vtuber audience word bank signature phrases series links facts identity creator brief personalize">
           <span class="tile-icon" style="background:linear-gradient(135deg, rgba(144,165,255,0.55), rgba(107,228,234,0.45), rgba(255,219,247,0.5))">🧠</span>
           <span class="tile-text">
             <span class="tile-name">Creator Memory</span>
@@ -752,6 +759,7 @@
   <!-- Mini links -->
   <div class="mini-links">
     <a href="faq.html">❔ FAQ · about · niche list · contact</a>
+    <a href="changelog.html">📜 What's new — every hub update</a>
     <a href="growth.html#resources">🔗 Resource library</a>
   </div>
 
@@ -903,8 +911,15 @@
       const { data:{ session } } = await sb.auth.getSession();
       if(session?.user) onSignIn(session.user);
       sb.auth.onAuthStateChange((event, s) => {
-        if(s?.user) onSignIn(s.user);
-        else onSignOut();
+        // Tab refocus re-fires SIGNED_IN/TOKEN_REFRESHED for the SAME user —
+        // skip those so the home dashboard doesn't reload on every tab switch.
+        if(event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') return;
+        if(s?.user){
+          if(currentUser && currentUser.id === s.user.id) return;
+          onSignIn(s.user);
+        } else if(event === 'SIGNED_OUT'){
+          onSignOut();
+        }
       });
     }catch(e){ console.warn('[Hub auth] Supabase init failed:', e); }
   }
@@ -1136,7 +1151,7 @@
 </script>
 
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=6"></script>
+<script src="hub-nav.js?v=7"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

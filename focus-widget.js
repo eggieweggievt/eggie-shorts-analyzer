@@ -155,6 +155,10 @@
       + 'animation:eff-pop .34s cubic-bezier(.18,.9,.32,1.2) both;}'
       + '.eff-toast.eff-leaving{animation:eff-bye .34s ease forwards;}'
       + '.eff-toast b{color:#4D5BC0;}'
+      + '.eff-float.eff-collapsed{padding:8px 13px;gap:0;cursor:pointer;border-radius:999px;}'
+      + '.eff-collapsed .eff-meta,.eff-collapsed .eff-pause,'
+      + '.eff-collapsed .eff-close,.eff-collapsed .eff-min{display:none;}'
+      + '.eff-collapsed .eff-time{font-size:15px;min-width:0;}'
       + '@keyframes eff-pop{from{opacity:0;transform:translateY(14px) scale(.86);}'
       + 'to{opacity:1;transform:translateY(0) scale(1);}}'
       + '@keyframes eff-bye{from{opacity:1;transform:translateY(0) scale(1);}'
@@ -178,13 +182,37 @@
       +   '<span class="eff-mode">Focus session</span></span>'
       + '</button>'
       + '<button class="eff-btn eff-pause" type="button" title="Pause / resume">⏸︎</button>'
+      + '<button class="eff-btn eff-min" type="button" '
+      +   'title="Collapse to a little bubble">–</button>'
       + '<button class="eff-btn eff-close" type="button" '
       +   'title="Hide — go back to the To-Do List to bring it back">✕</button>';
     d.querySelector('.eff-open').addEventListener('click', goToTaskPage);
     d.querySelector('.eff-pause').addEventListener('click', togglePause);
+    d.querySelector('.eff-min').addEventListener('click', function () {
+      setMin(true);
+      d.classList.add('eff-collapsed');
+    });
     d.querySelector('.eff-close').addEventListener('click', dismiss);
+    // Collapsed bubble: any click expands it again (and goes no further).
+    d.addEventListener('click', function (e) {
+      if (!d.classList.contains('eff-collapsed')) return;
+      e.stopPropagation();
+      e.preventDefault();
+      setMin(false);
+      d.classList.remove('eff-collapsed');
+    }, true);
+    if (isMin()) d.classList.add('eff-collapsed');
     document.body.appendChild(d);
     return d;
+  }
+
+  // ---- collapsed-bubble preference (persists across pages) --
+  var MIN_KEY = 'eggieFocusDockMin';
+  function isMin() {
+    try { return localStorage.getItem(MIN_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setMin(v) {
+    try { v ? localStorage.setItem(MIN_KEY, '1') : localStorage.removeItem(MIN_KEY); } catch (e) {}
   }
 
   function ensureMounted() {

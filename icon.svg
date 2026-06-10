@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Eggie's Creator Hub — app icon (scales to any size) -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFB2F0"/>
+      <stop offset="0.55" stop-color="#C9A8FF"/>
+      <stop offset="1" stop-color="#90A5FF"/>
+    </linearGradient>
+    <linearGradient id="egg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFF1FA"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- egg -->
+  <path d="M256 96c-70 0-122 92-122 178 0 76 54 130 122 130s122-54 122-130c0-86-52-178-122-178z" fill="url(#egg)"/>
+  <!-- face -->
+  <circle cx="218" cy="282" r="13" fill="#4a3a6a"/>
+  <circle cx="294" cy="282" r="13" fill="#4a3a6a"/>
+  <path d="M238 316q18 16 36 0" stroke="#4a3a6a" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <!-- blush -->
+  <ellipse cx="186" cy="310" rx="17" ry="10" fill="#FFB2D8" opacity="0.8"/>
+  <ellipse cx="326" cy="310" rx="17" ry="10" fill="#FFB2D8" opacity="0.8"/>
+  <!-- sparkle -->
+  <path d="M388 120l9 24 24 9-24 9-9 24-9-24-24-9 24-9z" fill="#FFFFFF" opacity="0.95"/>
+  <path d="M120 150l6 16 16 6-16 6-6 16-6-16-16-6 16-6z" fill="#FFFFFF" opacity="0.8"/>
+</svg>

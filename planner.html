@@ -3,6 +3,13 @@
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
+<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
 <script src="creator-memory.js"></script><!-- shared read-only loader for the single creator profile -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1200,6 +1207,7 @@
   .view-pills .v-pill.status.script   {background:rgba(255,176,122,0.3);color:#a35c00}
   .view-pills .v-pill.status.recording{background:rgba(144,165,255,0.3);color:#4a3a8a}
   .view-pills .v-pill.status.editing  {background:rgba(201,168,255,0.35);color:#5a3a8a}
+  .view-pills .v-pill.status.edited   {background:rgba(123,216,143,0.32);color:#1f7a40}
   .view-pills .v-pill.status.scheduled{background:rgba(107,228,234,0.35);color:#0b6a76}
   .view-pills .v-pill.status.posted   {background:rgba(168,230,190,0.45);color:#1f6b35}
   .view-pills .v-pill.status.archived {background:rgba(144,165,255,0.15);color:var(--ink-soft)}
@@ -3116,8 +3124,16 @@ async function init(){
 
   // Listen for auth state changes (sign in/out from anywhere)
   sb.auth.onAuthStateChange((event, session) => {
-    if(session?.user) showApp(session.user);
-    else showAuth();
+    // Tab refocus re-fires SIGNED_IN/TOKEN_REFRESHED for the SAME user — skip
+    // those so we don't re-run the full load (items/editors/tweets/realtime)
+    // and jolt the kanban mid-edit.
+    if(event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') return;
+    if(session?.user){
+      if(currentUser && currentUser.id === session.user.id) return;
+      showApp(session.user);
+    } else if(event === 'SIGNED_OUT'){
+      showAuth();
+    }
   });
 }
 
@@ -3336,7 +3352,8 @@ async function resolveOwnerContext(){
       localStorage.setItem('planner_managing_delegation', match.manager_id);
       // Touch last_seen_at so the creator sees their manager is active
       sb.from('planner_managers').update({ last_seen_at: new Date().toISOString() })
-        .eq('id', match.manager_id).then(() => {});
+        .eq('id', match.manager_id)
+        .then(({ error }) => { if(error) console.warn('[Planner] last_seen_at touch failed:', error.message); });
       // Clean ?manage= out of the URL so refreshes don't re-trigger it
       if(urlManage){
         params.delete('manage');
@@ -3448,6 +3465,9 @@ async function loadItems(){
     return;
   }
   items = data || [];
+  // Normalize legacy rows on read — assignee_email must be lowercase+trim
+  // everywhere or editor matching silently fails on mixed-case records.
+  items.forEach(i => { if(i.assignee_email) i.assignee_email = String(i.assignee_email).trim().toLowerCase(); });
   setConn(true, 'Live');
   render();
 }
@@ -3466,7 +3486,7 @@ async function saveItem(item){
     assignee: item.assignee || null,
     // V2: editor + footage + attachment fields
     editor_id: item.editor_id || null,
-    assignee_email: item.assignee_email || null,
+    assignee_email: item.assignee_email ? String(item.assignee_email).trim().toLowerCase() : null,
     footage_url: item.footage_url || null,
     editor_files_url: item.editor_files_url || null,
     attachments: item.attachments || [],
@@ -3551,6 +3571,8 @@ async function loadEditors(){
     return;
   }
   editors = data || [];
+  // Same normalization as items — editor emails must compare cleanly
+  editors.forEach(e => { if(e.email) e.email = String(e.email).trim().toLowerCase(); });
   refreshEditorDropdowns();
 }
 
@@ -8078,7 +8100,7 @@ if(document.readyState === 'loading'){
 }
 </script>
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=6"></script>
+<script src="hub-nav.js?v=7"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

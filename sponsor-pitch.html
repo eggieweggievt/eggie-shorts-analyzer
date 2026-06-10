@@ -3,6 +3,13 @@
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
+<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
 <script src="creator-memory.js"></script><!-- shared read-only loader for the single creator profile -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -691,8 +698,15 @@ async function initAuth(){
     if(session?.user){ await onSignIn(session.user); }
     else { showAuthView(); }
     sb.auth.onAuthStateChange((event, session) => {
-      if(session?.user) onSignIn(session.user);
-      else onSignOut();
+      // Tab refocus re-fires SIGNED_IN/TOKEN_REFRESHED for the SAME user —
+      // skip those so we don't reload from the DB and wipe unsaved edits.
+      if(event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') return;
+      if(session?.user){
+        if(currentUser && currentUser.id === session.user.id) return;
+        onSignIn(session.user);
+      } else if(event === 'SIGNED_OUT'){
+        onSignOut();
+      }
     });
   }catch(e){ console.warn('Supabase init failed', e); showAuthView(); }
 }
@@ -1698,7 +1712,7 @@ function exitImpersonation(){
 // ============================================================
 initAuth();
 </script>
-<script src="hub-nav.js?v=6"></script>
+<script src="hub-nav.js?v=7"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

@@ -109,14 +109,14 @@ CREATE POLICY "owners manage their editors" ON planner_editors
 DROP POLICY IF EXISTS "editors read own profile" ON planner_editors;
 CREATE POLICY "editors read own profile" ON planner_editors
   FOR SELECT
-  USING (email = auth.email());
+  USING (lower(email) = lower(auth.email()));
 
 -- Editors can UPDATE their own profile fields (asset folder, references, notes)
 DROP POLICY IF EXISTS "editors update own profile" ON planner_editors;
 CREATE POLICY "editors update own profile" ON planner_editors
   FOR UPDATE
-  USING (email = auth.email())
-  WITH CHECK (email = auth.email());
+  USING (lower(email) = lower(auth.email()))
+  WITH CHECK (lower(email) = lower(auth.email()));
 
 -- 4. Extend planner_items policies for editor-facing access
 -- Editors see items where their email matches assignee_email
@@ -125,7 +125,7 @@ CREATE POLICY "editors see assigned items" ON planner_items
   FOR SELECT
   USING (
     auth.uid() = owner_id
-    OR assignee_email = auth.email()
+    OR lower(assignee_email) = lower(auth.email())
   );
 
 -- Editors can UPDATE items assigned to them. RLS is whole-row, so we add an
@@ -137,8 +137,8 @@ CREATE POLICY "editors see assigned items" ON planner_items
 DROP POLICY IF EXISTS "editors update assigned items" ON planner_items;
 CREATE POLICY "editors update assigned items" ON planner_items
   FOR UPDATE
-  USING (assignee_email = auth.email())
-  WITH CHECK (assignee_email = auth.email());
+  USING (lower(assignee_email) = lower(auth.email()))
+  WITH CHECK (lower(assignee_email) = lower(auth.email()));
 
 -- Guard: when the writer is NOT the owner and NOT a manager (i.e. an editor),
 -- silently preserve the protected columns. This closes the item-hijack hole

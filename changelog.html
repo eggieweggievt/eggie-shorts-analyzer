@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
+<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What's New 📜 — Eggie's Creator Hub</title>
+<meta name="description" content="Every update to Eggie's Creator Hub, newest first — new tools, improvements, and fixes." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-soft:#FFDBF7; --pink-hot:#FFB2F0; --periwinkle:#90A5FF;
+    --deep:#4D5BC0; --ink:#3a2a5a; --ink-soft:#6b5f8a; --cream:#fff6fb;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:28px 16px 80px;
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(1200px 500px at 80% -10%, rgba(255,178,240,0.25), transparent 60%),
+      radial-gradient(900px 420px at -10% 20%, rgba(144,165,255,0.22), transparent 55%),
+      var(--cream);
+    color:var(--ink);
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  .back-row{display:flex;gap:8px;margin-bottom:18px}
+  h1{font-family:'Pacifico',cursive;font-weight:400;font-size:clamp(28px,5vw,40px);
+     color:var(--deep);margin:6px 0 6px}
+  .sub{color:var(--ink-soft);font-weight:600;margin:0 0 26px;font-size:14.5px;line-height:1.5}
+  .entry{
+    background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.28);
+    border-radius:20px;padding:18px 20px;margin-bottom:16px;
+    box-shadow:0 10px 28px rgba(120,125,200,0.12);
+  }
+  .entry-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .entry-emoji{font-size:22px}
+  .entry-title{font-size:17px;font-weight:800;color:var(--deep)}
+  .entry-date{margin-left:auto;font-size:12px;font-weight:800;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink-soft);background:rgba(144,165,255,0.14);
+    padding:3px 10px;border-radius:999px}
+  ul.items{list-style:none;margin:0;padding:0}
+  ul.items li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;
+    font-size:14px;line-height:1.55;font-weight:600;color:var(--ink)}
+  .badge{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-top:2px}
+  .badge.new{background:rgba(255,178,240,0.4);color:#a23576}
+  .badge.improved{background:rgba(144,165,255,0.28);color:#3c4a9e}
+  .badge.fixed{background:rgba(168,230,190,0.5);color:#1f6b35}
+  .loading,.error{color:var(--ink-soft);font-weight:700;padding:30px 6px;text-align:center}
+  .foot{margin-top:30px;text-align:center;color:var(--ink-soft);font-size:12.5px;font-weight:600;line-height:1.6}
+  @media print{.back-row{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-row"><a href="index.html">← Back to the hub</a></div>
+  <h1>What's New 📜</h1>
+  <p class="sub">Every update to the hub, newest first — so you always know what changed,
+     what's better, and what got fixed. This page updates with every release.</p>
+
+  <div id="log" class="loading">Loading the history…</div>
+
+  <p class="foot">Eggie's Creator Hub · built with love (and zero ads) 🐙<br>
+     Spot something weird after an update? Poke Eggie!</p>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  function fmtDate(s){
+    if(!s) return 'The beginning';
+    try{
+      var d = new Date(s + 'T12:00:00');
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+    }catch(e){ return s; }
+  }
+  function badge(type){
+    var t = (type === 'new' || type === 'improved' || type === 'fixed') ? type : 'improved';
+    var label = t === 'new' ? '✨ New' : t === 'fixed' ? '🛠 Fixed' : '💅 Improved';
+    return '<span class="badge ' + t + '">' + label + '</span>';
+  }
+  function render(entries){
+    var host = document.getElementById('log');
+    if(!entries || !entries.length){
+      host.className = 'error';
+      host.textContent = 'No entries yet — check back soon!';
+      return;
+    }
+    host.className = '';
+    host.innerHTML = entries.map(function(en){
+      var items = (en.items || []).map(function(it){
+        return '<li>' + badge(it.type) + '<span>' + escapeHtml(it.text) + '</span></li>';
+      }).join('');
+      return '<div class="entry">' +
+        '<div class="entry-head">' +
+          '<span class="entry-emoji">' + escapeHtml(en.emoji || '🐙') + '</span>' +
+          '<span class="entry-title">' + escapeHtml(en.title || 'Update') + '</span>' +
+          '<span class="entry-date">' + escapeHtml(fmtDate(en.date)) + '</span>' +
+        '</div><ul class="items">' + items + '</ul></div>';
+    }).join('');
+  }
+  fetch('changelog.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){ render(data && data.entries); })
+    .catch(function(e){
+      var host = document.getElementById('log');
+      host.className = 'error';
+      host.textContent = "Couldn't load the changelog — try a refresh!";
+      console.warn('changelog load failed', e);
+    });
+})();
+</script>
+<script src="hub-nav.js?v=7"></script>
+</body>
+</html>

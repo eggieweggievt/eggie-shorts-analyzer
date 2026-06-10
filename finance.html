@@ -3,6 +3,13 @@
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
 <script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
+<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Finance &amp; Tax 💰 — Eggie's Creator Hub</title>
@@ -477,7 +484,17 @@ async function initAuth(){
     sb=lib.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const {data:{session}}=await sb.auth.getSession();
     if(session?.user){ await onSignIn(session.user); } else { showAuth(); }
-    sb.auth.onAuthStateChange((e,s)=>{ if(s?.user) onSignIn(s.user); else onSignOut(); });
+    sb.auth.onAuthStateChange((e,s)=>{
+      // Tab refocus re-fires SIGNED_IN/TOKEN_REFRESHED for the SAME user — skip
+      // those so we don't reload from the DB and wipe an open entry modal.
+      if(e === 'TOKEN_REFRESHED' || e === 'USER_UPDATED' || e === 'INITIAL_SESSION') return;
+      if(s?.user){
+        if(currentUser && currentUser.id === s.user.id) return;
+        onSignIn(s.user);
+      } else if(e === 'SIGNED_OUT'){
+        onSignOut();
+      }
+    });
   }catch(e){ console.warn('init fail',e); showAuth(); }
 }
 async function onSignIn(user){
@@ -1008,7 +1025,7 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 
 initAuth();
 </script>
-<script src="hub-nav.js?v=6"></script>
+<script src="hub-nav.js?v=7"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

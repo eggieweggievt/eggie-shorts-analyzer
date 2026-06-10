@@ -72,13 +72,13 @@ Deno.serve(async (req) => {
   // ---- 3. Pull the user's planner items (RLS-scoped) ----
   let q = sb
     .from("planner_items")
-    .select("id,title,status,platforms,hook,deadline_at,posted_at,is_priority,notes")
+    .select("id,title,status,platforms,hook,scheduled_at,posted_at,is_priority,notes")
     .neq("status", "archived")
     .limit(300);
 
   // Manager impersonation: page passes the creator's owner id; RLS allows
   // it because planner_is_manager_of(user_id) is true for delegated managers.
-  if (payload.manageOwnerId) q = q.eq("user_id", payload.manageOwnerId);
+  if (payload.manageOwnerId) q = q.eq("owner_id", payload.manageOwnerId);
 
   const { data: items, error: itemsErr } = await q;
   if (itemsErr) return json({ error: "Couldn't read planner: " + itemsErr.message }, 500);
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     status: it.status,
     priority: !!it.is_priority,
     platforms: it.platforms || [],
-    deadline: it.deadline_at,
+    deadline: it.scheduled_at,
     posted: it.posted_at,
     hook: (it.hook || "").slice(0, 160),
     notes: (it.notes || "").slice(0, 200),
@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
   const system =
     "You are the planning assistant inside a VTuber content creator's hub. " +
     "You are given the creator's question and a JSON array of their content items " +
-    "(status is one of idea/script/recording/editing/scheduled/posted). " +
+    "(status is one of idea/script/recording/editing/edited/scheduled/posted). " +
     "Pick the items that best answer the question and rank them most-relevant first. " +
     "Consider priority flags, deadlines, and how far along each item is. " +
     "Reply with ONLY a JSON object, no prose, no markdown fences: " +

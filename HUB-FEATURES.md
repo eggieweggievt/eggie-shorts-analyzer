@@ -68,12 +68,12 @@ All tables live in the Supabase `public` schema unless noted. RLS is on for ever
 
 The core table. Every video / project / piece of content is one row.
 
-Key columns: `id`, `user_id` (the owner), `title`, `status` (`idea` / `script` / `recording` / `editing` / `scheduled` / `posted` / `archived`), `is_priority`, `platforms[]`, `assignee_email`, `deadline_at`, `posted_at`, `hook`, `script`, `hashtags`, `thumbnail_url`, `footage_url`, `editor_files_url`, `editor_notes`, `additional_assets` (JSONB array of `{label, url}`), `attachments` (JSONB array of storage paths), `notes`, `position` (kanban ordering), `analyzer_score`, `analyzer_url`.
+Key columns: `id`, `owner_id` (the owner), `title`, `status` (`idea` / `script` / `recording` / `editing` / `edited` / `scheduled` / `posted` / `archived`), `is_priority`, `platforms[]`, `assignee_email`, `scheduled_at` (doubles as the deadline), `posted_at`, `hook`, `script`, `hashtags`, `thumbnail_url`, `footage_url`, `editor_files_url`, `editor_notes`, `additional_assets` (JSONB array of `{label, url}`), `attachments` (JSONB array of storage paths), `notes`, `position` (kanban ordering), `analyzer_score`, `analyzer_link`.
 
 **RLS:**
 - Owners: full access to their own rows.
-- Editors: SELECT + UPDATE rows where `lower(assignee_email) = auth.email()`.
-- Managers: full access via `planner_is_manager_of(user_id)`.
+- Editors: SELECT + UPDATE rows where `lower(assignee_email) = lower(auth.email())`.
+- Managers: full access via `planner_is_manager_of(owner_id)`.
 
 ### `planner_editors` — Eggie's editor roster
 

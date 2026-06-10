@@ -1,0 +1,15 @@
+{
+  "name": "Eggie's Creator Hub",
+  "short_name": "Creator Hub",
+  "description": "Plan, optimize, and grow your VTuber content — planner, optimizer, habits, media kit, and more. Free, no ads.",
+  "start_url": "index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fff6fb",
+  "theme_color": "#ffd9f3",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "BADGE%201.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

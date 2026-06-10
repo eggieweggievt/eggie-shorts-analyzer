@@ -1,0 +1,75 @@
+{
+  "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. changelog.html renders this file — no other edits needed.",
+  "entries": [
+    {
+      "date": "2026-06-10",
+      "emoji": "📱",
+      "title": "The hub becomes an app",
+      "items": [
+        { "type": "new", "text": "Install the hub like an app! On phone or desktop, your browser now offers 'Install / Add to Home Screen' — the hub opens in its own window and core pages keep working offline." },
+        { "type": "new", "text": "⚡ Quick idea capture — the menu on every page now has a 'Quick idea → Planner' button. Type a title, hit save, and it lands in your planner's Idea column without leaving the page you're on." },
+        { "type": "new", "text": "📜 This page! What's New keeps a running history of every hub update from now on." },
+        { "type": "new", "text": "The floating focus timer can now collapse into a tiny bubble — click – to shrink it, click the bubble to bring it back. It remembers your choice." },
+        { "type": "new", "text": "The menu now links out to Eggie OS, the personal-OS cousin of this hub." },
+        { "type": "improved", "text": "A new shared core (hub-core.js) powers all of this — future pages get the standard helpers and sign-in handling for free." }
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "emoji": "🔍",
+      "title": "Deep audit day — fixes everywhere",
+      "items": [
+        { "type": "fixed", "text": "Switching browser tabs and coming back no longer reloads your data mid-edit on ANY page (it could silently wipe unsaved changes in Creator Memory, Weekly Review, Pitch Builder, Subathon setup, and more)." },
+        { "type": "fixed", "text": "The 'Edited' status pill in the planner's view modal now has its proper green styling." },
+        { "type": "fixed", "text": "Editor emails are now normalized everywhere — editors with mixed-case emails could previously see an empty dashboard." },
+        { "type": "fixed", "text": "Ask-my-planner's server function queried two columns that didn't exist; manager view there works again." },
+        { "type": "improved", "text": "Managers can now see a creator's Tweets planner and to-do categories (was silently empty before)." },
+        { "type": "improved", "text": "Internal docs corrected so future updates are built against the real database shape." }
+      ]
+    },
+    {
+      "date": "2026-06-03",
+      "emoji": "🚀",
+      "title": "V2 launch tools",
+      "items": [
+        { "type": "new", "text": "🎭 Debut Checklist — every step from 'I want to be a VTuber' to debut day, with progress saved to your account." },
+        { "type": "new", "text": "🔍 Niche Finder — a quiz that figures out your content × vibe recipe and saves it straight into Creator Memory." },
+        { "type": "new", "text": "⏱️ Subathon Planner — rules, goals, incentives, schedule and prep checklist, plus a live timer widget you can drop into OBS." }
+      ]
+    },
+    {
+      "date": "2026-06-02",
+      "emoji": "🛡️",
+      "title": "Media kit edit protection",
+      "items": [
+        { "type": "fixed", "text": "The Media Kit no longer resets your unsaved edits when you switch tabs and come back." }
+      ]
+    },
+    {
+      "date": "2026-05-31",
+      "emoji": "✨",
+      "title": "Title engine V4 + home redesign",
+      "items": [
+        { "type": "improved", "text": "The Optimizer's title generator got a much bigger template bank, smarter batching, free synonym enrichment, and a 'show more' button." },
+        { "type": "improved", "text": "The home page got its big redesign — tool tiles with search, grouped by what you're trying to do." }
+      ]
+    },
+    {
+      "date": "2026-05-28",
+      "emoji": "💌",
+      "title": "Sponsor Kit V4",
+      "items": [
+        { "type": "new", "text": "Media Kit — a shareable, public stats page for sponsors, with your branding." },
+        { "type": "new", "text": "Pitch Builder — writes your sponsor outreach (email, DM, follow-ups) from your media kit + Creator Memory." }
+      ]
+    },
+    {
+      "date": null,
+      "emoji": "🌱",
+      "title": "Spring 2026 — the foundation",
+      "items": [
+        { "type": "new", "text": "Where it all started: the Shorts Optimizer and Content Planner core, then editors & delegation, manager co-ownership, To-Dos with focus timer, Sustainable Habits, Weekly Review, Ask My Planner, Finance & Tax, Growth Playbook, Creator Memory, accessibility modes, and the demo sandbox." }
+      ]
+    }
+  ]
+}
