@@ -10,7 +10,6 @@
         { "type": "new", "text": "⚡ Quick idea capture — the menu on every page now has a 'Quick idea → Planner' button. Type a title, hit save, and it lands in your planner's Idea column without leaving the page you're on." },
         { "type": "new", "text": "📜 This page! What's New keeps a running history of every hub update from now on." },
         { "type": "new", "text": "The floating focus timer can now collapse into a tiny bubble — click – to shrink it, click the bubble to bring it back. It remembers your choice." },
-        { "type": "new", "text": "The menu now links out to Eggie OS, the personal-OS cousin of this hub." },
         { "type": "improved", "text": "A new shared core (hub-core.js) powers all of this — future pages get the standard helpers and sign-in handling for free." }
       ]
     },

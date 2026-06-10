@@ -42,8 +42,7 @@
     { emoji: '✨', name: 'More', items: [
       { emoji: '❓', name: 'FAQ & About', href: 'faq.html' },
       { emoji: '📜', name: "What's New", href: 'changelog.html' },
-      { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' },
-      { emoji: '🐙', name: 'Eggie OS', href: 'https://eggieweggievt.github.io/Eggie-Personal-OS/', ext: true }
+      { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' }
     ]}
   ];
 
