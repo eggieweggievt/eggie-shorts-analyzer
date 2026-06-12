@@ -1,5 +1,5 @@
 {
-  "lastRefreshed": "2026-05-25",
+  "lastRefreshed": "2026-06-12",
   "note": "Watchlist of VTuber / streamer channels Eggie wants to track for tag pool growth. The weekly channel-watchlist scheduled task pulls each channel's latest videos via VidIQ and extracts vocabulary not yet in tags.json. Add channels by appending to the list — handle, channelId, or YouTube URL all work.",
 
   "channels": [
@@ -12,45 +12,45 @@
     },
     {
       "handle": "@Draugr_VT",
-      "channelId": null,
+      "channelId": "UCiXxSqhsFXAZRoO-cIEZltQ",
       "subs": null,
       "niche": "vtuber",
-      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+      "notes": "Original curation pull, 2026-05 — ID resolved 2026-06-12"
     },
     {
       "handle": "@NoxKingVT",
-      "channelId": null,
+      "channelId": "UCbIg1zkaJUamQxWfIeU25Iw",
       "subs": null,
       "niche": "vtuber",
-      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+      "notes": "Original curation pull, 2026-05 — ID resolved 2026-06-12"
     },
     {
       "handle": "@nyoomiepiyu",
-      "channelId": null,
+      "channelId": "UCkKb12m0IDIADlTQ5WxMcGQ",
       "subs": null,
       "niche": "vtuber",
-      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+      "notes": "Original curation pull, 2026-05 — ID resolved 2026-06-12"
     },
     {
       "handle": "@rotlia",
-      "channelId": null,
+      "channelId": "UCLFk-ZlKfXH8hSBADtobGHg",
       "subs": null,
       "niche": "vtuber",
-      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+      "notes": "Original curation pull, 2026-05 — ID resolved 2026-06-12 (channel title: Celestia)"
     },
     {
       "handle": "@adarablekitten",
-      "channelId": null,
+      "channelId": "UC7P2rrECDdUd_WPSS3XiDOg",
       "subs": null,
       "niche": "vtuber",
-      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+      "notes": "Original curation pull, 2026-05 — ID resolved 2026-06-12"
     },
     {
       "handle": "@RheyaHeart",
-      "channelId": null,
+      "channelId": "UCrkWTVp1o8cqNKIhdXr_rzg",
       "subs": null,
       "niche": "vtuber",
-      "notes": "Original curation pull, 2026-05 — needs handle resolution"
+      "notes": "Original curation pull, 2026-05 — ID resolved 2026-06-12"
     },
     {
       "handle": "@Sinder",
@@ -135,12 +135,187 @@
       "subs": 4430,
       "niche": "vtuber tech / model tutorials",
       "notes": "VTuber model tutorials — sign language toggles, hand toggles, motion settings. Adds technical vocabulary. Added 2026-05 from VidIQ outliers."
+    },
+    {
+      "handle": "@chibidoki",
+      "channelId": "UCoqNvjhUxJRYW4JsT5fBK6w",
+      "subs": 1270000,
+      "niche": "vtuber gaming / shorts machine, big benchmark",
+      "notes": "1.27M — 35 shorts/30d, huge Shorts views. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@tfmjonny",
+      "channelId": "UCYsGgCD6kvTEYo-Q75VD64g",
+      "subs": 1350000,
+      "niche": "wolf boy vtuber, VR comedy/music, big benchmark",
+      "notes": "1.35M and still breakout-flagged — 29 shorts/30d. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@neurosama",
+      "channelId": "UCLHmLrj4pHHg3-iBJn_CqxA",
+      "subs": 904000,
+      "niche": "AI vtuber, big benchmark",
+      "notes": "904K — biggest AI VTuber phenomenon, shorts-first channel. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@niminightmare",
+      "channelId": "UCIfAvpeIWGHb0duCkMkmm2Q",
+      "subs": 711000,
+      "niche": "baku nurse vtuber, covers + gaming, big benchmark",
+      "notes": "711K — strong Shorts views. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@cyyuvods",
+      "channelId": "UCCCM6UkFxxJV-5jE-EYS1ag",
+      "subs": 565000,
+      "niche": "voice actor vtuber, RPG + reactions, big benchmark",
+      "notes": "565K — 27 shorts/30d, VA angle adds voiceover vocabulary. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@mariamarionette",
+      "channelId": "UCwaS8_S7kMiKA3izlTWHbQg",
+      "subs": 474000,
+      "niche": "NIJISANJI EN vtuber, music/dance, big benchmark",
+      "notes": "474K — corpo (NIJI EN) representation for agency vocabulary. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@smugalana",
+      "channelId": "UCSE_JyJeiJQvg3RCnSD272Q",
+      "subs": 466000,
+      "niche": "yapping fox vtuber, online-culture commentary, big benchmark",
+      "notes": "466K, breakout-flagged — 118 shorts/30d, commentary/drama vocabulary. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@rosedoodle",
+      "channelId": "UCihXhXRz8tj91hBptuSsQ0g",
+      "subs": 447000,
+      "niche": "art + gaming vtuber, big benchmark",
+      "notes": "447K — art-focused VTuber at scale, strong fit with Eggie's design audience. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@matarakan",
+      "channelId": "UCxx2uRmAwkhb3QJMfLssgsw",
+      "subs": 272000,
+      "niche": "VShojo cockroach vtuber, gaming + food, big benchmark",
+      "notes": "272K — VShojo representation. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@giwivt",
+      "channelId": "UCgtc4BwFJXyYzjGKph6gFtQ",
+      "subs": 236000,
+      "niche": "worm vtuber, animation + collabs, big benchmark",
+      "notes": "236K, breakout-flagged — viral shorts (7.9M shorts views/30d on 5 uploads). Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@donutpunks",
+      "channelId": "UCKo5vIjx8iEEOHQGr9Xzvuw",
+      "subs": 208000,
+      "niche": "vtuber gaming memes, shorts machine, big benchmark",
+      "notes": "208K — 43 shorts/30d, meme/brainrot-adjacent vocabulary. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@tsunamicatvt",
+      "channelId": "UC62ZEUM6JGZfb8poeIx0ypA",
+      "subs": 193000,
+      "niche": "cat girl vtuber, horror + co-op variety, big benchmark",
+      "notes": "193K — horror/friendslop vocabulary at scale, close to Eggie's niche. Added 2026-06-12 top-performer scan (benchmark tier)."
+    },
+    {
+      "handle": "@silliestmootant",
+      "channelId": "UCmcFcGFp7c-felbdOC0Fx1w",
+      "subs": 23600,
+      "niche": "vtuber clips (Crelly), shorts-first",
+      "notes": "23.6K — 21 shorts/30d, 2.3M shorts views/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@valskiela",
+      "channelId": "UCMdUTcbonAyGY0ErJsuSqbQ",
+      "subs": 10300,
+      "niche": "hololive ID/EN clips (Kaela)",
+      "notes": "10.3K — high-volume clipper, big views. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@rightmeowch",
+      "channelId": "UC2Xt5teoDIQ-CbeypRPmpnw",
+      "subs": 7360,
+      "niche": "hololive EN clips, shorts-first",
+      "notes": "7.4K, +22% subs/30d, 1.2M shorts views/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@orimorivt",
+      "channelId": "UCsON2Jf6rdhnDL5ZYdBkhzg",
+      "subs": 6810,
+      "niche": "vtuber clips / streaming highlights",
+      "notes": "6.8K breakout. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@moomerrily",
+      "channelId": "UCkZBr1A5CYYKh5ng7E3ta5Q",
+      "subs": 4670,
+      "niche": "vtuber streaming highlights + music, shorts-first",
+      "notes": "4.7K, +20% subs/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@grimmivirus",
+      "channelId": "UCHLaE55Fza7-UlwB4I28u8Q",
+      "subs": 3090,
+      "niche": "indie vtuber clips (Grimmi)",
+      "notes": "3.1K, +34% subs/30d, 30 shorts/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@heheclipper",
+      "channelId": "UCd9vQXOTusu7ipZSmXvmuFw",
+      "subs": 3040,
+      "niche": "hololive ID clips (Moona), EN subs",
+      "notes": "3K breakout clipper. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@favoritevt",
+      "channelId": "UC24wYvsE3rcfy39J6-cTaGg",
+      "subs": 2990,
+      "niche": "indie vtuber comedy / scuffed energy",
+      "notes": "3K, +33% subs/30d, +644%/1y. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@evie_chuu",
+      "channelId": "UCM5TGHl6rfNz4_U69WThmsw",
+      "subs": 2930,
+      "niche": "demon princess vtuber, twitch clips (18+)",
+      "notes": "2.9K, +103% subs/30d, 32 shorts/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@valdimireedits",
+      "channelId": "UCxtuf-LK7-ZBGG5GzxAokvQ",
+      "subs": 2770,
+      "niche": "vtuber clips / edits, multi-creator",
+      "notes": "2.8K, 21 shorts/30d, 3.4M lifetime views. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@allyfun",
+      "channelId": "UC-JrRP6jwVpU3abTLJ_Q0Bw",
+      "subs": 2170,
+      "niche": "vtuber clips, multi-creator",
+      "notes": "2.2K, +97% subs/30d, +110% views/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@ouncemilia",
+      "channelId": "UCiwKTCBXaJDUgjT7U6LAudg",
+      "subs": 1440,
+      "niche": "tooth fairy possum vtuber, comedy clips",
+      "notes": "1.4K Twitch partner, +27% subs/30d, 28 shorts/30d. Added 2026-06-12 top-performer scan (fast-growing tier)."
+    },
+    {
+      "handle": "@femboysfridays",
+      "channelId": "UCF1vXDN_kOYEnYtBjxjOmCQ",
+      "subs": 1260,
+      "niche": "femboy gaming vtuber (18+)",
+      "notes": "1.3K, +38% subs/30d — pairs with the new femboy tag candidate from today's scan. Added 2026-06-12 top-performer scan (fast-growing tier)."
     }
   ],
 
   "settings": {
     "videosPerChannel": 10,
     "minOccurrencesToFlag": 2,
-    "credits": "~5 credits per channel per run (channel_videos call). 18 channels = ~90 credits/week."
+    "credits": "~5 credits per channel per run (channel_videos call). 44 channels = ~220 credits/week."
   }
 }

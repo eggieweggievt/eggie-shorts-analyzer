@@ -7391,6 +7391,27 @@ async function handleSave(){
   $('saveItemBtn').disabled = false;
   $('saveItemBtn').innerHTML = '💾 Save';
   if(saved){
+    // 🌱 V3 — gentle duplicate whisper. The same idea getting captured twice
+    // is classic object-permanence stuff — this never blocks (it already
+    // saved), it just mentions the lookalike so YOU decide.
+    try{
+      if(!editingItemId){
+        const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+        const a = new Set(norm(saved.title));
+        if(a.size >= 2){
+          const dup = items.find(it => {
+            if(it.id === saved.id || (it.status || '') === 'archived') return false;
+            const b = norm(it.title);
+            if(b.length < 2) return false;
+            const overlap = b.filter(w => a.has(w)).length;
+            return overlap / Math.max(a.size, b.length) >= 0.6;
+          });
+          if(dup && typeof dlToast === 'function'){
+            dlToast(`🌱 Saved! Heads up — it looks a lot like “${(dup.title || '').slice(0, 60)}” (${dup.status}). Same thought twice? Archiving one is guilt-free.`);
+          }
+        }
+      }
+    }catch(e){}
     closeModal();
     // Real-time sub will reload, but for snappiness reload immediately
     loadItems();

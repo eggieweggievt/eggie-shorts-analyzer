@@ -1316,8 +1316,12 @@
           <input type="file" id="videoFile" accept="video/*" />
         </div>
         <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5">
-          First time you upload a video, I download the full ML pipeline (~1.2GB total — Florence-2 vision, Whisper-medium speech, CLIP semantic matching, YAMNet audio classifier) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, <em>hear</em> what's being said with high accuracy, and classify the audio scene. After that they're cached forever and analysis is fast.
+          First time you upload a video, I download the full ML pipeline (Florence-2 vision, Whisper speech-to-text, CLIP semantic matching, YAMNet audio classifier) so I can <em>see</em> what's in your video, <em>read any text on screen</em>, <em>hear</em> what's being said, and classify the audio scene. After that they're cached forever and analysis is fast. Machine learning, on your device — nothing generative, nothing uploaded.
         </p>
+        <label style="display:flex;align-items:flex-start;gap:8px;margin:10px 0 0;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer">
+          <input type="checkbox" id="whisperFastToggle" style="width:16px;height:16px;margin-top:1px;accent-color:var(--deep)" />
+          <span>⚡ Fast mode — smaller speech model (~40MB instead of ~770MB). First run downloads way less; trade-off is a little accuracy on slang + niche names. <span style="font-weight:600;color:var(--ink-soft)">Takes effect on the next page load.</span></span>
+        </label>
         <div class="video-preview-wrap" id="videoPreviewWrap">
           <video id="videoPreview" controls muted playsinline></video>
           <div class="vid-progress"><div id="vidProgressBar"></div></div>
@@ -6006,11 +6010,17 @@ async function clipClassifyFrame(canvas, candidateLabels){
 }
 
 // Whisper transcription (lazy-loaded via transformers.js).
-// Hardcoded to whisper-medium.en (~770MB) for substantially better accuracy on slang, fast
+// Default stays whisper-medium.en (~770MB) for substantially better accuracy on slang, fast
 // speech, and proper nouns — VTuber content has lots of all three. First-time download is
 // the cost; afterward it's cached in the browser forever.
+// V5.2 (2026-06-12) — opt-in ⚡ FAST MODE swaps in whisper-tiny.en (~40MB): first run drops
+// from ~1.2GB to ~450MB of downloads at the cost of some slang accuracy. Saved per browser.
 let whisperLoader = null;
-const WHISPER_MODEL_ID = 'Xenova/whisper-medium.en';
+const WHISPER_FAST_KEY = 'eggie-whisper-fast';
+function whisperFastMode(){
+  try{ return localStorage.getItem(WHISPER_FAST_KEY) === '1'; }catch(e){ return false; }
+}
+const WHISPER_MODEL_ID = whisperFastMode() ? 'Xenova/whisper-tiny.en' : 'Xenova/whisper-medium.en';
 function showWhisperPanel(show){
   const panel = document.getElementById('whisperProgress');
   if(panel) panel.classList.toggle('active', !!show);
@@ -8135,6 +8145,18 @@ function renderVideoVerdict(v){
   if(clearBtn) clearBtn.addEventListener('click', function(){
     try{ localStorage.removeItem(KEY); }catch(e){}
   });
+
+  /* ---- ⚡ Whisper fast-mode toggle (V5.2) ---- */
+  var fastToggle = document.getElementById('whisperFastToggle');
+  if(fastToggle){
+    try{ fastToggle.checked = localStorage.getItem('eggie-whisper-fast') === '1'; }catch(e){}
+    fastToggle.addEventListener('change', function(){
+      try{
+        if(fastToggle.checked) localStorage.setItem('eggie-whisper-fast', '1');
+        else localStorage.removeItem('eggie-whisper-fast');
+      }catch(e){}
+    });
+  }
 
   /* ---- ⭐ Eggie's pick — badge the first suggested title ---- */
   var list = document.getElementById('titleSuggestions');

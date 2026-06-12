@@ -1,7 +1,22 @@
 {
   "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. 'upcoming' is a plain list of strings shown as a 'Coming soon' card — announce UI changes BEFORE shipping them, then move them into a real entry when they land. changelog.html renders this file — no other edits needed.",
-  "upcoming": [],
+  "upcoming": [
+    "The Optimizer starts learning from YOUR results — titles and tags that performed well for your channel get quietly boosted (your data, your device, just math).",
+    "Auto-filled view counts for posted videos via YouTube's free feeds, so the learning loop feeds itself.",
+    "Title ↔ thumbnail match check — the vision model measures whether your thumbnail shows what your title promises.",
+    "A '📈 your patterns' panel — best posting days, idea-to-posted speed, and your focus hours, computed from your own history."
+  ],
   "entries": [
+    {
+      "date": "2026-06-12",
+      "emoji": "🤖",
+      "title": "Machine learning ≠ generative AI — said properly now",
+      "items": [
+        { "type": "improved", "text": "The FAQ now explains the hub's tech precisely: it runs MACHINE LEARNING (speech-to-text, image understanding, meaning-based search, statistics over real performance data) — and contains ZERO generative AI. Nothing here invents content with a language model, nothing you make trains one, and the on-device models only ever recognize, never generate." },
+        { "type": "new", "text": "⚡ Fast mode in the Optimizer's video check — an optional smaller speech model (~40MB instead of ~770MB) so the first-ever video analysis downloads way less. Default stays the high-accuracy model; the toggle remembers your choice." },
+        { "type": "new", "text": "🌱 The planner now gives a gentle heads-up when a brand-new card looks like one you already have — it saves either way (capturing twice is normal!), it just points out the lookalike so you can merge or archive guilt-free." }
+      ]
+    },
     {
       "date": "2026-06-12",
       "emoji": "🔭",
