@@ -15,7 +15,8 @@
         { "type": "new", "text": "🎭 Tone shifter — paste a message and nudge it more formal, more casual, softer, shorter, or less sorry (the hedge-remover for over-apologizers)." },
         { "type": "new", "text": "⚖️ Tone read — a heuristic read of how your message comes across, with receipts: it shows exactly which words triggered the verdict so YOU stay the judge." },
         { "type": "new", "text": "⏳ Time guesser — honest time estimates with the real-brain buffer built in, plus a 'block this much' suggestion so finishing early beats running late." },
-        { "type": "improved", "text": "Everything in the Toolbox runs on hand-written rules in your browser — nothing you type is sent anywhere. Inspired by goblin.tools (whose lovely AI versions live at goblin.tools); the brain-dump goblin already lives on the To-Do list." }
+        { "type": "improved", "text": "Everything in the Toolbox runs on hand-written rules in your browser — nothing you type is sent anywhere. Inspired by goblin.tools (whose lovely AI versions live at goblin.tools); the brain-dump goblin already lives on the To-Do list." },
+        { "type": "improved", "text": "The Toolbox got front-door parking: a quick strip right under the home page search jumps straight to each tool, plus its own tile in Plan & Organize and a spot in the menu under More." }
       ]
     },
     {

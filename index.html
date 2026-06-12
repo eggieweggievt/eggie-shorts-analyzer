@@ -551,6 +551,34 @@
     </div>
   </div>
 
+  <!-- ===== 🧰 TOOLBOX QUICK STRIP (2026-06-12) =====
+       Always visible under the search bar — the little brain tools deserve
+       front-door parking, not a glovebox. Each link deep-links straight to
+       its card on toolbox.html. -->
+  <style>
+    .tbx-strip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 18px;
+      background:linear-gradient(135deg,rgba(255,213,138,0.18),rgba(255,178,240,0.14),rgba(144,165,255,0.12));
+      border:1.5px solid rgba(255,213,138,0.45);border-radius:16px;padding:10px 14px}
+    .tbx-strip .tbx-name{display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+      font-weight:800;font-size:13.5px;color:var(--deep,#4D5BC0)}
+    .tbx-strip .tbx-name:hover{text-decoration:underline}
+    .tbx-strip .tbx-links{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto}
+    .tbx-strip .tbx-links a{display:inline-flex;align-items:center;gap:5px;text-decoration:none;
+      background:rgba(255,255,255,0.75);border:1.5px solid rgba(144,165,255,0.3);border-radius:999px;
+      padding:6px 13px;font-size:12.5px;font-weight:700;color:var(--deep,#4D5BC0)}
+    .tbx-strip .tbx-links a:hover{background:#fff;border-color:var(--periwinkle,#90A5FF)}
+    @media (max-width:560px){.tbx-strip .tbx-links{margin-left:0}}
+  </style>
+  <div class="tbx-strip">
+    <a class="tbx-name" href="toolbox.html">🧰 The Toolbox <span style="font-weight:600;color:var(--ink-soft,#6b5f8a)">— little brain tools:</span></a>
+    <span class="tbx-links">
+      <a href="toolbox.html#breakerCard">🪚 break a task down</a>
+      <a href="toolbox.html#shifterCard">🎭 fix a message's tone</a>
+      <a href="toolbox.html#judgeCard">⚖️ how does this read?</a>
+      <a href="toolbox.html#estCard">⏳ how long will it take?</a>
+    </span>
+  </div>
+
   <!-- ===== ND DOCK — jump back in + one thing now (V6, 2026-06-12) =====
        Two ADHD-first cards rendered by the script at the bottom of the page:
        • Jump back in — hub-core breadcrumbs, works signed-out, local only.
