@@ -2294,7 +2294,12 @@ async function dlAttach(event, el){
     if(error || !data || !data.signedUrl){
       if(win) win.close();
       console.warn('signed-url failed', error);
-      dlToast('Couldn’t open that file — try refreshing the page, then download again.');
+      // Permission-shaped errors mean the file isn't shared with editor
+      // accounts (storage policy) — refreshing won't help, so say so.
+      const m = String((error && error.message) || '');
+      dlToast(/denied|unauthor|forbidden|not.*found|400|403/i.test(m)
+        ? 'That file isn’t shared with editor accounts yet — poke the creator to re-share it.'
+        : 'Couldn’t open that file — try refreshing the page, then download again.');
       return;
     }
     if(win) win.location.href = data.signedUrl; else window.location.href = data.signedUrl;

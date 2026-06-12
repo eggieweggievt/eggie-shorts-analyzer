@@ -2,6 +2,15 @@
   "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. changelog.html renders this file — no other edits needed.",
   "entries": [
     {
+      "date": "2026-06-12",
+      "emoji": "📎",
+      "title": "Editor downloads fixed",
+      "items": [
+        { "type": "fixed", "text": "Editors couldn't download files that were attached while a planner card was first being created (only files added to already-saved cards worked). The sharing rules now cover both — every file listed on a card you're assigned to downloads properly." },
+        { "type": "improved", "text": "If a file genuinely isn't shared with your editor account, the editor dashboard now says so instead of suggesting a refresh that never helps." }
+      ]
+    },
+    {
       "date": "2026-06-10",
       "emoji": "🎯",
       "title": "Optimizer V5 — one card, no steps",

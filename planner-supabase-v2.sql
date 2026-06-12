@@ -193,8 +193,11 @@ CREATE POLICY "owner storage all" ON storage.objects
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Editors can read files for items assigned to them.
--- The path's second segment is the item_id; we join against planner_items.
+-- Editors can read files for items assigned to them. Two grants:
+--   a) the path's second segment is the item_id (normal uploads), OR
+--   b) the file's exact path is listed in an assigned item's `attachments`
+--      jsonb — covers files uploaded while the card was still unsaved,
+--      which land under {owner_id}/draft-<ts>/ (see uploadAttachments).
 DROP POLICY IF EXISTS "editor storage read" ON storage.objects;
 CREATE POLICY "editor storage read" ON storage.objects
   FOR SELECT
@@ -202,8 +205,11 @@ CREATE POLICY "editor storage read" ON storage.objects
     bucket_id = 'planner-files'
     AND EXISTS (
       SELECT 1 FROM planner_items
-      WHERE planner_items.id::text = (storage.foldername(name))[2]
-        AND planner_items.assignee_email = auth.email()
+      WHERE lower(planner_items.assignee_email) = lower(auth.email())
+        AND (
+          planner_items.id::text = (storage.foldername(name))[2]
+          OR planner_items.attachments @> jsonb_build_array(jsonb_build_object('path', name))
+        )
     )
   );
 
@@ -216,7 +222,7 @@ CREATE POLICY "editor storage upload" ON storage.objects
     AND EXISTS (
       SELECT 1 FROM planner_items
       WHERE planner_items.id::text = (storage.foldername(name))[2]
-        AND planner_items.assignee_email = auth.email()
+        AND lower(planner_items.assignee_email) = lower(auth.email())
     )
   );
 
