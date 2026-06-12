@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -112,9 +112,27 @@
         '</div><ul class="items">' + items + '</ul></div>';
     }).join('');
   }
+  // "Coming soon" — UI changes announced BEFORE they ship, so interface
+  // changes are anticipated instead of a surprise (autistic users especially:
+  // a heads-up turns dread into a countdown).
+  function renderUpcoming(list){
+    if(!Array.isArray(list) || !list.length) return;
+    var host = document.getElementById('log');
+    var box = document.createElement('div');
+    box.className = 'entry';
+    box.style.borderStyle = 'dashed';
+    box.innerHTML = '<div class="entry-head">' +
+      '<span class="entry-emoji">🔭</span>' +
+      '<span class="entry-title">Coming soon</span>' +
+      '<span class="entry-date">heads-up</span></div>' +
+      '<ul class="items">' + list.map(function(t){
+        return '<li><span class="badge improved">🔜 Soon</span><span>' + escapeHtml(String(t)) + '</span></li>';
+      }).join('') + '</ul>';
+    host.parentNode.insertBefore(box, host);
+  }
   fetch('changelog.json', { cache: 'no-store' })
     .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(data){ render(data && data.entries); })
+    .then(function(data){ render(data && data.entries); renderUpcoming(data && data.upcoming); })
     .catch(function(e){
       var host = document.getElementById('log');
       host.className = 'error';
@@ -123,6 +141,6 @@
     });
 })();
 </script>
-<script src="hub-nav.js?v=8"></script>
+<script src="hub-nav.js?v=9"></script>
 </body>
 </html>

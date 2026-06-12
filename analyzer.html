@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -8078,7 +8078,84 @@ function renderVideoVerdict(v){
 })();
 </script>
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=8"></script>
+<script>
+/* ============================================================
+   V5.1 — ADHD support layer (2026-06-12)
+   1. Draft autosave: the card's inputs persist locally on every
+      keystroke and come back after tab-away amnesia. Cleared by
+      "Clear all". Planner deep-links always win over the draft.
+   2. ⭐ Eggie's pick: the first title suggestion gets a "just use
+      this one" badge — defaults are kinder than four equal choices.
+   ============================================================ */
+(function(){
+  'use strict';
+  var KEY = 'eggie-analyzer-draft';
+  var IDS = ['quickContext','title','description','template','hashtags','optFocus','optSpecial'];
+  var t = null;
+
+  function snapshot(){
+    var d = {};
+    IDS.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && el.value) d[id] = el.value;
+    });
+    try{
+      if(Object.keys(d).length) localStorage.setItem(KEY, JSON.stringify(d));
+      else localStorage.removeItem(KEY);
+    }catch(e){}
+  }
+  document.addEventListener('input', function(e){
+    if(!e.target || IDS.indexOf(e.target.id) === -1) return;
+    clearTimeout(t); t = setTimeout(snapshot, 400);
+  });
+
+  function restore(){
+    // A planner hand-off (#title=…) is fresher than any old draft — let it win.
+    if(/[#&](title|hashtags|description)=/.test(location.hash || '')) return;
+    var d = null;
+    try{ d = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){}
+    if(!d) return;
+    var brought = 0;
+    IDS.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && !el.value && d[id]){ el.value = d[id]; brought++; }
+    });
+    if(brought){
+      var qc = document.getElementById('quickContext');
+      if(qc){
+        qc.style.boxShadow = '0 0 0 3px rgba(168,230,190,0.6)';
+        setTimeout(function(){ qc.style.boxShadow = ''; }, 1600);
+      }
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore);
+  else restore();
+
+  var clearBtn = document.getElementById('clearBtn');
+  if(clearBtn) clearBtn.addEventListener('click', function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+  });
+
+  /* ---- ⭐ Eggie's pick — badge the first suggested title ---- */
+  var list = document.getElementById('titleSuggestions');
+  if(list && window.MutationObserver){
+    var mo = new MutationObserver(function(){
+      var first = list.querySelector('li');
+      if(!first || first.querySelector('.eggie-pick-badge')) return;
+      var b = document.createElement('span');
+      b.className = 'eggie-pick-badge';
+      b.textContent = '⭐ Eggie’s pick';
+      b.title = 'If choosing feels like work today: just use this one. It scored highest.';
+      b.style.cssText = 'display:inline-block;margin-right:8px;padding:2px 10px;border-radius:999px;' +
+        'background:linear-gradient(135deg,#ffd88a,#ff9ec8);color:#5a3a00;font-size:10.5px;font-weight:800;' +
+        'letter-spacing:.04em;text-transform:uppercase;vertical-align:middle';
+      first.insertBefore(b, first.firstChild);
+    });
+    mo.observe(list, { childList: true });
+  }
+})();
+</script>
+<script src="hub-nav.js?v=9"></script>
 <script>
 /* ============================================================
    EGGIE OPTIMIZER — no-API title / tag / description generator

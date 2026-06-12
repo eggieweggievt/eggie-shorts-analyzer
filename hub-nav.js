@@ -40,6 +40,7 @@
       { emoji: '🔍', name: 'Niche Finder', href: 'niche-quiz.html' }
     ]},
     { emoji: '✨', name: 'More', items: [
+      { emoji: '🧰', name: 'The Toolbox', href: 'toolbox.html' },
       { emoji: '❓', name: 'FAQ & About', href: 'faq.html' },
       { emoji: '📜', name: "What's New", href: 'changelog.html' },
       { emoji: '👑', name: 'Manager Hub', href: 'manager-hub.html' }

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -325,8 +325,13 @@
 
     <!-- Creator check-in -->
     <div class="card">
-      <h2>Creator Check-In 🌿</h2>
-      <p class="muted" style="margin-top:-6px">Short answers are totally fine! Just checking in on how things are going 💗</p>
+      <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Creator Check-In 🌿
+        <button type="button" id="ckStepperToggle" aria-pressed="false"
+          style="margin-left:auto;border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.75);border-radius:999px;font:inherit;font-size:12.5px;font-weight:800;color:var(--deep);padding:7px 14px;cursor:pointer"
+          title="Show one question at a time instead of the whole wall — same questions, same order, every week.">🪷 One at a time</button>
+      </h2>
+      <p class="muted" style="margin-top:-6px">Short answers are totally fine! Just checking in on how things are going 💗
+        <span style="display:block;margin-top:3px;font-size:12px">Same nine questions every week, nothing is graded, nothing is shared.</span></p>
       <div class="checkin" style="margin-top:14px">
 
         <div class="ck-sec">
@@ -948,7 +953,83 @@ document.addEventListener('visibilitychange', () => { if(document.hidden && dirt
 // Go
 initAuth();
 </script>
-<script src="hub-nav.js?v=8"></script>
+<style>
+  /* 🪷 one-question-at-a-time stepper (V2, 2026-06-12) */
+  .checkin.ck-stepper .ck-sec{display:none}
+  .checkin.ck-stepper .ck-sec.ck-active{display:block;animation:none}
+  .ck-stepnav{display:none;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .checkin.ck-stepper ~ .ck-stepnav, .ck-stepnav.show{display:flex}
+  .ck-stepnav button{border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.8);
+    border-radius:999px;font:inherit;font-size:13px;font-weight:800;color:var(--deep);padding:8px 16px;cursor:pointer}
+  .ck-stepnav button:disabled{opacity:.4;cursor:default}
+  .ck-stepnav .ck-dots{display:flex;gap:5px;margin-left:auto}
+  .ck-stepnav .ck-dot{width:8px;height:8px;border-radius:50%;background:rgba(144,165,255,0.3)}
+  .ck-stepnav .ck-dot.on{background:var(--deep)}
+  .ck-stepnav .ck-count{font-size:12px;font-weight:800;color:var(--ink-soft)}
+</style>
+<script>
+/* 🪷 One-question-at-a-time mode — same questions, same order, one screen each.
+   Pure navigation: typing/saving works exactly as in the full-wall view. */
+(function(){
+  'use strict';
+  var toggle = document.getElementById('ckStepperToggle');
+  var wall = document.querySelector('.checkin');
+  if(!toggle || !wall) return;
+  var secs = Array.prototype.slice.call(wall.querySelectorAll('.ck-sec'));
+  if(!secs.length) return;
+  var PREF = 'eggie-review-stepper';
+  var i = 0, nav = null;
+
+  function buildNav(){
+    if(nav) return;
+    nav = document.createElement('div');
+    nav.className = 'ck-stepnav';
+    nav.innerHTML = '<button type="button" data-nav="prev">← Back</button>' +
+      '<button type="button" data-nav="next">Next →</button>' +
+      '<span class="ck-count"></span><span class="ck-dots"></span>';
+    wall.parentNode.insertBefore(nav, wall.nextSibling);
+    var dots = nav.querySelector('.ck-dots');
+    secs.forEach(function(_, ix){
+      var d = document.createElement('span');
+      d.className = 'ck-dot'; d.dataset.ix = ix;
+      dots.appendChild(d);
+    });
+    nav.addEventListener('click', function(e){
+      var b = e.target.closest('[data-nav]');
+      if(!b) return;
+      if(b.dataset.nav === 'prev' && i > 0) i--;
+      else if(b.dataset.nav === 'next' && i < secs.length - 1) i++;
+      paint(true);
+    });
+  }
+  function paint(focusField){
+    secs.forEach(function(s, ix){ s.classList.toggle('ck-active', ix === i); });
+    nav.classList.add('show');
+    nav.querySelector('[data-nav="prev"]').disabled = (i === 0);
+    var next = nav.querySelector('[data-nav="next"]');
+    next.textContent = i === secs.length - 1 ? '🌸 that was the last one' : 'Next →';
+    next.disabled = (i === secs.length - 1);
+    nav.querySelector('.ck-count').textContent = (i + 1) + ' of ' + secs.length;
+    nav.querySelectorAll('.ck-dot').forEach(function(d){ d.classList.toggle('on', Number(d.dataset.ix) <= i); });
+    if(focusField){
+      var f = secs[i].querySelector('textarea, input');
+      if(f) setTimeout(function(){ f.focus(); }, 60);
+    }
+  }
+  function setMode(on){
+    toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+    toggle.style.background = on ? 'linear-gradient(135deg,#ff9ec8,#9aa6ff)' : '';
+    toggle.style.color = on ? '#fff' : '';
+    wall.classList.toggle('ck-stepper', on);
+    if(on){ buildNav(); i = 0; paint(false); }
+    else if(nav){ nav.classList.remove('show'); secs.forEach(function(s){ s.classList.remove('ck-active'); }); }
+    try{ on ? localStorage.setItem(PREF,'1') : localStorage.removeItem(PREF); }catch(e){}
+  }
+  toggle.addEventListener('click', function(){ setMode(!wall.classList.contains('ck-stepper')); });
+  try{ if(localStorage.getItem(PREF) === '1') setMode(true); }catch(e){}
+})();
+</script>
+<script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

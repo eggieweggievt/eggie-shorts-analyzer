@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -281,6 +281,13 @@
   <header class="hero">
     <h1 class="logo">Creator Memory 🧠</h1>
     <p class="tag">One place that remembers <em>who you are</em> — your voice, your audience, your series, the words you live by and the ones you ban. Every tool reads from it to stay on-brand and sound like <em>you</em> instead of guessing. Borrowed from Odysseus' memory idea, rebuilt for your hub.</p>
+    <!-- V2 — literal "where does this go" map (2026-06-12): trusting a profile
+         is easier when you can see exactly which tools read it. -->
+    <p class="tag" style="font-size:12.5px;margin-top:8px">
+      <strong>Where this flows:</strong> 🎯 Optimizer (title voice, tag flavor, niche picks) ·
+      ✉️ Pitch Builder (tone + sponsor blocks) · 💌 Media Kit (identity fields) ·
+      🔮 Ask My Planner (your wording) · 🏠 Home brief. Only you can read it — not editors, not managers.
+    </p>
   </header>
 
   <!-- IDENTITY -->
@@ -1009,7 +1016,7 @@ render();
 initAuth();
 </script>
 
-<script src="hub-nav.js?v=8"></script>
+<script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

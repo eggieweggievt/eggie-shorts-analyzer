@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2200,6 +2200,10 @@
       </div>
       <input id="fTitle" type="text" placeholder="e.g. POV: I tried Elden Ring DLC blindfolded" maxlength="200" />
 
+      <!-- V3 — the literal next physical step. Titles describe outcomes; this starts them. -->
+      <label for="fNextAction" style="margin-top:10px">▸ Very next action <span class="opt">(one tiny, physical step — shows on the card)</span></label>
+      <input id="fNextAction" type="text" placeholder="e.g. trim the first 3 seconds · write the hook line · message editor" maxlength="120" />
+
       <div class="modal-row cols-2">
         <div>
           <label for="fStatus">Status</label>
@@ -3008,14 +3012,16 @@ const SUPABASE_URL = 'https://okrheyotpypulweedhda.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_0rkBrgHykkh_F4bfICiRWA_crhItSlH';
 
 const STATUSES = [
-  {value:'idea',      label:'💡 Idea',      visible:true},
-  {value:'script',    label:'📝 Script',    visible:true},
-  {value:'recording', label:'🎙️ Recording', visible:true},
-  {value:'editing',   label:'✂️ Editing',   visible:true},
-  {value:'edited',    label:'🎞️ Edited',    visible:true},  // editor marked their cut done → handed back to creator
-  {value:'scheduled', label:'📅 Scheduled', visible:true},
-  {value:'posted',    label:'✅ Posted',    visible:true},
-  {value:'archived',  label:'📦 Archived',  visible:false}  // hidden from kanban by default
+  // V3 — `help` renders as a hover/long-press tooltip on each column header:
+  // literal definitions of what each stage means + who sees what (no guessing).
+  {value:'idea',      label:'💡 Idea',      visible:true,  help:'A thought, captured. Nothing is required yet — not even a title.'},
+  {value:'script',    label:'📝 Script',    visible:true,  help:'You are writing or outlining it. Only you (and your manager) see your planner.'},
+  {value:'recording', label:'🎙️ Recording', visible:true,  help:'Footage is being made (or waiting to be made).'},
+  {value:'editing',   label:'✂️ Editing',   visible:true,  help:'In the edit. If an editor is assigned, it shows on THEIR dashboard now.'},
+  {value:'edited',    label:'🎞️ Edited',    visible:true,  help:'Your editor marked their cut done and handed it back — your move (review → schedule).'},
+  {value:'scheduled', label:'📅 Scheduled', visible:true,  help:'Done and queued with a date. The calendar shows it on that day.'},
+  {value:'posted',    label:'✅ Posted',    visible:true,  help:'Live on the internet. Logging views later powers your personal stats.'},
+  {value:'archived',  label:'📦 Archived',  visible:false, help:'Out of sight, never deleted. Archive is a shelf, not a bin.'}
 ];
 
 const PLATFORM_LABELS = {
@@ -3506,7 +3512,7 @@ async function saveItem(item){
     // Graceful degradation if user hasn't run V2 migration yet — drop new fields and retry once
     if(/column.*does not exist/i.test(error.message || '')){
       console.warn('[Planner] V2 columns missing — saving without them. Run planner-supabase-v2.sql to enable Editors / Footage / Attachments.');
-      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets','is_priority','description'].forEach(k => delete payload[k]);
+      ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets','is_priority','description','next_action'].forEach(k => delete payload[k]);
       const retry = await sb.from('planner_items').upsert(payload).select().single();
       if(!retry.error){ setConn(true, 'Live (V2 migration pending)'); return retry.data; }
     }
@@ -6094,7 +6100,7 @@ function renderKanban(filtered){
     colItems = colItems.slice().sort((a, b) => (b.is_priority ? 1 : 0) - (a.is_priority ? 1 : 0));
     return `
       <div class="kanban-col" data-status="${s.value}">
-        <div class="kanban-col-head">
+        <div class="kanban-col-head" ${s.help ? `title="${escape(s.help)}" style="cursor:help"` : ''}>
           <span>${s.label}</span>
           <span class="count">${colItems.length}</span>
         </div>
@@ -6105,6 +6111,20 @@ function renderKanban(filtered){
       </div>
     `;
   }).join('');
+  // V3 — gentle WIP nudge: >5 cards mid-edit is a lot of open plates.
+  // Soft, once per day, never blocks anything.
+  try{
+    const wip = filtered.filter(i => i.status === 'editing' || i.status === 'recording').length;
+    const wipKey = 'plannerWipNudge_' + new Date().toISOString().slice(0,10);
+    if(wip > 5 && !sessionStorage.getItem(wipKey)){
+      sessionStorage.setItem(wipKey, '1');
+      const note = document.createElement('div');
+      note.style.cssText = 'margin:10px 0;padding:10px 16px;border-radius:14px;background:rgba(255,213,138,0.18);border:1.5px solid rgba(255,213,138,0.5);color:#a05a00;font-weight:700;font-size:13px';
+      note.innerHTML = `🍽 ${wip} cards are mid-production right now. Totally allowed — but if it feels heavy, finishing ONE before starting the next feels amazing.`;
+      board.parentNode.insertBefore(note, board);
+      setTimeout(() => { if(note.parentNode) note.parentNode.removeChild(note); }, 12000);
+    }
+  }catch(e){}
   // Click handlers — V2.8: cards open the read-only view by default (edit button inside view)
   board.querySelectorAll('.item-card').forEach(el => {
     el.addEventListener('click', e => {
@@ -6210,6 +6230,19 @@ function itemCard(item){
   if(item.analyzer_score != null && item.analyzer_score !== ''){
     extrasRow += `<span class="meta-line" title="Optimizer score">⭐ ${escape(item.analyzer_score)}</span>`;
   }
+  // V3 — stale-card whisper: untouched for 14+ days (and not shipped/queued)
+  // gets a soft chip. Out of sight is out of mind — this resurfaces kindly.
+  if(item.updated_at && !['scheduled','posted','archived'].includes(item.status)){
+    const idleDays = Math.floor((Date.now() - new Date(item.updated_at).getTime()) / 86400000);
+    if(idleDays >= 14){
+      extrasRow += `<span class="meta-line" style="opacity:.75" title="No edits in ${idleDays} days — still alive? Open it and either nudge it forward, break it smaller, or archive it guilt-free.">🌫 ${idleDays}d quiet</span>`;
+    }
+  }
+  // V3 — the literal next physical action, front and center on the card face.
+  // Titles describe outcomes; next-actions start them.
+  const nextAction = item.next_action
+    ? `<div class="item-meta" style="margin-top:4px"><span class="meta-line" style="background:rgba(168,230,190,0.25);color:#1f6580;font-weight:700" title="Your written next step for this card">▸ ${escape(item.next_action)}</span></div>`
+    : '';
   // V2.12 — Inline star button (toggles is_priority without opening the modal)
   const starred = !!item.is_priority;
   const starBtn = `<button class="item-star ${starred ? 'starred' : ''}" data-star="${escape(item.id)}" title="${starred ? 'Unstar this item' : 'Star as important'}">${starred ? '⭐' : '☆'}</button>`;
@@ -6218,6 +6251,7 @@ function itemCard(item){
       ${starBtn}
       <div class="item-title">${escape(item.title || '(untitled)')}</div>
       <div class="item-meta">${platforms}${extras}${editorEl}${due}${extrasRow}</div>
+      ${nextAction}
     </div>
   `;
 }
@@ -6231,7 +6265,11 @@ function renderDue(iso){
   let cls = '';
   if(diff < 0) cls = 'due-overdue';
   else if(diff < 2) cls = 'due-soon';
-  return `<span class="meta-line ${cls}">📅 ${fmt}</span>`;
+  // V3 — absolute AND relative, always together (time blindness can't
+  // budget "Jun 15"; it can budget "in 3d").
+  const dd = Math.round(diff);
+  const rel = dd < 0 ? `${Math.abs(dd)}d overdue` : dd === 0 ? 'today' : dd === 1 ? 'tomorrow' : `in ${dd}d`;
+  return `<span class="meta-line ${cls}">📅 ${fmt} · ${rel}</span>`;
 }
 
 function renderList(filtered){
@@ -6942,6 +6980,7 @@ function openModal(item, defaultStatus, defaultFormat){
   // V2.20 — Reset the format-defaults toggle each time the modal opens; only auto-apply for NEW items
   setFormatToggleState(item ? '' : (defaultFormat || ''));
   $('fTitle').value = item?.title || '';
+  if($('fNextAction')) $('fNextAction').value = item?.next_action || '';
   $('fStatus').value = item?.status || defaultStatus || 'idea';
   // V2.12 — Star/priority checkbox
   $('fIsPriority').checked = !!item?.is_priority;
@@ -7316,6 +7355,8 @@ async function handleSave(){
   const editor = editors.find(e => e.id === editorId);
   const item = {
     title,
+    // V3 — the literal next physical step (renders on the card face)
+    next_action: ($('fNextAction') ? $('fNextAction').value.trim() : '') || null,
     status: $('fStatus').value,
     platforms,
     assignee: editor?.name || $('fAssignee').value.trim() || null,
@@ -8100,7 +8141,7 @@ if(document.readyState === 'loading'){
 }
 </script>
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=8"></script>
+<script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

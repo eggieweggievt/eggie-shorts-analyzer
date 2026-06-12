@@ -1,5 +1,5 @@
 /* ============================================================
-   hub-core.js — Eggie's Creator Hub shared core (v1)
+   hub-core.js — Eggie's Creator Hub shared core (v2)
    Loaded in <head> on every page, right after demo-mode.js.
 
    What lives here:
@@ -14,6 +14,18 @@
         guard (so re-focusing a tab never wipes unsaved edits).
         Existing pages keep their own inline version; new pages
         should use this instead of copy-pasting it.
+     4. EggieHub.touch / crumbs — breadcrumb memory. The hub quietly
+        remembers the last few places you were, so the home page can
+        offer "jump back in" links after a context switch.
+     5. EggieHub.micify + auto mic buttons 🎙️ — dictation on big
+        textareas via the browser's built-in speech recognition.
+        Talk instead of typing; text is appended, never submitted.
+     6. EggieHub.speak / stopSpeaking — read text aloud with the
+        browser's built-in voice. No auto UI; pages opt in with
+        their own buttons.
+     7. EggieHub.setSpoons / spoons — today's shared energy level
+        (0–5 spoons). Today-only on purpose: yesterday's energy
+        never leaks into a new day.
    ============================================================ */
 (function () {
   'use strict';
@@ -105,10 +117,223 @@
     });
   }
 
+  /* ---- 4. breadcrumbs — "where was I?" memory ---- */
+  /* The hub quietly remembers the last few places you touched, so the
+     home page can offer "jump back in" links after a context switch
+     (lunch, a raid, three days of brain fog — the hub holds the thread).
+     Stored locally, newest first, capped at 10. */
+  var CRUMBS_KEY = 'eggie:crumbs';
+
+  function pageFile() {
+    var p = (location.pathname || '').split('/').pop();
+    return p || 'index.html';                 // bare "/" means the home page
+  }
+
+  function cleanTitle() {
+    var t = String(document.title || '');
+    var cut = t.search(/[—·]/);               // drop " — Eggie's Creator Hub"-style suffixes
+    if (cut > 0) t = t.slice(0, cut);
+    return t.replace(/^\s+|\s+$/g, '');
+  }
+
+  function crumbs() {
+    try {
+      var arr = JSON.parse(localStorage.getItem(CRUMBS_KEY) || '[]');
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+
+  function touch(label, detail) {
+    try {
+      var crumb = {
+        page: pageFile(),
+        title: cleanTitle(),
+        label: String(label == null ? '' : label),
+        url: location.pathname + location.search + location.hash,
+        at: Date.now()
+      };
+      if (detail != null && detail !== '') crumb.detail = String(detail);
+      var list = crumbs().filter(function (c) {  // dedupe: same place + same label = one crumb
+        return !(c && c.url === crumb.url && c.label === crumb.label);
+      });
+      list.unshift(crumb);
+      if (list.length > 10) list.length = 10;
+      localStorage.setItem(CRUMBS_KEY, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  function autoCrumb() {
+    try {
+      if (inDemo) return;                     // sandbox visits stay out of real history
+      if (pageFile() === 'index.html') return; // home consumes crumbs — it shouldn't dominate them
+      touch(cleanTitle());
+    } catch (e) {}
+  }
+
+  /* ---- 5. dictation — talk instead of typing 🎙️ ---- */
+  /* Uses the browser's built-in speech recognition. Big textareas get a
+     small mic button at their top-right automatically; pages can also
+     call EggieHub.micify(textarea) on boxes they render later (modals
+     etc). If the browser doesn't support it, nothing appears at all —
+     no broken buttons. Final speech is APPENDED to the box and an
+     'input' event is fired so dirty-tracking / counters keep working.
+     Never submits a form, never touches the Enter key. */
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var micCssDone = false;
+
+  function ensureMicCss() {
+    if (micCssDone) return;
+    micCssDone = true;
+    var st = document.createElement('style');
+    st.textContent =
+      '.eggie-mic-btn{position:absolute;width:26px;height:26px;border-radius:50%;border:none;' +
+      'background:rgba(127,127,127,.15);font-size:13px;padding:0;cursor:pointer;opacity:.55;' +
+      'z-index:5;display:inline-flex;align-items:center;justify-content:center;transition:opacity .15s}' +
+      '.eggie-mic-btn:hover,.eggie-mic-btn:focus{opacity:1}';
+    document.head.appendChild(st);
+  }
+
+  function micify(ta) {
+    if (!SpeechRec || !ta || ta.tagName !== 'TEXTAREA' || ta.__eggieMic) return;
+    var parent = ta.parentNode;
+    if (!parent || parent.nodeType !== 1) return;
+    ta.__eggieMic = true;
+    try {
+      ensureMicCss();
+      if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+      var btn = document.createElement('button');
+      btn.type = 'button';                    // type=button → can never submit a form
+      btn.className = 'eggie-mic-btn';
+      btn.textContent = '🎙️';
+      btn.title = 'Dictate — talk instead of typing';
+      btn.setAttribute('aria-label', 'Dictate — talk instead of typing');
+      btn.style.top = (ta.offsetTop + 4) + 'px';
+      btn.style.left = Math.max(0, ta.offsetLeft + ta.offsetWidth - 30) + 'px';
+      var rec = null, listening = false;
+
+      function restState() {                  // back to quiet mic, silently
+        listening = false;
+        btn.textContent = '🎙️';
+        btn.title = 'Dictate — talk instead of typing';
+      }
+
+      btn.addEventListener('click', function () {
+        if (listening) {
+          try { if (rec) rec.stop(); } catch (e) {}
+          restState();
+          return;
+        }
+        try {
+          rec = new SpeechRec();
+          rec.continuous = false;
+          rec.interimResults = true;
+          rec.lang = document.documentElement.lang || 'en';
+          rec.onresult = function (e) {
+            var said = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) {
+              if (e.results[i].isFinal) said += e.results[i][0].transcript;
+            }
+            said = said.replace(/^\s+|\s+$/g, '');
+            if (!said) return;
+            ta.value += (ta.value && !/\s$/.test(ta.value) ? ' ' : '') + said;
+            try { ta.dispatchEvent(new Event('input', { bubbles: true })); } catch (e2) {}
+          };
+          rec.onerror = restState;
+          rec.onend = restState;
+          rec.start();
+          listening = true;
+          btn.textContent = '🔴';
+          btn.title = 'Listening… click to stop';
+        } catch (e) { restState(); }
+      });
+
+      parent.insertBefore(btn, ta.nextSibling);
+    } catch (e) {}
+  }
+
+  function micAutoAttach() {
+    if (!SpeechRec) return;
+    try {
+      var tas = document.querySelectorAll('textarea');
+      for (var i = 0; i < tas.length; i++) {
+        var ta = tas[i];
+        // conservative: only boxes big enough to be real writing fields,
+        // or ones a page explicitly opted in with data-mic (and visible)
+        if (ta.offsetHeight >= 60 || (ta.hasAttribute('data-mic') && ta.offsetHeight > 0)) micify(ta);
+      }
+    } catch (e) {}
+  }
+
+  /* ---- 6. read-aloud — let the hub read text to you ---- */
+  function speak(text) {
+    try {
+      if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+      window.speechSynthesis.cancel();        // one voice at a time
+      text = String(text == null ? '' : text);
+      if (!text) return;
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = document.documentElement.lang || 'en';
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  function stopSpeaking() {
+    try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {}
+  }
+
+  /* ---- 7. spoons — today's shared energy level (0–5) ---- */
+  /* Any page can ask "how much energy is there today?" and soften
+     itself on low-spoons days. Strictly today-only: yesterday's number
+     never leaks into a new day (stale energy is worse than none). */
+  var SPOONS_KEY = 'eggie:spoonsToday';
+
+  function localToday() {
+    var d = new Date();
+    function p2(x) { return (x < 10 ? '0' : '') + x; }
+    return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+  }
+
+  function setSpoons(n) {
+    try {
+      n = Math.round(Number(n));
+      if (!isFinite(n)) return;               // garbage in → nothing stored, never 0 by accident
+      if (n < 0) n = 0;
+      if (n > 5) n = 5;
+      localStorage.setItem(SPOONS_KEY, JSON.stringify({ n: n, date: localToday() }));
+    } catch (e) {}
+  }
+
+  function spoons() {
+    try {
+      var o = JSON.parse(localStorage.getItem(SPOONS_KEY) || 'null');
+      if (!o || o.date !== localToday() || typeof o.n !== 'number') return null;
+      return o.n;
+    } catch (e) { return null; }
+  }
+
   window.EggieHub = {
     SUPABASE_URL: SUPABASE_URL,
     SUPABASE_ANON_KEY: SUPABASE_ANON_KEY,
     loadSupabaseSDK: loadSupabaseSDK,
-    initAuth: initAuth
+    initAuth: initAuth,
+    /* v2 additions */
+    touch: touch,
+    crumbs: crumbs,
+    micify: micify,
+    speak: speak,
+    stopSpeaking: stopSpeaking,
+    setSpoons: setSpoons,
+    spoons: spoons
   };
+
+  /* ---- 8. page-ready glue (auto-crumb + mic buttons) ---- */
+  function onPageReady() {
+    autoCrumb();
+    micAutoAttach();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onPageReady);
+  } else {
+    onPageReady();
+  }
 })();

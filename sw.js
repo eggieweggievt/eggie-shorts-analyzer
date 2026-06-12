@@ -6,7 +6,7 @@
    Supabase calls are cross-origin and never intercepted.
    Bump CACHE on shape changes to drop old entries.
    ============================================================ */
-const CACHE = 'eggie-hub-v1';
+const CACHE = 'eggie-hub-v2';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -14,7 +14,7 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE).then((c) =>
       Promise.allSettled([
-        'index.html', 'hub-core.js?v=1', 'hub-nav.js?v=8', 'a11y-modes.js?v=4',
+        'index.html', 'hub-core.js?v=2', 'hub-nav.js?v=9', 'a11y-modes.js?v=5',
         'demo-mode.js', 'manifest.webmanifest', 'icon.svg'
       ].map((u) => c.add(u)))
     )

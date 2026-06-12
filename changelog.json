@@ -1,6 +1,40 @@
 {
-  "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. changelog.html renders this file — no other edits needed.",
+  "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. 'upcoming' is a plain list of strings shown as a 'Coming soon' card — announce UI changes BEFORE shipping them, then move them into a real entry when they land. changelog.html renders this file — no other edits needed.",
+  "upcoming": [
+    "Smarter search in Ask My Planner that understands what you mean, not just exact words (everything stays in your browser).",
+    "Thumbnail Checker side-by-side A/B compare.",
+    "A 'good enough to send' completeness meter on the Media Kit."
+  ],
   "entries": [
+    {
+      "date": "2026-06-12",
+      "emoji": "🧰",
+      "title": "The Toolbox — little brain tools",
+      "items": [
+        { "type": "new", "text": "🪚 Task breaker — type the scary task, get small physical steps, choose how tiny to chop them. Knows creator tasks (editing, thumbnails, scripts, taxes, going live) and has a kind generic recipe for everything else." },
+        { "type": "new", "text": "🎭 Tone shifter — paste a message and nudge it more formal, more casual, softer, shorter, or less sorry (the hedge-remover for over-apologizers)." },
+        { "type": "new", "text": "⚖️ Tone read — a heuristic read of how your message comes across, with receipts: it shows exactly which words triggered the verdict so YOU stay the judge." },
+        { "type": "new", "text": "⏳ Time guesser — honest time estimates with the real-brain buffer built in, plus a 'block this much' suggestion so finishing early beats running late." },
+        { "type": "improved", "text": "Everything in the Toolbox runs on hand-written rules in your browser — nothing you type is sent anywhere. Inspired by goblin.tools (whose lovely AI versions live at goblin.tools); the brain-dump goblin already lives on the To-Do list." }
+      ]
+    },
+    {
+      "date": "2026-06-12",
+      "emoji": "🧠",
+      "title": "The neurodivergent-friendly night build",
+      "items": [
+        { "type": "new", "text": "🧘 Low-stim mode joins 🌙 dark, 📖 dyslexia-friendly, and 🟡 soft tint — calm colors, zero motion, decorative art hidden. One toggle, every page." },
+        { "type": "new", "text": "Home now has 'Jump back in' (the last 3 places you were, one click to resume) and 'One thing now' — exactly one suggested next action from your own planner, todos, and review history. With an '↻ another' button if it picked wrong." },
+        { "type": "new", "text": "🧠 Brain dump on the To-Do list: empty your head one line at a time (each saves instantly), then sort everything ONE task at a time — Today / This week / Someday / Let it go." },
+        { "type": "new", "text": "Planner cards have a '▸ very next action' field — the literal next physical step, shown on the card and on your editor's dashboard. Quiet cards (14+ days untouched) get a gentle 🌫 chip, and dates now always show 'in 3d' next to 'Jun 15'." },
+        { "type": "new", "text": "Weekly Review has a 🪷 one-question-at-a-time mode — same nine questions, one screen each, with dots showing where you are." },
+        { "type": "new", "text": "🎙️ Dictation mic on the hub's big text boxes (browser speech recognition — free, nothing leaves your machine) and the Optimizer now autosaves your draft inputs, so tab-away never loses a thought. The top title suggestion also gets a ⭐ Eggie's pick badge for low-decision days." },
+        { "type": "new", "text": "Your Habits energy check-in (🌙/🌤/🌞) now travels: on low-energy days the To-Do list gently suggests picking just one thing." },
+        { "type": "improved", "text": "Kanban column headers explain exactly what each status means and who can see what. The Manager Hub states, in plain words, exactly what managers can and cannot access. Creator Memory shows exactly which tools read each part of your profile." },
+        { "type": "new", "text": "This page now has a 🔭 Coming soon card — interface changes get announced before they ship, never as a surprise." },
+        { "type": "new", "text": "Pitch Builder: a ⏰ follow-up radar flags sent pitches that have sat quiet for 7+ days, and a 🧰 scripts pack has send-ready wording for the hard moments — declining politely, raising your rate, asking for clarity, nudging a ghost." }
+      ]
+    },
     {
       "date": "2026-06-12",
       "emoji": "📎",

@@ -1,9 +1,9 @@
 /* ============================================================
    a11y-modes.js — site-wide accessibility modes for Eggie's Creator Hub
-   Drop-in: <script src="a11y-modes.js?v=1"></script> in <head>,
+   Drop-in: <script src="a11y-modes.js?v=5"></script> in <head>,
    right after demo-mode.js, on every page.
 
-   Three modes, all saved in localStorage and applied instantly on
+   Four modes, all saved in localStorage and applied instantly on
    every page that includes this file (no reload needed):
 
    🌙 DARK MODE  (key: hub-a11y-dark)
@@ -33,16 +33,27 @@
       mode or used alone. Hides itself automatically while dark mode
       is on (no bright whites to soften there).
 
-   Toggle UI: any element with [data-a11y-toggles] gets two pill
+   🧘 LOW-STIM MODE  (key: hub-a11y-lowstim)
+      Calm visuals, no motion — for sensory-sensitive / vestibular
+      users. Stops every animation + transition, makes smooth scroll
+      instant, flattens the pastel gradient canvas to one quiet
+      colour, tones card shadows down (zeroing box-shadow hub-wide
+      would erase card edges) and hides purely decorative art
+      (.octo / .sparkle / .brand-mascot — all alt=""/aria-hidden).
+      Users with OS-level "reduce motion" get the no-motion rules
+      automatically, even while the toggle is off.
+
+   Toggle UI: any element with [data-a11y-toggles] gets the mode pill
    buttons rendered into it (home page has one in .top-utility).
-   API: window.HubA11y.toggle('dark'|'dys'), .set(mode,on), .state()
+   API: window.HubA11y.toggle('dark'|'dys'|'tint'|'lowstim'),
+   .set(mode,on), .state()
    ============================================================ */
 (function () {
   if (window.__hubA11yInit) return;
   window.__hubA11yInit = true;
 
-  var KEYS = { dark: 'hub-a11y-dark', dys: 'hub-a11y-dys', tint: 'hub-a11y-tint' };
-  var ATTR = { dark: 'data-hub-dark', dys: 'data-hub-dys', tint: 'data-hub-tint' };
+  var KEYS = { dark: 'hub-a11y-dark', dys: 'hub-a11y-dys', tint: 'hub-a11y-tint', lowstim: 'hub-a11y-lowstim' };
+  var ATTR = { dark: 'data-hub-dark', dys: 'data-hub-dys', tint: 'data-hub-tint', lowstim: 'data-hub-lowstim' };
   var root = document.documentElement;
 
   function getLS(k) { try { return localStorage.getItem(k) === '1'; } catch (e) { return false; } }
@@ -94,6 +105,24 @@
     '#a11yCreamTint{display:none;position:fixed;inset:0;pointer-events:none;' +
       'z-index:2147483646;background:#f9efd9;mix-blend-mode:multiply}',
     'html[' + ATTR.tint + ']:not([' + ATTR.dark + ']) #a11yCreamTint{display:block}',
+
+    /* ===== 🧘 low-stim mode — calm visuals, no motion ===== */
+    'html[' + ATTR.lowstim + '],' +
+    'html[' + ATTR.lowstim + '] *,' +
+    'html[' + ATTR.lowstim + '] *::before,' +
+    'html[' + ATTR.lowstim + '] *::after{animation:none !important;transition:none !important}',
+    'html[' + ATTR.lowstim + ']{scroll-behavior:auto !important}',
+    /* flatten the pastel gradient canvas to one quiet colour */
+    'html[' + ATTR.lowstim + '] body{background:#fdf7fb !important}',
+    /* tone card shadows down — box-shadow:none would erase card edges */
+    'html[' + ATTR.lowstim + '] .card,' +
+    'html[' + ATTR.lowstim + '] [class*=card]{box-shadow:0 2px 8px rgba(120,125,200,0.10) !important}',
+    /* hide purely decorative art (all alt=""/aria-hidden across hub pages) */
+    'html[' + ATTR.lowstim + '] .octo,' +
+    'html[' + ATTR.lowstim + '] .sparkle,' +
+    'html[' + ATTR.lowstim + '] .brand-mascot{display:none !important}',
+    /* OS-level "reduce motion" gets the no-motion rules even with the toggle off */
+    '@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}html{scroll-behavior:auto !important}}',
 
     /* ===== toggle pills ===== */
     '.a11y-toggles{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}',
@@ -214,7 +243,8 @@
     return {
       dark: root.hasAttribute(ATTR.dark),
       dys: root.hasAttribute(ATTR.dys),
-      tint: root.hasAttribute(ATTR.tint)
+      tint: root.hasAttribute(ATTR.tint),
+      lowstim: root.hasAttribute(ATTR.lowstim)
     };
   }
 
@@ -227,7 +257,8 @@
   var BTNS = [
     { mode: 'dark', ic: '🌙', label: 'Dark mode', title: 'Switch the whole hub to a dark theme with bright teal + pink accents' },
     { mode: 'dys', ic: '📖', label: 'Dyslexia-friendly', title: 'Easier-to-read font, wider letter + line spacing, left-aligned text' },
-    { mode: 'tint', ic: '🟡', label: 'Soft yellow tint', title: 'Warm cream tint over bright whites — cuts glare; pairs well with dyslexia-friendly mode' }
+    { mode: 'tint', ic: '🟡', label: 'Soft yellow tint', title: 'Warm cream tint over bright whites — cuts glare; pairs well with dyslexia-friendly mode' },
+    { mode: 'lowstim', ic: '🧘', label: 'Low-stim mode', title: 'Low-stim mode — calm visuals, no motion: stops animations, softens the background, shadows + decorative art' }
   ];
   function syncButtons() {
     var s = state();
@@ -258,6 +289,7 @@
   if (getLS(KEYS.dark)) apply('dark', true);
   if (getLS(KEYS.dys)) apply('dys', true);
   if (getLS(KEYS.tint)) apply('tint', true);
+  if (getLS(KEYS.lowstim)) apply('lowstim', true);
   whenBody(function () {
     buildToggles();
     if (root.hasAttribute(ATTR.tint)) ensureTint();

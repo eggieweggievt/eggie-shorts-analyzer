@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -551,6 +551,52 @@
     </div>
   </div>
 
+  <!-- ===== ND DOCK — jump back in + one thing now (V6, 2026-06-12) =====
+       Two ADHD-first cards rendered by the script at the bottom of the page:
+       • Jump back in — hub-core breadcrumbs, works signed-out, local only.
+       • One thing now — ONE suggested next action from your own data
+         (overdue card > today's starred todo > due-soon > review gap).
+       Both hide themselves entirely when there's nothing useful to show. -->
+  <style>
+    #ndDock{display:none;flex-direction:column;gap:10px;margin:0 0 22px}
+    #ndDock.show{display:flex}
+    .nd-card{background:rgba(255,255,255,0.8);border:1.5px solid rgba(144,165,255,0.3);
+      border-radius:18px;padding:13px 16px;box-shadow:0 8px 22px rgba(120,125,200,0.10)}
+    .nd-label{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+      color:#9a93cf;margin:0 0 8px;display:flex;align-items:center;gap:6px}
+    .nd-crumbs{display:flex;flex-wrap:wrap;gap:7px}
+    .nd-crumb{display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+      background:rgba(144,165,255,0.10);border:1.5px solid rgba(144,165,255,0.25);border-radius:999px;
+      padding:6px 13px;font-size:12.5px;font-weight:700;color:var(--deep,#4D5BC0);max-width:100%}
+    .nd-crumb:hover{background:rgba(144,165,255,0.2)}
+    .nd-crumb .when{font-weight:600;color:var(--ink-soft,#6b5f8a);font-size:11px;flex:0 0 auto}
+    .nd-crumb .what{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .nd-one{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .nd-one .nd-task{flex:1 1 220px;min-width:0;font-size:14.5px;font-weight:700;color:var(--ink,#3a2a5a);line-height:1.45}
+    .nd-one .nd-task .why{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft,#6b5f8a);margin-top:2px}
+    .nd-one .nd-go{flex:0 0 auto;text-decoration:none;color:#fff;font-weight:800;font-size:13px;
+      padding:9px 18px;border-radius:999px;background:linear-gradient(135deg,#ff9ec8,#9aa6ff);
+      box-shadow:0 5px 14px rgba(144,165,255,0.35)}
+    .nd-one .nd-skip{flex:0 0 auto;border:1.5px solid rgba(144,165,255,0.4);background:rgba(255,255,255,0.7);
+      border-radius:999px;font:inherit;font-size:12px;font-weight:700;color:var(--deep,#4D5BC0);
+      padding:8px 13px;cursor:pointer}
+    .nd-one .nd-skip:hover{background:#fff}
+  </style>
+  <div id="ndDock" aria-live="polite">
+    <div class="nd-card" id="ndResume" hidden>
+      <p class="nd-label">🧵 Jump back in</p>
+      <div class="nd-crumbs" id="ndCrumbs"></div>
+    </div>
+    <div class="nd-card" id="ndOne" hidden>
+      <p class="nd-label">🎯 One thing now</p>
+      <div class="nd-one">
+        <span class="nd-task" id="ndOneTask"></span>
+        <a class="nd-go" id="ndOneGo" href="#">Start →</a>
+        <button class="nd-skip" id="ndOneSkip" type="button" title="Show me a different one">↻ another</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== GROUPS ===== -->
   <div class="groups" id="groups">
 
@@ -597,6 +643,15 @@
           <span class="tile-text">
             <span class="tile-name">To-Do List</span>
             <span class="tile-line">Tasks, recurring routines, subtasks, and a built-in focus timer.</span>
+          </span>
+          <span class="tile-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tile anim" href="toolbox.html" data-name="The Toolbox" data-search="toolbox tools task breaker break down steps tone shifter formal casual softer judge tone read estimate time guesser adhd autism neurodivergent goblin executive function">
+          <span class="tile-icon" style="background:linear-gradient(135deg, rgba(255,213,138,0.55), rgba(255,178,240,0.45), rgba(144,165,255,0.4))">🧰</span>
+          <span class="tile-text">
+            <span class="tile-name">The Toolbox</span>
+            <span class="tile-line">Break tasks into steps, fix a message's tone, get honest time guesses.</span>
           </span>
           <span class="tile-arrow" aria-hidden="true">→</span>
         </a>
@@ -1151,7 +1206,126 @@
 </script>
 
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=8"></script>
+<script>
+/* ============================================================
+   ND DOCK (V6) — "Jump back in" + "One thing now"
+   Both are decision-relief features: re-entry without recall, and
+   exactly ONE suggested next action instead of four open tabs of
+   guilt. Everything is wrapped so a failure can never break Home.
+   ============================================================ */
+(function(){
+  'use strict';
+  var dock = document.getElementById('ndDock');
+  if(!dock) return;
+
+  function ago(ts){
+    var m = Math.round((Date.now() - ts) / 60000);
+    if(m < 1) return 'just now';
+    if(m < 60) return m + 'm ago';
+    var h = Math.round(m / 60);
+    if(h < 24) return h + 'h ago';
+    var d = Math.round(h / 24);
+    return d === 1 ? 'yesterday' : d + 'd ago';
+  }
+  function show(){ dock.classList.add('show'); }
+
+  /* ---- 🧵 jump back in (local breadcrumbs — works signed out) ---- */
+  try{
+    var list = (window.EggieHub && EggieHub.crumbs && EggieHub.crumbs()) || [];
+    list = list.slice(0, 3);
+    if(list.length){
+      document.getElementById('ndCrumbs').innerHTML = list.map(function(c){
+        var label = c.label || c.title || c.page || 'somewhere cozy';
+        if(c.detail) label += ' · ' + c.detail;
+        return '<a class="nd-crumb" href="' + escapeHtml(c.url || c.page || '#') + '">' +
+          '<span class="what">' + escapeHtml(label) + '</span>' +
+          '<span class="when">' + escapeHtml(ago(c.at || Date.now())) + '</span></a>';
+      }).join('');
+      document.getElementById('ndResume').hidden = false;
+      show();
+    }
+  }catch(e){}
+
+  /* ---- 🎯 one thing now (your own data, simple rules, no AI) ---- */
+  var cands = [], idx = 0;
+  function renderOne(){
+    if(!cands.length) return;
+    var c = cands[idx % cands.length];
+    document.getElementById('ndOneTask').innerHTML =
+      escapeHtml(c.text) + '<span class="why">' + escapeHtml(c.why) + '</span>';
+    document.getElementById('ndOneGo').setAttribute('href', c.href);
+    document.getElementById('ndOne').hidden = false;
+    show();
+  }
+  var skipBtn = document.getElementById('ndOneSkip');
+  if(skipBtn) skipBtn.addEventListener('click', function(){ idx++; renderOne(); });
+
+  function relDay(iso){
+    var d = new Date(iso), days = Math.round((d - new Date().setHours(0,0,0,0)) / 86400000);
+    if(days < 0) return Math.abs(days) + (days === -1 ? ' day' : ' days') + ' overdue';
+    if(days === 0) return 'due today';
+    if(days === 1) return 'due tomorrow';
+    return 'due in ' + days + ' days';
+  }
+
+  (function loadOne(){
+    if(!window.EggieHub || !EggieHub.loadSupabaseSDK) return;
+    EggieHub.loadSupabaseSDK().then(function(lib){
+      var sb = lib.createClient(EggieHub.SUPABASE_URL, EggieHub.SUPABASE_ANON_KEY,
+        { auth: { persistSession: true, autoRefreshToken: false } });
+      return sb.auth.getSession().then(function(r){
+        var user = r && r.data && r.data.session && r.data.session.user;
+        if(!user) return;
+        var uid = user.id;
+        return Promise.all([
+          sb.from('planner_items').select('id,title,status,scheduled_at,is_priority')
+            .eq('owner_id', uid)
+            .in('status', ['idea','script','recording','editing','edited','scheduled'])
+            .order('scheduled_at', { ascending: true, nullsFirst: false }).limit(6),
+          sb.from('planner_todos').select('id,title,is_priority,bucket,is_done')
+            .eq('owner_id', uid).eq('is_done', false).eq('bucket', 'today')
+            .order('is_priority', { ascending: false }).limit(6),
+          sb.from('planner_weekly_reviews').select('created_at')
+            .eq('user_id', uid).order('created_at', { ascending: false }).limit(1)
+        ]).then(function(res){
+          var items = (res[0] && res[0].data) || [];
+          var todos = (res[1] && res[1].data) || [];
+          var review = (res[2] && res[2].data && res[2].data[0]) || null;
+          var now = Date.now();
+
+          items.forEach(function(it){
+            if(it.scheduled_at && new Date(it.scheduled_at).getTime() < now){
+              cands.push({ text: '🔥 ' + (it.title || 'Untitled card'),
+                why: relDay(it.scheduled_at) + ' · in your planner', href: 'planner.html' });
+            }
+          });
+          todos.forEach(function(t){
+            if(t.is_priority) cands.push({ text: '⭐ ' + t.title, why: "today's starred task", href: 'todo.html' });
+          });
+          items.forEach(function(it){
+            if(it.scheduled_at){
+              var days = (new Date(it.scheduled_at).getTime() - now) / 86400000;
+              if(days >= 0 && days <= 3) cands.push({ text: '📅 ' + (it.title || 'Untitled card'),
+                why: relDay(it.scheduled_at), href: 'planner.html' });
+            }
+          });
+          todos.forEach(function(t){
+            if(!t.is_priority) cands.push({ text: '✓ ' + t.title, why: "on today's list", href: 'todo.html' });
+          });
+          var daysSinceReview = review ? (now - new Date(review.created_at).getTime()) / 86400000 : 99;
+          if(daysSinceReview > 7){
+            cands.push({ text: '🪞 Do a tiny weekly review',
+              why: review ? Math.round(daysSinceReview) + ' days since the last one' : 'your first one — 5 quiet minutes',
+              href: 'review.html' });
+          }
+          renderOne();
+        });
+      });
+    }).catch(function(e){ console.warn('[Home] one-thing-now skipped:', e); });
+  })();
+})();
+</script>
+<script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

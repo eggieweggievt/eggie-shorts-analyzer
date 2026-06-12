@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -320,6 +320,17 @@
     <h1 class="logo">Manager Hub</h1>
     <p class="tag">👑 Every creator who's delegated co-owner access to you, in one place.</p>
   </header>
+
+  <!-- V2 — Permission matrix: literal answers about shared access (2026-06-12).
+       Shared access is anxiety fuel when it's vague; this is the exact list. -->
+  <details style="max-width:760px;margin:0 auto 18px;background:rgba(255,255,255,0.8);border:1.5px solid rgba(144,165,255,0.3);border-radius:16px;padding:4px 18px">
+    <summary style="cursor:pointer;font-weight:800;color:var(--deep);padding:10px 0">🔍 Exactly what a manager can and can't see</summary>
+    <div style="padding:4px 0 14px;font-size:13.5px;line-height:1.7;color:var(--ink)">
+      <p style="margin:6px 0"><strong style="color:#1f6b35">A manager CAN:</strong> open the creator's Content Planner (cards, statuses, calendar, tweets, to-dos), edit and create cards, manage the editor roster and brand kit, see Finance &amp; Tax entries, fill the Media Kit, and use Ask My Planner on that hub.</p>
+      <p style="margin:6px 0"><strong style="color:#a23556">A manager CANNOT:</strong> see the creator's Habits or energy check-ins, their Weekly Review answers, their Creator Memory profile, send sponsor pitches as them, sign in as them, invite or remove other managers, or see any other creator's hub.</p>
+      <p style="margin:6px 0;color:var(--ink-soft);font-weight:600">Access is per-creator, revocable by the creator at any time from their planner's 👑 Managers panel, and every hub shows who it belongs to while you're inside it.</p>
+    </div>
+  </details>
 
   <!-- SIGN-IN VIEW -->
   <div id="authView" class="hidden">
@@ -957,7 +968,7 @@ function fmtDateShort(ts){
 }
 </script>
 <script src="focus-widget.js" defer></script>
-<script src="hub-nav.js?v=8"></script>
+<script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Toolbox 🧰 — Eggie's Creator Hub</title>
+<meta name="description" content="Little brain tools for creators — break a task into steps, shift the tone of a message, sanity-read how a message comes across, and get an honest time guess. All rule-based, all in your browser, nothing sent anywhere." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --pink-soft:#FFDBF7; --pink-hot:#FFB2F0; --periwinkle:#90A5FF; --mint:#6BE4EA;
+    --deep:#4D5BC0; --ink:#3a2a5a; --ink-soft:#6b5f8a; --cream:#fff6fb;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:28px 16px 90px;
+    font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(1200px 500px at 80% -10%, rgba(255,178,240,0.25), transparent 60%),
+      radial-gradient(900px 420px at -10% 20%, rgba(144,165,255,0.22), transparent 55%),
+      var(--cream);
+    color:var(--ink);
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  .back-row{display:flex;gap:8px;margin-bottom:18px}
+  h1.logo{font-family:'Pacifico',cursive;font-weight:400;font-size:clamp(30px,5vw,42px);color:var(--deep);margin:6px 0}
+  .tag{color:var(--ink-soft);font-weight:600;margin:0 0 8px;font-size:14.5px;line-height:1.55;max-width:680px}
+  .honesty{font-size:12.5px;color:var(--ink-soft);font-weight:600;background:rgba(255,255,255,0.7);
+    border:1.5px dashed rgba(144,165,255,0.4);border-radius:14px;padding:10px 14px;margin:0 0 24px;line-height:1.6;max-width:680px}
+  .card{background:rgba(255,255,255,0.85);border:1.5px solid rgba(144,165,255,0.28);border-radius:20px;
+    padding:20px 22px;margin-bottom:18px;box-shadow:0 10px 28px rgba(120,125,200,0.12)}
+  .card h2{margin:0 0 4px;color:var(--deep);font-size:19px}
+  .card .sub{margin:0 0 14px;color:var(--ink-soft);font-size:13px;font-weight:600;line-height:1.5}
+  textarea, input[type=text]{width:100%;border:1.5px solid rgba(144,165,255,0.45);border-radius:13px;
+    padding:11px 13px;font:inherit;font-size:14px;color:var(--ink);background:rgba(255,255,255,0.85)}
+  textarea:focus, input[type=text]:focus{outline:none;border-color:var(--pink-hot);box-shadow:0 0 0 3px rgba(255,178,240,0.2)}
+  textarea{min-height:90px;resize:vertical}
+  .btn{border:none;cursor:pointer;font:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    padding:10px 20px;border-radius:999px;background:linear-gradient(135deg,#ff9ec8,#9aa6ff);
+    box-shadow:0 5px 14px rgba(144,165,255,0.35)}
+  .btn.secondary{background:rgba(255,255,255,0.8);color:var(--deep);border:1.5px solid rgba(144,165,255,0.45);box-shadow:none}
+  .btn:disabled{opacity:.5;cursor:default}
+  .pillrow{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+  .pillrow .pill{border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.8);border-radius:999px;
+    font:inherit;font-size:12.5px;font-weight:800;color:var(--deep);padding:7px 14px;cursor:pointer}
+  .pillrow .pill[aria-pressed="true"]{color:#fff;border-color:transparent;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle))}
+  .out{margin-top:14px}
+  .out:empty{display:none}
+  .steps{list-style:none;margin:0;padding:0}
+  .steps li{display:flex;align-items:flex-start;gap:9px;padding:7px 4px;font-size:14px;font-weight:600;
+    border-bottom:1px dashed rgba(144,165,255,0.2);line-height:1.5}
+  .steps li input[type=checkbox]{width:17px;height:17px;margin-top:2px;flex:0 0 auto;accent-color:var(--deep)}
+  .steps li.done span{opacity:.45;text-decoration:line-through}
+  .resultbox{white-space:pre-wrap;background:rgba(255,255,255,0.8);border:1.5px solid rgba(144,165,255,0.3);
+    border-radius:13px;padding:13px;font-size:13.5px;line-height:1.6}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 6px}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 13px;
+    font-size:12px;font-weight:800}
+  .c-warm{background:rgba(255,178,240,0.3);color:#a23576}
+  .c-cool{background:rgba(144,165,255,0.25);color:#3c4a9e}
+  .c-hot{background:rgba(255,138,168,0.3);color:#a23556}
+  .c-calm{background:rgba(168,230,190,0.4);color:#1f6b35}
+  .why{font-size:12.5px;color:var(--ink-soft);font-weight:600;line-height:1.6}
+  .copy-row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .copied{background:var(--mint) !important;color:#fff !important}
+  .est-big{font-family:'Pacifico',cursive;font-size:30px;color:var(--deep);margin:6px 0 2px}
+  .toggle-line{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink);margin:8px 0;cursor:pointer}
+  .toggle-line input{width:17px;height:17px;accent-color:var(--deep)}
+  .xlink{color:var(--deep);font-weight:700}
+  .foot{margin-top:30px;text-align:center;color:var(--ink-soft);font-size:12.5px;font-weight:600;line-height:1.7}
+  @media print{.back-row{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-row"><a href="index.html">← Back to the hub</a></div>
+  <h1 class="logo">The Toolbox 🧰</h1>
+  <p class="tag">Little brain tools for the moments between the big tools — break a scary task into steps,
+     fix the tone of a message, sanity-check how something reads, and get an honest time guess.</p>
+  <p class="honesty">🤝 <strong>Honesty note:</strong> these run on hand-written rules and word lists, entirely in your
+     browser — nothing you type leaves your machine, ever. They're a starting point, not magic.
+     (Inspired by the wonderful <a class="xlink" href="https://goblin.tools" target="_blank" rel="noreferrer">goblin.tools</a> —
+     if you want the AI-powered versions, go hug a goblin.)</p>
+
+  <!-- ============ 1. TASK BREAKER ============ -->
+  <section class="card" id="breakerCard">
+    <h2>🪚 Task breaker</h2>
+    <p class="sub">Type the scary task. Get small, physical steps. Pick how fine to chop it.</p>
+    <input id="tbInput" type="text" maxlength="160" placeholder="e.g. edit the gremlin video · make a thumbnail · do my taxes" />
+    <div class="pillrow" id="tbGrain" role="group" aria-label="Step size">
+      <button class="pill" data-grain="1" type="button" aria-pressed="false">🥄 gentle (few big steps)</button>
+      <button class="pill" data-grain="2" type="button" aria-pressed="true">🥄🥄 medium</button>
+      <button class="pill" data-grain="3" type="button" aria-pressed="false">🥄🥄🥄 tiny pieces</button>
+    </div>
+    <button class="btn" id="tbGo" type="button">🪚 Break it down</button>
+    <div class="out" id="tbOut"></div>
+  </section>
+
+  <!-- ============ 2. TONE SHIFTER ============ -->
+  <section class="card" id="shifterCard">
+    <h2>🎭 Tone shifter</h2>
+    <p class="sub">Paste a message that doesn't sound right yet. Pick a direction. Edit the result — it's a draft, not gospel.</p>
+    <textarea id="tsInput" data-mic placeholder="paste your DM / email / reply here…"></textarea>
+    <div class="pillrow" id="tsModes" role="group" aria-label="Tone direction">
+      <button class="pill" data-mode="formal" type="button">🎩 more formal</button>
+      <button class="pill" data-mode="casual" type="button">🛋 more casual</button>
+      <button class="pill" data-mode="soften" type="button">🌸 softer</button>
+      <button class="pill" data-mode="confident" type="button">💪 less sorry</button>
+      <button class="pill" data-mode="shorter" type="button">✂️ shorter</button>
+    </div>
+    <div class="out" id="tsOut"></div>
+  </section>
+
+  <!-- ============ 3. TONE READ ============ -->
+  <section class="card" id="judgeCard">
+    <h2>⚖️ Tone read</h2>
+    <p class="sub">Worried how a message comes across? Get a heuristic read — and exactly which words triggered it, so you can decide for yourself.</p>
+    <textarea id="tjInput" data-mic placeholder="paste the message you're about to send (or one you received)…"></textarea>
+    <button class="btn" id="tjGo" type="button" style="margin-top:8px">⚖️ Read the tone</button>
+    <div class="out" id="tjOut"></div>
+  </section>
+
+  <!-- ============ 4. TIME GUESSER ============ -->
+  <section class="card" id="estCard">
+    <h2>⏳ Time guesser</h2>
+    <p class="sub">A rule-of-thumb estimate with the real-brain buffer built in — because "5 minutes" is never 5 minutes.</p>
+    <input id="teInput" type="text" maxlength="160" placeholder="e.g. edit a 60s short · write tomorrow's script · answer sponsor email" />
+    <label class="toggle-line"><input id="teAdhd" type="checkbox" checked />
+      include the real-brain buffer (×1.5 — task-switching, finding files, the snack you'll need)</label>
+    <label class="toggle-line"><input id="teNew" type="checkbox" />
+      first time doing this (×1.5 — everything is slower the first time, that's normal)</label>
+    <button class="btn" id="teGo" type="button">⏳ Guess the time</button>
+    <div class="out" id="teOut"></div>
+  </section>
+
+  <p class="foot">
+    Missing the brain-dump goblin? It lives on the <a class="xlink" href="todo.html">To-Do list</a> as 🧠 Brain dump.<br/>
+    Chef + Professor stayed with the goblins — recipes and open-ended explainers genuinely need an AI, and the hub doesn't use one.<br/>
+    Eggie's Creator Hub · all of this stays in your browser 🐙
+  </p>
+</div>
+
+<script>
+(function(){
+'use strict';
+function $(id){ return document.getElementById(id); }
+
+/* ============================================================
+   Shared: copy button helper
+   ============================================================ */
+function copyBtn(getText, label){
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn secondary';
+  b.textContent = label || '📋 Copy';
+  b.addEventListener('click', function(){
+    var doneLabel = '✓ Copied!';
+    try{
+      navigator.clipboard.writeText(getText()).then(function(){
+        b.classList.add('copied'); b.textContent = doneLabel;
+        setTimeout(function(){ b.classList.remove('copied'); b.textContent = label || '📋 Copy'; }, 1600);
+      });
+    }catch(e){}
+  });
+  return b;
+}
+
+/* ============================================================
+   1. TASK BREAKER — creator-tuned template library + generic fallback.
+   grain 1 = the level-1 steps only; 2 = + level-2; 3 = everything.
+   Each step is [level, text]. Wrapper steps make starting + stopping
+   explicit (the two hardest parts).
+   ============================================================ */
+var LIB = [
+  { k:/edit|cut|premiere|resolve|davinci/i, steps:[
+    [1,'Open the editor and load the footage — that\'s the whole first step'],
+    [2,'Watch it once WITHOUT touching anything (notes optional)'],
+    [1,'Rough cut: chop the dead air + pick the moments'],
+    [3,'Find your hook — the single best 3 seconds — and put it first'],
+    [2,'Tighten: trim every clip start/end once'],
+    [3,'Add captions / text pops'],
+    [2,'Sound pass: music, levels, one ear-check on phone speakers'],
+    [3,'Color / polish pass (timebox it — 20 min max)'],
+    [1,'Export + watch the export once'],
+    [2,'File it where it goes + update the planner card']
+  ]},
+  { k:/thumbnail|thumb/i, steps:[
+    [1,'Collect 3 reference thumbnails you wish you\'d made'],
+    [1,'Pick the ONE emotion/promise the thumbnail makes'],
+    [2,'Rough layout: subject + 3-ish words max'],
+    [3,'Try 2 background options, pick fast'],
+    [2,'Contrast pass: squint test — can you read it tiny?'],
+    [1,'Run it through the hub\'s Thumbnail Checker'],
+    [2,'Export at full size + save the working file']
+  ]},
+  { k:/script|write|outline|hook/i, steps:[
+    [1,'Brain-splat: bullet everything you might say, no order, 5 min'],
+    [1,'Write the HOOK first — one line that earns the next 3 seconds'],
+    [2,'Order the bullets: hook → payoff → close'],
+    [3,'Read it aloud once — your mouth finds clunky lines that eyes miss'],
+    [2,'Cut 20% (there\'s always 20%)'],
+    [1,'Paste it into the planner card so it\'s findable']
+  ]},
+  { k:/stream setup|go live|going live|stream day|obs/i, steps:[
+    [1,'Water + snack at the desk BEFORE anything technical'],
+    [1,'OBS: test record 10 seconds, listen back'],
+    [2,'Scene check: starting-soon, live, BRB all load'],
+    [2,'Title + category + tags set on the platform'],
+    [3,'Post the going-live message (Pitch Builder has the template)'],
+    [1,'Breathe. Lights. Go live'],
+    [3,'Pin the welcome message in chat']
+  ]},
+  { k:/tax|finance|receipt|invoice|bookkeep/i, steps:[
+    [1,'Open Finance & Tax + the pile of receipts (just open them — that\'s a step)'],
+    [2,'Enter the 5 newest items only — not all of them'],
+    [3,'Categorize as you go (the explainers tell you what counts)'],
+    [2,'Schedule the NEXT 5 for tomorrow instead of pushing through'],
+    [1,'Close the books — done is done']
+  ]},
+  { k:/email|dm|reply|message|respond|pitch/i, steps:[
+    [1,'Open it and read it once — no reply needed yet'],
+    [2,'One-line answer first: what is the ACTUAL ask?'],
+    [1,'Draft the reply (the 🎭 Tone shifter on this page helps)'],
+    [3,'Run it through ⚖️ Tone read if you\'re unsure how it lands'],
+    [1,'Send it before re-reading it an eleventh time']
+  ]},
+  { k:/upload|post|publish|schedule/i, steps:[
+    [1,'Open the planner card — title, description, tags are already there'],
+    [2,'Upload the file + paste title, description, hashtags'],
+    [3,'Thumbnail on, end screen / pinned comment if the platform has one'],
+    [1,'Schedule or post it'],
+    [2,'Mark the card Posted + add the link']
+  ]},
+  { k:/clean|tidy|organize|sort.*file|file.*sort|desktop/i, steps:[
+    [1,'Set a 15-minute timer — this task ends when IT ends, not when done'],
+    [2,'Make one "SORT LATER" folder and sweep loose files in'],
+    [3,'Delete the obvious trash only (no agonizing)'],
+    [1,'Stop when the timer rings. Future-you handles the folder']
+  ]}
+];
+var GENERIC = [
+  [1,'Name the finish line: what does "done" actually look like? One sentence'],
+  [1,'Set up: open the app/file/tab you need and NOTHING else'],
+  [2,'Do the smallest first piece — 5 minutes, badly is fine'],
+  [2,'Middle chunk: keep going OR book the next 5-minute window'],
+  [3,'Hit a wall? Write down the exact blocker — naming it shrinks it'],
+  [1,'Finish line: save it, send it, or mark where you stopped'],
+  [2,'Tell someone it\'s done (chat counts). Closure is fuel']
+];
+var grain = 2;
+document.querySelectorAll('#tbGrain .pill').forEach(function(p){
+  p.addEventListener('click', function(){
+    grain = Number(p.dataset.grain) || 2;
+    document.querySelectorAll('#tbGrain .pill').forEach(function(x){ x.setAttribute('aria-pressed', x === p ? 'true' : 'false'); });
+  });
+});
+function breakTask(){
+  var raw = ($('tbInput').value || '').trim();
+  var out = $('tbOut');
+  if(!raw){ out.innerHTML = '<p class="why">Type the task first — even a vague version. 🐣</p>'; return; }
+  var hit = null;
+  for(var i = 0; i < LIB.length; i++){ if(LIB[i].k.test(raw)){ hit = LIB[i]; break; } }
+  var steps = (hit ? hit.steps : GENERIC).filter(function(s){ return s[0] <= grain; });
+  // Multi-part tasks ("X and Y, then Z") get split into labeled parts at gentle grain.
+  var parts = raw.split(/\s*(?:,|\band then\b|\bthen\b|\+|&)\s*/i).filter(Boolean);
+  var head = hit ? '' : (parts.length > 1 ? '<p class="why">That\'s ' + parts.length + ' tasks wearing a trenchcoat — here\'s the wrapper for the FIRST one. Run the others through separately. 🧥</p>' : '');
+  out.innerHTML = head + '<ul class="steps" id="tbSteps">' + steps.map(function(s){
+    return '<li><input type="checkbox" /><span>' + escapeHtml(s[1]) + '</span></li>';
+  }).join('') + '</ul>';
+  var row = document.createElement('div'); row.className = 'copy-row';
+  row.appendChild(copyBtn(function(){
+    return steps.map(function(s){ return '• ' + s[1]; }).join('\n');
+  }, '📋 Copy steps'));
+  var hint = document.createElement('span'); hint.className = 'why';
+  hint.textContent = 'Paste into 🧠 Brain dump on the To-Do list to make them real tasks.';
+  row.appendChild(hint);
+  out.appendChild(row);
+  out.querySelectorAll('.steps li input').forEach(function(cb){
+    cb.addEventListener('change', function(){ cb.closest('li').classList.toggle('done', cb.checked); });
+  });
+}
+$('tbGo').addEventListener('click', breakTask);
+$('tbInput').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); breakTask(); } });
+
+/* ============================================================
+   2. TONE SHIFTER — regex/word-bank rewrites. A starting point.
+   ============================================================ */
+var CONTRACTIONS = [
+  [/\bdo not\b/gi,"don't"],[/\bcannot\b/gi,"can't"],[/\bwill not\b/gi,"won't"],
+  [/\bI am\b/g,"I'm"],[/\byou are\b/gi,"you're"],[/\bwe are\b/gi,"we're"],
+  [/\bit is\b/gi,"it's"],[/\bthat is\b/gi,"that's"],[/\bI would\b/g,"I'd"],
+  [/\bI will\b/g,"I'll"],[/\bwe will\b/gi,"we'll"],[/\bI have\b/g,"I've"]
+];
+function expandContractions(t){
+  return t.replace(/\bdon't\b/gi,'do not').replace(/\bcan't\b/gi,'cannot').replace(/\bwon't\b/gi,'will not')
+    .replace(/\bI'm\b/g,'I am').replace(/\byou're\b/gi,'you are').replace(/\bwe're\b/gi,'we are')
+    .replace(/\bit's\b/gi,'it is').replace(/\bthat's\b/gi,'that is').replace(/\bI'd\b/g,'I would')
+    .replace(/\bI'll\b/g,'I will').replace(/\bwe'll\b/gi,'we will').replace(/\bI've\b/g,'I have')
+    .replace(/\bgonna\b/gi,'going to').replace(/\bwanna\b/gi,'want to').replace(/\bkinda\b/gi,'somewhat');
+}
+function shift(mode, t){
+  var s = t;
+  if(mode === 'formal'){
+    s = expandContractions(s)
+      .replace(/\bhey+\b/gi,'Hello').replace(/\bhi\b/gi,'Hello').replace(/\byeah\b/gi,'yes').replace(/\byep\b/gi,'yes')
+      .replace(/\bthanks\b/gi,'thank you').replace(/\bawesome\b/gi,'excellent').replace(/\bcool\b/gi,'great')
+      .replace(/\bstuff\b/gi,'details').replace(/\bguys\b/gi,'everyone')
+      .replace(/!+/g,'.').replace(/\b(lol|lmao|omg)\b/gi,'').replace(/ {2,}/g,' ');
+  } else if(mode === 'casual'){
+    CONTRACTIONS.forEach(function(p){ s = s.replace(p[0], p[1]); });
+    s = s.replace(/\bHello\b/g,'Hey').replace(/\bregarding\b/gi,'about').replace(/\bhowever\b/gi,'but')
+      .replace(/\btherefore\b/gi,'so').replace(/\bassistance\b/gi,'help').replace(/\bpurchase\b/gi,'buy')
+      .replace(/\bI would like to\b/gi,'I want to').replace(/\bat your earliest convenience\b/gi,'whenever works');
+  } else if(mode === 'soften'){
+    s = s.replace(/\byou need to\b/gi,'it would help if you could').replace(/\byou must\b/gi,'it would be great if you could')
+      .replace(/\bdo this\b/gi,'maybe try this').replace(/\bwrong\b/gi,'not quite right')
+      .replace(/\basap\b/gi,'when you get a chance').replace(/\bimmediately\b/gi,'soon if possible');
+    if(!/\b(thanks|thank you|appreciate)\b/i.test(s)) s = s.replace(/\s*$/, '\n\nThank you so much! 💗');
+  } else if(mode === 'confident'){
+    s = s.replace(/\b(just|sorry to bother( you)?,?|sorry,?|I think maybe|maybe I|I was wondering if|if (that's|it's) ok(ay)?,?|no worries if not[.!]?|I hope this is ok(ay)?[.!]?)\s*/gi,'')
+      .replace(/\bI think I\b/gi,'I').replace(/\bI feel like\b/gi,'I think').replace(/\bcould you possibly\b/gi,'could you')
+      .replace(/\bwould it be possible to\b/gi,'can we').replace(/\?{2,}/g,'?').replace(/^\s*[a-z]/, function(m){ return m.toUpperCase(); })
+      .replace(/ {2,}/g,' ');
+  } else if(mode === 'shorter'){
+    // No lookbehind (old-Safari safe): match sentence chunks instead of splitting.
+    var sentences = s.match(/[^.!?\n]+[.!?]*\s*/g) || [s];
+    s = sentences.map(function(x){
+      return x.replace(/\b(very|really|actually|basically|literally|honestly|just|quite|pretty much|sort of|kind of|in my opinion|I think that|needless to say|at the end of the day)\s*/gi,'');
+    }).filter(function(x){ return x.trim().length > 2; }).join('');
+    s = s.replace(/ {2,}/g,' ').trim();
+  }
+  return s.trim();
+}
+document.querySelectorAll('#tsModes .pill').forEach(function(p){
+  p.addEventListener('click', function(){
+    var t = ($('tsInput').value || '').trim();
+    var out = $('tsOut');
+    if(!t){ out.innerHTML = '<p class="why">Paste the message first 🐣</p>'; return; }
+    var result = shift(p.dataset.mode, t);
+    out.innerHTML = '<div class="resultbox" id="tsResult">' + escapeHtml(result) + '</div>' +
+      '<p class="why" style="margin-top:8px">Rule-based rewrite — read it once before sending; you know your people best.</p>';
+    var row = document.createElement('div'); row.className = 'copy-row';
+    row.appendChild(copyBtn(function(){ return result; }, '📋 Copy result'));
+    out.appendChild(row);
+  });
+});
+
+/* ============================================================
+   3. TONE READ — transparent heuristics with receipts.
+   ============================================================ */
+function toneRead(){
+  var t = ($('tjInput').value || '').trim();
+  var out = $('tjOut');
+  if(!t){ out.innerHTML = '<p class="why">Paste the message first 🐣</p>'; return; }
+  var hits = { warm:[], hedge:[], urgent:[], sharp:[] };
+  function scan(re, bucket){
+    var m = t.match(re) || [];
+    m.slice(0,6).forEach(function(x){ hits[bucket].push(x.trim()); });
+    return m.length;
+  }
+  var warm = scan(/\b(thanks|thank you|appreciate|love|happy|excited|glad|please|hope|💗|💖|🥰|😊|🌸|!{1})\b|💗|💖|🥰|😊|🌸/gi,'warm');
+  var hedge = scan(/\b(just|maybe|sorry|I think|I guess|kind of|sort of|possibly|no worries if|if that's ok(ay)?|I was wondering)\b/gi,'hedge');
+  var urgent = scan(/\b(asap|urgent|immediately|right away|today|now|deadline)\b|!{2,}/gi,'urgent');
+  var caps = (t.match(/\b[A-Z]{3,}\b/g) || []).filter(function(w){ return !/^(OBS|VOD|ASAP|DM|PNG|GIF|URL|FAQ|USD|CAD)$/.test(w); });
+  caps.slice(0,6).forEach(function(c){ hits.sharp.push(c); });
+  var sharp = scan(/\b(no\.|wrong|unacceptable|fix this|why did you|you should have|obviously|clearly you)\b/gi,'sharp') + caps.length;
+  var len = t.split(/\s+/).length;
+
+  var verdict, cls;
+  if(sharp >= 2 && warm === 0){ verdict = 'Reads as sharp / frustrated — receivers may go defensive.'; cls = 'c-hot'; }
+  else if(urgent >= 2){ verdict = 'Reads as urgent / pressured — fine if it IS urgent, stressful if it isn\'t.'; cls = 'c-hot'; }
+  else if(warm >= 2 && hedge <= 2){ verdict = 'Reads as warm and clear. Send it. 💌'; cls = 'c-warm'; }
+  else if(hedge >= 3){ verdict = 'Reads as overly apologetic — the ask may get lost under the cushions. (💪 "less sorry" above can help.)'; cls = 'c-cool'; }
+  else if(warm === 0 && len < 14){ verdict = 'Reads as short / neutral — efficient to you, possibly curt to an anxious reader. One warm word fixes it.'; cls = 'c-cool'; }
+  else { verdict = 'Reads as neutral-friendly. No alarms.'; cls = 'c-calm'; }
+
+  var receipts = '';
+  function line(label, arr){
+    if(!arr.length) return '';
+    return '<div class="why"><strong>' + label + ':</strong> ' + arr.map(function(x){ return '"' + escapeHtml(x) + '"'; }).join(', ') + '</div>';
+  }
+  receipts += line('Warmth signals', hits.warm);
+  receipts += line('Hedges / apologies', hits.hedge);
+  receipts += line('Urgency signals', hits.urgent);
+  receipts += line('Sharp signals', hits.sharp);
+
+  out.innerHTML =
+    '<div class="chips">' +
+      '<span class="chip ' + cls + '">' + escapeHtml(verdict) + '</span>' +
+      '<span class="chip c-calm">' + len + ' words</span>' +
+    '</div>' + (receipts || '<p class="why">No strong signals either way — it\'s a calm, plain message.</p>') +
+    '<p class="why" style="margin-top:8px">Heuristic read, not a mind-reader — tone also lives in context only you know.</p>';
+}
+$('tjGo').addEventListener('click', toneRead);
+
+/* ============================================================
+   4. TIME GUESSER — rule-of-thumb bases + honest multipliers.
+   ============================================================ */
+var EST = [
+  { k:/edit.*(short|clip|60|tiktok)|short.*edit/i, base:90,  what:'editing a short' },
+  { k:/edit.*(video|vod|long)|video.*edit/i,       base:240, what:'editing longer-form' },
+  { k:/thumbnail|thumb/i,                          base:45,  what:'a thumbnail' },
+  { k:/script|outline|write.*video/i,              base:60,  what:'scripting' },
+  { k:/email|dm|reply|message/i,                   base:15,  what:'a message' },
+  { k:/upload|post|publish|schedule/i,             base:20,  what:'uploading + posting' },
+  { k:/stream setup|go live|obs/i,                 base:30,  what:'stream setup' },
+  { k:/tax|receipt|finance|invoice/i,              base:40,  what:'a finance session' },
+  { k:/emote|badge|panel/i,                        base:120, what:'emote/panel art' },
+  { k:/model|rig/i,                                base:480, what:'model/rig work (per session)' },
+  { k:/clean|tidy|organize/i,                      base:30,  what:'a tidy-up (timeboxed!)' }
+];
+function guessTime(){
+  var raw = ($('teInput').value || '').trim();
+  var out = $('teOut');
+  if(!raw){ out.innerHTML = '<p class="why">Type the task first 🐣</p>'; return; }
+  var hit = null;
+  for(var i = 0; i < EST.length; i++){ if(EST[i].k.test(raw)){ hit = EST[i]; break; } }
+  var base = hit ? hit.base : 45;
+  var label = hit ? hit.what : 'this (no pattern matched — using a generic 45m base)';
+  var mult = 1;
+  var notes = [];
+  if($('teAdhd').checked){ mult *= 1.5; notes.push('real-brain buffer ×1.5'); }
+  if($('teNew').checked){ mult *= 1.5; notes.push('first-time ×1.5'); }
+  if(/render|export|upload.*(4k|hour)|big file/i.test(raw)){ base += 20; notes.push('+20m render/export babysitting'); }
+  var mins = Math.round(base * mult);
+  var lo = Math.round(mins * 0.8), hi = Math.round(mins * 1.3);
+  function fmt(m){ return m >= 60 ? (Math.round(m / 30) / 2) + 'h' : m + 'm'; }
+  out.innerHTML =
+    '<div class="est-big">' + fmt(lo) + ' – ' + fmt(hi) + '</div>' +
+    '<p class="why">Base for ' + escapeHtml(label) + ': ' + fmt(base) + (notes.length ? ' · ' + escapeHtml(notes.join(' · ')) : '') + '</p>' +
+    '<p class="why">📅 Block <strong>' + fmt(hi) + '</strong> in the calendar. Finishing early feels amazing; running over feels like failure — pick the kind day.</p>';
+}
+$('teGo').addEventListener('click', guessTime);
+$('teInput').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); guessTime(); } });
+
+})();
+</script>
+<script src="hub-nav.js?v=9"></script>
+<script src="account-menu.js" defer></script><!-- signed-in account menu -->
+<script src="focus-widget.js" defer></script><!-- cross-page focus timer dock -->
+</body>
+</html>

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=4"></script><!-- 🌙 dark mode + 📖 dyslexia-friendly mode (saved per browser) -->
-<script src="hub-core.js?v=1"></script><!-- shared helpers + app install (PWA) -->
+<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
+<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -189,6 +189,28 @@
   .pitch-row .pr-status.signed{background:linear-gradient(135deg,rgba(168,230,190,0.6),rgba(107,228,234,0.45));color:#1f6580}
   .pitch-row .pr-status.passed{background:rgba(180,180,180,0.4);color:#555}
 
+  /* 📬 Follow-up radar — sent 7+ days ago, no reply yet (muted amber, no alarm) */
+  .pitch-row .pr-status.follow-up{background:rgba(255,213,138,0.45);color:#7a4a00;text-transform:none;letter-spacing:0}
+  .follow-up-banner{
+    background:rgba(255,213,138,0.25);border:1.5px solid rgba(255,180,100,0.4);
+    border-radius:12px;padding:9px 12px;margin-bottom:10px;
+    font-size:12px;font-weight:700;color:#7a4a00;line-height:1.45;
+  }
+
+  /* 🧰 Social scripts pack */
+  .scripts-pack summary{cursor:pointer;font-weight:800;font-size:15px;color:var(--deep);padding:2px 0;user-select:none}
+  .scripts-pack summary:hover{filter:brightness(1.15)}
+  .script-block{
+    background:#fff;border:1.5px solid rgba(144,165,255,0.25);
+    border-radius:14px;padding:14px 16px;margin-top:10px;
+  }
+  .script-block .script-label{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
+    font-weight:800;font-size:13.5px;color:var(--deep);margin-bottom:8px;
+  }
+  .script-block .script-text{white-space:pre-line;font-size:13.5px;line-height:1.55;color:var(--ink)}
+  @media print{.scripts-pack,.follow-up-banner{display:none !important}}
+
   /* Wizard */
   .wizard{display:flex;flex-direction:column;gap:14px}
   .stepper{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
@@ -365,6 +387,7 @@
     <aside class="sidebar">
       <h3>📁 Your pitches</h3>
       <button class="btn new-btn" onclick="newPitch()">✨ New pitch</button>
+      <div id="followUpBanner" class="follow-up-banner hidden"></div>
       <div id="pitchList"></div>
     </aside>
 
@@ -597,6 +620,97 @@
         </section>
 
       </div>
+
+      <!-- 🧰 Social scripts pack — send-ready wording for the awkward beats of
+           sponsor talk. Static on purpose (no personalization wiring): swap the
+           [BRACKETS], copy, send. Script text is left-aligned in source because
+           .script-text renders with white-space:pre-line. -->
+      <details class="card scripts-pack" id="scriptsPack">
+        <summary>🧰 Scripts for the hard moments — copy, tweak, send</summary>
+        <p class="muted" style="margin:10px 0 4px">Sponsor talk has a few moments that are genuinely hard to word from scratch. These are ready to send as-is — swap anything in [BRACKETS], adjust a line if you want, done.</p>
+
+        <div class="script-block">
+          <div class="script-label"><span>💌 Polite decline — it isn't a fit</span><button class="btn small secondary" onclick="copyScript('sp_decline')">📋 Copy</button></div>
+          <div class="script-text" id="sp_decline">Hi [NAME],
+
+Thank you for thinking of me — I read the whole brief, and I can tell care went into it.
+
+I'm going to pass on this one. It isn't quite the right fit for my audience, and I only take partnerships I can genuinely stand behind — that keeps my recommendations worth something, including to partners like you.
+
+If a future campaign leans closer to [YOUR NICHE], I'd be glad to take another look.
+
+Thanks again for reaching out,
+[YOUR NAME]</div>
+        </div>
+
+        <div class="script-block">
+          <div class="script-label"><span>💵 Raise your rate — counter-offer</span><button class="btn small secondary" onclick="copyScript('sp_rate')">📋 Copy</button></div>
+          <div class="script-text" id="sp_rate">Hi [NAME],
+
+Thanks for the offer — I'd genuinely like to work with [BRAND].
+
+My rate for this scope is [RATE]. That covers concepting, filming, editing, and a dedicated slot in front of an audience that already trusts what I recommend — that trust is what you're booking.
+
+If [RATE] fits your budget, I can have everything delivered by [DATE]. If the budget is fixed, I'm happy to propose a smaller package that fits it instead.
+
+Looking forward to it,
+[YOUR NAME]</div>
+        </div>
+
+        <div class="script-block">
+          <div class="script-label"><span>🔍 Ask for clarification — pin down the deal</span><button class="btn small secondary" onclick="copyScript('sp_clarify')">📋 Copy</button></div>
+          <div class="script-text" id="sp_clarify">Hi [NAME],
+
+I'm interested — and before I confirm, I want to make sure I understand the deliverables. Could you clarify:
+
+1. Deliverables — exactly what content, how many pieces, on which platforms?
+2. Exclusivity — can I work with similar brands during the campaign, and for how long after?
+3. Usage rights — will [BRAND] reuse my content in ads, where, and for how long?
+4. Payment terms — the amount, the currency, and when it's paid (net 15? net 30?)
+5. Deadline — when does each piece need to go live?
+
+Once I have these, you'll get a quick yes and a timeline from me.
+
+[YOUR NAME]</div>
+        </div>
+
+        <div class="script-block">
+          <div class="script-label"><span>⏰ Gentle follow-up — the 7-day nudge</span><button class="btn small secondary" onclick="copyScript('sp_followup')">📋 Copy</button></div>
+          <div class="script-text" id="sp_followup">Hi [NAME],
+
+Just floating my pitch from [DATE] back to the top of your inbox — I know launch seasons get busy.
+
+I'm still keen on working with [BRAND]. If the timing isn't right this quarter, no worries at all — happy to reconnect whenever it makes sense on your end.
+
+Either way, thanks for your time,
+[YOUR NAME]</div>
+        </div>
+
+        <div class="script-block">
+          <div class="script-label"><span>🛑 Scope-creep pushback — outside what we agreed</span><button class="btn small secondary" onclick="copyScript('sp_scope')">📋 Copy</button></div>
+          <div class="script-text" id="sp_scope">Hi [NAME],
+
+Happy to talk this through. The extra [REQUEST] sits outside what we agreed for this collab ([DELIVERABLES]), so it isn't covered by the current rate.
+
+If it matters to the campaign, I can absolutely add it — as a paid addition at [RATE], delivered by [DATE]. Say the word and I'll send over an updated agreement.
+
+Otherwise I'll keep everything moving exactly as planned.
+
+[YOUR NAME]</div>
+        </div>
+
+        <div class="script-block">
+          <div class="script-label"><span>🌱 Re-engage after ghosting — no hard feelings</span><button class="btn small secondary" onclick="copyScript('sp_ghost')">📋 Copy</button></div>
+          <div class="script-text" id="sp_ghost">Hi [NAME],
+
+Closing the loop on my pitch about [CAMPAIGN] — I know priorities shift, and that's completely fine.
+
+If it's paused or went another direction, a one-line "not right now" is all I need and I'll step back, no hard feelings. If it's still alive, I'm ready to pick it up whenever you are.
+
+Wishing you a smooth launch either way,
+[YOUR NAME]</div>
+        </div>
+      </details>
     </main>
   </div>
 
@@ -833,6 +947,7 @@ async function loadPitches(){
 
 function renderPitchList(){
   const host = document.getElementById('pitchList');
+  renderFollowUpBanner();
   if(!pitches.length){
     host.innerHTML = '<div class="muted" style="font-size:12.5px;padding:8px 4px">No pitches yet. Click ✨ New pitch to start your first.</div>';
     return;
@@ -844,6 +959,7 @@ function renderPitchList(){
         <div class="pr-name">${escapeHtml(p.name || p.brand_name || 'Untitled pitch')}</div>
         <div class="pr-meta">
           <span class="pr-status ${p.status||'draft'}">${(p.status||'draft').toUpperCase()}</span>
+          ${needsFollowUp(p) ? '<span class="pr-status follow-up">⏰ follow up?</span>' : ''}
           ${p.brand_name ? `<span>${escapeHtml(p.brand_name)}</span>` : ''}
           <span>${niceDate(p.updated_at, true)}</span>
         </div>
@@ -852,6 +968,27 @@ function renderPitchList(){
   host.querySelectorAll('.pitch-row').forEach(row => {
     row.addEventListener('click', () => openPitch(row.dataset.id));
   });
+}
+
+// ── 📬 Follow-up radar ──────────────────────────────────────
+// Deals shouldn't fall out of your head just because the tab closed.
+// A pitch is "due a nudge" when it was sent 7+ days ago, nothing came
+// back, and it's still sitting in 'sent'. Clicking a flagged row opens
+// the pitch like any other — the ⏰ script lives in the 🧰 pack below.
+const FOLLOW_UP_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+function needsFollowUp(p){
+  if(!p || p.status !== 'sent' || !p.sent_at || p.responded_at) return false;
+  const sent = new Date(p.sent_at).getTime();
+  if(isNaN(sent)) return false;
+  return (Date.now() - sent) >= FOLLOW_UP_AFTER_MS;
+}
+function renderFollowUpBanner(){
+  const host = document.getElementById('followUpBanner');
+  if(!host) return;
+  const n = pitches.filter(needsFollowUp).length;
+  if(!n){ host.classList.add('hidden'); host.textContent = ''; return; }
+  host.innerHTML = `📬 ${escapeHtml(String(n))} ${n === 1 ? 'pitch' : 'pitches'} sent over a week ago with no reply — a gentle follow-up usually helps. Click one to load a follow-up script.`;
+  host.classList.remove('hidden');
 }
 
 // ============================================================
@@ -1620,6 +1757,16 @@ function copyOutput(which){
     .catch(() => alert(text));
 }
 
+// Copy a ready-made script from the 🧰 pack — same clipboard + toast
+// pattern as copyOutput above.
+function copyScript(id){
+  const node = document.getElementById(id);
+  if(!node) return;
+  const text = node.innerText.trim();
+  navigator.clipboard.writeText(text).then(() => flashToast('Script copied 📋'))
+    .catch(() => alert(text));
+}
+
 function openMailto(){
   const subject = $('out_email_subject').value;
   const body = $('out_email_body').innerText;
@@ -1712,7 +1859,7 @@ function exitImpersonation(){
 // ============================================================
 initAuth();
 </script>
-<script src="hub-nav.js?v=8"></script>
+<script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>
