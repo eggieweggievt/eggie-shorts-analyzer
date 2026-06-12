@@ -694,6 +694,19 @@
        ============================================================ -->
   <div id="editorView" class="hidden">
 
+    <!-- 📤 "Good enough to send" meter (2026-06-12) — perfectionism is a
+         shipping-blocker; the tool says out loud when the kit is sendable. -->
+    <section class="card" id="sendableCard" style="padding:16px 22px">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="flex:0 0 auto;font-weight:800;color:var(--deep);font-size:15px">📤 Sendable?</div>
+        <div style="flex:1 1 220px;min-width:160px;height:12px;border-radius:999px;background:rgba(144,165,255,0.18);overflow:hidden">
+          <div id="sendableBar" style="height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#ff9ec8,#9aa6ff,#6BE4EA)"></div>
+        </div>
+        <div id="sendablePct" style="flex:0 0 auto;font-weight:800;color:var(--deep);font-size:14px">0%</div>
+      </div>
+      <p class="muted" id="sendableMsg" style="margin:8px 0 0;font-size:13px;line-height:1.55"></p>
+    </section>
+
     <!-- Identity / branding -->
     <section class="card">
       <h2>🌸 Identity & branding</h2>
@@ -1869,7 +1882,43 @@ function lockMirroredInputs(){
   });
 }
 
+/* ============================================================
+   📤 "Good enough to send" meter — scores the WORKING KIT against
+   what sponsors actually need to say yes. Threshold is deliberately
+   below 100%: a sendable kit beats a perfect draft every time.
+   ============================================================ */
+function renderSendableMeter(){
+  const bar = $('sendableBar'), pct = $('sendablePct'), msg = $('sendableMsg');
+  if(!bar || !pct || !msg) return;
+  const checks = [
+    { ok: !!(kit.display_name && kit.display_name.trim()),                w: 2, fix: 'your name' },
+    { ok: !!(kit.tagline && kit.tagline.trim()),                          w: 1, fix: 'a one-line tagline' },
+    { ok: !!(kit.bio && kit.bio.trim().length >= 40),                     w: 2, fix: 'a short bio (2–3 sentences)' },
+    { ok: !!(kit.avatar_url && kit.avatar_url.trim()),                    w: 1, fix: 'an avatar image' },
+    { ok: !!(kit.niche_primary && kit.niche_primary.trim()),              w: 1, fix: 'your niche' },
+    { ok: Array.isArray(kit.platforms) && kit.platforms.length > 0,       w: 3, fix: 'at least one platform with stats' },
+    { ok: Array.isArray(kit.top_content) && kit.top_content.length > 0,   w: 1, fix: 'one standout piece of content' },
+    { ok: (Array.isArray(kit.services_offered) && kit.services_offered.length > 0), w: 2, fix: 'what you offer (services)' },
+    { ok: !!((kit.contact_email && kit.contact_email.trim()) || (kit.booking_link && kit.booking_link.trim())), w: 3, fix: 'a way to contact you (email or booking link)' }
+  ];
+  const total = checks.reduce((s, c) => s + c.w, 0);
+  const got = checks.reduce((s, c) => s + (c.ok ? c.w : 0), 0);
+  const p = Math.round((got / total) * 100);
+  bar.style.width = p + '%';
+  pct.textContent = p + '%';
+  const missing = checks.filter(c => !c.ok).map(c => c.fix);
+  if(p >= 80){
+    msg.innerHTML = '<strong style="color:#1f6b35">✅ This is sendable.</strong> Sponsors can say yes to this — send it before perfectionism wakes up.' +
+      (missing.length ? ' (Nice-to-have later: ' + escapeHtml(missing.join(' · ')) + '.)' : '');
+  } else if(p >= 50){
+    msg.innerHTML = '<strong style="color:#a35c00">Almost there.</strong> The fastest wins: ' + escapeHtml(missing.slice(0, 3).join(' · ')) + '.';
+  } else {
+    msg.innerHTML = 'Start with the big three: ' + escapeHtml(missing.slice(0, 3).join(' · ')) + ' — those carry most of the weight.';
+  }
+}
+
 function renderEditor(){
+  renderSendableMeter();   // 📤 reflects the working kit every re-render
   // Identity
   $('ed_display_name').value = kit.display_name || '';
   $('ed_tagline').value = kit.tagline || '';

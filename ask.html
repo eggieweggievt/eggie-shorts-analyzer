@@ -699,6 +699,154 @@ function answerQuestion(question){
 // escapeHtml comes from hub-core.js (shared across the hub)
 
 initAuth();
+
+/* ============================================================
+   ✨ SMARTER SEARCH (2026-06-12) — optional, in-browser semantic
+   matching. When the keyword fallback runs (no intent pattern
+   matched), this re-checks the question BY MEANING using a small
+   sentence-embedding model (MiniLM via transformers.js) that runs
+   entirely on-device. "that spooky collab thing" can find the
+   Phasmophobia card with zero shared words.
+
+   Honest constraints, by design:
+   • OPT-IN — first use downloads ~25 MB of model files once, then
+     they're cached by the browser. Nothing you ask ever leaves
+     your machine.
+   • Only upgrades the generic-search path — the fast intent
+     answers (overdue, scored, this week…) stay instant.
+   • Any failure (CDN down, old browser) leaves keyword search
+     exactly as it was.
+   ============================================================ */
+(function(){
+  'use strict';
+  var FLAG = 'eggie-ask-semantic';
+  var enabled = false;
+  try{ enabled = localStorage.getItem(FLAG) === '1'; }catch(e){}
+
+  var pipePromise = null, failed = false;
+  var vecCache = new Map();   // `${id}:${updated_at}` → Float32Array
+
+  function ui(){
+    var status = document.getElementById('askStatus');
+    if(!status || document.getElementById('semRow')) return;
+    var row = document.createElement('div');
+    row.id = 'semRow';
+    row.style.cssText = 'margin-top:10px;font-size:12.5px;font-weight:600;color:var(--ink-soft,#6b5f8a);display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    status.parentNode.insertBefore(row, status.nextSibling);
+    paintUi();
+  }
+  function paintUi(msg){
+    var row = document.getElementById('semRow');
+    if(!row) return;
+    if(msg){ row.innerHTML = '<span>' + escapeHtml(msg) + '</span>'; return; }
+    if(enabled){
+      row.innerHTML = '<span>✨ Smarter search is on — vague questions get matched by meaning, on your device.</span>' +
+        '<button type="button" id="semOff" style="border:none;background:none;font:inherit;font-size:12px;font-weight:700;color:var(--deep,#4D5BC0);cursor:pointer;text-decoration:underline dashed">turn off</button>';
+      var off = document.getElementById('semOff');
+      if(off) off.addEventListener('click', function(){
+        enabled = false;
+        try{ localStorage.removeItem(FLAG); }catch(e){}
+        paintUi();
+      });
+    } else {
+      row.innerHTML = '<button type="button" id="semOn" style="border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.8);border-radius:999px;font:inherit;font-size:12px;font-weight:800;color:var(--deep,#4D5BC0);padding:6px 13px;cursor:pointer">✨ Turn on smarter search</button>' +
+        '<span>understands what you mean, not just exact words · one-time ~25 MB download · stays in your browser</span>';
+      var on = document.getElementById('semOn');
+      if(on) on.addEventListener('click', function(){
+        enabled = true;
+        try{ localStorage.setItem(FLAG, '1'); }catch(e){}
+        paintUi('✨ Getting the meaning-matcher ready — first time downloads ~25 MB, after that it\'s instant…');
+        loadPipe().then(function(){ paintUi(); })
+          .catch(function(){ paintUi('Couldn\'t load the search model (offline?) — keyword search still works fine. It\'ll retry next time.'); });
+      });
+    }
+  }
+  function loadPipe(){
+    if(pipePromise) return pipePromise;
+    pipePromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2')
+      .then(function(T){
+        T.env.allowLocalModels = false;
+        return T.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { quantized: true });
+      })
+      .catch(function(e){ failed = true; pipePromise = null; throw e; });
+    return pipePromise;
+  }
+  function itemText(it){
+    return ((it.title || '') + '. ' + (it.hook || '') + '. ' + (it.notes || '')).slice(0, 400);
+  }
+  function cos(a, b){
+    var s = 0;
+    for(var i = 0; i < a.length; i++) s += a[i] * b[i];
+    return s;   // vectors are normalized → dot product = cosine
+  }
+  async function embedAll(pipe, items){
+    var need = [], keys = [];
+    items.forEach(function(it){
+      var k = it.id + ':' + (it.updated_at || '');
+      if(!vecCache.has(k)){ need.push(itemText(it)); keys.push(k); }
+    });
+    // batch in chunks so a big planner doesn't lock the tab
+    for(var i = 0; i < need.length; i += 16){
+      var chunk = need.slice(i, i + 16);
+      var out = await pipe(chunk, { pooling: 'mean', normalize: true });
+      var dims = out.dims[1];
+      for(var j = 0; j < chunk.length; j++){
+        vecCache.set(keys[i + j], out.data.slice(j * dims, (j + 1) * dims));
+      }
+    }
+  }
+  function isFallbackAnswer(data){
+    var a = String((data && data.answer) || '');
+    return a.indexOf('Found ') === 0 || a.indexOf('No matches') === 0;
+  }
+
+  /* wrap renderResults: after the instant keyword render, upgrade by meaning */
+  if(typeof renderResults === 'function'){
+    var origRender = renderResults;
+    renderResults = function(data){
+      origRender(data);
+      try{
+        if(!enabled || failed || !data || data.__semanticDone || !isFallbackAnswer(data)) return;
+        var question = (document.getElementById('q').value || '').trim();
+        if(!question) return;
+        var items = (typeof allItems !== 'undefined' && allItems) ? allItems : [];
+        if(!items.length) return;
+        paintUi('✨ also checking by meaning…');
+        (async function(){
+          var pipe = await loadPipe();
+          await embedAll(pipe, items);
+          var qOut = await pipe([question], { pooling: 'mean', normalize: true });
+          var qv = qOut.data.slice(0, qOut.dims[1]);
+          var ranked = items.map(function(it){
+            var v = vecCache.get(it.id + ':' + (it.updated_at || ''));
+            return { it: it, sim: v ? cos(qv, v) : -1 };
+          }).filter(function(r){ return r.sim >= 0.32; })
+            .sort(function(a, b){ return b.sim - a.sim; })
+            .slice(0, 12);
+          paintUi();
+          if(!ranked.length) return;   // meaning found nothing extra — keep keyword results
+          var keywordIds = new Set((data.items || []).map(function(it){ return it.id; }));
+          var merged = (data.items || []).slice();
+          ranked.forEach(function(r){ if(!keywordIds.has(r.it.id)) merged.push(r.it); });
+          if(merged.length === (data.items || []).length && (data.items || []).length) return; // nothing new
+          if(!((data.items || []).length)) merged = ranked.map(function(r){ return r.it; });
+          origRender({
+            answer: '✨ Matched by meaning — ' + merged.length + ' item' + (merged.length === 1 ? '' : 's') +
+              ' (keyword hits first, meaning-matches after).',
+            items: merged.slice(0, 20),
+            __semanticDone: true
+          });
+        })().catch(function(e){
+          console.warn('[Ask] semantic pass skipped:', e);
+          paintUi();
+        });
+      }catch(e){ console.warn('[Ask] semantic wrapper error:', e); }
+    };
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ui);
+  else ui();
+})();
 </script>
 <script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->

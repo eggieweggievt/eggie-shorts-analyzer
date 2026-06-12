@@ -2014,6 +2014,109 @@ function escapeHtml(s){
 }
 </script>
 <script src="focus-widget.js" defer></script>
+<script>
+/* ============================================================
+   🆚 A/B COMPARE (2026-06-12) — pin a scored thumbnail, score a
+   second one, see them side by side with the verdict. Decision
+   support for the "which one??" spiral. Page-lifetime only (pins
+   don't survive refresh — that's fine, the images are local).
+   Implemented as a wrapper around renderScore so the existing
+   pipeline is untouched.
+   ============================================================ */
+(function(){
+  'use strict';
+  if(typeof renderScore !== 'function') return;
+  var pinned = null;   // { url, overall, grade, crits:[{name,score}] }
+  var latest = null;
+
+  function host(){
+    var ring = document.getElementById('scoreRing');
+    if(!ring) return null;
+    return ring.closest('section') || ring.closest('.card') || ring.parentNode;
+  }
+  function ensureUI(){
+    var h = host();
+    if(!h) return;
+    if(!document.getElementById('abPinBtn')){
+      var btn = document.createElement('button');
+      btn.id = 'abPinBtn'; btn.type = 'button';
+      btn.textContent = '📌 Pin for A/B';
+      btn.title = 'Keep this thumbnail + score on the side, then upload another to compare them.';
+      btn.style.cssText = 'margin:10px 0 0;border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.8);' +
+        'border-radius:999px;font:inherit;font-size:12.5px;font-weight:800;color:var(--deep,#4D5BC0);padding:8px 16px;cursor:pointer';
+      btn.addEventListener('click', function(){
+        if(!latest || !latest.url) return;
+        pinned = latest;
+        btn.textContent = '📌 Pinned — upload the other one';
+        renderCompare();
+      });
+      h.appendChild(btn);
+    }
+    if(!document.getElementById('abStrip')){
+      var strip = document.createElement('section');
+      strip.id = 'abStrip';
+      strip.className = 'card';
+      strip.style.display = 'none';
+      h.parentNode.insertBefore(strip, h.nextSibling);
+    }
+  }
+  function snap(v){
+    return {
+      url: (typeof __currentAnalysis === 'object' && __currentAnalysis && __currentAnalysis.thumbUrl) || null,
+      overall: v.overall, grade: v.grade,
+      crits: (v.crits || []).map(function(c){ return { name: c.name, score: c.score }; })
+    };
+  }
+  function mini(s, label){
+    return '<div style="flex:1 1 220px;min-width:180px">' +
+      '<div style="font-weight:800;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft,#6b5f8a);margin-bottom:6px">' + label + '</div>' +
+      (s.url ? '<img src="' + escapeHtml(s.url) + '" alt="" style="width:100%;border-radius:12px;aspect-ratio:16/9;object-fit:cover;border:1.5px solid rgba(144,165,255,0.3)" />' : '') +
+      '<div style="margin-top:8px;font-weight:800;color:var(--deep,#4D5BC0);font-size:18px">' + s.overall.toFixed(1) + '<span style="font-size:12px;font-weight:700;color:var(--ink-soft,#6b5f8a)"> /10 · ' + escapeHtml(s.grade || '') + '</span></div>' +
+      '</div>';
+  }
+  function renderCompare(){
+    var strip = document.getElementById('abStrip');
+    if(!strip) return;
+    if(!pinned || !latest || !latest.url || pinned.url === latest.url){ strip.style.display = 'none'; return; }
+    var diff = latest.overall - pinned.overall;
+    var verdict = Math.abs(diff) < 0.3
+      ? "🤝 Basically a tie — pick the one that matches the title's promise."
+      : (diff > 0 ? '🏆 The NEW one wins by ' + Math.abs(diff).toFixed(1) : '🏆 The PINNED one wins by ' + Math.abs(diff).toFixed(1));
+    // top factor differences (matched by name)
+    var deltas = [];
+    pinned.crits.forEach(function(pc){
+      var lc = latest.crits.find(function(x){ return x.name === pc.name; });
+      if(lc && Math.abs(lc.score - pc.score) >= 1){
+        deltas.push(escapeHtml(pc.name) + ': ' + (lc.score > pc.score ? 'new +' : 'pinned +') + Math.abs(lc.score - pc.score));
+      }
+    });
+    strip.innerHTML =
+      '<h2 style="margin:0 0 4px">🆚 A/B compare</h2>' +
+      '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px">' + mini(pinned, '📌 pinned') + mini(latest, '✨ new') + '</div>' +
+      '<p style="margin:12px 0 0;font-weight:800;color:var(--deep,#4D5BC0)">' + verdict + '</p>' +
+      (deltas.length ? '<p style="margin:6px 0 0;font-size:12.5px;font-weight:600;color:var(--ink-soft,#6b5f8a)">Biggest differences — ' + deltas.slice(0,3).join(' · ') + '</p>' : '') +
+      '<button type="button" id="abUnpin" style="margin-top:12px;border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.8);border-radius:999px;font:inherit;font-size:12px;font-weight:800;color:var(--deep,#4D5BC0);padding:7px 14px;cursor:pointer">✕ unpin</button>';
+    strip.style.display = '';
+    var un = document.getElementById('abUnpin');
+    if(un) un.addEventListener('click', function(){
+      pinned = null;
+      strip.style.display = 'none';
+      var b = document.getElementById('abPinBtn');
+      if(b) b.textContent = '📌 Pin for A/B';
+    });
+  }
+
+  var orig = renderScore;
+  renderScore = function(v){
+    orig(v);
+    try{
+      latest = snap(v);
+      ensureUI();
+      renderCompare();
+    }catch(e){ console.warn('[A/B] skipped:', e); }
+  };
+})();
+</script>
 <script src="hub-nav.js?v=9"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>

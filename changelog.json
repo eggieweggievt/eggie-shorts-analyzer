@@ -1,11 +1,18 @@
 {
   "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. 'upcoming' is a plain list of strings shown as a 'Coming soon' card — announce UI changes BEFORE shipping them, then move them into a real entry when they land. changelog.html renders this file — no other edits needed.",
-  "upcoming": [
-    "Smarter search in Ask My Planner that understands what you mean, not just exact words (everything stays in your browser).",
-    "Thumbnail Checker side-by-side A/B compare.",
-    "A 'good enough to send' completeness meter on the Media Kit."
-  ],
+  "upcoming": [],
   "entries": [
+    {
+      "date": "2026-06-12",
+      "emoji": "🔭",
+      "title": "Everything from Coming Soon, shipped",
+      "items": [
+        { "type": "new", "text": "✨ Smarter search in Ask My Planner — turn it on and vague questions get matched by MEANING, not just exact words ('that spooky collab thing' finds the right card). One-time ~25 MB download, then it runs entirely in your browser; the instant answers stay instant, and keyword search still works if you leave it off." },
+        { "type": "new", "text": "🆚 Thumbnail A/B compare — score a thumbnail, hit 📌 Pin, score the other one, and get them side by side with the verdict and the biggest factor differences." },
+        { "type": "new", "text": "📤 'Sendable?' meter on the Media Kit — a completeness bar that says out loud when the kit is good enough to send (80%+), what the fastest wins are, and which bits are just nice-to-haves. Perfectionism doesn't get a veto anymore." },
+        { "type": "improved", "text": "The Toolbox and What's New pages now sit on the exact same pastel canvas as every other page — no more odd-one-out backgrounds." }
+      ]
+    },
     {
       "date": "2026-06-12",
       "emoji": "🧰",
