@@ -29,10 +29,13 @@
   body{
     margin:0;padding:28px 16px 80px;
     font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+    /* canonical hub canvas — same as todo/habits/planner */
     background:
-      radial-gradient(1200px 500px at 80% -10%, rgba(255,178,240,0.25), transparent 60%),
-      radial-gradient(900px 420px at -10% 20%, rgba(144,165,255,0.22), transparent 55%),
-      var(--cream);
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,178,240,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 90% 10%, rgba(107,228,234,0.55), transparent 60%),
+      radial-gradient(1200px 600px at 50% 100%, rgba(144,165,255,0.45), transparent 60%),
+      linear-gradient(180deg, #fef0fb 0%, #eaf2ff 50%, #e7fbfc 100%);
+    min-height:100vh;
     color:var(--ink);
   }
   .wrap{max-width:760px;margin:0 auto}
