@@ -1973,7 +1973,8 @@ async function saveEditorNotes(itemId, btn){
   btn.disabled = false;
   btn.innerHTML = originalText;
   if(error){
-    if(/column .* does not exist/i.test(error.message || '')){
+    const m = error.message || '';
+    if(/column .* does not exist/i.test(m) || /could not find the .* column/i.test(m) || error.code === 'PGRST204'){
       alert('The editor_notes column hasn\'t been added to your Supabase database yet. Ask your creator to re-run planner-supabase-v2.sql in the Supabase SQL Editor.');
     } else {
       alert('Couldn\'t save notes: ' + error.message);

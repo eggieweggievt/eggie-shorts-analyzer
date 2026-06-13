@@ -3509,12 +3509,17 @@ async function saveItem(item){
     .select()
     .single();
   if(error){
-    // Graceful degradation if user hasn't run V2 migration yet — drop new fields and retry once
-    if(/column.*does not exist/i.test(error.message || '')){
-      console.warn('[Planner] V2 columns missing — saving without them. Run planner-supabase-v2.sql to enable Editors / Footage / Attachments.');
+    // Graceful degradation if a column migration hasn't been run yet — drop the
+    // newer fields and retry once. Supabase reports a missing column two ways:
+    //   • Postgres:  "column ... does not exist"
+    //   • PostgREST: "Could not find the 'X' column of '...' in the schema cache" (PGRST204)
+    // Match BOTH so a pending migration never hard-fails a save.
+    const msg = error.message || '';
+    if(/column.*does not exist/i.test(msg) || /could not find the .* column/i.test(msg) || error.code === 'PGRST204'){
+      console.warn('[Planner] A column migration is pending — saving without the newer fields. Run the latest planner-*.sql (e.g. planner-2026-06-12-nd-upgrade.sql for "next_action") to enable them.');
       ['editor_id','assignee_email','footage_url','editor_files_url','attachments','additional_assets','is_priority','description','next_action'].forEach(k => delete payload[k]);
       const retry = await sb.from('planner_items').upsert(payload).select().single();
-      if(!retry.error){ setConn(true, 'Live (V2 migration pending)'); return retry.data; }
+      if(!retry.error){ setConn(true, 'Live (migration pending)'); return retry.data; }
     }
     console.error('Save failed:', error);
     alert('Save failed: ' + error.message);
