@@ -32,6 +32,19 @@
   if (window.__hubCoreInit) return;
   window.__hubCoreInit = true;
 
+  /* ---- 0. shared UI polish layer (hub-ui.css) ----
+     Injected here so every page that loads hub-core gets the smoothing +
+     reusable components with no per-page <link>. Loaded as a real stylesheet
+     (not inline) so it caches well; additive + :where()-based, so it never
+     overrides a page's own styles. */
+  if (!document.getElementById('hub-ui-css')) {
+    var uiCss = document.createElement('link');
+    uiCss.id = 'hub-ui-css';
+    uiCss.rel = 'stylesheet';
+    uiCss.href = 'hub-ui.css?v=3';
+    (document.head || document.documentElement).appendChild(uiCss);
+  }
+
   /* ---- 1. canonical helpers (define-if-missing) ---- */
   if (typeof window.escapeHtml !== 'function') {
     window.escapeHtml = function (s) {
@@ -311,6 +324,184 @@
     } catch (e) { return null; }
   }
 
+  /* ---- 7b. EggieUI — reusable UI helpers (pair with hub-ui.css) ----
+     Tiny, dependency-free, and safe to call before <body> exists (they
+     defer to it). Adopt incrementally on any page:
+        EggieUI.toast('Saved ✨', { type:'ok' })
+        EggieUI.busy(saveBtn, true) … EggieUI.busy(saveBtn, false)
+        var done = EggieUI.skeleton('list', { rows:4, card:true }); … done(); */
+  function uiWhenBody(fn) {
+    if (document.body) fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+  function ensureToastWrap() {
+    var w = document.getElementById('ui-toast-wrap');
+    if (!w) {
+      w = document.createElement('div');
+      w.id = 'ui-toast-wrap';
+      w.setAttribute('role', 'status');
+      w.setAttribute('aria-live', 'polite');
+      (document.body || document.documentElement).appendChild(w);
+    }
+    return w;
+  }
+  function uiToast(msg, opts) {
+    opts = opts || {};
+    var t = document.createElement('div');
+    t.className = 'ui-toast' + (opts.type ? ' ui-toast--' + opts.type : '');
+    t.textContent = String(msg == null ? '' : msg);
+    uiWhenBody(function () {
+      ensureToastWrap().appendChild(t);
+      requestAnimationFrame(function () { t.classList.add('show'); });
+      var dur = opts.duration || 3200;
+      setTimeout(function () {
+        t.classList.remove('show');
+        setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 380);
+      }, dur);
+    });
+    return t;
+  }
+  /* Lock a button into a spinner state without destroying its label.
+     Non-destructive: pages that also set their own text still work. */
+  function uiBusy(btn, isBusy) {
+    if (!btn) return;
+    if (isBusy) {
+      if (!btn.hasAttribute('data-ui-was-disabled')) {
+        btn.setAttribute('data-ui-was-disabled', btn.disabled ? '1' : '0');
+      }
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
+    } else {
+      btn.removeAttribute('aria-busy');
+      btn.disabled = btn.getAttribute('data-ui-was-disabled') === '1';
+      btn.removeAttribute('data-ui-was-disabled');
+    }
+  }
+  /* Drop a shimmer placeholder into a container while data loads.
+     Returns a clear() function. Marks the host aria-busy for screen readers. */
+  function uiSkeleton(target, opts) {
+    opts = opts || {};
+    var el = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!el) return function () {};
+    var rows = opts.rows || 3;
+    var box = document.createElement('div');
+    box.className = 'ui-skeleton-host';
+    box.setAttribute('aria-hidden', 'true');
+    var html = '';
+    if (opts.card) {
+      for (var i = 0; i < rows; i++) html += '<div class="ui-skeleton ui-skeleton-card"></div>';
+    } else {
+      html += '<div class="ui-skeleton ui-skeleton--title"></div>';
+      for (var j = 0; j < rows; j++) {
+        html += '<div class="ui-skeleton ui-skeleton--text" style="width:' + (70 + (j * 9) % 26) + '%"></div>';
+      }
+    }
+    box.innerHTML = html;
+    el.setAttribute('aria-busy', 'true');
+    el.appendChild(box);
+    return function clear() {
+      if (box.parentNode) box.parentNode.removeChild(box);
+      el.removeAttribute('aria-busy');
+    };
+  }
+  /* Wire a set of .ui-check rows into a self-contained progress checklist:
+     click / Enter / Space toggles done, a .ui-progress-fill + .ui-progress-label
+     update live, and a .ui-reward shows when everything's ticked. Optional
+     opts.storeKey persists ticked state in localStorage (great for ADHD —
+     progress survives a refresh or a distracted tab-away). Pure progressive
+     enhancement: if it isn't called, the markup is still readable. */
+  function uiWireChecklist(root, opts) {
+    opts = opts || {};
+    var el = typeof root === 'string' ? document.querySelector(root) : root;
+    if (!el) return null;
+    var items = Array.prototype.slice.call(el.querySelectorAll('.ui-check'));
+    if (!items.length) return null;
+    var fill = el.querySelector('.ui-progress-fill');
+    var label = el.querySelector('.ui-progress-label');
+    var reward = el.querySelector('.ui-reward');
+    var store = opts.storeKey || null;
+
+    function persist() {
+      if (!store) return;
+      try {
+        var done = items.map(function (it) { return it.classList.contains('is-done') ? 1 : 0; });
+        localStorage.setItem(store, JSON.stringify(done));
+      } catch (e) {}
+    }
+    function restore() {
+      if (!store) return;
+      try {
+        var saved = JSON.parse(localStorage.getItem(store) || 'null');
+        if (Array.isArray(saved)) {
+          items.forEach(function (it, i) { if (saved[i]) it.classList.add('is-done'); });
+        }
+      } catch (e) {}
+    }
+    function sync() {
+      var done = items.filter(function (it) { return it.classList.contains('is-done'); }).length;
+      var pct = Math.round(done / items.length * 100);
+      if (fill) fill.style.width = pct + '%';
+      if (label) label.textContent = done + ' of ' + items.length + ' done';
+      if (reward) reward.classList.toggle('show', done === items.length);
+      items.forEach(function (it) { it.setAttribute('aria-pressed', it.classList.contains('is-done') ? 'true' : 'false'); });
+      if (typeof opts.onChange === 'function') opts.onChange(done, items.length);
+    }
+    function toggle(it) { it.classList.toggle('is-done'); persist(); sync(); }
+    items.forEach(function (it) {
+      if (!it.hasAttribute('role')) it.setAttribute('role', 'button');
+      if (!it.hasAttribute('tabindex')) it.tabIndex = 0;
+      it.addEventListener('click', function () { toggle(it); });
+      it.addEventListener('keydown', function (e) {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(it); }
+      });
+    });
+    restore();
+    sync();
+    return { sync: sync, items: items };
+  }
+
+  /* Scroll reveal — fade + rise elements marked [data-reveal] as they enter view,
+     with a gentle per-sibling stagger. Safe by design: the hidden base state in
+     hub-ui.css only applies once we add html.ui-reveal-on, which we ONLY do when
+     motion is allowed — so if this never runs (old cache, JS off, reduced motion,
+     low-stim) the content is simply visible, never stuck hidden. Call
+     EggieUI.reveal(scope) again after rendering async content (e.g. cards from
+     Supabase) to animate the new nodes. */
+  var uiRevealObserver = null;
+  function uiMotionOff() {
+    try {
+      if (document.documentElement.hasAttribute('data-hub-lowstim')) return true;
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) { return false; }
+  }
+  function uiReveal(scope) {
+    var root = scope || document;
+    var els = Array.prototype.slice.call(root.querySelectorAll('[data-reveal]:not(.is-in)'));
+    if (!els.length) return;
+    if (uiMotionOff() || !('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('is-in'); });   // just show, no motion
+      return;
+    }
+    document.documentElement.classList.add('ui-reveal-on');
+    if (!uiRevealObserver) {
+      uiRevealObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var el = en.target;
+          var sibs = el.parentNode ? Array.prototype.slice.call(el.parentNode.querySelectorAll(':scope > [data-reveal]')) : [el];
+          var i = sibs.indexOf(el);
+          el.style.transitionDelay = Math.min(i < 0 ? 0 : i, 6) * 55 + 'ms';
+          el.classList.add('is-in');
+          uiRevealObserver.unobserve(el);
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+    }
+    els.forEach(function (el) { uiRevealObserver.observe(el); });
+  }
+
+  var EggieUI = { toast: uiToast, busy: uiBusy, skeleton: uiSkeleton, wireChecklist: uiWireChecklist, reveal: uiReveal };
+  window.EggieUI = EggieUI;
+
   window.EggieHub = {
     SUPABASE_URL: SUPABASE_URL,
     SUPABASE_ANON_KEY: SUPABASE_ANON_KEY,
@@ -323,13 +514,16 @@
     speak: speak,
     stopSpeaking: stopSpeaking,
     setSpoons: setSpoons,
-    spoons: spoons
+    spoons: spoons,
+    /* v3 additions */
+    ui: EggieUI
   };
 
-  /* ---- 8. page-ready glue (auto-crumb + mic buttons) ---- */
+  /* ---- 8. page-ready glue (auto-crumb + mic buttons + reveal) ---- */
   function onPageReady() {
     autoCrumb();
     micAutoAttach();
+    uiReveal(document);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', onPageReady);

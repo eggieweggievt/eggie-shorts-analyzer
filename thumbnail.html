@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -122,7 +122,7 @@
   .step-num{
     flex-shrink:0;width:42px;height:42px;border-radius:50%;
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
-    color:#fff;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);display:flex;align-items:center;justify-content:center;
     font-family:'Pacifico',cursive;font-size:22px;
     box-shadow:0 6px 14px rgba(144,165,255,0.35);
   }
@@ -579,7 +579,7 @@
   .crit.impact-low{border-top-color:rgba(144,165,255,0.3)}
   .crit .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
   .crit .name{font-weight:800;font-size:14px;color:var(--deep)}
-  .crit .score-tag{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;color:#fff;letter-spacing:.04em}
+  .crit .score-tag{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;color:var(--ink);letter-spacing:.04em}
   .bar{height:8px;background:rgba(144,165,255,0.15);border-radius:999px;overflow:hidden;margin:6px 0 8px}
   .bar > div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--periwinkle),var(--pink-hot))}
   .crit .blurb{font-size:13px;color:var(--ink-soft);line-height:1.5}
@@ -622,7 +622,7 @@
   ul.checklist .mark{
     flex-shrink:0;width:22px;height:22px;border-radius:50%;
     display:inline-flex;align-items:center;justify-content:center;
-    font-size:13px;font-weight:800;color:#fff;
+    font-size:13px;font-weight:800;color:var(--ink);
   }
   .mark.pass{background:linear-gradient(135deg,var(--mint),var(--periwinkle))}
   .mark.warn{background:linear-gradient(135deg,#FFD580,#FFB07A)}
@@ -1954,7 +1954,7 @@ function renderInsights({ocrText, checklist, colorStats, focalStats, edgeStats})
     charBody = labels.map(l => {
       const on = chk[l.key];
       return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px;color:${on?'var(--deep)':'var(--ink-soft)'}">
-        <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${on?'linear-gradient(135deg,var(--mint),var(--periwinkle))':'rgba(144,165,255,0.18)'};color:#fff;font-size:11px;font-weight:800">${on?'✓':'·'}</span>
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${on?'linear-gradient(135deg,var(--mint),var(--periwinkle))':'rgba(144,165,255,0.18)'};color:var(--ink);font-size:11px;font-weight:800">${on?'✓':'·'}</span>
         <span>${l.txt}</span>
       </div>`;
     }).join('');

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,7 +55,7 @@
     padding:11px 13px;font:inherit;font-size:14px;color:var(--ink);background:rgba(255,255,255,0.85)}
   textarea:focus, input[type=text]:focus{outline:none;border-color:var(--pink-hot);box-shadow:0 0 0 3px rgba(255,178,240,0.2)}
   textarea{min-height:90px;resize:vertical}
-  .btn{border:none;cursor:pointer;font:inherit;font-weight:800;font-size:13.5px;color:#fff;
+  .btn{border:none;cursor:pointer;font:inherit;font-weight:800;font-size:13.5px;color:var(--ink);
     padding:10px 20px;border-radius:999px;background:linear-gradient(135deg,#ff9ec8,#9aa6ff);
     box-shadow:0 5px 14px rgba(144,165,255,0.35)}
   .btn.secondary{background:rgba(255,255,255,0.8);color:var(--deep);border:1.5px solid rgba(144,165,255,0.45);box-shadow:none}
@@ -63,7 +63,7 @@
   .pillrow{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
   .pillrow .pill{border:1.5px solid rgba(144,165,255,0.45);background:rgba(255,255,255,0.8);border-radius:999px;
     font:inherit;font-size:12.5px;font-weight:800;color:var(--deep);padding:7px 14px;cursor:pointer}
-  .pillrow .pill[aria-pressed="true"]{color:#fff;border-color:transparent;
+  .pillrow .pill[aria-pressed="true"]{color:var(--ink);border-color:transparent;
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle))}
   .out{margin-top:14px}
   .out:empty{display:none}
@@ -83,7 +83,7 @@
   .c-calm{background:rgba(168,230,190,0.4);color:#1f6b35}
   .why{font-size:12.5px;color:var(--ink-soft);font-weight:600;line-height:1.6}
   .copy-row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
-  .copied{background:var(--mint) !important;color:#fff !important}
+  .copied{background:var(--mint) !important;color:var(--ink) !important}
   .est-big{font-family:'Pacifico',cursive;font-size:30px;color:var(--deep);margin:6px 0 2px}
   .toggle-line{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink);margin:8px 0;cursor:pointer}
   .toggle-line input{width:17px;height:17px;accent-color:var(--deep)}

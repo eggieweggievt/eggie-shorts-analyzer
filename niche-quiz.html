@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -204,10 +204,38 @@
       <strong>Part 2 — your vibe:</strong> the energy you give the room. Chaotic gremlin, cozy campfire, sparkly-wholesome, deadpan and dry, theatrical lore-keeper… the reason people <em>stay</em> after the game ends. The vibe is the part nobody can copy.
     </p>
     <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 14px">
-      Twelve quick questions, answered honestly (not aspirationally). You'll get your stream recipe — content × vibe — with ideas to test-drive it this week. No sign-in needed.
+      Fifteen quick questions, answered honestly (not aspirationally). You'll get your stream recipe — content × vibe — with ideas to test-drive it this week. No sign-in needed.
     </p>
     <button class="btn" id="startBtn" style="font-size:15px;padding:12px 28px">✨ Find my recipe</button>
   </section>
+
+  <style>
+    /* niche-quiz v2 — tap-then-Next + results polish */
+    .answer .a-key{flex:0 0 auto;width:23px;height:23px;border-radius:7px;background:rgba(144,165,255,0.16);color:var(--deep);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+    .answer .a-text{flex:1;text-align:left}
+    .answer.selected{border-color:transparent;background:linear-gradient(135deg,rgba(255,178,240,0.32),rgba(144,165,255,0.24));box-shadow:inset 0 0 0 2px var(--periwinkle),0 8px 20px rgba(144,165,255,0.22)}
+    .answer.selected .a-key{background:var(--periwinkle);color:#fff}
+    .answer[aria-pressed="true"]{transform:none}
+    #nextBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    @keyframes nqIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    html:not([data-hub-lowstim]) #quizCard.q-in .q-text{animation:nqIn .32s cubic-bezier(.34,1.46,.56,1) both}
+    html:not([data-hub-lowstim]) #quizCard.q-in .answers{animation:nqIn .4s cubic-bezier(.34,1.46,.56,1) .05s both}
+    .ax-meter{height:7px;border-radius:999px;background:rgba(144,165,255,0.16);overflow:hidden;margin:2px 0 12px}
+    .ax-meter > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink-hot),var(--mint))}
+    html:not([data-hub-lowstim]) .ax-meter > i{transition:width .6s cubic-bezier(.22,1,.36,1)}
+    .blend-note{margin:12px auto 0;max-width:520px;font-size:12.5px;font-weight:700;color:var(--deep);background:rgba(144,165,255,0.14);border-radius:12px;padding:9px 14px;text-align:center;line-height:1.5}
+    #nextSteps{margin:18px 0 4px;background:rgba(255,255,255,0.7);border:2px solid var(--periwinkle);border-radius:16px;padding:16px}
+    #nextSteps .ns-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--deep);margin:0 0 12px}
+    .ns-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media(max-width:560px){.ns-grid{grid-template-columns:1fr}}
+    .ns-step{display:flex;flex-direction:column;gap:3px;text-decoration:none;background:rgba(144,165,255,0.08);border:1px solid rgba(144,165,255,0.3);border-radius:12px;padding:11px 13px;transition:transform .12s ease,border-color .12s ease,background .12s ease}
+    .ns-step:hover{transform:translateY(-2px);border-color:var(--periwinkle);background:#fff}
+    .ns-step .ns-ic{font-size:19px}
+    .ns-step .ns-t{font-weight:800;font-size:13px;color:var(--ink)}
+    .ns-step .ns-d{font-size:11.5px;color:var(--ink-soft);line-height:1.4}
+    .ns-step .ns-go{margin-top:2px;font-size:11.5px;font-weight:800;color:var(--deep)}
+    @media(prefers-reduced-motion:reduce){.ns-step,.ax-meter>i{transition:none}}
+  </style>
 
   <!-- QUIZ -->
   <section class="card hidden" id="quizCard">
@@ -221,7 +249,7 @@
     <div class="answers" id="answers"></div>
     <div class="quiz-nav">
       <button class="btn secondary" id="backBtn">← Back</button>
-      <span></span>
+      <button class="btn" id="nextBtn" disabled>Next →</button>
     </div>
   </section>
 
@@ -231,10 +259,36 @@
       <div class="recipe-label">your stream recipe</div>
       <div class="combo" id="comboLine"></div>
       <p class="combo-sub" id="comboSub"></p>
+      <div class="blend-note hidden" id="blendNote"></div>
     </div>
 
     <div class="axis-card" id="vibeCard"></div>
     <div class="axis-card" id="nicheCard"></div>
+
+    <!-- Start here — tailored next steps into the other tools -->
+    <div id="nextSteps">
+      <p class="ns-h">🚩 Start here — turn your recipe into a stream</p>
+      <div class="ns-grid">
+        <a class="ns-step" href="planner.html">
+          <span class="ns-ic" aria-hidden="true">📅</span>
+          <span class="ns-t">Plan your first short</span>
+          <span class="ns-d" id="nsPlanDesc">Open the Planner and queue an idea.</span>
+          <span class="ns-go">Open Planner →</span>
+        </a>
+        <a class="ns-step" href="analyzer.html">
+          <span class="ns-ic" aria-hidden="true">🎯</span>
+          <span class="ns-t">Name &amp; tag it</span>
+          <span class="ns-d" id="nsOptDesc">The Optimizer uses your saved niche.</span>
+          <span class="ns-go">Open Optimizer →</span>
+        </a>
+        <a class="ns-step" href="growth.html">
+          <span class="ns-ic" aria-hidden="true">🌱</span>
+          <span class="ns-t">Learn the playbook</span>
+          <span class="ns-d">Growth tips for getting your niche seen.</span>
+          <span class="ns-go">Open Playbook →</span>
+        </a>
+      </div>
+    </div>
 
     <h2 style="font-size:22px;margin-top:20px">🥈 Close behind</h2>
     <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">Strong second matches on both axes — great for variety days, or to blend into your main recipe.</p>
@@ -325,7 +379,28 @@ const CONTENT = {
     ideas:['A consistent night slot — you\'re part of people\'s sleep routine','Trigger-sampler videos so new viewers find their thing','Long VODs are content: "3 hours of rain + whispers" works'] },
   vr_worlds: { emoji:'🕶️', name:'VRChat & Virtual Worlds', parent:'vrchat',
     desc:'World tours, improv with strangers, full-body chaos with friends. VRChat content is collab-rich and endlessly clippable — perfect if your favorite part of streaming is the people.',
-    ideas:['Weekly world-exploration tour with reactions','Recurring in-world event people can attend','Clip relentlessly — VRChat moments are short-form gold'] }
+    ideas:['Weekly world-exploration tour with reactions','Recurring in-world event people can attend','Clip relentlessly — VRChat moments are short-form gold'] },
+  gacha: { emoji:'🎰', name:'Gacha & Live-Service', parent:'gaming',
+    desc:'Genshin, Star Rail, ZZZ, Nikke, Wuthering Waves — the games that never stop updating, and the communities that never log off. Gacha audiences are some of the most loyal and active anywhere: every patch is a fresh content cycle, and a pull reaction is pure clip energy.',
+    ideas:['Stream banner days — the hype and the FOMO are built in','Pull-reaction shorts are gold: the scream when you hit the 5-star IS the content','Build + team-comp guides keep pulling search traffic between patches'] },
+  truecrime: { emoji:'🔪', name:'True Crime & Mystery', parent:'chatting',
+    desc:'Cold cases, unsolved mysteries, "let me walk you through this one." True crime is one of the biggest commentary niches online — calm, narrative-driven, with an audience that settles in for hours. As a VTuber you bring a cozy face to the creepy campfire.',
+    ideas:['Pick a case, do the research, tell it like a campfire story','Pair it with a low-key activity (drawing, a puzzle) so it feels like a hangout','Handle real people with care — sensitivity reads as credibility here'] },
+  fitness: { emoji:'🏋️', name:'Fitness & Movement', parent:'lifestyle',
+    desc:'Workouts, dance, "get fit with me," visible progress over time. A body-doubling movement stream gives viewers the accountability they crave, and consistency is literally the product — show up and so will they.',
+    ideas:['Fixed workout slots people schedule around','Progress series (couch-to-5k, strength milestones) people root for','One exercise, one tip, one rep count — endlessly clippable shorts'] },
+  beauty: { emoji:'💄', name:'Beauty, Fashion & GRWM', parent:'lifestyle',
+    desc:'Get-ready-with-me, makeup looks, skincare, outfits and style. GRWM is a comfort-watch juggernaut — part tutorial, part chatty hangout while you get ready. "Talk to me while I do my face" is built-in zatsudan with a visual hook.',
+    ideas:['Pick a topic per look — GRWM doubles as a talk show','Before/after + transformation shorts travel further than full tutorials','Character / cosplay makeup ties beauty straight into your VTuber world'] },
+  mukbang: { emoji:'🍜', name:'Mukbang & Food', parent:'lifestyle',
+    desc:'Eating shows, snack hauls, "dinner with chat," rating cursed combos. Food is universal and mukbang is cozy by default — people eat along with you. A meal gives the stream a natural arc, and spicy or weird-food reactions clip themselves.',
+    ideas:['Eat "with" chat on a regular slot — the company is the appeal','Spicy-noodle and cursed-combo challenges = instant chaos clips','Cultural food deep-dives add story to the snacks'] },
+  cosplay: { emoji:'🧵', name:'Cosplay & Costuming', parent:'art',
+    desc:'Costume builds, wig styling, reveals, becoming the character. Cosplay lives right next to the VTuber identity — transformation content is hypnotic and the reveal is the payoff everyone shares. Process plus personality is a proven combo.',
+    ideas:['Build-arc series with a big reveal episode at the end','Timelapse + transformation shorts are made for vertical feeds','Cosplay your own model / OC to tie it into your channel lore'] },
+  pets: { emoji:'🐾', name:'Pets & Animals', parent:'lifestyle',
+    desc:'Your pets ARE content — cameos, "cat tax," reactions, the chaos of a dog mid-stream. Animal content is the friendliest algorithm cheat code there is: instantly shareable, universally loved, and your pet\'s unpredictability is comedy you don\'t have to write.',
+    ideas:['Lean into cameos — a pet-cam overlay invites repeat visits','Clip every interruption; the more chaotic, the more shareable','A recurring "pet of the stream" gives chat something to wait for'] }
 };
 
 // ============================================================
@@ -365,7 +440,15 @@ const VIBES = {
   professor: { emoji:'🤓', name:'Resident Expert',
     tagline:'curious, infodump-prone, joyfully nerdy',
     desc:'You can\'t help explaining things — and people love you for it. Tangents become mini-lectures, chat asks you questions like you\'re a search engine, and your enthusiasm makes any topic interesting.',
-    lean:['Embrace the tangent: "okay so FUN FACT—" is your catchphrase energy','Turn every infodump into a clipped short with a searchable title','"Explain it while playing" formats let you teach without lecturing'] }
+    lean:['Embrace the tangent: "okay so FUN FACT—" is your catchphrase energy','Turn every infodump into a clipped short with a searchable title','"Explain it while playing" formats let you teach without lecturing'] },
+  menace: { emoji:'😈', name:'Lovable Menace',
+    tagline:'teasing, mischievous, stirring the pot on purpose',
+    desc:'You\'re not chaotic by accident — you\'re chaotic on purpose, and chat eats it up. Light teasing, playful bits, winding people up and then winking about it. The menace vibe builds a chat that loves to be (affectionately) bullied and dishes it right back.',
+    lean:['Punch sideways, never down — the tease only lands if everyone\'s in on it','Recurring (consenting) "victims" among your regulars become beloved bits','Always follow a tease with warmth — the whiplash is the whole charm'] },
+  showman: { emoji:'🎟️', name:'The Showman',
+    tagline:'theatrical, produced, born to perform',
+    desc:'Every stream is a show and you\'re the host. Big energy with intention — named segments, running bits, callbacks, a sense that something is being PUT ON for the audience. Showman creators turn a stream into an event people don\'t want to miss the start of.',
+    lean:['Build streams into named segments — "and now, the part where…"','A strong cold open in the first 30 seconds hooks the clip AND the live room','Production touches (transitions, sounds, a setlist) make a small stream feel big'] }
 };
 
 // ============================================================
@@ -373,8 +456,8 @@ const VIBES = {
 // ============================================================
 const QUESTIONS = [
   // ---------- PART 1: CONTENT ----------
-  { part:1, q:'It\'s your day off and nobody\'s watching. What are you actually doing?',
-    sub:'Be honest — this is the single best predictor.',
+  { part:1, mult:1.5, q:'It\'s your day off and nobody\'s watching. What are you actually doing?',
+    sub:'Be honest — this is the single best predictor, so it counts a little extra.',
     a:[
       { e:'🏆', t:'Grinding ranked / sweaty multiplayer with friends', w:{competitive:3} },
       { e:'🗡️', t:'Hours deep in a story game, emotionally compromised', w:{story_rpg:3} },
@@ -396,7 +479,7 @@ const QUESTIONS = [
   { part:1, q:'You HAVE to host one weekly stream forever. Which one?',
     sub:'',
     a:[
-      { e:'☕', t:'Cozy Sunday hangout — tea, chat, soft music', w:{zatsudan:2, asmr_sub:1, cozy_gaming:1} },
+      { e:'☕', t:'Cozy Sunday hangout — tea, chat, soft music (pets welcome)', w:{zatsudan:2, asmr_sub:1, cozy_gaming:1, pets:1} },
       { e:'🖌️', t:'Art night — requests, commissions, WIPs', w:{art_stream:3, crafts:1} },
       { e:'😱', t:'Horror night with friends, screaming mandatory', w:{horror_gaming:2, vr_worlds:1} },
       { e:'🎶', t:'Karaoke night, no skips, chat picks songs', w:{karaoke:3} },
@@ -426,12 +509,32 @@ const QUESTIONS = [
   { part:1, q:'What part of streaming excites you most?',
     sub:'',
     a:[
-      { e:'📈', t:'Getting GOOD at something, visibly, over time', w:{competitive:2, retro:1} },
+      { e:'📈', t:'Getting GOOD at something, visibly, over time', w:{competitive:2, retro:1, fitness:1} },
       { e:'🎁', t:'Making things people can keep — art, songs, builds', w:{art_stream:2, crafts:2, music_prod:1} },
       { e:'💬', t:'The conversations — chat is the content', w:{zatsudan:2, react:2} },
       { e:'🕯️', t:'Making a calm corner of the internet (whisper-quiet included)', w:{asmr_sub:3, study:2} },
       { e:'📖', t:'Stories — living them, telling them, playing them', w:{story_rpg:2, ttrpg:2} },
       { e:'💡', t:'Sharing what I know and watching it click for someone', w:{edu:2, cooking:1} }
+    ]},
+  { part:1, q:'Which of these could you cheerfully do every single week?',
+    sub:'',
+    a:[
+      { e:'🎰', t:'Chase the new banner — pulls, builds, patch hype', w:{gacha:3} },
+      { e:'🔪', t:'Walk chat through a case — cozy, but a little creepy', w:{truecrime:3} },
+      { e:'🏋️', t:'Move on cam — workout, dance, get-fit-with-me', w:{fitness:3} },
+      { e:'💄', t:'Get ready with chat — makeup, skincare, fits', w:{beauty:3} },
+      { e:'🧵', t:'Build or wear a cosplay, piece by piece', w:{cosplay:3} },
+      { e:'🍜', t:'Eat with chat — hauls, challenges, cursed combos', w:{mukbang:2, cooking:1} }
+    ]},
+  { part:1, q:'What would chat catch you doing off-stream?',
+    sub:'',
+    a:[
+      { e:'🎲', t:'Rolling for a 5-star at 2am, no regrets', w:{gacha:3} },
+      { e:'🕵️', t:'Three hours deep in a Wikipedia rabbit hole', w:{truecrime:2, edu:1} },
+      { e:'🐾', t:'Filming my pets being little menaces', w:{pets:3} },
+      { e:'🪞', t:'Thrifting a fit or doing a full face for fun', w:{beauty:3} },
+      { e:'🔥', t:'Trying a viral recipe (plus the snack haul)', w:{mukbang:2, cooking:1} },
+      { e:'🎀', t:'Gluing, sewing, painting a costume', w:{cosplay:2, crafts:1} }
     ]},
 
   // ---------- PART 2: VIBE ----------
@@ -494,6 +597,16 @@ const QUESTIONS = [
       { e:'🕯️', t:'"chapter VII: the moth remembers"', w:{lorekeeper:2} },
       { e:'⚙️', t:'"why this game\'s code is held together with tape (live analysis)"', w:{professor:2} },
       { e:'🌸', t:'"a very pure stream! nothing weird will happen ( ´ ▽ ` )"', w:{seiso:2} }
+    ]},
+  { part:2, q:'Your favourite stream moments are when…',
+    sub:'',
+    a:[
+      { e:'😈', t:'I wind chat up on purpose and they LOVE being bullied', w:{menace:3} },
+      { e:'🎟️', t:'A planned bit or segment lands exactly right', w:{showman:3} },
+      { e:'🐉', t:'Something goes completely off the rails, unplanned', w:{gremlin:2} },
+      { e:'🎉', t:'The whole room is hyped and screaming together', w:{hype:2} },
+      { e:'🥹', t:'A genuinely sweet, sincere beat sneaks in', w:{seiso:1, soothing:1} },
+      { e:'😏', t:'A perfectly-timed dry one-liner kills the room', w:{deadpan:2} }
     ]}
 ];
 
@@ -511,27 +624,50 @@ let finalResult = null;   // { content, vibe, contentRanked, vibeRanked, cScores
 // ============================================================
 function showQuestion(){
   const q = QUESTIONS[qIndex];
+  const partTotal = QUESTIONS.filter(x => x.part === q.part).length;
+  const partPos = QUESTIONS.slice(0, qIndex + 1).filter(x => x.part === q.part).length;
   document.getElementById('partChip').textContent = q.part === 1 ? '🎬 Part 1 · What you do' : '✨ Part 2 · The energy you bring';
   document.getElementById('quizBar').style.width = Math.round((qIndex + 1) / QUESTIONS.length * 100) + '%';
-  document.getElementById('quizCount').textContent = (qIndex + 1) + ' / ' + QUESTIONS.length;
+  document.getElementById('quizCount').textContent = (q.part === 1 ? 'Content' : 'Vibe') + ' · ' + partPos + ' / ' + partTotal;
   document.getElementById('qText').textContent = q.q;
   const sub = document.getElementById('qSub');
   sub.textContent = q.sub || '';
   sub.classList.toggle('hidden', !q.sub);
+  const chosen = picks[qIndex];
   document.getElementById('answers').innerHTML = q.a.map((a, i) => `
-    <button class="answer" data-pick="${i}">
+    <button class="answer${chosen === i ? ' selected' : ''}" data-pick="${i}" aria-pressed="${chosen === i ? 'true' : 'false'}">
+      <span class="a-key" aria-hidden="true">${i + 1}</span>
       <span class="a-emoji">${a.e}</span>
-      <span>${a.t}</span>
+      <span class="a-text">${a.t}</span>
     </button>
   `).join('');
   document.getElementById('answers').querySelectorAll('[data-pick]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      picks[qIndex] = parseInt(btn.dataset.pick, 10);
-      if(qIndex < QUESTIONS.length - 1){ qIndex++; showQuestion(); }
-      else showResults();
-    });
+    btn.addEventListener('click', () => selectAnswer(parseInt(btn.dataset.pick, 10)));
   });
+  // re-trigger the entrance animation each question (stripped under low-stim / reduce-motion)
+  const card = document.getElementById('quizCard');
+  card.classList.remove('q-in'); void card.offsetWidth; card.classList.add('q-in');
   document.getElementById('backBtn').style.visibility = qIndex === 0 ? 'hidden' : 'visible';
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = (picks[qIndex] == null);
+  nextBtn.textContent = (qIndex === QUESTIONS.length - 1) ? 'See my recipe ✨' : 'Next →';
+}
+
+// Tap to select (does NOT advance — deliberate, tap-then-Next flow)
+function selectAnswer(i){
+  picks[qIndex] = i;
+  document.getElementById('answers').querySelectorAll('[data-pick]').forEach(b => {
+    const on = parseInt(b.dataset.pick, 10) === i;
+    b.classList.toggle('selected', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function goNext(){
+  if(picks[qIndex] == null) return;
+  if(qIndex < QUESTIONS.length - 1){ qIndex++; showQuestion(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  else showResults();
 }
 
 function computeScores(){
@@ -542,9 +678,10 @@ function computeScores(){
     const q = QUESTIONS[i];
     if(pick == null || !q.a[pick]) return;
     const w = q.a[pick].w;
+    const mult = q.mult || 1;
     Object.keys(w).forEach(k => {
-      if(q.part === 1) cScores[k] += w[k];
-      else vScores[k] += w[k];
+      if(q.part === 1) cScores[k] += w[k] * mult;
+      else vScores[k] += w[k] * mult;
     });
   });
   return { cScores, vScores };
@@ -577,6 +714,7 @@ function showResults(){
       </div>
       <span class="ax-pct">${pct(vScores, vibe)}% match</span>
     </div>
+    <div class="ax-meter"><i style="width:${pct(vScores, vibe)}%"></i></div>
     <p class="ax-desc">${V.desc}</p>
     <h4>✨ How to lean into it</h4>
     <ul>${V.lean.map(t => `<li>${t}</li>`).join('')}</ul>
@@ -590,6 +728,7 @@ function showResults(){
       </div>
       <span class="ax-pct">${pct(cScores, content)}% match</span>
     </div>
+    <div class="ax-meter"><i style="width:${pct(cScores, content)}%"></i></div>
     <p class="ax-desc">${C.desc}</p>
     <h4>🎬 Try these first</h4>
     <ul>${C.ideas.map(t => `<li>${t}</li>`).join('')}</ul>
@@ -615,6 +754,25 @@ function showResults(){
     </div>`);
   });
   document.getElementById('runnersUp').innerHTML = ru.join('');
+
+  // "Close call" — if your top two content matches are neck-and-neck, say so
+  // instead of pretending it's clear-cut.
+  const blend = document.getElementById('blendNote');
+  if(blend){
+    const c0 = cScores[contentRanked[0]] || 0, c1 = cScores[contentRanked[1]] || 0;
+    if(c1 > 0 && c1 / c0 >= 0.7 && contentRanked[1]){
+      blend.innerHTML = '🤝 Close call — you\'re really a blend of <strong>' + C.name + '</strong> and <strong>' + CONTENT[contentRanked[1]].name + '</strong>. Either makes a great main lane; the other is your perfect variety day.';
+      blend.classList.remove('hidden');
+    } else {
+      blend.classList.add('hidden');
+    }
+  }
+
+  // Tailor the next-step descriptions to the result
+  const planDesc = document.getElementById('nsPlanDesc');
+  if(planDesc) planDesc.textContent = 'Queue a ' + C.name + ' idea to film this week.';
+  const optDesc = document.getElementById('nsOptDesc');
+  if(optDesc) optDesc.textContent = 'Save below first, then it auto-uses your ' + C.name + ' niche.';
 
   document.getElementById('quizCard').classList.add('hidden');
   document.getElementById('resultCard').classList.remove('hidden');
@@ -718,7 +876,16 @@ function boot(){
     showQuestion();
   });
   document.getElementById('backBtn').addEventListener('click', () => {
-    if(qIndex > 0){ qIndex--; showQuestion(); }
+    if(qIndex > 0){ qIndex--; showQuestion(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+  document.getElementById('nextBtn').addEventListener('click', goNext);
+  // Keyboard: 1–9 picks an answer, Enter advances — only while the quiz is on screen.
+  document.addEventListener('keydown', (e) => {
+    const quiz = document.getElementById('quizCard');
+    if(!quiz || quiz.classList.contains('hidden')) return;
+    if(e.key === 'Enter'){ const nb = document.getElementById('nextBtn'); if(nb && !nb.disabled){ e.preventDefault(); goNext(); } return; }
+    const n = parseInt(e.key, 10);
+    if(!isNaN(n) && n >= 1){ const q = QUESTIONS[qIndex]; if(q && n <= q.a.length){ e.preventDefault(); selectAnswer(n - 1); } }
   });
   document.getElementById('retakeBtn').addEventListener('click', () => {
     document.getElementById('resultCard').classList.add('hidden');

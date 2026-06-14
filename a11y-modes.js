@@ -1,6 +1,6 @@
 /* ============================================================
    a11y-modes.js — site-wide accessibility modes for Eggie's Creator Hub
-   Drop-in: <script src="a11y-modes.js?v=5"></script> in <head>,
+   Drop-in: <script src="a11y-modes.js?v=6"></script> in <head>,
    right after demo-mode.js, on every page.
 
    Four modes, all saved in localStorage and applied instantly on
@@ -52,8 +52,8 @@
   if (window.__hubA11yInit) return;
   window.__hubA11yInit = true;
 
-  var KEYS = { dark: 'hub-a11y-dark', dys: 'hub-a11y-dys', tint: 'hub-a11y-tint', lowstim: 'hub-a11y-lowstim' };
-  var ATTR = { dark: 'data-hub-dark', dys: 'data-hub-dys', tint: 'data-hub-tint', lowstim: 'data-hub-lowstim' };
+  var KEYS = { dark: 'hub-a11y-dark', dys: 'hub-a11y-dys', tint: 'hub-a11y-tint', lowstim: 'hub-a11y-lowstim', focus: 'hub-a11y-focus' };
+  var ATTR = { dark: 'data-hub-dark', dys: 'data-hub-dys', tint: 'data-hub-tint', lowstim: 'data-hub-lowstim', focus: 'data-hub-focus' };
   var root = document.documentElement;
 
   function getLS(k) { try { return localStorage.getItem(k) === '1'; } catch (e) { return false; } }
@@ -123,6 +123,15 @@
     'html[' + ATTR.lowstim + '] .brand-mascot{display:none !important}',
     /* OS-level "reduce motion" gets the no-motion rules even with the toggle off */
     '@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}html{scroll-behavior:auto !important}}',
+
+    /* ===== 🎯 focus mode — calmer canvas + spotlight the active card =====
+       Flattens the busy multi-gradient to one quiet tone, and (where the
+       browser supports :has) fades back every card except the one you're
+       hovering or have keyboard-focused — so attention has one clear home.
+       Pure-CSS + opt-in; if :has is unsupported the page just stays un-dimmed. */
+    'html[' + ATTR.focus + '] body{background:#fdf7fb !important}',
+    'html[' + ATTR.focus + '] .card{transition:opacity .25s ease}',
+    'html[' + ATTR.focus + '] body:has(.card:hover,.card:focus-within) .card:not(:hover):not(:focus-within){opacity:.38}',
 
     /* ===== toggle pills ===== */
     '.a11y-toggles{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}',
@@ -244,7 +253,8 @@
       dark: root.hasAttribute(ATTR.dark),
       dys: root.hasAttribute(ATTR.dys),
       tint: root.hasAttribute(ATTR.tint),
-      lowstim: root.hasAttribute(ATTR.lowstim)
+      lowstim: root.hasAttribute(ATTR.lowstim),
+      focus: root.hasAttribute(ATTR.focus)
     };
   }
 
@@ -258,7 +268,8 @@
     { mode: 'dark', ic: '🌙', label: 'Dark mode', title: 'Switch the whole hub to a dark theme with bright teal + pink accents' },
     { mode: 'dys', ic: '📖', label: 'Dyslexia-friendly', title: 'Easier-to-read font, wider letter + line spacing, left-aligned text' },
     { mode: 'tint', ic: '🟡', label: 'Soft yellow tint', title: 'Warm cream tint over bright whites — cuts glare; pairs well with dyslexia-friendly mode' },
-    { mode: 'lowstim', ic: '🧘', label: 'Low-stim mode', title: 'Low-stim mode — calm visuals, no motion: stops animations, softens the background, shadows + decorative art' }
+    { mode: 'lowstim', ic: '🧘', label: 'Low-stim mode', title: 'Low-stim mode — calm visuals, no motion: stops animations, softens the background, shadows + decorative art' },
+    { mode: 'focus', ic: '🎯', label: 'Focus mode', title: 'Focus mode — quiets the background and gently dims every card except the one you are hovering or have selected, so attention has one clear home' }
   ];
   function syncButtons() {
     var s = state();
@@ -290,6 +301,7 @@
   if (getLS(KEYS.dys)) apply('dys', true);
   if (getLS(KEYS.tint)) apply('tint', true);
   if (getLS(KEYS.lowstim)) apply('lowstim', true);
+  if (getLS(KEYS.focus)) apply('focus', true);
   whenBody(function () {
     buildToggles();
     if (root.hasAttribute(ATTR.tint)) ensureTint();

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -122,7 +122,7 @@
   .btn{
     display:inline-flex;align-items:center;gap:10px;justify-content:center;
     padding:16px 28px;border:none;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:700;font-size:16px;color:#fff;
+    font-family:inherit;font-weight:700;font-size:16px;color:var(--ink);
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
     box-shadow:0 10px 24px rgba(144,165,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.06);
     transition:transform .12s ease, box-shadow .15s ease, filter .15s ease;
@@ -143,7 +143,7 @@
   .platform-pill{
     display:inline-flex;align-items:center;gap:6px;
     padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
-    background:linear-gradient(135deg,var(--mint),var(--periwinkle));color:#fff;
+    background:linear-gradient(135deg,var(--mint),var(--periwinkle));color:var(--ink);
   }
 
   /* Results — score hero gets generous breathing room above + below so the tabs don't crowd the verdict */
@@ -167,12 +167,12 @@
     display:inline-block;
     padding:4px 12px;border-radius:999px;
     font-size:12px;font-weight:800;letter-spacing:.04em;
-    color:#fff;
+    color:var(--ink);
     background:linear-gradient(135deg,var(--periwinkle),var(--mint));
     text-transform:uppercase;
   }
   .score-grade-pill.grade-a{background:linear-gradient(135deg,#3FB8C0,#6BE4EA);color:#0a4a52}
-  .score-grade-pill.grade-b{background:linear-gradient(135deg,#6BE4EA,#90A5FF);color:#fff}
+  .score-grade-pill.grade-b{background:linear-gradient(135deg,#6BE4EA,#90A5FF);color:var(--ink)}
   .score-grade-pill.grade-c{background:linear-gradient(135deg,#FFD580,#FFB07A);color:#7a3a05}
   .score-grade-pill.grade-d{background:linear-gradient(135deg,#FFB07A,#FF8AA8);color:#6b1a30}
   .score-grade-pill.grade-f{background:linear-gradient(135deg,#FF8AA8,#FFB2C8);color:#6b1a30}
@@ -1161,6 +1161,86 @@
     <p class="tag">Pick what you're working on — a <em>short</em>, a <em>stream</em>, or a <em>long-form video</em> — and I'll help you score it, name it, tag it, and write the description. <span class="sparkle">✨</span></p>
   </header>
 
+  <!-- ============================================================
+       ENTRY GATE (ADHD redesign) — one choice up front: Score vs Generate.
+       It's a pure CSS overlay: a [data-tool] attribute on <html> hides the
+       tool(s) you didn't pick via !important, so the existing content-type
+       controller's display/reparent logic is never touched. Worst case is a
+       visual mis-toggle, never broken scoring. The last choice is remembered
+       so returning isn't a fresh decision every time.
+       ============================================================ -->
+  <style>
+    .tool-gate{max-width:620px;margin:6px auto 14px;text-align:center}
+    .tool-gate .tg-q{font-weight:800;font-size:16px;color:var(--deep);margin:0 0 12px}
+    .tool-gate .tg-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:560px){.tool-gate .tg-choices{grid-template-columns:1fr}}
+    .tg-card{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;cursor:pointer;
+      background:rgba(255,255,255,0.82);border:2px solid rgba(144,165,255,0.32);border-radius:18px;padding:18px 16px;
+      font-family:inherit;color:var(--ink);transition:transform .15s cubic-bezier(.34,1.46,.56,1),box-shadow .15s,border-color .15s}
+    .tg-card:hover{transform:translateY(-3px);border-color:var(--periwinkle);box-shadow:0 12px 28px rgba(144,165,255,0.3)}
+    .tg-card:active{transform:translateY(0) scale(.98)}
+    .tg-card:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(144,165,255,0.5)}
+    .tg-card.tg-primary{border-color:var(--periwinkle);box-shadow:0 8px 20px rgba(144,165,255,0.22)}
+    .tg-ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+      font-size:24px;background:rgba(144,165,255,0.16)}
+    .tg-card.tg-primary .tg-ic{background:rgba(255,178,240,0.28)}
+    .tg-name{font-weight:800;font-size:16px;color:var(--deep)}
+    .tg-desc{font-size:12.5px;color:var(--ink-soft);line-height:1.45;max-width:250px}
+    .tg-est{font-size:11px;font-weight:700;color:var(--deep);background:rgba(144,165,255,0.16);border-radius:999px;padding:2px 11px;margin-top:3px}
+    .tool-back{display:none;align-items:center;gap:6px;margin:0 0 12px;background:rgba(255,255,255,0.7);
+      border:1.5px solid rgba(144,165,255,0.4);border-radius:999px;font:inherit;font-weight:700;font-size:13px;
+      color:var(--deep);padding:8px 16px;cursor:pointer;transition:background .15s,border-color .15s}
+    .tool-back:hover{background:#fff;border-color:var(--periwinkle)}
+    /* visibility overlay — driven by [data-tool] on <html> */
+    html[data-tool="score"] #optimizeCard,
+    html[data-tool="score"] #ctypeBar{display:none !important}
+    html[data-tool="generate"] #step2,
+    html[data-tool="generate"] #resultsCard{display:none !important}
+    html[data-tool="none"] #step2,
+    html[data-tool="none"] #resultsCard,
+    html[data-tool="none"] #optimizeCard,
+    html[data-tool="none"] #ctypeBar,
+    html[data-tool="none"] #creatorProfile{display:none !important}
+    html:not([data-tool="none"]) #toolGate{display:none}
+    html[data-tool="score"] .tool-back,
+    html[data-tool="generate"] .tool-back{display:inline-flex}
+    @media(prefers-reduced-motion:reduce){.tg-card{transition:none}}
+    /* numbered step headers (1 choose · 2 your short · 3 results) */
+    .an-stephead{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:13.5px;font-weight:700;color:var(--ink-soft)}
+    .an-stepnum{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:var(--deep);color:#fff;font-size:12px;font-weight:800}
+    .tg-q .an-stepnum{margin-right:7px;vertical-align:2px}
+    /* optimize CTA subtext */
+    .opt-cta-sub{display:block;text-align:center;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin:9px 0 0}
+    /* scannable breakdown bars (always-visible summary above the collapsed detail) */
+    .crit-bars{display:flex;flex-direction:column;border:1px solid rgba(144,165,255,0.28);border-radius:14px;overflow:hidden;margin:0 0 4px}
+    .crit-bars.hidden{display:none}
+    .cb-row{display:flex;align-items:center;gap:12px;padding:11px 15px;border-top:1px solid rgba(144,165,255,0.18);font-size:13px}
+    .cb-row:first-child{border-top:none}
+    .cb-name{flex:1;min-width:0;font-weight:700;color:var(--ink)}
+    .cb-bar{flex:0 0 92px;height:8px;border-radius:999px;background:rgba(144,165,255,0.16);overflow:hidden}
+    .cb-bar > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink-hot),var(--mint))}
+    .cb-val{flex:0 0 auto;font-weight:800;font-size:12px;color:var(--deep);width:46px;text-align:right}
+  </style>
+  <script>try{var _t=localStorage.getItem('eggie-analyzer-tool');document.documentElement.setAttribute('data-tool',(_t==='score'||_t==='generate')?_t:'none');}catch(e){document.documentElement.setAttribute('data-tool','none');}</script>
+  <div id="toolGate" class="tool-gate">
+    <p class="tg-q"><span class="an-stepnum">1</span>What do you want to do?</p>
+    <div class="tg-choices">
+      <button type="button" class="tg-card tg-primary" data-tool-pick="score">
+        <span class="tg-ic" aria-hidden="true">🎬</span>
+        <span class="tg-name">Score my short</span>
+        <span class="tg-desc">Upload a finished short — get a score and what to fix.</span>
+        <span class="tg-est">~30 sec</span>
+      </button>
+      <button type="button" class="tg-card" data-tool-pick="generate">
+        <span class="tg-ic" aria-hidden="true">✨</span>
+        <span class="tg-name">Generate titles &amp; tags</span>
+        <span class="tg-desc">No video needed — titles, tags &amp; a caption from your Memory.</span>
+        <span class="tg-est">instant</span>
+      </button>
+    </div>
+  </div>
+  <button type="button" id="toolBack" class="tool-back">← change what I'm doing</button>
+
   <!-- CONTENT-TYPE SELECTOR — the single front door: Short / Stream / Long-form -->
   <style>
     #ctypeBar{max-width:560px;margin:0 auto 6px;text-align:center}
@@ -1168,7 +1248,7 @@
     #ctypeBar .ctype-pills{display:inline-flex;gap:6px;background:rgba(144,165,255,0.14);padding:5px;border-radius:999px;flex-wrap:wrap;justify-content:center}
     #ctypeBar .ctype-pill{border:0;background:transparent;font:inherit;font-weight:800;color:var(--ink-soft,#6b5f8a);padding:9px 20px;border-radius:999px;cursor:pointer;transition:background .12s,color .12s}
     #ctypeBar .ctype-pill:hover{color:var(--deep,#4D5BC0)}
-    #ctypeBar .ctype-pill.active{background:var(--pink-hot,#FFB2F0);color:#fff;box-shadow:0 2px 10px rgba(255,178,240,0.5)}
+    #ctypeBar .ctype-pill.active{background:var(--pink-hot,#FFB2F0);color:var(--ink,#3a2a5a);box-shadow:0 2px 10px rgba(255,178,240,0.5)}
     #ctypeBar .ctype-tagline{font-size:12.5px;color:var(--ink-soft,#6b5f8a);margin:9px 0 0;min-height:18px}
   </style>
   <div id="ctypeBar">
@@ -1213,18 +1293,62 @@
        still hide it (WIZARD_IDS); step1/step3 no longer exist.
        ============================================================ -->
   <section class="card step-card" id="step2">
-    <h2 style="margin-top:0">🎯 Optimize your short</h2>
+    <div class="an-stephead"><span class="an-stepnum">2</span><span class="an-steplabel">Tell me about your short — essentials only, the rest is tucked away</span></div>
     <p class="step-intro">One sentence is enough &mdash; I'll score it, suggest stronger titles, pick the hashtag mix, and write your post. Add the video or extra details below for more accuracy.</p>
 
-    <label for="quickContext">What is your short about? <span class="opt">(required)</span></label>
+    <label for="quickContext">What's the short about?</label>
     <input id="quickContext" type="text" placeholder="e.g. I almost died trying to beat Elden Ring DLC" />
     <span class="field-help">One specific sentence. The more concrete (game, topic, moment), the better the hashtag picks.</span>
 
-    <label for="title" style="margin-top:16px">Title / working title <span class="opt">(optional — I'll suggest stronger ones)</span></label>
+    <label for="title" style="margin-top:16px">Your title <span class="opt">(optional — I'll suggest stronger ones)</span></label>
     <input id="title" type="text" placeholder="HE DID WHAT WITH THAT SPATULA?!" />
 
-    <label style="margin-top:16px">What kind of short is this? <span class="req">(pick at least one)</span></label>
-    <div class="short-type-row collapsed" id="shortTypeRow" role="group" aria-label="Short type">
+    <label for="typeSearch" style="margin-top:16px">What kind of short is this? <span class="req">(pick at least one)</span></label>
+    <style>
+      .type-finder{margin:6px 0 4px}
+      .tf-field{background:rgba(255,255,255,0.92);border:1.5px solid rgba(144,165,255,0.4);border-radius:13px;padding:9px 11px;transition:border-color .15s,box-shadow .15s}
+      .tf-field:focus-within{border-color:var(--periwinkle);box-shadow:0 0 0 3px rgba(144,165,255,0.16);background:#fff}
+      .tf-tokens{display:none;flex-wrap:wrap;gap:6px;margin-bottom:7px}
+      .tf-token{display:inline-flex;align-items:center;gap:6px;background:rgba(144,165,255,0.16);color:var(--deep);border-radius:999px;padding:5px 6px 5px 12px;font-size:12.5px;font-weight:700}
+      .tf-x{border:none;cursor:pointer;width:18px;height:18px;border-radius:50%;background:rgba(77,91,192,0.18);color:var(--deep);font-size:10px;line-height:1;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;padding:0}
+      .tf-x:hover{background:rgba(77,91,192,0.34)}
+      .tf-inputrow{display:flex;align-items:center;gap:8px}
+      .tf-ic{opacity:.6;font-size:15px;flex:0 0 auto}
+      #typeSearch{flex:1;min-width:0;border:none;outline:none;background:transparent;font:inherit;font-size:14px;color:var(--ink);padding:4px 2px}
+      .tf-menu{margin-top:8px;border:1px solid rgba(144,165,255,0.3);border-radius:11px;overflow:hidden auto;background:#fff;max-height:248px;box-shadow:0 12px 30px rgba(120,125,200,0.18)}
+      .tf-item{display:flex;align-items:center;gap:8px;padding:9px 13px;font-size:13.5px;color:var(--ink);cursor:pointer;border-top:1px solid rgba(144,165,255,0.16)}
+      .tf-item:first-child{border-top:none}
+      .tf-item.active{background:rgba(255,178,240,0.16)}
+      .tf-add{margin-left:auto;color:var(--deep);font-weight:800;font-size:15px}
+      .tf-empty{padding:11px 13px;font-size:12.5px;color:var(--ink-soft)}
+      .tf-quick{margin-top:11px}
+      .tf-quick-lab{display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft);margin:0 0 7px}
+      .tf-quick-chips{display:flex;flex-wrap:wrap;gap:7px}
+      .tf-chip{border:1.5px solid rgba(144,165,255,0.4);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:700;color:var(--deep);cursor:pointer;transition:background .12s,border-color .12s,transform .1s}
+      .tf-chip:hover{background:rgba(144,165,255,0.1);transform:translateY(-1px)}
+      .tf-chip.on{background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));color:var(--ink);border-color:transparent}
+      .tf-chip.alt{border-style:dashed;color:var(--ink-soft)}
+      .type-finder.needs-selection .tf-field{border-color:#FF8AA8;box-shadow:0 0 0 3px rgba(255,138,168,0.3);animation:tfShake .4s}
+      @keyframes tfShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+      @media(prefers-reduced-motion:reduce){.tf-chip,.type-finder.needs-selection .tf-field{transition:none;animation:none}}
+    </style>
+    <div id="typeFinder" class="type-finder">
+      <div class="tf-field">
+        <div class="tf-tokens" id="tfTokens"></div>
+        <div class="tf-inputrow">
+          <span class="tf-ic" aria-hidden="true">🔍</span>
+          <input id="typeSearch" type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="tfMenu" aria-autocomplete="list" placeholder="Type to find a type — cosplay, ASMR, lore…" />
+        </div>
+        <div class="tf-menu" id="tfMenu" role="listbox" aria-label="Matching short types" hidden></div>
+      </div>
+      <div class="tf-quick">
+        <span class="tf-quick-lab">Common ones — tap to add</span>
+        <div class="tf-quick-chips" id="tfQuickChips"></div>
+      </div>
+    </div>
+    <!-- Source-of-truth pill row (hidden). The type-finder above drives these pills'
+         pressed state, so keyword aggregation + the 'pick at least one' check are unchanged. -->
+    <div class="short-type-row collapsed" id="shortTypeRow" role="group" aria-label="Short type" style="display:none">
       <button type="button" class="type-pill" data-type="gaming" data-keywords="gaming clip gameplay stream highlight twitch clip" aria-pressed="false"><span class="type-icon">🎮</span>Gaming clip</button>
       <button type="button" class="type-pill" data-type="storytime" data-keywords="storytime story let me tell you so basically the time i" aria-pressed="false"><span class="type-icon">📖</span>Storytime</button>
       <button type="button" class="type-pill" data-type="reaction" data-keywords="reaction reacting to first time seeing watching this irl react" aria-pressed="false"><span class="type-icon">👀</span>Reaction</button>
@@ -1273,6 +1397,43 @@
       <button type="button" class="type-pill" data-tier="secondary" data-type="lgbt" data-keywords="lgbt lgbtq queer pride queer creator queer vtuber sapphic wlw mlm" aria-pressed="false"><span class="type-icon">🏳️‍🌈</span>LGBTQ+ creator</button>
       <button type="button" class="type-pill" data-tier="secondary" data-type="trans" data-keywords="trans transgender trans creator trans vtuber transmasc transfemme nonbinary" aria-pressed="false"><span class="type-icon">🏳️‍⚧️</span>Trans creator</button>
       <button type="button" class="type-pill" data-tier="secondary" data-type="poc" data-keywords="poc creator black creator black vtuber latina vtuber asian vtuber indigenous creator representation matters" aria-pressed="false"><span class="type-icon">✊🏾</span>POC creator</button>
+
+      <div class="pill-group-label" data-tier="secondary">📼 Format</div>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="review" data-keywords="review honest review product review first impressions reviewshorts is it worth" aria-pressed="false"><span class="type-icon">⭐</span>Review / first look</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="skit" data-keywords="skit comedy skit sketch comedy sketch acting bit" aria-pressed="false"><span class="type-icon">🎭</span>Comedy skit</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="edit" data-keywords="edit edits aesthetic edit amv montage editing velocity edit" aria-pressed="false"><span class="type-icon">✂️</span>Edit / montage</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="rant" data-keywords="rant rant video hot take unpopular opinion yap sesh rambling venting real talk soapbox" aria-pressed="false"><span class="type-icon">📢</span>Rant / yap</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="lifehack" data-keywords="life hack lifehacks tips and tricks everyday lifehack quick hack adulting hack kitchen hack" aria-pressed="false"><span class="type-icon">🔧</span>Life hack</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="facereveal" data-keywords="face reveal vtuber face reveal vtuber reveal irl reveal" aria-pressed="false"><span class="type-icon">🫣</span>Face reveal</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="nocontext" data-keywords="no context out of context random clip wtf moment out of pocket unhinged moment chaos gremlin" aria-pressed="false"><span class="type-icon">🎲</span>Out of context / random</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="truecrime" data-keywords="true crime cold case unsolved missing person case file serial killer detective investigation" aria-pressed="false"><span class="type-icon">🔪</span>True crime</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="bodycam" data-keywords="bodycam bodycam footage police bodycam cop footage caught on camera" aria-pressed="false"><span class="type-icon">🚨</span>Bodycam</button>
+
+      <div class="pill-group-label" data-tier="secondary">🎯 Topic / niche</div>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="horror" data-keywords="horror horror gaming scary spooky jumpscare indie horror horror clips survival horror" aria-pressed="false"><span class="type-icon">👻</span>Horror / scary</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="anime" data-keywords="anime anime clips weeb manga anime tiktok seasonal anime" aria-pressed="false"><span class="type-icon">🍙</span>Anime / weeb</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="cozy" data-keywords="cozy cozy gaming cozy stream cozy vibes chill relaxing" aria-pressed="false"><span class="type-icon">🌿</span>Cozy / chill</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="cooking" data-keywords="cooking recipes food foodie cooking tutorial easy recipes what i eat" aria-pressed="false"><span class="type-icon">🍳</span>Cooking / food</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="fitness" data-keywords="fitness workout gym fitness motivation gym tok home workout" aria-pressed="false"><span class="type-icon">🏋️</span>Fitness / gym</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="beauty" data-keywords="beauty makeup makeup tutorial skincare beauty tips glow up grwm" aria-pressed="false"><span class="type-icon">💄</span>Beauty / makeup</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="fashion" data-keywords="fashion style outfit ootd fashion tiktok haul" aria-pressed="false"><span class="type-icon">👗</span>Fashion / outfits</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="tech" data-keywords="tech technology coding programming developer gadgets setup tour" aria-pressed="false"><span class="type-icon">💻</span>Tech / coding</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="education" data-keywords="education learn on tiktok did you know fun facts history explained" aria-pressed="false"><span class="type-icon">🧑‍🏫</span>Educational / facts</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="pets" data-keywords="pets cats dogs puppy kitten pets of tiktok cat tax" aria-pressed="false"><span class="type-icon">🐾</span>Pets</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="travel" data-keywords="travel travel tok wanderlust travel gram adventure trip" aria-pressed="false"><span class="type-icon">✈️</span>Travel</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="dance" data-keywords="dance dancer choreography dance tiktok dance cover" aria-pressed="false"><span class="type-icon">💃</span>Dance</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="relationships" data-keywords="relationships couples couple goals dating dating advice long distance partner" aria-pressed="false"><span class="type-icon">💞</span>Relationships / couples</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="mentalhealth" data-keywords="mental health therapy self care anxiety healing journey wellbeing coping" aria-pressed="false"><span class="type-icon">💚</span>Mental health</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="adhd" data-keywords="adhd adhd life adhd relatable neurodivergent autism executive dysfunction audhd" aria-pressed="false"><span class="type-icon">🧠</span>ADHD / neurodivergent</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="nostalgia" data-keywords="nostalgia y2k throwback the 2000s 90s kid childhood memories iykyk retro" aria-pressed="false"><span class="type-icon">📼</span>Nostalgia / Y2K</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="parenting" data-keywords="parenting parent life mom life dad life toddler life parenting humor" aria-pressed="false"><span class="type-icon">🍼</span>Parenting</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="larp" data-keywords="larp larping live action roleplay larp cosplay fantasy larp medieval larp foam swords" aria-pressed="false"><span class="type-icon">⚔️</span>LARP</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="gunpla" data-keywords="gunpla gundam plamo model kit gunpla custom mecha scale model timelapse build" aria-pressed="false"><span class="type-icon">🤖</span>Gunpla / model kits</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="gacha" data-keywords="gacha gacha game gacha pull primogems spark pity wish pull gacha fail summon" aria-pressed="false"><span class="type-icon">🎰</span>Gacha pulls</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="kawaii" data-keywords="kawaii cute cutevtuber kawaii aesthetic adorable content cutie" aria-pressed="false"><span class="type-icon">🌸</span>Kawaii / cute</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="cars" data-keywords="cars car tok car enthusiast car lovers car build jdm" aria-pressed="false"><span class="type-icon">🚗</span>Cars</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="movies" data-keywords="movies film cinema movie tok tv show tv series binge watching" aria-pressed="false"><span class="type-icon">🎬</span>Movies / TV</button>
+      <button type="button" class="type-pill" data-tier="secondary" data-type="sports" data-keywords="sports football basketball soccer highlights sports tiktok" aria-pressed="false"><span class="type-icon">⚽</span>Sports</button>
     </div>
     <div class="short-type-custom" id="shortTypeCustomWrap" style="display:none">
       <input id="shortTypeCustom" type="text" placeholder="Type your own — e.g. cosplay reveal, art timelapse, oddly satisfying…" maxlength="80" />
@@ -1280,7 +1441,7 @@
 
     <details class="collapse-section" id="postExtras">
       <summary>
-        <span>Add a description, template, or hashtags <span class="hint">— optional, boosts accuracy</span></span>
+        <span>More detail <span class="hint">— description, hashtags &amp; template (optional, boosts accuracy)</span></span>
       </summary>
       <div class="collapse-body">
         <label for="description">Description / caption</label>
@@ -1306,7 +1467,7 @@
 
     <details class="collapse-section" id="videoSection">
       <summary>
-        <span>🎬 Add your video <span class="hint">— optional, I'll watch it and score your hook for you</span></span>
+        <span>🎬 Add the video to score it <span class="hint">— optional, I'll watch it and score your hook for you</span></span>
       </summary>
       <div class="collapse-body">
         <p class="step-intro" style="margin-top:0">Drop your video in and I'll watch the first 3 seconds &mdash; checking your motion, scene cuts, and audio to score your hook.</p>
@@ -1342,6 +1503,7 @@
       <button class="btn" id="fetchBtn">✨ Optimize my short</button>
       <button class="btn secondary" id="clearBtn" type="button">Clear all</button>
     </div>
+    <span class="opt-cta-sub">on-device · nothing uploaded</span>
   </section>
 
   <!-- Legacy retention inputs — kept in DOM (hidden) so the existing scoring + clearAllInputs JS
@@ -1358,7 +1520,7 @@
     <!-- Content safety verdict — appears at top when anything is flagged (always visible regardless of tab) -->
     <div id="safetySection" class="hidden"></div>
 
-    <h2>Your score <span style="font-size:18px">💗</span></h2>
+    <h2><span class="an-stepnum">3</span> Your score <span style="font-size:18px">💗</span></h2>
 
     <!-- Score hero stays above the tabs — it's the always-visible summary -->
     <div class="score-hero">
@@ -1372,6 +1534,12 @@
       </div>
     </div>
 
+    <!-- ONE clear next action — the single highest-leverage fix, up front (ADHD redesign) -->
+    <div id="fixFirst" class="fix-first hidden" aria-live="polite"></div>
+
+    <!-- Scannable breakdown — compact always-visible bars; the full detail stays collapsed below -->
+    <div id="critBars" class="crit-bars hidden" aria-label="Score breakdown at a glance"></div>
+
     <!-- (V5 streamline) Tabs are gone — results stack in one flow, Eggie-OS style:
          score → suggestions → post pack → breakdown (collapsed) → resources (collapsed).
          Order is CSS-driven so the markup didn't have to move. -->
@@ -1380,6 +1548,18 @@
       #resultsCard > #safetySection{order:0}
       #resultsCard > h2{order:1}
       #resultsCard > .score-hero{order:2}
+      #resultsCard > #fixFirst{order:2}
+      #resultsCard > #critBars{order:2}
+      .fix-first{display:flex;align-items:flex-start;gap:12px;margin:0 0 6px;
+        background:rgba(255,255,255,0.9);border:2px solid var(--periwinkle);border-radius:16px;padding:15px 17px;
+        box-shadow:0 8px 22px rgba(144,165,255,0.2)}
+      .fix-first.hidden{display:none}
+      .fix-first .ff-ic{flex:0 0 auto;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));color:var(--ink)}
+      .fix-first .ff-lab{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--deep);margin:0 0 2px}
+      .fix-first .ff-txt{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.4;margin:0}
+      .fix-first .ff-sub{font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;line-height:1.45}
+      @keyframes scorePop{0%{transform:scale(1)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
+      html:not([data-hub-lowstim]) .score-ring.score-pop{animation:scorePop .42s cubic-bezier(.34,1.46,.56,1)}
       #resultsCard > [data-panel="suggestions"]{order:3}
       #resultsCard > [data-panel="postpack"]{order:4}
       #resultsCard > [data-panel="overview"]{order:6}
@@ -1531,11 +1711,11 @@
     #optimizeCard .opt-block-head .lbl{font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--deep,#4D5BC0)}
     #optimizeCard .opt-copy{border:1.5px solid rgba(144,165,255,0.4);background:rgba(255,255,255,0.7);border-radius:999px;font:inherit;font-size:12px;font-weight:700;color:var(--deep,#4D5BC0);padding:4px 12px;cursor:pointer}
     #optimizeCard .opt-copy:hover{background:#fff}
-    #optimizeCard .opt-copy.copied{background:var(--mint,#6BE4EA);color:#fff;border-color:transparent}
+    #optimizeCard .opt-copy.copied{background:var(--mint,#6BE4EA);color:var(--ink,#3a2a5a);border-color:transparent}
     #optimizeCard .opt-titles{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
     #optimizeCard .opt-titles li{background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.28);border-radius:13px;padding:10px 13px;cursor:pointer;font-weight:600;transition:background .12s}
     #optimizeCard .opt-titles li:hover{background:#fff;border-color:var(--periwinkle,#90A5FF)}
-    #optimizeCard .opt-titles li.copied{background:var(--mint,#6BE4EA);color:#fff}
+    #optimizeCard .opt-titles li.copied{background:var(--mint,#6BE4EA);color:var(--ink,#3a2a5a)}
     #optimizeCard .opt-pre{white-space:pre-wrap;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.28);border-radius:13px;padding:13px;font-size:13px;line-height:1.55;color:var(--ink,#3a2a5a)}
     #optimizeCard .opt-chiprow{display:flex;flex-wrap:wrap;gap:6px}
     #optimizeCard .opt-tag{background:rgba(144,165,255,0.16);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--deep,#4D5BC0)}
@@ -4722,16 +4902,18 @@ function hasPillSelected(){
   return document.querySelectorAll('#shortTypeRow .type-pill[aria-pressed="true"]').length > 0;
 }
 function flashPillRow(){
-  const row = $('shortTypeRow');
-  if(!row) return;
-  row.classList.remove('needs-selection');
+  // The pill row is now hidden behind the type-finder, so flash the visible finder.
+  const target = document.getElementById('typeFinder') || $('shortTypeRow');
+  if(!target) return;
+  target.classList.remove('needs-selection');
   // Force reflow so the animation restarts even if the class was just removed
-  void row.offsetWidth;
-  row.classList.add('needs-selection');
-  row.scrollIntoView({behavior:'smooth', block:'center'});
+  void target.offsetWidth;
+  target.classList.add('needs-selection');
+  target.scrollIntoView({behavior:'smooth', block:'center'});
+  const ts = document.getElementById('typeSearch'); if(ts) setTimeout(()=>ts.focus(), 120);
   // Auto-clear the flash after a few seconds so it doesn't sit there permanently
   clearTimeout(flashPillRow._t);
-  flashPillRow._t = setTimeout(()=> row.classList.remove('needs-selection'), 4000);
+  flashPillRow._t = setTimeout(()=> target.classList.remove('needs-selection'), 4000);
 }
 // Clicking any pill removes the "needs-selection" flash immediately
 document.querySelectorAll('#shortTypeRow .type-pill').forEach(btn => {
@@ -4899,9 +5081,23 @@ function renderResults(r, payload){
   renderSafetySection(payload, r);
   // VidIQ-style 0-100 score display (was 0-10) — multiply + round to int.
   const score100 = Math.round(r.overall * 10);
-  $('scoreBig').textContent = score100;
   const pct = Math.max(0, Math.min(100, score100));
   $('scoreRing').style.setProperty('--p', pct+'%');
+  // Count the score up with a little pop at the end (skipped under low-stim / reduce-motion)
+  (function(){
+    const el = $('scoreBig'), ring = $('scoreRing');
+    let reduce = false;
+    try{ reduce = document.documentElement.hasAttribute('data-hub-lowstim') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){}
+    if(reduce || score100 <= 0){ el.textContent = score100; return; }
+    let start = null;
+    requestAnimationFrame(function step(ts){
+      if(start === null) start = ts;
+      const p = Math.min(1, (ts - start) / 650);
+      el.textContent = Math.round(score100 * (1 - Math.pow(1 - p, 3)));
+      if(p < 1){ requestAnimationFrame(step); }
+      else { el.textContent = score100; if(ring){ ring.classList.remove('score-pop'); void ring.offsetWidth; ring.classList.add('score-pop'); } }
+    });
+  })();
   // Letter-grade pill mapping (VidIQ-style colored band)
   const gradePill = $('scoreGradePill');
   if(gradePill){
@@ -4916,6 +5112,41 @@ function renderResults(r, payload){
   }
   $('grade').textContent = r.grade;
   $('verdictText').textContent = r.verdict;
+
+  // ONE clear next action — surface the single highest-leverage fix above the breakdown.
+  (function(){
+    const ff = $('fixFirst'); if(!ff) return;
+    const cands = (r.criteria || []).filter(c => c.score < 8)
+      .sort((a,b) => ((10-b.score)*(b.weight||1)) - ((10-a.score)*(a.weight||1)));
+    const top = cands[0];
+    if(top){
+      const why = (typeof bestFixFor === 'function') ? bestFixFor(top) : '';
+      ff.innerHTML = '<span class="ff-ic" aria-hidden="true">🎯</span><div>'
+        + '<p class="ff-lab">Fix this first</p>'
+        + '<p class="ff-txt">' + (top.name || 'One thing to tighten') + '</p>'
+        + (why ? '<p class="ff-sub">' + why + '</p>' : '')
+        + '</div>';
+    } else {
+      ff.innerHTML = '<span class="ff-ic" aria-hidden="true">✨</span><div>'
+        + '<p class="ff-lab">Looking strong</p>'
+        + '<p class="ff-txt">Nothing urgent — this one\'s in good shape.</p></div>';
+    }
+    ff.classList.remove('hidden');
+  })();
+
+  // Scannable breakdown — compact bars for the highest-impact criteria (full detail stays collapsed below)
+  (function(){
+    const cb = $('critBars'); if(!cb) return;
+    const items = [...(r.criteria || [])].sort((a,b) => (b.weight||0) - (a.weight||0)).slice(0, 5);
+    if(!items.length){ cb.classList.add('hidden'); return; }
+    cb.innerHTML = items.map(c => {
+      const pct = Math.max(0, Math.min(100, Math.round((c.score/10)*100)));
+      return '<div class="cb-row"><span class="cb-name">' + (c.name || '') + '</span>'
+        + '<span class="cb-bar"><i style="width:' + pct + '%"></i></span>'
+        + '<span class="cb-val">' + c.score + '/10</span></div>';
+    }).join('');
+    cb.classList.remove('hidden');
+  })();
 
   // Criteria grid — sorted by impact (weight) so high-leverage items appear first
   const grid = $('critGrid');
@@ -6784,7 +7015,7 @@ function renderVideoVerdict(v){
         display:inline-flex;align-items:center;gap:8px;
         padding:8px 16px;border-radius:999px;cursor:pointer;
         background:linear-gradient(135deg,var(--pink-hot,#FFB2F0),var(--periwinkle,#90A5FF) 60%,var(--mint,#6BE4EA));
-        color:#fff;font-weight:800;font-size:13px;
+        color:var(--ink,#3a2a5a);font-weight:800;font-size:13px;
         border:none;font-family:inherit;
         box-shadow:0 6px 16px rgba(144,165,255,0.32);
         transition:transform .15s, filter .15s;
@@ -6823,12 +7054,12 @@ function renderVideoVerdict(v){
       .eb-btn{
         display:inline-flex;align-items:center;gap:6px;justify-content:center;
         padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
-        font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+        font-family:inherit;font-weight:700;font-size:14px;color:var(--ink,#3a2a5a);
         background:linear-gradient(135deg,var(--pink-hot,#FFB2F0),var(--periwinkle,#90A5FF) 60%,var(--mint,#6BE4EA));
         box-shadow:0 6px 14px rgba(144,165,255,0.3);
       }
       .eb-btn.secondary{background:rgba(255,255,255,0.7);color:var(--deep,#4D5BC0);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
-      .eb-btn.danger{background:linear-gradient(135deg,#FFB2C8,#FF8AA8);color:#fff}
+      .eb-btn.danger{background:linear-gradient(135deg,#FFB2C8,#FF8AA8);color:var(--ink,#3a2a5a)}
       .eb-btn[disabled]{opacity:.55;cursor:not-allowed}
       .eb-status{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
       .eb-status.info{background:rgba(107,228,234,0.18);color:#1f5e63;border:1px solid rgba(107,228,234,0.4)}
@@ -8504,6 +8735,117 @@ function renderVideoVerdict(v){
   window.addEventListener('eggie:brandmemory', refreshBanner);
   refreshBanner();
   applyType('short');
+})();
+</script>
+<!-- Entry-gate wiring (ADHD redesign). Runs AFTER the content-type controller so
+     a programmatic 'short' pill click routes through applyType normally. -->
+<script>
+(function(){
+  var root = document.documentElement;
+  function setTool(t){
+    root.setAttribute('data-tool', t);
+    if(t === 'score'){
+      var sp = document.querySelector('#ctypeBar .ctype-pill[data-ctype="short"]');
+      if(sp && !sp.classList.contains('active')) sp.click();   // scoring is short-only
+    }
+    try{ if(t === 'none') localStorage.removeItem('eggie-analyzer-tool'); else localStorage.setItem('eggie-analyzer-tool', t); }catch(e){}
+  }
+  document.querySelectorAll('#toolGate [data-tool-pick]').forEach(function(b){
+    b.addEventListener('click', function(){ setTool(b.getAttribute('data-tool-pick')); window.scrollTo({top:0, behavior:'smooth'}); });
+  });
+  var back = document.getElementById('toolBack');
+  if(back) back.addEventListener('click', function(){ setTool('none'); window.scrollTo({top:0, behavior:'smooth'}); });
+  var saved = null; try{ saved = localStorage.getItem('eggie-analyzer-tool'); }catch(e){}
+  setTool(saved === 'score' || saved === 'generate' ? saved : 'none');
+})();
+</script>
+<!-- Type-to-find multi-select for "what kind of short" (ADHD redesign).
+     It does NOT replace the logic — it drives the (hidden) #shortTypeRow pills'
+     pressed state via their own click handler, so keyword aggregation + the
+     'pick at least one' validation keep working exactly as before. -->
+<script>
+(function(){
+  var row = document.getElementById('shortTypeRow');
+  var finder = document.getElementById('typeFinder');
+  if(!row || !finder) return;
+  var search = document.getElementById('typeSearch');
+  var menu = document.getElementById('tfMenu');
+  var tokens = document.getElementById('tfTokens');
+  var quickWrap = document.getElementById('tfQuickChips');
+  var pills = Array.prototype.slice.call(row.querySelectorAll('.type-pill'));
+  var QUICK = ['gaming','storytime','reaction','pov','funny'];
+  var active = -1;
+
+  function pillByType(t){ for(var i=0;i<pills.length;i++){ if(pills[i].getAttribute('data-type')===t) return pills[i]; } return null; }
+  function isPressed(p){ return p && p.getAttribute('aria-pressed')==='true'; }
+  function iconOf(p){ var ic=p.querySelector('.type-icon'); return ic ? ic.textContent : ''; }
+  function labelOf(p){ var c=p.cloneNode(true); var ic=c.querySelector('.type-icon'); if(ic) ic.remove(); return c.textContent.replace(/\s+/g,' ').trim(); }
+  function pick(p){ if(!isPressed(p)) p.click(); finder.classList.remove('needs-selection'); sync(); }
+  function unpick(p){ if(isPressed(p)) p.click(); sync(); }
+
+  function renderTokens(){
+    tokens.innerHTML = '';
+    var any = false;
+    pills.forEach(function(p){
+      if(!isPressed(p)) return; any = true;
+      var chip = document.createElement('span'); chip.className = 'tf-token';
+      chip.appendChild(document.createTextNode((iconOf(p) ? iconOf(p)+' ' : '') + labelOf(p) + ' '));
+      var x = document.createElement('button'); x.type='button'; x.className='tf-x'; x.textContent='✕';
+      x.setAttribute('aria-label','Remove ' + labelOf(p));
+      x.addEventListener('click', function(e){ e.stopPropagation(); unpick(p); });
+      chip.appendChild(x); tokens.appendChild(chip);
+    });
+    tokens.style.display = any ? 'flex' : 'none';
+  }
+  function renderQuick(){
+    quickWrap.innerHTML = '';
+    QUICK.forEach(function(t){
+      var p = pillByType(t); if(!p) return;
+      var b = document.createElement('button'); b.type='button';
+      b.className = 'tf-chip' + (isPressed(p) ? ' on' : '');
+      b.textContent = (iconOf(p) ? iconOf(p)+' ' : '') + labelOf(p);
+      b.addEventListener('click', function(){ isPressed(p) ? unpick(p) : pick(p); });
+      quickWrap.appendChild(b);
+    });
+    var cp = pillByType('custom');
+    if(cp){
+      var o = document.createElement('button'); o.type='button'; o.className='tf-chip alt'; o.textContent='➕ Other…';
+      o.addEventListener('click', function(){ pick(cp); var ci=document.getElementById('shortTypeCustom'); if(ci) setTimeout(function(){ ci.focus(); }, 30); });
+      quickWrap.appendChild(o);
+    }
+  }
+  function sync(){ renderTokens(); renderQuick(); }
+
+  function closeMenu(){ menu.hidden = true; menu.innerHTML=''; active=-1; search.setAttribute('aria-expanded','false'); }
+  function renderMenu(q){
+    q = (q||'').trim().toLowerCase();
+    if(!q){ closeMenu(); return; }
+    var matches = pills.filter(function(p){
+      if(p.getAttribute('data-type')==='custom' || isPressed(p)) return false;
+      return ((labelOf(p)+' '+(p.getAttribute('data-keywords')||'')).toLowerCase()).indexOf(q) > -1;
+    }).slice(0, 8);
+    search.setAttribute('aria-expanded','true'); menu.hidden = false;
+    if(!matches.length){ menu.innerHTML = '<div class="tf-empty">No match — try another word, or tap “Other…” to type your own.</div>'; active=-1; return; }
+    menu.innerHTML = matches.map(function(p,i){
+      return '<div class="tf-item'+(i===0?' active':'')+'" role="option" data-type="'+p.getAttribute('data-type')+'">'
+        + '<span aria-hidden="true">'+ iconOf(p) +'</span> ' + labelOf(p) + '<span class="tf-add" aria-hidden="true">＋</span></div>';
+    }).join('');
+    active = 0;
+    Array.prototype.forEach.call(menu.querySelectorAll('.tf-item'), function(it){
+      it.addEventListener('mousedown', function(e){ e.preventDefault(); var p=pillByType(it.getAttribute('data-type')); if(p) pick(p); search.value=''; closeMenu(); search.focus(); });
+    });
+  }
+  search.addEventListener('input', function(){ renderMenu(search.value); });
+  search.addEventListener('keydown', function(e){
+    var items = menu.hidden ? [] : Array.prototype.slice.call(menu.querySelectorAll('.tf-item'));
+    if(e.key==='ArrowDown' && items.length){ e.preventDefault(); active=Math.min(items.length-1, active+1); items.forEach(function(it,i){ it.classList.toggle('active', i===active); }); }
+    else if(e.key==='ArrowUp' && items.length){ e.preventDefault(); active=Math.max(0, active-1); items.forEach(function(it,i){ it.classList.toggle('active', i===active); }); }
+    else if(e.key==='Enter' && items.length && active>-1){ e.preventDefault(); var p=pillByType(items[active].getAttribute('data-type')); if(p) pick(p); search.value=''; closeMenu(); }
+    else if(e.key==='Escape'){ closeMenu(); }
+  });
+  document.addEventListener('click', function(e){ if(!finder.contains(e.target)) closeMenu(); });
+  var clr = document.getElementById('clearBtn'); if(clr) clr.addEventListener('click', function(){ setTimeout(sync, 0); });
+  sync();
 })();
 </script>
 </body>

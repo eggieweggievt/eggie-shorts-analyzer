@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -104,7 +104,7 @@
   .btn{
     display:inline-flex;align-items:center;gap:8px;justify-content:center;
     padding:10px 20px;border:none;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:700;font-size:14px;color:#fff;
+    font-family:inherit;font-weight:700;font-size:14px;color:var(--ink);
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
     box-shadow:0 6px 14px rgba(144,165,255,0.3);
     transition:transform .12s ease, filter .15s ease;
@@ -138,7 +138,7 @@
     display:inline-flex;align-items:center;gap:8px;
     padding:8px 16px;border-radius:999px;cursor:pointer;
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
-    color:#fff;font-weight:800;font-size:13px;border:none;font-family:inherit;
+    color:var(--ink);font-weight:800;font-size:13px;border:none;font-family:inherit;
     box-shadow:0 6px 16px rgba(144,165,255,0.32);transition:transform .15s, filter .15s;
   }
   .auth-pill:hover{transform:translateY(-1px);filter:brightness(1.05)}

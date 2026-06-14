@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -372,7 +372,7 @@
   }
   .class-launcher-btn{
     background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle));
-    color:#fff;border:none;border-radius:999px;
+    color:var(--ink);border:none;border-radius:999px;
     padding:10px 20px;font-family:inherit;font-weight:800;font-size:14px;
     cursor:pointer;flex-shrink:0;
     box-shadow:0 4px 14px rgba(255,178,240,0.5);
@@ -488,12 +488,12 @@
   .lesson-nav-btn:disabled{opacity:0.4;cursor:not-allowed}
   .lesson-nav-next{
     background:linear-gradient(135deg, var(--periwinkle), var(--blue));
-    color:#fff;border-color:transparent;
+    color:var(--ink);border-color:transparent;
     box-shadow:0 4px 12px rgba(99,170,244,0.4);
   }
   .lesson-nav-next:hover:not(:disabled){
     background:linear-gradient(135deg, var(--pink-hot), var(--periwinkle));
-    color:#fff;
+    color:var(--ink);
     transform:translateY(-1px);
   }
   .lesson-nav-complete{
@@ -502,7 +502,7 @@
   }
   .lesson-nav-complete.is-done{
     background:linear-gradient(135deg, var(--mint), var(--periwinkle));
-    color:#fff;border-color:transparent;
+    color:var(--ink);border-color:transparent;
   }
   .lesson-nav-complete.is-done::before{content:"✓ "}
 

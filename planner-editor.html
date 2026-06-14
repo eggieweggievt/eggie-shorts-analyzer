@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -107,7 +107,7 @@
   .btn{
     display:inline-flex;align-items:center;gap:8px;justify-content:center;
     padding:11px 22px;border:none;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:700;font-size:14.5px;color:#fff;
+    font-family:inherit;font-weight:700;font-size:14.5px;color:var(--ink);
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
     box-shadow:0 6px 16px rgba(144,165,255,0.32);
     transition:transform .12s ease, filter .15s ease;
@@ -631,7 +631,7 @@
   .pc-upload-btn{
     display:inline-flex;align-items:center;gap:6px;
     padding:9px 18px;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    font-family:inherit;font-weight:800;font-size:13.5px;color:var(--ink);
     background:linear-gradient(135deg,#6BC78A,#5BA875);
     border:none;box-shadow:0 4px 12px rgba(91,168,117,0.32);
     transition:transform .12s,filter .12s;
@@ -655,7 +655,7 @@
   .pc-mark-edited-btn{
     display:inline-flex;align-items:center;gap:6px;
     padding:9px 18px;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    font-family:inherit;font-weight:800;font-size:13.5px;color:var(--ink);
     background:linear-gradient(135deg,#6BC78A,#3FB8C0);
     border:none;box-shadow:0 4px 12px rgba(91,168,117,0.32);
     transition:transform .12s,filter .12s;
@@ -701,7 +701,7 @@
   .pc-save-notes-btn{
     display:inline-flex;align-items:center;gap:6px;
     padding:8px 16px;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:800;font-size:13px;color:#fff;
+    font-family:inherit;font-weight:800;font-size:13px;color:var(--ink);
     background:linear-gradient(135deg,#FFB07A,#FF8AA8);
     border:none;box-shadow:0 4px 10px rgba(255,138,168,0.32);
     transition:transform .12s,filter .12s;
@@ -775,7 +775,7 @@
   .vtuber-batch .vb-download{
     display:inline-flex;align-items:center;gap:7px;
     padding:10px 20px;border-radius:999px;text-decoration:none;white-space:nowrap;
-    font-family:inherit;font-weight:800;font-size:13.5px;color:#fff;
+    font-family:inherit;font-weight:800;font-size:13.5px;color:var(--ink);
     background:linear-gradient(135deg,#6BE4EA,#63AAF4);
     box-shadow:0 4px 12px rgba(99,170,244,0.32);
     transition:transform .12s,filter .12s;
@@ -796,7 +796,7 @@
   .preview-banner .pb-text{flex:1;min-width:180px;line-height:1.45}
   .preview-banner .pb-text strong{color:#5a3a8a}
   .preview-banner .pb-exit{
-    text-decoration:none;font-weight:800;font-size:13px;color:#fff;
+    text-decoration:none;font-weight:800;font-size:13px;color:var(--ink);
     background:linear-gradient(135deg,#FFB07A,#FF8AA8);
     padding:8px 16px;border-radius:999px;white-space:nowrap;
     box-shadow:0 4px 10px rgba(255,138,168,0.3);
@@ -829,7 +829,7 @@
   }
   .view-toggle button.active{
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
-    color:#fff;box-shadow:0 2px 8px rgba(144,165,255,0.3);
+    color:var(--ink);box-shadow:0 2px 8px rgba(144,165,255,0.3);
   }
 
   /* V3.1 — Kanban board view (readiness buckets as side-by-side columns) */
@@ -928,7 +928,7 @@
   .next-deadline .nd-text small{display:block;font-weight:500;color:var(--ink-soft);font-size:11.5px;margin-top:1px}
   .next-deadline.overdue .nd-text strong{color:#a23556}
   .next-deadline .nd-jump{
-    flex-shrink:0;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12.5px;color:#fff;
+    flex-shrink:0;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12.5px;color:var(--ink);
     padding:7px 14px;border-radius:999px;
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));
     box-shadow:0 4px 10px rgba(144,165,255,0.3);transition:transform .12s,filter .12s;

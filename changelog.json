@@ -9,6 +9,85 @@
   "entries": [
     {
       "date": "2026-06-14",
+      "emoji": "🧭",
+      "title": "Niche Finder: way more niches to land on (part 2)",
+      "items": [
+        { "type": "new", "text": "Seven new content niches you can now get matched to: Gacha & Live-Service, True Crime & Mystery, Fitness & Movement, Beauty/Fashion & GRWM, Mukbang & Food, Cosplay & Costuming, and Pets & Animals — each with its own description and 'try these first' ideas, and tied to the tag bank so saving still powers the rest of the hub." },
+        { "type": "new", "text": "Two new vibe archetypes on the energy axis: Lovable Menace (you stir the pot on purpose and chat loves it) and The Showman (every stream is a produced show). Three new questions were added so all of these are actually reachable — the quiz is now fifteen questions." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🔍",
+      "title": "Niche Finder, smoother and more useful (part 1)",
+      "items": [
+        { "type": "improved", "text": "The quiz now lets you tap an answer and then hit Next, instead of jumping ahead the instant you tap — so you can sit with a choice or change your mind. Each question eases in, the progress shows where you are in each part ('Content · 3 / 6'), and you can use the number keys 1–6 to pick and Enter to continue." },
+        { "type": "improved", "text": "Your results screen got clearer: match meters on both halves of your recipe, and a 'close call' note when your top two are neck-and-neck (so it says 'you're a blend of X and Y' instead of forcing one)." },
+        { "type": "new", "text": "Results now hand you a 'Start here' row — one tap into the Planner, the Optimizer, or the Growth Playbook, tailored to your niche — plus the existing save-to-Creator-Memory and copy-your-recipe. The honest 'day off' question now counts a little extra, since it's the best predictor." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🎨",
+      "title": "Readable buttons everywhere — the polish pass reached every page",
+      "items": [
+        { "type": "improved", "text": "Across the whole hub — planner, to-do, habits, weekly review, debut checklist, media kit, pitch builder, finance, growth, toolbox, thumbnail, FAQ, manager hub, Creator Memory, Ask and more — buttons and pills that used hard-to-read white text on the soft pastel gradients now use the deep brand ink instead. Same cozy look, but the text actually meets accessibility contrast now." },
+        { "type": "improved", "text": "Dark buttons and overlays were deliberately left as-is (white text is correct there), so nothing went invisible — just the pale ones got fixed." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🔎",
+      "title": "Optimizer: a calmer way to pick your content type, with way more types",
+      "items": [
+        { "type": "improved", "text": "The big wall of 'what kind of short is this?' buttons is now a tidy search box: a few common ones to tap, or just start typing (e.g. 'cosplay', 'horror', 'ASMR') and it finds the match. Your picks show as little removable chips, so it never feels overwhelming even though there are far more options now." },
+        { "type": "new", "text": "Loads more categories to choose from, pulled from the hub's own tag bank so they map to real hashtags — formats like review, comedy skit, edit/montage, rant, life hack, true crime and bodycam, plus topics like horror, anime, cozy, cooking, fitness, beauty, tech, pets, mental health, ADHD, nostalgia, parenting, gacha, gunpla, LARP and more." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🎯",
+      "title": "The Optimizer, redesigned to be calmer and clearer",
+      "items": [
+        { "type": "new", "text": "The Optimizer now opens with one simple choice — 'Score my short' or 'Generate titles & tags' — and shows only the tool you picked, so you're not staring at everything at once. It remembers your last pick, and there's a little 'change what I'm doing' button to switch." },
+        { "type": "new", "text": "Your results now lead with ONE thing: a 'Fix this first' card calls out the single highest-impact change before the full breakdown (which stays tucked away until you want it). Less overwhelm, clearer next step." },
+        { "type": "improved", "text": "The score now counts up with a gentle pop when it lands (and stays still if you're in Focus / Low-stim mode), and the buttons and grade pills got the same readable dark-ink-on-pastel contrast fix as the rest of the hub." },
+        { "type": "improved", "text": "None of the brains changed — the on-device scoring, the speech/vision models, the title ideas and the copy-paste packs all work exactly as before. This was a layout and clarity pass." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🎬",
+      "title": "Smooth motion across the hub + more readable accents",
+      "items": [
+        { "type": "new", "text": "The hub now moves with a bit more life: pages gently glide in as they load, sections fade and rise into place as you scroll to them, dialogs spring open softly, and ticking off a checklist item gives a satisfying little pop. It's lively but calm." },
+        { "type": "improved", "text": "All of that motion turns completely off the moment you switch on 🧘 Focus or Low-stim mode, or if your device is set to 'reduce motion' — so it's there when you want energy and gone when you want quiet." },
+        { "type": "improved", "text": "More accent text is now easy to read: the active filter chips, the current-page button in the menu, and the quick-idea save button switched from white to the deep brand ink on their pastel backgrounds (white wasn't meeting the contrast standard). Same look, clearer text." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🎯",
+      "title": "ADHD-friendly + accessibility pass",
+      "items": [
+        { "type": "new", "text": "🎯 New Focus mode, alongside the dark / dyslexia / tint / low-stim toggles. It quiets the busy background to one calm tone and gently dims every card except the one you're hovering or have selected — so your attention has one clear home instead of a wall of equal things. Saved per browser, off by default." },
+        { "type": "improved", "text": "Better colour contrast on key buttons: text on the soft pink-and-blue gradient was hard to read (it didn't meet the accessibility standard), so it's now the deep brand ink, which is comfortably legible while keeping the pastel look." },
+        { "type": "improved", "text": "Bigger, comfier tap targets on the shared buttons (a full 44px tall) so they're easier to hit — especially on a phone or on a rough-motor day." },
+        { "type": "new", "text": "Under the hood: new building blocks for clearer progress — a progress bar with a satisfying 'X of Y done' + completion moment, and tidy numbered steps with time estimates. These start rolling out onto the checklists (debut, to-do, subathon prep) and the planner next." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "✨",
+      "title": "A smoother, calmer hub — gentle UI polish across every page",
+      "items": [
+        { "type": "improved", "text": "Buttons, chips, cards and inputs now ease in and out of their hover, press and focus states instead of snapping — small thing, but the whole hub feels softer to use. Nothing moved or changed shape; it's the same layout, just smoother." },
+        { "type": "improved", "text": "Clearer keyboard focus outlines across the hub, so tabbing through with a keyboard always shows you exactly where you are. Fully respects 'reduce motion' (and the 🧘 low-stim mode) — if you prefer less animation, you get none." },
+        { "type": "new", "text": "🔄 Loading states are getting a proper polish. Save buttons can now show a tidy spinner while they work (the Planner's save button is the first to use it), and there's a new shimmer 'skeleton' placeholder and toast-message style that the rest of the tools will adopt page by page." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
       "emoji": "🛡️",
       "title": "Debugging pass — privacy fix + a handful of small bugs squashed",
       "items": [

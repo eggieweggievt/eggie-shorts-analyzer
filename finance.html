@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -73,7 +73,7 @@
   .hidden{display:none !important}
   .btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:none;border-radius:999px;
     font-family:'Quicksand',sans-serif;font-weight:700;font-size:14px;padding:10px 18px;
-    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));color:#fff;
+    background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle));color:var(--ink);
     box-shadow:0 4px 14px rgba(144,165,255,0.4);transition:transform .12s, box-shadow .12s}
   .btn:hover{transform:translateY(-1px)}
   .btn.ghost{background:rgba(255,255,255,0.7);color:var(--deep);border:2px solid rgba(144,165,255,0.4);box-shadow:none}
@@ -110,7 +110,7 @@
 
   .modeswitch{display:inline-flex;background:rgba(144,165,255,0.14);border:1.5px solid rgba(144,165,255,0.35);border-radius:999px;padding:4px;gap:4px}
   .modeswitch button{border:none;background:transparent;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:800;font-size:14px;color:var(--ink-soft);padding:9px 22px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;transition:background .15s,color .15s,box-shadow .15s}
-  .modeswitch button.on{color:#fff;box-shadow:0 4px 12px rgba(144,165,255,0.4)}
+  .modeswitch button.on{color:var(--ink);box-shadow:0 4px 12px rgba(144,165,255,0.4)}
   .modeswitch button.on[data-mode="business"]{background:linear-gradient(135deg,var(--periwinkle),var(--blue))}
   .modeswitch button.on[data-mode="personal"]{background:linear-gradient(135deg,var(--pink-hot),#FF8AA8)}
   .mode-note{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-top:8px}

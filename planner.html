@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=5"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim modes (saved per browser) -->
-<script src="hub-core.js?v=2"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -124,7 +124,7 @@
   .btn{
     display:inline-flex;align-items:center;gap:8px;justify-content:center;
     padding:11px 22px;border:none;border-radius:999px;cursor:pointer;
-    font-family:inherit;font-weight:700;font-size:14.5px;color:#fff;
+    font-family:inherit;font-weight:700;font-size:14.5px;color:var(--ink);
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
     box-shadow:0 6px 16px rgba(144,165,255,0.32);
     transition:transform .12s ease, filter .15s ease;
@@ -135,7 +135,7 @@
     border:2px solid rgba(144,165,255,0.4);box-shadow:none;
   }
   .btn.danger{
-    background:linear-gradient(135deg,#FFB2C8,#FF8AA8);color:#fff;
+    background:linear-gradient(135deg,#FFB2C8,#FF8AA8);color:var(--ink);
   }
   .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
 
@@ -622,6 +622,11 @@
     max-width:680px;width:100%;
     box-shadow:0 28px 80px rgba(99,170,244,0.35);
     margin:auto;
+  }
+  /* playful spring-open (shared keyframe from hub-ui.css; a11y layer strips it
+     under low-stim + reduce-motion automatically) */
+  html:not([data-hub-lowstim]) .modal-backdrop.open .modal-content{
+    animation:ui-modal-in .28s var(--ui-spring, cubic-bezier(.34,1.46,.56,1)) both;
   }
   .modal-content h2{
     font-family:'Pacifico',cursive;font-weight:400;font-size:26px;
@@ -1730,7 +1735,7 @@
   .todo-widget .tw-add input:focus{outline:none}
   .todo-widget .tw-add button{
     background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
-    color:#fff;border:none;border-radius:999px;padding:6px 14px;
+    color:var(--ink);border:none;border-radius:999px;padding:6px 14px;
     font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer;
     box-shadow:0 3px 10px rgba(144,165,255,0.25);
   }
@@ -1855,7 +1860,7 @@
   }
   .post-copy .pc-copy-all{
     background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 100%);
-    color:#fff;border:none;font-family:inherit;font-weight:800;font-size:13px;
+    color:var(--ink);border:none;font-family:inherit;font-weight:800;font-size:13px;
     padding:9px 18px;border-radius:999px;cursor:pointer;
     display:inline-flex;align-items:center;gap:6px;
     box-shadow:0 4px 14px rgba(144,165,255,0.35);
@@ -1880,7 +1885,7 @@
   .ready-banner-sub{font-size:12.5px;color:var(--ink-soft)}
   .ready-launch-btn{
     background:linear-gradient(135deg,var(--pink-hot) 0%,var(--periwinkle) 50%,var(--mint) 100%) !important;
-    color:#fff !important;border:none !important;
+    color:var(--ink) !important;border:none !important;
     font-family:inherit;font-weight:800;font-size:14px;letter-spacing:.02em;
     padding:10px 22px !important;border-radius:999px;cursor:pointer;
     box-shadow:0 6px 18px rgba(144,165,255,0.45);
@@ -2009,7 +2014,7 @@
   }
   .ready-mark-btn{
     background:linear-gradient(135deg,#9be0b2 0%,#6bd6c6 100%) !important;
-    color:#fff !important;border:none !important;font-weight:800;
+    color:var(--ink) !important;border:none !important;font-weight:800;
   }
   .ready-mark-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(107,214,198,0.4)}
 </style>
@@ -7390,11 +7395,14 @@ async function handleSave(){
     is_priority: !!$('fIsPriority').checked
   };
   if(editingItemId) item.id = editingItemId;
-  $('saveItemBtn').disabled = true;
-  $('saveItemBtn').textContent = 'Saving…';
+  const _saveBtn = $('saveItemBtn');
+  // Smooth busy state via the shared EggieUI helper (spinner + locked button,
+  // label preserved). Falls back to the old text swap if hub-core hasn't loaded.
+  if(window.EggieUI){ EggieUI.busy(_saveBtn, true); }
+  else { _saveBtn.disabled = true; _saveBtn.textContent = 'Saving…'; }
   const saved = await saveItem(item);
-  $('saveItemBtn').disabled = false;
-  $('saveItemBtn').innerHTML = '💾 Save';
+  if(window.EggieUI){ EggieUI.busy(_saveBtn, false); }
+  else { _saveBtn.disabled = false; _saveBtn.innerHTML = '💾 Save'; }
   if(saved){
     // 🌱 V3 — gentle duplicate whisper. The same idea getting captured twice
     // is classic object-permanence stuff — this never blocks (it already
