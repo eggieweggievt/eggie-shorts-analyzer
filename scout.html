@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
+<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#ffd9f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Creator Hub" />
+<link rel="apple-touch-icon" href="BADGE 1.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Competitor Scout 🔭 — Eggie's Creator Hub</title>
+<meta name="description" content="A weekly look at the VTuber channels worth learning from — big benchmarks, fast-growing breakouts, and the Shorts formats working right now. Read straight from your own weekly data, on your device." />
+<link rel="icon" type="image/png" href="BADGE 1.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#FFB2F0; --blue:#63AAF4; --mint:#6BE4EA; --pink-light:#FFDBF7;
+    --periwinkle:#90A5FF; --deep:#4D5BC0; --ink:#3a2a5a; --ink-soft:#6b5f8a; --white:#fff;
+    --shadow:0 8px 32px rgba(99,170,244,0.18), 0 2px 8px rgba(255,178,240,0.15); --radius:24px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Quicksand',system-ui,sans-serif;color:var(--ink);
+    background:linear-gradient(135deg,#fff4fb 0%,#f1f3ff 45%,#eafcfb 100%);min-height:100vh}
+  .wrap{max-width:780px;margin:0 auto;padding:18px 18px 60px}
+  .back-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:700;font-size:13.5px;
+    color:var(--deep);background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.42);
+    padding:8px 15px;border-radius:999px}
+  .back-link:hover{background:#fff}
+  .hero{text-align:center;margin:6px 0 22px}
+  .hero h1{font-family:'Pacifico',cursive;font-weight:400;font-size:34px;margin:0 0 6px;
+    background:linear-gradient(120deg,var(--pink-hot),var(--periwinkle) 60%,var(--mint));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{margin:0;color:var(--ink-soft);font-size:14px;font-weight:600}
+  .card{background:rgba(255,255,255,0.82);border:1.5px solid rgba(144,165,255,0.3);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px 22px;margin:0 0 18px}
+  .card h2{font-size:18px;margin:0 0 4px;color:var(--deep)}
+  .card .sub{margin:0 0 14px;color:var(--ink-soft);font-size:12.5px;font-weight:600}
+  .insight{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-radius:14px;
+    background:rgba(144,165,255,0.08);border:1.5px solid rgba(144,165,255,0.26);margin:0 0 10px}
+  .insight .ic{font-size:20px;flex:0 0 auto;line-height:1.2}
+  .insight p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .chan{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid rgba(144,165,255,0.16);
+    text-decoration:none}
+  .chan:first-of-type{border-top:0}
+  .chan:hover .chan-name{color:var(--pink-hot)}
+  .chan-av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--pink-hot),var(--periwinkle))}
+  .chan-main{flex:1;min-width:0}
+  .chan-name{font-weight:800;font-size:14px;color:var(--deep);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chan-niche{font-size:11.5px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chan-subs{flex:0 0 auto;font-weight:800;font-size:13px;color:var(--deep)}
+  .chan-subs small{display:block;font-size:9.5px;font-weight:700;color:var(--ink-soft);text-align:right;text-transform:uppercase;letter-spacing:.04em}
+  .foot{color:var(--ink-soft);font-size:11.5px;line-height:1.55;text-align:center;margin:6px 4px 0}
+  .empty{color:var(--ink-soft);font-size:13px;padding:14px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-row"><a class="back-link" href="index.html">← Home</a></div>
+
+  <div class="hero">
+    <h1>Competitor Scout 🔭</h1>
+    <p>Channels worth learning from — read straight from your own weekly data, on your device.</p>
+  </div>
+
+  <div id="scoutBody">
+    <div class="card"><div class="empty">Loading your watchlist… 🐙</div></div>
+  </div>
+
+  <p class="foot" id="scoutFoot"></p>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmtSubs(n){
+    if(n==null || isNaN(n)) return null;
+    n = Number(n);
+    if(n>=1e6) return (n/1e6).toFixed(n>=1e7?0:2).replace(/\.0+$/,'')+'M';
+    if(n>=1e3) return (n/1e3).toFixed(n>=1e5?0:1).replace(/\.0$/,'')+'K';
+    return String(n);
+  }
+  function handleUrl(h){ h = String(h||'').trim(); if(!h) return '#'; if(/^https?:/i.test(h)) return h; return 'https://www.youtube.com/' + (h[0]==='@'?h:'@'+h); }
+  function initial(h){ h = String(h||'@?').replace(/^@/,''); return (h[0]||'?').toUpperCase(); }
+
+  function chanRow(c){
+    var subs = fmtSubs(c.subs);
+    return '<a class="chan" href="' + esc(handleUrl(c.handle)) + '" target="_blank" rel="noopener">'
+      + '<span class="chan-av" aria-hidden="true">' + esc(initial(c.handle)) + '</span>'
+      + '<span class="chan-main"><span class="chan-name">' + esc(c.handle || 'channel') + '</span>'
+      + '<span class="chan-niche">' + esc(c.niche || 'vtuber') + '</span></span>'
+      + (subs ? '<span class="chan-subs">' + subs + '<small>subs</small></span>' : '')
+      + '</a>';
+  }
+  function section(title, sub, list){
+    if(!list.length) return '';
+    return '<div class="card"><h2>' + title + '</h2><p class="sub">' + sub + '</p>' + list.map(chanRow).join('') + '</div>';
+  }
+
+  function render(channels, scan){
+    var body = document.getElementById('scoutBody');
+    if(!channels || !channels.length){ body.innerHTML = '<div class="card"><div class="empty">Couldn’t load the watchlist right now. It lives in <code>channels.json</code> — try again in a moment.</div></div>'; return; }
+
+    // tiers
+    var benchmarks = [], rising = [], rest = [];
+    channels.forEach(function(c){
+      var notes = String(c.notes||'').toLowerCase();
+      var subs = (c.subs==null) ? 0 : Number(c.subs);
+      if(/benchmark/.test(notes) || subs >= 200000) benchmarks.push(c);
+      else if(/fast-growing/.test(notes) || /\+\d+% subs/.test(notes)) rising.push(c);
+      else rest.push(c);
+    });
+    benchmarks.sort(function(a,b){ return (b.subs||0)-(a.subs||0); });
+    rising.sort(function(a,b){ return (b.subs||0)-(a.subs||0); });
+    rest.sort(function(a,b){ return (b.subs||0)-(a.subs||0); });
+
+    var html = '';
+
+    // what's working now (from the weekly scan)
+    var insights = (scan && Array.isArray(scan.formatInsights)) ? scan.formatInsights : [];
+    if(insights.length){
+      html += '<div class="card"><h2>What’s working right now ✨</h2>'
+        + '<p class="sub">Shorts formats showing up across your watchlist' + (scan.scannedAt ? ' · scan from ' + esc(scan.scannedAt) : '') + '</p>'
+        + insights.map(function(t){ return '<div class="insight"><span class="ic" aria-hidden="true">📈</span><p>' + esc(t) + '</p></div>'; }).join('')
+        + '</div>';
+    }
+
+    html += section('Big benchmarks 🏆', 'The channels winning at scale — study what they do, scale it to your size.', benchmarks);
+    html += section('Rising fast 🚀', 'Smaller channels growing quickly — the freshest playbook to borrow from.', rising);
+    html += section('The rest of your watchlist 👀', 'Everyone else you’re tracking, biggest first.', rest);
+
+    body.innerHTML = html || '<div class="card"><div class="empty">Your watchlist is empty.</div></div>';
+
+    var foot = document.getElementById('scoutFoot');
+    foot.innerHTML = 'Pulled weekly from your own VidIQ channel watchlist (' + channels.length + ' channels). '
+      + 'This page just reads your local data files — nothing live, nothing leaves your browser. '
+      + 'Add or remove channels by editing <code>channels.json</code>.';
+  }
+
+  function getJSON(url){ return fetch(url, {cache:'no-cache'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
+
+  Promise.all([ getJSON('channels.json'), getJSON('channel-scan-latest.json') ]).then(function(res){
+    var ch = res[0], scan = res[1];
+    render(ch && ch.channels ? ch.channels : [], scan);
+  }).catch(function(e){
+    console.warn('[Scout] load failed', e);
+    document.getElementById('scoutBody').innerHTML = '<div class="card"><div class="empty">Couldn’t load your watchlist right now — try again in a moment.</div></div>';
+  });
+})();
+</script>
+<script src="hub-nav.js?v=9"></script>
+</body>
+</html>

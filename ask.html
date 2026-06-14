@@ -210,6 +210,13 @@
       <div class="answer" id="answerBox"></div>
       <div class="res-list" id="resList"></div>
     </div>
+
+    <div class="card" id="pillarsCard">
+      <h2>Your content pillars 🧩</h2>
+      <p class="muted" style="margin-top:-6px">Group all your planner ideas into themes — by meaning, not just matching words — so you can see what you naturally make a lot of, and where there's a gap. Runs on your device; the first run downloads the ~25&nbsp;MB meaning model once, then it's instant.</p>
+      <button class="btn" id="pillarsBtn" type="button">🧩 Group my ideas into themes</button>
+      <div id="pillarsBody" style="margin-top:14px"></div>
+    </div>
   </div>
 
   <div class="footer">
@@ -848,8 +855,102 @@ initAuth();
     };
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ui);
-  else ui();
+  /* ============================================================
+     🧩 CONTENT PILLARS — cluster the planner BY MEANING, on-device.
+     Reuses the same MiniLM pipeline + vecCache as smarter search:
+     embed every idea once, then greedily group by cosine similarity.
+     Nothing leaves the browser; failures just show a gentle message.
+     ============================================================ */
+  function vecOf(it){ return vecCache.get(it.id + ':' + (it.updated_at || '')); }
+  function unit(arr){
+    var out = new Float32Array(arr.length), mag = 0, i;
+    for(i = 0; i < arr.length; i++){ mag += arr[i] * arr[i]; }
+    mag = Math.sqrt(mag) || 1;
+    for(i = 0; i < arr.length; i++){ out[i] = arr[i] / mag; }
+    return out;
+  }
+  function clusterItems(items){
+    var THRESH = 0.42;          // cosine; titles this close share a theme
+    var clusters = [];
+    items.forEach(function(it){
+      var v = vecOf(it); if(!v) return;
+      var best = -1, bestSim = -1;
+      clusters.forEach(function(cl, idx){ var s = cos(v, cl.centroid); if(s > bestSim){ bestSim = s; best = idx; } });
+      if(best >= 0 && bestSim >= THRESH){
+        var cl = clusters[best];
+        cl.members.push(it);
+        for(var i = 0; i < v.length; i++) cl.sum[i] += v[i];
+        cl.centroid = unit(cl.sum);
+      } else {
+        var sum = Array.prototype.slice.call(v);
+        clusters.push({ sum: sum, centroid: unit(sum), members: [it] });
+      }
+    });
+    return clusters;
+  }
+  var PILLAR_STOP = {the:1,a:1,an:1,and:1,or:1,of:1,to:1,in:1,on:1,for:1,my:1,me:1,i:1,is:1,it:1,this:1,that:1,with:1,how:1,why:1,what:1,your:1,you:1,we:1,our:1,vtuber:1,short:1,shorts:1,video:1,stream:1,ever:1,first:1};
+  function pillarLabel(cl){
+    var freq = {};
+    cl.members.forEach(function(it){
+      String(it.title || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).forEach(function(w){
+        if(w.length < 3 || PILLAR_STOP[w]) return;
+        freq[w] = (freq[w] || 0) + 1;
+      });
+    });
+    var top = Object.keys(freq).filter(function(w){ return freq[w] >= 2; })
+      .sort(function(a, b){ return freq[b] - freq[a]; }).slice(0, 2);
+    if(top.length) return top.map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' + ');
+    var anchor = cl.members[0], bestSim = -1;   // fallback: title nearest the cluster centre
+    cl.members.forEach(function(it){ var v = vecOf(it); var s = v ? cos(v, cl.centroid) : -1; if(s > bestSim){ bestSim = s; anchor = it; } });
+    return (anchor.title || 'Untitled theme');
+  }
+  function renderPillars(clusters, body){
+    var multi = clusters.filter(function(c){ return c.members.length >= 2; })
+      .sort(function(a, b){ return b.members.length - a.members.length; });
+    var singles = clusters.filter(function(c){ return c.members.length === 1; });
+    if(!multi.length && !singles.length){ body.innerHTML = '<p class="muted">No ideas to group yet — add a few to your planner first.</p>'; return; }
+    var html = '';
+    if(multi.length){
+      html += '<p style="margin:0 0 12px;color:var(--ink);line-height:1.55">Your ideas fall into <b>' + multi.length + '</b> theme' + (multi.length === 1 ? '' : 's') + '. The bigger ones are what you naturally make a lot of:</p>';
+      multi.forEach(function(cl){
+        var chips = cl.members.map(function(it){
+          return '<span style="display:inline-block;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.3);border-radius:11px;padding:5px 11px;font-size:12.5px;color:var(--ink);margin:0 6px 6px 0">' + escapeHtml(it.title || 'Untitled') + '</span>';
+        }).join('');
+        html += '<div style="margin:0 0 14px;padding:13px 15px;background:rgba(144,165,255,0.08);border:1.5px solid rgba(144,165,255,0.28);border-radius:15px">'
+          + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap">'
+          + '<span style="font-size:15px;font-weight:800;color:var(--deep)">🧩 ' + escapeHtml(pillarLabel(cl)) + '</span>'
+          + '<span style="font-size:11.5px;font-weight:700;color:var(--ink-soft);background:rgba(255,255,255,0.7);border-radius:999px;padding:2px 9px">' + cl.members.length + ' ideas</span>'
+          + '</div><div>' + chips + '</div></div>';
+      });
+    }
+    if(singles.length){
+      var sc = singles.map(function(cl){
+        return '<span style="display:inline-block;background:rgba(255,255,255,0.6);border:1.5px dashed rgba(144,165,255,0.4);border-radius:11px;padding:5px 11px;font-size:12.5px;color:var(--ink-soft);margin:0 6px 6px 0">' + escapeHtml(cl.members[0].title || 'Untitled') + '</span>';
+      }).join('');
+      html += '<div style="margin-top:6px"><p style="margin:0 0 8px;font-size:12.5px;font-weight:800;color:var(--ink-soft)">🌱 One-offs — not part of a theme yet (each could become a series, or just stay one-and-done):</p><div>' + sc + '</div></div>';
+    }
+    html += '<p class="muted" style="margin-top:12px;font-size:11.5px">Grouped by meaning right on your device — none of your ideas left the browser. Themes are a mirror, not a mandate. 💗</p>';
+    body.innerHTML = html;
+  }
+  function runPillars(){
+    var btn = document.getElementById('pillarsBtn');
+    var body = document.getElementById('pillarsBody');
+    if(!btn || !body) return;
+    var items = (typeof allItems !== 'undefined' && allItems) ? allItems.slice() : [];
+    if(!items.length){ body.innerHTML = '<p class="muted">Add a few ideas to your planner first, then I can group them into themes.</p>'; return; }
+    btn.disabled = true; var orig = btn.innerHTML; btn.innerHTML = '🧩 Thinking…';
+    body.innerHTML = '<p class="muted">Reading your ideas by meaning — the first run downloads the ~25 MB model once, then it\'s instant. All on your device…</p>';
+    loadPipe().then(function(pipe){
+      return embedAll(pipe, items).then(function(){ renderPillars(clusterItems(items), body); });
+    }).catch(function(e){
+      console.warn('[Ask] pillars failed', e);
+      body.innerHTML = '<p class="muted">Couldn\'t load the model just now (offline?). Nothing left your device — try again in a moment.</p>';
+    }).then(function(){ btn.disabled = false; btn.innerHTML = orig; });
+  }
+  function wirePillars(){ var b = document.getElementById('pillarsBtn'); if(b && !b._wired){ b._wired = true; b.addEventListener('click', runPillars); } }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ ui(); wirePillars(); });
+  else { ui(); wirePillars(); }
 })();
 </script>
 <script src="hub-nav.js?v=9"></script>

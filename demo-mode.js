@@ -79,6 +79,8 @@
   var nowISO = new Date().toISOString();
   // Relative deadline helper so demo due dates land near "today" on the calendar.
   var daysISO = function (n) { var d = new Date(); d.setDate(d.getDate() + n); d.setHours(18, 0, 0, 0); return d.toISOString(); };
+  // Past timestamp helper (days ago, at a given hour) — gives the demo posting history a visible rhythm.
+  var agoISO = function (days, hour) { var d = new Date(); d.setDate(d.getDate() - days); d.setHours(hour, 0, 0, 0); return d.toISOString(); };
   var SEEDS = {
     planner_items: [
       { id: 'seed-1', owner_id: U, title: 'Why I switched to a sustainable upload schedule', status: 'idea',
@@ -106,7 +108,19 @@
       { id: 'seed-5', owner_id: U, title: 'My honest 6-month growth numbers', status: 'posted',
         platforms: ['youtube'], hook: 'No clickbait — the real graph.', description: 'Transparency short.',
         is_priority: false, posted_at: nowISO, analyzer_score: 82, attachments: [], additional_assets: [],
-        sort: 0, created_at: nowISO }
+        sort: 0, created_at: nowISO },
+      { id: 'seed-7', owner_id: U, title: 'Speedran my whole setup tour in 60s', status: 'posted',
+        platforms: ['youtube', 'tiktok'], hook: 'Everything on my desk in one breath.', description: 'Setup tour short.',
+        is_priority: false, posted_at: agoISO(7, 19), analyzer_score: 74, attachments: [], additional_assets: [],
+        sort: 0, created_at: agoISO(9, 12) },
+      { id: 'seed-8', owner_id: U, title: 'The collab that broke me (the good way)', status: 'posted',
+        platforms: ['youtube'], hook: 'We could not stop laughing.', description: 'Collab highlight short.',
+        is_priority: false, posted_at: agoISO(14, 20), analyzer_score: 88, attachments: [], additional_assets: [],
+        sort: 0, created_at: agoISO(16, 10) },
+      { id: 'seed-9', owner_id: U, title: 'Tier-listing my own old thumbnails', status: 'posted',
+        platforms: ['youtube', 'instagram'], hook: 'Some of these are crimes.', description: 'Self-roast tier list.',
+        is_priority: false, posted_at: agoISO(21, 18), analyzer_score: 69, attachments: [], additional_assets: [],
+        sort: 0, created_at: agoISO(24, 9) }
     ],
     // Creator Memory — one user-keyed row so the creator-brief preview feels alive in the sandbox.
     planner_brand_memory: [

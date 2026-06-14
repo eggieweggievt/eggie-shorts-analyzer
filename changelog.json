@@ -1,12 +1,54 @@
 {
   "_how_to_update": "Add a new object to the TOP of 'entries' every time the hub ships a change. Shape: { date:'YYYY-MM-DD', emoji, title, items:[{type:'new'|'improved'|'fixed', text}] }. 'upcoming' is a plain list of strings shown as a 'Coming soon' card — announce UI changes BEFORE shipping them, then move them into a real entry when they land. changelog.html renders this file — no other edits needed.",
   "upcoming": [
-    "The Optimizer starts learning from YOUR results — titles and tags that performed well for your channel get quietly boosted (your data, your device, just math).",
-    "Auto-filled view counts for posted videos via YouTube's free feeds, so the learning loop feeds itself.",
-    "Title ↔ thumbnail match check — the vision model measures whether your thumbnail shows what your title promises.",
-    "A '📈 your patterns' panel — best posting days, idea-to-posted speed, and your focus hours, computed from your own history."
+    "Title ↔ thumbnail match check — the vision model measures whether your thumbnail shows what your title promises."
   ],
   "entries": [
+    {
+      "date": "2026-06-14",
+      "emoji": "🔭",
+      "title": "New: Competitor Scout — see who's winning in your corner of VTubing",
+      "items": [
+        { "type": "new", "text": "A new page (under Learn in the menu) turns your weekly channel watchlist into a quick read: the big benchmarks winning at scale, the smaller channels growing fast right now, and — best of all — the Shorts formats actually working across your watchlist this week, like the 'Send this to ___' hook and the third-person 'VTuber does X?!' framing." },
+        { "type": "new", "text": "It just reads your own weekly data files in the browser — nothing live, nothing leaves your device. Tap any channel to open it on YouTube." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🧠",
+      "title": "The hub now learns which title styles work for YOU",
+      "items": [
+        { "type": "new", "text": "Once you've pulled real numbers for a few posted shorts, the Weekly Review's new 'What works for your channel' card shows which title styles actually earn you views — like 'titles with a question get +35% of your usual views' — with honest 'early signal' flags when there aren't many posts yet." },
+        { "type": "new", "text": "And the Optimizer leans your way: when you score a title, a 'Tuned to your channel' card shows which of your winning styles it already uses and which are worth trying. It's all learned from your own numbers, right in your browser — a gentle nudge, never a rule, and it never changes the main score." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "📊",
+      "title": "Pull your real YouTube view + like counts into the hub",
+      "items": [
+        { "type": "new", "text": "The Weekly Review has a new 'Real numbers from YouTube' card. Connect your own free YouTube key once, paste (or let it auto-spot) the link for each posted short, and it fills in the real view and like counts — the groundwork so the hub can soon learn from what actually worked, not guesses." },
+        { "type": "new", "text": "Your key and the numbers are saved only in your browser — never in any database, never sent anywhere but YouTube itself. You can forget the key any time with one tap." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🧩",
+      "title": "Group your ideas into content pillars in Ask My Planner",
+      "items": [
+        { "type": "new", "text": "There's a new 'Your content pillars' button on the Ask page. Tap it and it sorts all your planner ideas into themes by meaning — so two ideas about thumbnails land together even if they don't share a single word. You can see at a glance what you make a lot of, and which ideas are one-offs that could grow into a series." },
+        { "type": "new", "text": "It uses the same little on-device understanding model as smarter search — the first run downloads it once (~25 MB), then it's instant. None of your ideas ever leave your browser, and the themes are a mirror, not a mandate. 💗" }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "📈",
+      "title": "See your own posting patterns in the Weekly Review",
+      "items": [
+        { "type": "new", "text": "The Weekly Review now has a 'Your posting patterns' card. Once you've posted a few shorts, it shows your busiest posting day, the time of day you usually post, and how long you typically take from idea to posted — all worked out from your own planner history." },
+        { "type": "new", "text": "It's just your own numbers, counted up right in your browser — nothing is sent anywhere. And it's framed as gentle patterns, not rules: your rest days count every bit as much as your posting days. 💗" }
+      ]
+    },
     {
       "date": "2026-06-14",
       "emoji": "🎯",

@@ -330,6 +330,21 @@
       <div id="patternsBody"></div>
     </div>
 
+    <!-- Real numbers from YouTube — your own free key, stored only in this browser -->
+    <div class="card" id="ytCard">
+      <h2>Real numbers from YouTube 📊</h2>
+      <p class="muted" style="margin-top:-6px">Connect your own free YouTube key once and the hub pulls the real view + like counts for your posted shorts — so the rest of the hub can start learning from what actually worked. Your key and the numbers stay <strong>only in this browser</strong>; the only place they're ever sent is YouTube itself.</p>
+      <div id="ytConnect"></div>
+      <div id="ytBody" style="margin-top:14px"></div>
+    </div>
+
+    <!-- What works for your channel — learned from your own real numbers -->
+    <div class="card" id="learnCard">
+      <h2>What works for your channel 🧠</h2>
+      <p class="muted" style="margin-top:-6px">Once you've pulled real numbers above, this learns which title styles actually earn <em>you</em> views — and teaches the Optimizer to lean your way. Just your own numbers, just math, on your device.</p>
+      <div id="learnBody"></div>
+    </div>
+
     <!-- Creator check-in -->
     <div class="card">
       <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Creator Check-In 🌿
@@ -645,6 +660,8 @@ async function loadWeek(){
   // 3) auto stats + shipped list from the planner
   await loadStats();
   await computeStreak();
+  try{ await loadPatterns(); }catch(e){ console.warn('patterns failed', e); }
+  try{ await loadYtPanel(); }catch(e){ console.warn('yt panel failed', e); }
   refreshNav();
 }
 
@@ -776,6 +793,323 @@ async function computeStreak(){
   if(!sealed.has(localDateKey(cursor))) cursor = addDays(cursor,-7); // current week unsealed → count from last
   while(sealed.has(localDateKey(cursor))){ streak++; cursor = addDays(cursor,-7); }
   document.getElementById('stStreak').textContent = streak;
+}
+
+// ============================================================
+//  YOUR POSTING PATTERNS  (all-time, on-device, read-only)
+//  Reuses the planner's own posted history — no new data, just math.
+//  Wrapped + guarded so it can never break the weekly review.
+// ============================================================
+let patternsLoaded = false, patternsOwner = null;
+async function loadPatterns(){
+  if(!sb || !currentOwnerId) return;
+  if(patternsLoaded && patternsOwner === currentOwnerId) return; // run once per creator, not per week-step
+  patternsOwner = currentOwnerId;
+  const { data, error } = await sb
+    .from('planner_items')
+    .select('posted_at,created_at,analyzer_score')
+    .eq('owner_id', currentOwnerId)
+    .not('posted_at','is',null)
+    .order('posted_at',{ ascending:false })
+    .limit(500);
+  if(error){ console.warn('patterns query failed', error); return; }
+  patternsLoaded = true;
+  renderPatterns(data || []);
+}
+
+function renderPatterns(items){
+  const card = document.getElementById('patternsCard');
+  const body = document.getElementById('patternsBody');
+  if(!card || !body) return;
+  const posts = (items||[]).filter(it => it && it.posted_at && !isNaN(new Date(it.posted_at).getTime()));
+  card.classList.remove('hidden');
+
+  if(posts.length < 3){
+    body.innerHTML = '<div class="empty">Once you’ve got a few posts logged in the planner, your rhythm shows up here — your busiest days, your usual times, and how long things take you. '
+      + '<strong>' + posts.length + ' so far.</strong> 🌱</div>';
+    return;
+  }
+
+  const dowOrder = [1,2,3,4,5,6,0];
+  const dowName  = {0:'Sunday',1:'Monday',2:'Tuesday',3:'Wednesday',4:'Thursday',5:'Friday',6:'Saturday'};
+  const dowShort = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat'};
+  const dowCount = {0:0,1:0,2:0,3:0,4:0,5:0,6:0};
+  const hourCount = new Array(24).fill(0);
+  const speedDays = [];
+  posts.forEach(it => {
+    const d = new Date(it.posted_at);
+    dowCount[d.getDay()]++;
+    hourCount[d.getHours()]++;
+    if(it.created_at){
+      const c = new Date(it.created_at);
+      if(!isNaN(c.getTime())){ const days = (d - c) / 86400000; if(days >= 0 && days < 400) speedDays.push(days); }
+    }
+  });
+  const maxDow = Math.max.apply(null, dowOrder.map(d => dowCount[d]));
+  let bestDow = dowOrder[0];
+  dowOrder.forEach(d => { if(dowCount[d] > dowCount[bestDow]) bestDow = d; });
+
+  const bucketLabel = ['the morning','the afternoon','the evening','late at night'];
+  function bucketOf(h){ if(h>=5&&h<=11)return 0; if(h>=12&&h<=16)return 1; if(h>=17&&h<=21)return 2; return 3; }
+  const bucketCount = [0,0,0,0];
+  hourCount.forEach((c,h)=>{ bucketCount[bucketOf(h)] += c; });
+  let bestBucket = 0; bucketCount.forEach((c,i)=>{ if(c>bucketCount[bestBucket]) bestBucket=i; });
+  let peakHour = 0; hourCount.forEach((c,h)=>{ if(c>hourCount[peakHour]) peakHour=h; });
+  function fmtHour(h){ const ampm = h<12?'am':'pm'; let hh=h%12; if(hh===0) hh=12; return hh+' '+ampm; }
+
+  function median(arr){ if(!arr.length) return null; const s=arr.slice().sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2 ? s[m] : (s[m-1]+s[m])/2; }
+  const medSpeed = median(speedDays);
+  function speedShort(v){ return v<0.75 ? 'Same day' : (v<1.5 ? '~1 day' : '~'+Math.round(v)+' days'); }
+
+  const bars = dowOrder.map(d => {
+    const c = dowCount[d];
+    const pct = maxDow ? Math.round((c/maxDow)*100) : 0;
+    const fill = (d===bestDow && c>0) ? 'linear-gradient(90deg,var(--mint),var(--periwinkle))' : 'linear-gradient(90deg,var(--pink-hot),var(--periwinkle))';
+    return '<div style="display:grid;grid-template-columns:34px 1fr 22px;align-items:center;gap:9px">'
+      + '<span style="font-size:11.5px;font-weight:700;color:var(--ink-soft)">' + dowShort[d] + '</span>'
+      + '<span style="height:9px;border-radius:999px;background:rgba(144,165,255,0.16);overflow:hidden"><i style="display:block;height:100%;border-radius:999px;width:' + pct + '%;background:' + fill + '"></i></span>'
+      + '<span style="font-size:12px;font-weight:800;color:var(--deep);text-align:right">' + c + '</span>'
+      + '</div>';
+  }).join('');
+
+  function chip(big, small){
+    return '<span style="display:inline-flex;flex-direction:column;gap:1px;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.35);border-radius:13px;padding:8px 13px">'
+      + '<b style="color:var(--deep);font-size:14px">' + big + '</b>'
+      + '<small style="color:var(--ink-soft);font-size:11px">' + small + '</small></span>';
+  }
+  const chips = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px">'
+    + chip(dowName[bestDow], 'your busiest posting day')
+    + chip(bucketLabel[bestBucket].replace('the ','').replace(/^./,s=>s.toUpperCase()), 'usual time (peak ~' + fmtHour(peakHour) + ')')
+    + (medSpeed!==null ? chip(speedShort(medSpeed), 'idea → posted') : '')
+    + '</div>';
+
+  const speedTxt = medSpeed===null ? '' :
+    (medSpeed < 0.75 ? ' You usually go from idea to posted <b>the same day.</b>'
+     : ' Idea to posted takes you about <b>' + (medSpeed<1.5 ? '1 day' : Math.round(medSpeed)+' days') + '</b>, typically.');
+
+  body.innerHTML =
+    '<p style="margin:2px 0 12px;color:var(--ink);line-height:1.55">From your <b>' + posts.length + '</b> posted '
+      + (posts.length===1?'short':'shorts') + ': you post most on <b>' + dowName[bestDow] + '</b>, usually in <b>' + bucketLabel[bestBucket] + '</b>.' + speedTxt + '</p>'
+    + chips
+    + '<div style="display:flex;flex-direction:column;gap:5px">' + bars + '</div>'
+    + '<p class="muted" style="margin-top:12px;font-size:11.5px">Gentle patterns from your own history, not rules — your rest days matter as much as your posting days. 💗</p>';
+}
+
+// ============================================================
+//  REAL NUMBERS FROM YOUTUBE  (your own key, localStorage only)
+//  Pulls view/like counts for posted shorts via the YouTube Data
+//  API (CORS-friendly with an API key). Key + numbers live ONLY in
+//  this browser; this never writes to the database. Feeds the
+//  learning loop. All guarded so it can't break the review.
+// ============================================================
+const YT_KEY_LS   = 'eggie-yt-key';
+const YT_LINKS_LS = 'eggie-yt-links';   // { itemId: url }
+const YT_STATS_LS = 'eggie-yt-stats';   // { itemId: {videoId, views, likes, comments, title, posted_at, fetchedAt} }
+let ytPosted = [], ytLoadedOwner = null;
+
+function ytKey(){ try{ return localStorage.getItem(YT_KEY_LS) || ''; }catch(e){ return ''; } }
+function ytGetMap(ls){ try{ return JSON.parse(localStorage.getItem(ls) || '{}') || {}; }catch(e){ return {}; } }
+function ytSetMap(ls, m){ try{ localStorage.setItem(ls, JSON.stringify(m)); }catch(e){} }
+function ytFmtN(n){ n = Number(n)||0; if(n>=1e6) return (n/1e6).toFixed(1)+'M'; if(n>=1e3) return (n/1e3).toFixed(1)+'K'; return String(n); }
+function ytVideoId(url){
+  if(!url) return null;
+  var m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function ytDetectLink(it){
+  var saved = ytGetMap(YT_LINKS_LS)[it.id];
+  if(saved) return saved;
+  var cands = [];
+  if(it.analyzer_link) cands.push(it.analyzer_link);
+  if(Array.isArray(it.additional_assets)) it.additional_assets.forEach(function(a){ if(a && a.url) cands.push(a.url); });
+  for(var i=0;i<cands.length;i++){ if(ytVideoId(cands[i])) return cands[i]; }
+  return '';
+}
+
+async function loadYtPanel(){
+  if(!sb || !currentOwnerId) return;
+  if(ytLoadedOwner === currentOwnerId && ytPosted.length){ renderConnect(); renderYtPanel(); renderLearn(); return; }
+  ytLoadedOwner = currentOwnerId;
+  const { data, error } = await sb.from('planner_items')
+    .select('id,title,posted_at,analyzer_link,additional_assets')
+    .eq('owner_id', currentOwnerId)
+    .not('posted_at','is',null)
+    .order('posted_at',{ ascending:false })
+    .limit(200);
+  if(error){ console.warn('yt posted load failed', error); ytPosted = []; }
+  else ytPosted = data || [];
+  renderConnect();
+  renderYtPanel();
+  renderLearn();
+}
+
+function renderConnect(){
+  var box = document.getElementById('ytConnect'); if(!box) return;
+  var key = ytKey();
+  if(key){
+    box.innerHTML = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--ink)">'
+      + '<span style="font-weight:800;color:var(--deep)">🔑 YouTube connected</span>'
+      + '<span class="muted" style="font-size:12px">key ending …' + escapeHtml(key.slice(-4)) + '</span>'
+      + '<button type="button" id="ytFetchBtn" class="btn" style="padding:7px 14px;font-size:12.5px">↻ Refresh real numbers</button>'
+      + '<button type="button" id="ytForget" style="border:none;background:none;font:inherit;font-size:12px;font-weight:700;color:var(--deep);cursor:pointer;text-decoration:underline dashed">forget key</button>'
+      + '</div><div class="status-banner" id="ytStatus" style="margin-top:8px;display:none"></div>';
+    var fb = document.getElementById('ytFetchBtn'); if(fb) fb.addEventListener('click', fetchYtStats);
+    var fg = document.getElementById('ytForget'); if(fg) fg.addEventListener('click', function(){ try{ localStorage.removeItem(YT_KEY_LS); }catch(e){} renderConnect(); });
+  } else {
+    box.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      + '<input type="text" id="ytKeyInput" placeholder="paste your YouTube Data API key" style="flex:1;min-width:220px;border:1.5px solid rgba(144,165,255,0.4);border-radius:12px;padding:10px 12px;font:inherit;color:var(--ink)" />'
+      + '<button type="button" id="ytSaveKey" class="btn">Connect</button></div>'
+      + '<p class="muted" style="margin-top:8px;font-size:11.5px">Free from Google Cloud → APIs &amp; Services → Credentials (enable “YouTube Data API v3”). Tip: restrict the key to your own site. It’s only ever stored in this browser.</p>'
+      + '<div class="status-banner" id="ytStatus" style="margin-top:8px;display:none"></div>';
+    var sk = document.getElementById('ytSaveKey');
+    if(sk) sk.addEventListener('click', function(){
+      var v = (document.getElementById('ytKeyInput').value || '').trim();
+      if(!v) return;
+      try{ localStorage.setItem(YT_KEY_LS, v); }catch(e){}
+      renderConnect(); renderYtPanel();
+    });
+  }
+}
+
+function ytSetStatus(msg, kind){
+  var s = document.getElementById('ytStatus'); if(!s) return;
+  s.textContent = msg || ''; s.style.display = msg ? 'block' : 'none';
+  s.className = 'status-banner' + (kind ? ' ' + kind : '');
+}
+
+function renderYtPanel(){
+  var body = document.getElementById('ytBody'); if(!body) return;
+  if(!ytPosted.length){ body.innerHTML = '<div class="empty">Nothing marked posted yet — once you set shorts to <em>posted</em> in the planner, pull their real numbers here. 🌱</div>'; return; }
+  var stats = ytGetMap(YT_STATS_LS), links = ytGetMap(YT_LINKS_LS);
+  var rows = ytPosted.map(function(it){
+    var link = (links[it.id] != null) ? links[it.id] : ytDetectLink(it);
+    var st = stats[it.id];
+    var statHtml = st
+      ? '<span style="font-weight:800;color:var(--deep)">' + ytFmtN(st.views) + ' views</span> · ' + ytFmtN(st.likes) + ' likes'
+      : '<span class="muted" style="font-size:12px">no numbers yet</span>';
+    return '<div style="padding:10px 0;border-top:1px solid rgba(144,165,255,0.18)">'
+      + '<div style="font-weight:700;color:var(--ink);font-size:13.5px;margin-bottom:5px">' + escapeHtml(it.title || 'Untitled') + '</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      + '<input type="text" data-yt-link="' + escapeHtml(it.id) + '" value="' + escapeHtml(link || '') + '" placeholder="paste this short’s YouTube link" style="flex:1;min-width:200px;border:1.5px solid rgba(144,165,255,0.35);border-radius:10px;padding:7px 10px;font:inherit;font-size:12.5px;color:var(--ink)" />'
+      + '<span style="font-size:12.5px">' + statHtml + '</span>'
+      + '</div></div>';
+  }).join('');
+  body.innerHTML = '<div>' + rows + '</div>';
+  Array.prototype.forEach.call(body.querySelectorAll('[data-yt-link]'), function(inp){
+    inp.addEventListener('change', function(){
+      var m = ytGetMap(YT_LINKS_LS); m[inp.getAttribute('data-yt-link')] = inp.value.trim(); ytSetMap(YT_LINKS_LS, m);
+    });
+  });
+}
+
+async function fetchYtStats(){
+  var key = ytKey();
+  if(!key){ ytSetStatus('Connect your key first.', 'error'); return; }
+  var links = ytGetMap(YT_LINKS_LS), pairs = [];
+  ytPosted.forEach(function(it){
+    var url = (links[it.id] != null) ? links[it.id] : ytDetectLink(it);
+    var vid = ytVideoId(url);
+    if(vid) pairs.push({ id: it.id, vid: vid, title: it.title, posted_at: it.posted_at });
+  });
+  if(!pairs.length){ ytSetStatus('Add a YouTube link to at least one posted short first.', 'error'); return; }
+  ytSetStatus('Fetching real numbers from YouTube…');
+  var stats = ytGetMap(YT_STATS_LS);
+  try{
+    for(var i=0;i<pairs.length;i+=50){
+      var batch = pairs.slice(i, i+50);
+      var ids = batch.map(function(p){ return p.vid; }).join(',');
+      var r = await fetch('https://www.googleapis.com/youtube/v3/videos?part=statistics&id=' + ids + '&key=' + encodeURIComponent(key));
+      if(!r.ok){
+        ytSetStatus(r.status===403
+          ? 'YouTube refused the key (403) — check it’s enabled for “YouTube Data API v3” and isn’t over its daily quota.'
+          : ('YouTube API error ' + r.status + '.'), 'error');
+        return;
+      }
+      var j = await r.json(), byVid = {};
+      (j.items||[]).forEach(function(v){ byVid[v.id] = v.statistics || {}; });
+      batch.forEach(function(p){
+        var s = byVid[p.vid];
+        if(s){ stats[p.id] = { videoId:p.vid, views:Number(s.viewCount)||0, likes:Number(s.likeCount)||0, comments:Number(s.commentCount)||0, title:p.title, posted_at:p.posted_at, fetchedAt:new Date().toISOString() }; }
+      });
+    }
+    ytSetMap(YT_STATS_LS, stats);
+    var n = Object.keys(stats).length;
+    ytSetStatus('✓ Updated real numbers for ' + n + ' short' + (n===1?'':'s') + '. Saved in this browser only.', 'success');
+    renderYtPanel();
+    renderLearn();
+  }catch(e){
+    console.warn('yt fetch failed', e);
+    ytSetStatus('Couldn’t reach YouTube (network?). Nothing left your device — try again in a moment.', 'error');
+  }
+}
+
+// ============================================================
+//  WHAT WORKS FOR YOUR CHANNEL  (learning loop + bandit)
+//  Reads the real YouTube numbers captured above, pulls simple
+//  STYLE features out of each title, and measures which styles
+//  actually earn YOU more views. Writes a tiny profile the
+//  Optimizer reads to lean your way. All on-device; small samples
+//  are flagged as "early signal" so it stays honest.
+// ============================================================
+const LEARN_PROFILE_LS = 'eggie-learn-profile';
+const STYLE_LABEL = { question:'a question', number:'a number', emoji:'an emoji', caps:'an ALL-CAPS word', howto:'“how to”', you:'“you / your”', list:'a list (“3 things…”)', short:'a short title (≤40 chars)' };
+function titleStyle(t){
+  t = String(t || '');
+  return {
+    question: /\?/.test(t),
+    number:   /\d/.test(t),
+    emoji:    /[←-⇿☀-➿⬀-⯿\u{1F000}-\u{1FAFF}]/u.test(t),
+    caps:     /\b[A-Z]{3,}\b/.test(t),
+    howto:    /\bhow to\b/i.test(t),
+    you:      /\byou\b|\byour\b/i.test(t),
+    list:     /\b\d+\s+(ways|things|tips|reasons|signs|mistakes|facts|times)\b/i.test(t),
+    short:    t.length > 0 && t.length <= 40
+  };
+}
+function computeLearnModel(){
+  var stats = ytGetMap(YT_STATS_LS);
+  var rows = Object.keys(stats).map(function(k){ return stats[k]; })
+    .filter(function(s){ return s && s.title && Number(s.views) > 0; });
+  if(rows.length < 5){ try{ localStorage.removeItem(LEARN_PROFILE_LS); }catch(e){} return { n: rows.length, ready:false, features:{} }; }
+  var overall = rows.reduce(function(a,s){ return a + Number(s.views); }, 0) / rows.length;
+  var features = {}, profileFeats = {};
+  Object.keys(STYLE_LABEL).forEach(function(f){
+    var withRows = rows.filter(function(s){ return titleStyle(s.title)[f]; });
+    if(withRows.length >= 2 && withRows.length < rows.length){
+      var withAvg = withRows.reduce(function(a,s){ return a + Number(s.views); }, 0) / withRows.length;
+      var lift = overall ? withAvg / overall : 1;
+      features[f] = { lift: lift, n: withRows.length };
+      profileFeats[f] = Math.round(lift * 100) / 100;
+    }
+  });
+  try{ localStorage.setItem(LEARN_PROFILE_LS, JSON.stringify({ n: rows.length, overall: Math.round(overall), features: profileFeats, updatedAt: new Date().toISOString() })); }catch(e){}
+  return { n: rows.length, ready:true, overall: overall, features: features };
+}
+function renderLearn(){
+  var box = document.getElementById('learnBody'); if(!box) return;
+  var m = computeLearnModel();
+  if(!m.ready){
+    box.innerHTML = '<div class="empty">Pull real numbers for at least 5 posted shorts above, and I’ll start spotting which title styles actually earn <em>you</em> views. <strong>' + (m.n||0) + ' so far.</strong> 🌱</div>';
+    return;
+  }
+  var feats = Object.keys(m.features).map(function(f){ return { f:f, lift:m.features[f].lift, n:m.features[f].n }; })
+    .sort(function(a,b){ return b.lift - a.lift; });
+  var wins = feats.filter(function(x){ return x.lift >= 1.1; }).slice(0, 3);
+  var duds = feats.filter(function(x){ return x.lift <= 0.9; }).slice(-2);
+  function line(x, good){
+    var pct = Math.round((x.lift - 1) * 100), sign = pct >= 0 ? '+' : '';
+    var note = x.n < 8 ? ' <span style="color:var(--ink-soft);font-size:11px">(early signal · ' + x.n + ' posts)</span>'
+                       : ' <span style="color:var(--ink-soft);font-size:11px">(' + x.n + ' posts)</span>';
+    return '<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0">'
+      + '<span style="font-size:16px;line-height:1.2">' + (good ? '📈' : '📉') + '</span>'
+      + '<span style="color:var(--ink);font-size:13px;line-height:1.45">Titles with <b>' + STYLE_LABEL[x.f] + '</b> get <b style="color:' + (good ? '#1f6b35' : '#a23556') + '">' + sign + pct + '%</b> of your usual views' + note + '</span></div>';
+  }
+  var html = '<p style="margin:0 0 10px;color:var(--ink);line-height:1.55">From your <b>' + m.n + '</b> measured shorts (you average <b>' + ytFmtN(Math.round(m.overall)) + '</b> views):</p>';
+  if(wins.length){ html += '<p style="margin:8px 0 2px;font-size:12px;font-weight:800;color:var(--ink-soft)">What’s working for you</p>' + wins.map(function(x){ return line(x, true); }).join(''); }
+  if(duds.length){ html += '<p style="margin:10px 0 2px;font-size:12px;font-weight:800;color:var(--ink-soft)">Quieter for you</p>' + duds.map(function(x){ return line(x, false); }).join(''); }
+  if(!wins.length && !duds.length){ html += '<div class="empty">No strong style differences yet — keep posting and it’ll sharpen.</div>'; }
+  html += '<p class="muted" style="margin-top:12px;font-size:11.5px">The Optimizer now quietly leans your way: when a title you’re scoring matches one of your winning styles, it says so. Patterns from your own numbers, on your device — small samples wobble, so treat early signals lightly. 💗</p>';
+  box.innerHTML = html;
 }
 
 // ============================================================

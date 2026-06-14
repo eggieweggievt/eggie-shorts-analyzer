@@ -37,7 +37,8 @@
     ]},
     { emoji: '📚', name: 'Learn', items: [
       { emoji: '📚', name: 'Growth Playbook', href: 'growth.html' },
-      { emoji: '🔍', name: 'Niche Finder', href: 'niche-quiz.html' }
+      { emoji: '🔍', name: 'Niche Finder', href: 'niche-quiz.html' },
+      { emoji: '🔭', name: 'Competitor Scout', href: 'scout.html' }
     ]},
     { emoji: '✨', name: 'More', items: [
       { emoji: '🧰', name: 'The Toolbox', href: 'toolbox.html' },

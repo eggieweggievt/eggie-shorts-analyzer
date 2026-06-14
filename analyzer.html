@@ -1543,6 +1543,9 @@
     <!-- Keyword opportunity — demand vs competition from the weekly VidIQ data, worked out on-device -->
     <div id="oppScore" class="opp-score hidden" data-panel="oppscore" aria-label="Keyword opportunity"></div>
 
+    <!-- Tuned to your channel — reads the learned style profile from the Weekly Review (localStorage) -->
+    <div id="learnFit" class="opp-score hidden" data-panel="learnfit" aria-label="Tuned to your channel"></div>
+
     <!-- (V5 streamline) Tabs are gone — results stack in one flow, Eggie-OS style:
          score → suggestions → post pack → breakdown (collapsed) → resources (collapsed).
          Order is CSS-driven so the markup didn't have to move. -->
@@ -1564,6 +1567,7 @@
       @keyframes scorePop{0%{transform:scale(1)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
       html:not([data-hub-lowstim]) .score-ring.score-pop{animation:scorePop .42s cubic-bezier(.34,1.46,.56,1)}
       #resultsCard > #oppScore{order:2}
+      #resultsCard > #learnFit{order:2}
       .opp-score{margin:0 0 6px;background:rgba(255,255,255,0.9);border:2px solid rgba(144,165,255,0.45);border-radius:16px;padding:15px 17px;box-shadow:0 8px 22px rgba(144,165,255,0.16)}
       .opp-score.hidden{display:none}
       .opp-head{display:flex;align-items:flex-start;gap:12px;margin:0 0 8px}
@@ -5161,6 +5165,59 @@ function renderOpportunityScore(payload){
   box.classList.remove('hidden');
 }
 
+// Tuned to your channel — reads the style profile the Weekly Review learned from
+// your real YouTube numbers (localStorage 'eggie-learn-profile'), and shows how the
+// title you're scoring matches the styles that actually earn YOU views. Read-only,
+// never changes the core score — a gentle, personal nudge layered on top.
+function renderLearnedFit(payload){
+  var box = $('learnFit'); if(!box) return;
+  var profile;
+  try{ profile = JSON.parse(localStorage.getItem('eggie-learn-profile') || 'null'); }catch(e){ profile = null; }
+  if(!profile || !profile.features || (profile.n || 0) < 5){ box.classList.add('hidden'); return; }
+  var t = (payload && payload.title) ? String(payload.title) : '';
+  if(!t.trim()){ box.classList.add('hidden'); return; }
+  var LBL = { question:'a question', number:'a number', emoji:'an emoji', caps:'an ALL-CAPS word', howto:'“how to”', you:'“you / your”', list:'a list (“3 things…”)', short:'a short title (≤40 chars)' };
+  function styleOf(x){
+    x = String(x || '');
+    return {
+      question:/\?/.test(x), number:/\d/.test(x),
+      emoji:/[←-⇿☀-➿⬀-⯿\u{1F000}-\u{1FAFF}]/u.test(x),
+      caps:/\b[A-Z]{3,}\b/.test(x), howto:/\bhow to\b/i.test(x),
+      you:/\byou\b|\byour\b/i.test(x),
+      list:/\b\d+\s+(ways|things|tips|reasons|signs|mistakes|facts|times)\b/i.test(x),
+      short:x.length > 0 && x.length <= 40
+    };
+  }
+  var st = styleOf(t);
+  var wins = Object.keys(profile.features).filter(function(f){ return profile.features[f] >= 1.1 && LBL[f]; })
+    .sort(function(a, b){ return profile.features[b] - profile.features[a]; });
+  if(!wins.length){ box.classList.add('hidden'); return; }
+  var have = wins.filter(function(f){ return st[f]; });
+  var miss = wins.filter(function(f){ return !st[f]; });
+  if(!have.length && !miss.length){ box.classList.add('hidden'); return; }
+  function row(f, good){
+    var p = '+' + Math.round((profile.features[f] - 1) * 100) + '%';
+    var w = good ? 100 : Math.min(100, Math.round(profile.features[f] * 55));
+    var fill = good ? 'linear-gradient(90deg,#6BE4EA,#63AAF4)' : 'linear-gradient(90deg,var(--pink-hot),var(--periwinkle))';
+    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 70px 46px;align-items:center;gap:10px;padding:6px 0;border-top:1px solid rgba(144,165,255,0.18)">'
+      + '<span style="font-weight:700;font-size:13px;color:var(--ink)">' + escapeHtml(LBL[f]) + '</span>'
+      + '<span style="height:8px;border-radius:999px;background:rgba(144,165,255,0.18);overflow:hidden"><i style="display:block;height:100%;border-radius:999px;width:' + w + '%;background:' + fill + '"></i></span>'
+      + '<span style="font-weight:800;font-size:13px;color:var(--deep);text-align:right">' + p + '</span></div>';
+  }
+  var html = '<div class="opp-head"><span class="opp-ic" aria-hidden="true">🧠</span>'
+    + '<div><p class="opp-lab">Tuned to your channel</p>'
+    + '<p class="opp-sum">Learned from your own <b>' + profile.n + '</b> measured shorts — the title styles that earn <b>you</b> the most views.</p></div></div>';
+  if(have.length){
+    html += '<div class="opp-group"><p class="opp-gl">✓ This title already uses</p>' + have.map(function(f){ return row(f, true); }).join('') + '</div>';
+  }
+  if(miss.length){
+    html += '<div class="opp-group"><p class="opp-gl">Worth trying <span class="opp-hint">works for you, not in this title yet</span></p>' + miss.map(function(f){ return row(f, false); }).join('') + '</div>';
+  }
+  html += '<p class="opp-foot">From the real numbers you pulled in the Weekly Review — your data, your device. A nudge, not a rule; small samples wobble.</p>';
+  box.innerHTML = html;
+  box.classList.remove('hidden');
+}
+
 function renderResults(r, payload){
   resultsCard.classList.remove('hidden');
   // (V5 streamline) The input card stays visible above the results, Eggie-OS
@@ -5240,6 +5297,9 @@ function renderResults(r, payload){
 
   // Keyword opportunity — demand vs competition from the weekly VidIQ data (on-device)
   try{ renderOpportunityScore(payload); }catch(e){ var ob=$('oppScore'); if(ob) ob.classList.add('hidden'); }
+
+  // Tuned to your channel — personalized nudge from the learned style profile (localStorage)
+  try{ renderLearnedFit(payload); }catch(e){ var lb=$('learnFit'); if(lb) lb.classList.add('hidden'); }
 
   // Criteria grid — sorted by impact (weight) so high-leverage items appear first
   const grid = $('critGrid');
