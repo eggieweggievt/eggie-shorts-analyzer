@@ -1750,6 +1750,12 @@ function pickNeighbors(n){
 
 function renderYTMockups(url, titleText){
   const grid = $('ytPreviewGrid');
+  // Skip redundant rebuilds: the mockup depends only on (url, titleText). A checklist
+  // toggle calls rescore() → renderYTMockups with the SAME text, so without this guard the
+  // whole preview grid (and its decorative neighbors) was being rebuilt for nothing.
+  const __key = String(url || '') + '\n' + String(titleText || '');
+  if(grid && renderYTMockups.__lastKey === __key) return;
+  renderYTMockups.__lastKey = __key;
   const titleSafe = escapeHtml((titleText || 'Your video title will show up right here — keep it under ~60 chars on desktop').slice(0, 100));
   const channelName = 'Your Channel';
   const meta = '1.2K views · 2 hours ago';

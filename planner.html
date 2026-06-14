@@ -3547,16 +3547,52 @@ async function deleteItem(id){
   setConn(true, 'Live');
 }
 
+// Mirror loadItems()'s DB ordering (status asc, position asc NULLS LAST, created_at desc)
+// so an in-place patch keeps kanban within-column order (position) identical to a refetch.
+function sortItemsLikeServer(){
+  items.sort((a, b) => {
+    const sa = String(a.status || ''), sb2 = String(b.status || '');
+    if(sa !== sb2) return sa < sb2 ? -1 : 1;
+    const an = (a.position == null), bn = (b.position == null);
+    if(an !== bn) return an ? 1 : -1;                 // NULLs last, like Postgres ASC
+    if(!an && a.position !== b.position) return a.position - b.position;
+    return String(b.created_at || '').localeCompare(String(a.created_at || '')); // created_at desc
+  });
+}
+
+// V4 — patch local state from the realtime payload instead of refetching the whole
+// table (+ re-running loadPlannerMem) on every single change. Falls back to a full
+// loadItems() on anything unexpected, so the worst case is exactly the old behaviour.
+function applyItemRealtime(payload){
+  try{
+    const ev = payload.eventType || payload.event;
+    if(ev === 'DELETE'){
+      const id = payload.old && payload.old.id;
+      if(id == null){ loadItems(); return; }          // can't identify the row → safe reload
+      items = items.filter(i => i.id !== id);
+    } else {                                           // INSERT or UPDATE → full row image
+      const row = payload.new;
+      if(!row || row.id == null){ loadItems(); return; }
+      if(row.assignee_email) row.assignee_email = String(row.assignee_email).trim().toLowerCase();
+      const idx = items.findIndex(i => i.id === row.id);
+      if(idx === -1) items.push(row); else items[idx] = row;
+      sortItemsLikeServer();
+    }
+    setConn(true, 'Live');
+    render();
+  }catch(e){
+    console.warn('[Planner] realtime patch failed — falling back to full reload:', e);
+    loadItems();
+  }
+}
+
 function subscribeRealtime(){
   if(realtimeSub) sb.removeChannel(realtimeSub);
   realtimeSub = sb
     .channel('planner_items_realtime')
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'planner_items', filter: `owner_id=eq.${currentOwnerId}` },
-        payload => {
-          // Reload on any change. Cheap enough for the data scale we're dealing with.
-          loadItems();
-        })
+        payload => applyItemRealtime(payload))
     .subscribe(status => {
       if(status === 'SUBSCRIBED') setConn(true, 'Live');
       else if(status === 'CHANNEL_ERROR') setConn(false, 'Sync error');

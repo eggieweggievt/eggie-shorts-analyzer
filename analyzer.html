@@ -1540,6 +1540,9 @@
     <!-- Scannable breakdown — compact always-visible bars; the full detail stays collapsed below -->
     <div id="critBars" class="crit-bars hidden" aria-label="Score breakdown at a glance"></div>
 
+    <!-- Keyword opportunity — demand vs competition from the weekly VidIQ data, worked out on-device -->
+    <div id="oppScore" class="opp-score hidden" data-panel="oppscore" aria-label="Keyword opportunity"></div>
+
     <!-- (V5 streamline) Tabs are gone — results stack in one flow, Eggie-OS style:
          score → suggestions → post pack → breakdown (collapsed) → resources (collapsed).
          Order is CSS-driven so the markup didn't have to move. -->
@@ -1560,6 +1563,27 @@
       .fix-first .ff-sub{font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;line-height:1.45}
       @keyframes scorePop{0%{transform:scale(1)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
       html:not([data-hub-lowstim]) .score-ring.score-pop{animation:scorePop .42s cubic-bezier(.34,1.46,.56,1)}
+      #resultsCard > #oppScore{order:2}
+      .opp-score{margin:0 0 6px;background:rgba(255,255,255,0.9);border:2px solid rgba(144,165,255,0.45);border-radius:16px;padding:15px 17px;box-shadow:0 8px 22px rgba(144,165,255,0.16)}
+      .opp-score.hidden{display:none}
+      .opp-head{display:flex;align-items:flex-start;gap:12px;margin:0 0 8px}
+      .opp-head .opp-ic{flex:0 0 auto;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:linear-gradient(135deg,var(--mint),var(--periwinkle));color:var(--ink)}
+      .opp-lab{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--deep);margin:0 0 2px}
+      .opp-sum{font-size:13px;color:var(--ink);line-height:1.5;margin:0}
+      .opp-sum b{color:var(--deep)}
+      .opp-group{margin-top:10px}
+      .opp-gl{font-size:11.5px;font-weight:800;color:var(--ink-soft);margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+      .opp-hint{font-weight:700;font-size:10.5px;color:var(--deep);background:rgba(107,228,234,0.22);border-radius:999px;padding:2px 8px;text-transform:none;letter-spacing:0}
+      .opp-row{display:grid;grid-template-columns:minmax(0,1fr) 84px 30px;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(144,165,255,0.18)}
+      .opp-group .opp-row:first-of-type{border-top:0}
+      .opp-kw{font-weight:700;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .opp-bar{height:8px;border-radius:999px;background:rgba(144,165,255,0.18);overflow:hidden}
+      .opp-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink-hot),var(--periwinkle))}
+      .opp-good .opp-bar i{background:linear-gradient(90deg,var(--mint),var(--periwinkle))}
+      .opp-great .opp-bar i{background:linear-gradient(90deg,#6BE4EA,#63AAF4)}
+      .opp-num{font-weight:800;font-size:13px;color:var(--deep);text-align:right}
+      .opp-dc{grid-column:1 / -1;font-size:11px;color:var(--ink-soft);margin:-3px 0 0}
+      .opp-foot{font-size:11px;color:var(--ink-soft);line-height:1.5;margin:10px 0 0}
       #resultsCard > [data-panel="suggestions"]{order:3}
       #resultsCard > [data-panel="postpack"]{order:4}
       #resultsCard > [data-panel="overview"]{order:6}
@@ -5071,6 +5095,72 @@ function renderSafetySection(payload, analysis){
   `;
 }
 
+// Keyword opportunity — a transparent, on-device read of demand vs competition.
+// Reads the already-loaded EGGIE_TRENDS (from the weekly VidIQ pull). No network,
+// no generation — just matching the creator's own words against the keyword set
+// and ranking by opportunity = demand held back by how crowded the phrase is.
+function renderOpportunityScore(payload){
+  var box = $('oppScore'); if(!box) return;
+  var kv = (typeof EGGIE_TRENDS !== 'undefined' && EGGIE_TRENDS && EGGIE_TRENDS.keywordVolumes) || {};
+  var keys = Object.keys(kv);
+  if(!keys.length){ box.classList.add('hidden'); return; }   // no data → stay hidden, never break the panel
+  var p = payload || {};
+  var text = [p.title, p.description, p.hashtags, p.quickContext, p.shortType, (Array.isArray(p.tags) ? p.tags.join(' ') : '')]
+    .map(function(x){ return (x==null ? '' : (Array.isArray(x) ? x.join(' ') : String(x))); }).join(' ').toLowerCase();
+  if(!text.trim()){ box.classList.add('hidden'); return; }
+
+  function opp(d){ return Math.max(0, Math.min(100, Math.round((d.volume||0) * (1 - (d.competition||0)/100)))); }
+  function tier(o){ return o>=55 ? 'great' : o>=40 ? 'good' : 'ok'; }
+  function row(kw, d){
+    var o = opp(d);
+    return '<div class="opp-row opp-'+tier(o)+'">'
+      + '<span class="opp-kw">'+escapeHtml(kw)+'</span>'
+      + '<span class="opp-bar"><i style="width:'+o+'%"></i></span>'
+      + '<span class="opp-num">'+o+'</span>'
+      + '<span class="opp-dc">demand '+(d.volume||0)+' &middot; competition '+(d.competition||0)+'</span>'
+      + '</div>';
+  }
+
+  // Keywords the creator is already using, strongest opportunity first
+  var matched = keys.filter(function(kw){ return text.indexOf(kw.toLowerCase()) !== -1; })
+                    .sort(function(a,b){ return opp(kv[b]) - opp(kv[a]); });
+
+  // Easy wins: curated low-competition phrases they're NOT using yet, ranked by opportunity
+  var wins = ((typeof EGGIE_TRENDS !== 'undefined' && EGGIE_TRENDS.lowCompetitionOpportunities) || [])
+    .filter(function(kw){ return kv[kw] && text.indexOf(kw.toLowerCase()) === -1; });
+  if(!wins.length){
+    wins = keys.filter(function(kw){ return text.indexOf(kw.toLowerCase()) === -1 && (kv[kw].competition||100) <= 40 && (kv[kw].volume||0) >= 50; });
+  }
+  wins = wins.sort(function(a,b){ return opp(kv[b]) - opp(kv[a]); }).slice(0, 4);
+
+  var summary;
+  if(matched.length){
+    var best = matched[0];
+    summary = 'You’re already working in <b>'+matched.length+'</b> tracked keyword'+(matched.length===1?'':'s')
+      + ' — strongest is <b>'+escapeHtml(best)+'</b> at '+opp(kv[best])+'/100.'
+      + (wins.length ? ' A couple of easy wins below could stretch your reach further.' : '');
+  } else {
+    summary = 'Your title and tags don’t use any of the phrases we track yet. Working one or two of these easy wins into your title or hashtags gives the algorithm a clearer signal about who your short is for.';
+  }
+
+  var html = '<div class="opp-head"><span class="opp-ic" aria-hidden="true">🎯</span>'
+    + '<div><p class="opp-lab">Keyword opportunity</p><p class="opp-sum">'+summary+'</p></div></div>';
+  if(matched.length){
+    html += '<div class="opp-group"><p class="opp-gl">You’re already targeting</p>'
+      + matched.slice(0,5).map(function(kw){ return row(kw, kv[kw]); }).join('') + '</div>';
+  }
+  if(wins.length){
+    html += '<div class="opp-group"><p class="opp-gl">Easy wins to work in <span class="opp-hint">high demand &middot; low competition</span></p>'
+      + wins.map(function(kw){ return row(kw, kv[kw]); }).join('') + '</div>';
+  }
+  html += '<p class="opp-foot">Demand &amp; competition come from your weekly VidIQ keyword data (refreshed '
+    + escapeHtml((typeof EGGIE_TRENDS !== 'undefined' && EGGIE_TRENDS.lastRefreshed) || '—')
+    + '). Opportunity is how wanted a phrase is, dialed down by how crowded it is — worked out right here on your device.</p>';
+
+  box.innerHTML = html;
+  box.classList.remove('hidden');
+}
+
 function renderResults(r, payload){
   resultsCard.classList.remove('hidden');
   // (V5 streamline) The input card stays visible above the results, Eggie-OS
@@ -5147,6 +5237,9 @@ function renderResults(r, payload){
     }).join('');
     cb.classList.remove('hidden');
   })();
+
+  // Keyword opportunity — demand vs competition from the weekly VidIQ data (on-device)
+  try{ renderOpportunityScore(payload); }catch(e){ var ob=$('oppScore'); if(ob) ob.classList.add('hidden'); }
 
   // Criteria grid — sorted by impact (weight) so high-leverage items appear first
   const grid = $('critGrid');

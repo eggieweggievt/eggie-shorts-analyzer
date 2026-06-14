@@ -9,8 +9,17 @@
   "entries": [
     {
       "date": "2026-06-14",
+      "emoji": "🎯",
+      "title": "The Optimizer now shows your keyword opportunities",
+      "items": [
+        { "type": "new", "text": "After you score a short, there's a new 'Keyword opportunity' card. It shows which of the phrases people actually search for you're already using — each with a simple 0–100 opportunity score — plus a few 'easy wins': words that get lots of searches but aren't too crowded, that you could work into your title or hashtags." },
+        { "type": "new", "text": "The score is honest and easy to read: how wanted a phrase is, dialed down by how crowded it is. The numbers come from your weekly keyword data, and the whole thing is worked out right in your browser — nothing about your video is sent anywhere." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
       "emoji": "🧭",
-      "title": "Niche Finder: way more niches to land on (part 2)",
+      "title": "More kinds of creator to discover in the Niche Finder",
       "items": [
         { "type": "new", "text": "Seven new content niches you can now get matched to: Gacha & Live-Service, True Crime & Mystery, Fitness & Movement, Beauty/Fashion & GRWM, Mukbang & Food, Cosplay & Costuming, and Pets & Animals — each with its own description and 'try these first' ideas, and tied to the tag bank so saving still powers the rest of the hub." },
         { "type": "new", "text": "Two new vibe archetypes on the energy axis: Lovable Menace (you stir the pot on purpose and chat loves it) and The Showman (every stream is a produced show). Three new questions were added so all of these are actually reachable — the quiz is now fifteen questions." }
@@ -19,7 +28,7 @@
     {
       "date": "2026-06-14",
       "emoji": "🔍",
-      "title": "Niche Finder, smoother and more useful (part 1)",
+      "title": "The Niche Finder is gentler to take now",
       "items": [
         { "type": "improved", "text": "The quiz now lets you tap an answer and then hit Next, instead of jumping ahead the instant you tap — so you can sit with a choice or change your mind. Each question eases in, the progress shows where you are in each part ('Content · 3 / 6'), and you can use the number keys 1–6 to pick and Enter to continue." },
         { "type": "improved", "text": "Your results screen got clearer: match meters on both halves of your recipe, and a 'close call' note when your top two are neck-and-neck (so it says 'you're a blend of X and Y' instead of forcing one)." },
@@ -29,7 +38,7 @@
     {
       "date": "2026-06-14",
       "emoji": "🎨",
-      "title": "Readable buttons everywhere — the polish pass reached every page",
+      "title": "Buttons are easier to read everywhere now",
       "items": [
         { "type": "improved", "text": "Across the whole hub — planner, to-do, habits, weekly review, debut checklist, media kit, pitch builder, finance, growth, toolbox, thumbnail, FAQ, manager hub, Creator Memory, Ask and more — buttons and pills that used hard-to-read white text on the soft pastel gradients now use the deep brand ink instead. Same cozy look, but the text actually meets accessibility contrast now." },
         { "type": "improved", "text": "Dark buttons and overlays were deliberately left as-is (white text is correct there), so nothing went invisible — just the pale ones got fixed." }
@@ -38,7 +47,7 @@
     {
       "date": "2026-06-14",
       "emoji": "🔎",
-      "title": "Optimizer: a calmer way to pick your content type, with way more types",
+      "title": "Picking what kind of short you made is way easier",
       "items": [
         { "type": "improved", "text": "The big wall of 'what kind of short is this?' buttons is now a tidy search box: a few common ones to tap, or just start typing (e.g. 'cosplay', 'horror', 'ASMR') and it finds the match. Your picks show as little removable chips, so it never feels overwhelming even though there are far more options now." },
         { "type": "new", "text": "Loads more categories to choose from, pulled from the hub's own tag bank so they map to real hashtags — formats like review, comedy skit, edit/montage, rant, life hack, true crime and bodycam, plus topics like horror, anime, cozy, cooking, fitness, beauty, tech, pets, mental health, ADHD, nostalgia, parenting, gacha, gunpla, LARP and more." }
@@ -47,18 +56,18 @@
     {
       "date": "2026-06-14",
       "emoji": "🎯",
-      "title": "The Optimizer, redesigned to be calmer and clearer",
+      "title": "The Optimizer got a calmer, clearer makeover",
       "items": [
         { "type": "new", "text": "The Optimizer now opens with one simple choice — 'Score my short' or 'Generate titles & tags' — and shows only the tool you picked, so you're not staring at everything at once. It remembers your last pick, and there's a little 'change what I'm doing' button to switch." },
         { "type": "new", "text": "Your results now lead with ONE thing: a 'Fix this first' card calls out the single highest-impact change before the full breakdown (which stays tucked away until you want it). Less overwhelm, clearer next step." },
         { "type": "improved", "text": "The score now counts up with a gentle pop when it lands (and stays still if you're in Focus / Low-stim mode), and the buttons and grade pills got the same readable dark-ink-on-pastel contrast fix as the rest of the hub." },
-        { "type": "improved", "text": "None of the brains changed — the on-device scoring, the speech/vision models, the title ideas and the copy-paste packs all work exactly as before. This was a layout and clarity pass." }
+        { "type": "improved", "text": "Don't worry — nothing about how it works changed. The scoring, the title ideas, the way it reads your video, the copy-paste packs — all exactly the same. This was purely about making it calmer and easier to use." }
       ]
     },
     {
       "date": "2026-06-14",
       "emoji": "🎬",
-      "title": "Smooth motion across the hub + more readable accents",
+      "title": "The hub feels a little more alive now",
       "items": [
         { "type": "new", "text": "The hub now moves with a bit more life: pages gently glide in as they load, sections fade and rise into place as you scroll to them, dialogs spring open softly, and ticking off a checklist item gives a satisfying little pop. It's lively but calm." },
         { "type": "improved", "text": "All of that motion turns completely off the moment you switch on 🧘 Focus or Low-stim mode, or if your device is set to 'reduce motion' — so it's there when you want energy and gone when you want quiet." },
@@ -68,18 +77,18 @@
     {
       "date": "2026-06-14",
       "emoji": "🎯",
-      "title": "ADHD-friendly + accessibility pass",
+      "title": "Made the hub kinder to your brain and eyes",
       "items": [
         { "type": "new", "text": "🎯 New Focus mode, alongside the dark / dyslexia / tint / low-stim toggles. It quiets the busy background to one calm tone and gently dims every card except the one you're hovering or have selected — so your attention has one clear home instead of a wall of equal things. Saved per browser, off by default." },
         { "type": "improved", "text": "Better colour contrast on key buttons: text on the soft pink-and-blue gradient was hard to read (it didn't meet the accessibility standard), so it's now the deep brand ink, which is comfortably legible while keeping the pastel look." },
         { "type": "improved", "text": "Bigger, comfier tap targets on the shared buttons (a full 44px tall) so they're easier to hit — especially on a phone or on a rough-motor day." },
-        { "type": "new", "text": "Under the hood: new building blocks for clearer progress — a progress bar with a satisfying 'X of Y done' + completion moment, and tidy numbered steps with time estimates. These start rolling out onto the checklists (debut, to-do, subathon prep) and the planner next." }
+        { "type": "new", "text": "Checklists are getting friendlier too: a little bar that shows how far you've gotten ('3 of 5 done!') with a happy moment when you finish, plus steps you can tick off with rough time guesses. It starts on the debut checklist, your to-dos, subathon prep and the planner." }
       ]
     },
     {
       "date": "2026-06-14",
       "emoji": "✨",
-      "title": "A smoother, calmer hub — gentle UI polish across every page",
+      "title": "Everything feels a touch smoother",
       "items": [
         { "type": "improved", "text": "Buttons, chips, cards and inputs now ease in and out of their hover, press and focus states instead of snapping — small thing, but the whole hub feels softer to use. Nothing moved or changed shape; it's the same layout, just smoother." },
         { "type": "improved", "text": "Clearer keyboard focus outlines across the hub, so tabbing through with a keyboard always shows you exactly where you are. Fully respects 'reduce motion' (and the 🧘 low-stim mode) — if you prefer less animation, you get none." },
@@ -89,9 +98,9 @@
     {
       "date": "2026-06-14",
       "emoji": "🛡️",
-      "title": "Debugging pass — privacy fix + a handful of small bugs squashed",
+      "title": "A few fixes — including an important one for your privacy",
       "items": [
-        { "type": "fixed", "text": "🔒 Hidden media-kit prices are now truly private. Staged prices you'd flagged as hidden were being kept out of the visible page but still travelled inside the data sent to public viewers — so a sponsor poking at the page source could have seen them. They're now stripped on the server before the public kit ever loads, and the kit table is no longer directly readable by the public (everyone goes through the safe public view). Your own editing is unchanged." },
+        { "type": "fixed", "text": "🔒 Your hidden media-kit prices are properly hidden now. If you'd marked a price as 'hidden', it stayed off the visible page — but it was still tucked inside the page's data where a nosy sponsor could have dug it out. Now those prices are never sent to the public version of your kit at all. Editing your own kit works exactly the same." },
         { "type": "fixed", "text": "⏱️ Subathon donation time now respects fractional rules. If your rule was something like 'half a minute per $1', each donation was being rounded up to a whole minute, quietly adding more time than your rule said. It now adds the exact amount, so your time cap means what it says." },
         { "type": "fixed", "text": "📊 Subathon timer overlay shows the goal bar even when your goal is typed with a $ sign. A donothon goal like '$500' used to make the whole progress bar vanish on stream; it now reads the number correctly (commas and units too)." },
         { "type": "fixed", "text": "🔍 Niche Finder's progress bar now matches the '# / 12' counter beside it instead of lagging one question behind." },
@@ -106,7 +115,9 @@
       "items": [
         { "type": "fixed", "text": "The 📊 subathon timer overlay used to keep polling and re-drawing once a second forever — even when its tab was hidden in the background. It now quietly pauses while hidden and instantly re-syncs the moment it's shown again, so it stops burning CPU and battery on your streaming PC. The visible OBS overlay is unaffected; the countdown is always recomputed from the live total, so it's never wrong after a pause." },
         { "type": "fixed", "text": "The Subathon Planner's live timer preview did the same once-a-second redraw forever in the background; it now pauses when the tab is hidden and redraws the instant you come back. Your real saved timer keeps counting server-side either way — this only affects the on-screen preview." },
-        { "type": "improved", "text": "✨ Smarter search in Ask My Planner no longer lets a slow meaning-match from an earlier question overwrite the answer to a newer one — if you search again before the first finishes, only the latest result is shown." }
+        { "type": "improved", "text": "✨ Smarter search in Ask My Planner no longer lets a slow meaning-match from an earlier question overwrite the answer to a newer one — if you search again before the first finishes, only the latest result is shown." },
+        { "type": "improved", "text": "The planner board now updates more efficiently when a card changes: instead of re-downloading your whole board (and re-loading your creator profile) on every single edit, it patches just the card that changed and redraws. Card order is identical to before, and anything unexpected safely falls back to a full refresh. You'll notice it most on big boards and when an editor is making lots of quick changes." },
+        { "type": "fixed", "text": "In the Thumbnail tester, the YouTube preview mockup no longer rebuilds (and reshuffles its example neighbour thumbnails) every time you tick a checklist box — it only refreshes when the title text actually changes. Less flicker, less wasted work." }
       ]
     },
     {

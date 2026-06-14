@@ -42,9 +42,23 @@ source isn't `document.hidden`). Changelog entry appended.
 
 ---
 
-## 🔴 Top recommendation — biggest scalability win
+## ✅ SHIPPED (2026-06-14, second pass) — biggest scalability win
 
-### planner.html — full refetch + full re-render on every realtime change
+### planner.html — full refetch + full re-render on every realtime change → now patched
+
+**Done.** The `planner_items` realtime handler no longer calls `loadItems()` (full
+`select('*')` + `loadPlannerMem()` + full render) on every change. It now patches the
+local `items` array from the realtime payload (`applyItemRealtime()`), re-sorts to
+mirror the server's exact order (`sortItemsLikeServer()` — status, position NULLS-last,
+created_at desc, so kanban within-column order is unchanged), then renders. Any
+unexpected payload (missing id, decode issue) falls back to `loadItems()`, so the worst
+case is exactly the old behaviour. The `editors`/`tweets`/`managers` channels were left
+as-is (their reloads are already lighter and conditional) to keep the change surface
+minimal. The original analysis follows for reference.
+
+---
+
+### planner.html — full refetch + full re-render on every realtime change (original finding)
 
 `planner.html:3548` subscribes to `planner_items` changes and, on **any** event,
 calls `loadItems()` (`:3553`). `loadItems()` (`:3455`) does three expensive things on
@@ -85,66 +99,75 @@ applies to the `planner_editors` / `planner_tweets` / `planner_managers` channel
 
 ## 🟠 High-value, medium-risk (test in demo mode first)
 
-### Event listeners re-attached on every render → leaks (planner.html, planner-editor.html, manager-hub.html)
+### Event listeners re-attached on every render → NOT a real leak (verified)
 
-Render functions re-run `.forEach(el => el.addEventListener(...))` for status pickers,
-copy buttons, tweet textareas, pin buttons, etc. Every re-render stacks another
-listener on the same elements — after 10 renders a button has 10 handlers. Memory
-grows and click handlers fire N times.
+Re-checked: these renders rebuild their DOM (`innerHTML = …` / `document.createElement`
+/ `card.replaceWith(...)`), so the old elements — and every listener on them — are
+discarded and garbage-collected on each render. Re-running `addEventListener` only
+leaks when the *same* element persists across renders, which isn't the case here
+(`manager-hub.html:711/739` rebuilds the grid and replaces whole cards; thumbnail.html
+already uses event delegation deliberately at `:1410`). No fix needed — the "10 stacked
+listeners" claim was a false positive.
 
-Examples: `planner.html` tweet/editor/attachment wiring; `planner-editor.html:1557`
-status pickers; `manager-hub.html:894` `.cc-pin`.
+### `.select('*')` → explicit columns on dashboard reads — RE-ASSESSED
 
-**Fix:** event delegation — wire **one** listener on the stable container in init and
-read a `data-id` / `data-action` off `e.target.closest('[data-action]')`. Removes the
-leak and the per-render rewiring cost. Risk: medium (changes how clicks are routed);
-do one container at a time and verify in demo mode.
-
-### `.select('*')` → explicit columns on dashboard reads (manager-hub.html, planner-editor.html)
-
-`manager-hub.html:750` and `planner-editor.html:1480` pull every column — including
-big `attachments`, `additional_assets`, and `comments` arrays — for dashboards that
-only show title/status/deadline/notes. Pure bandwidth + memory waste, multiplied per
-client.
-
-**Fix:** name the columns actually rendered, e.g.
-`.select('id,title,status,scheduled_at,updated_at,editor_notes,editor_notes_updated_at,is_priority')`.
-Risk: low-medium — the only way to break it is to omit a column the render reads, so
-grep the render function for every field first.
+- **manager-hub.html** — already fixed. `loadClientItems()` already selects explicit
+  columns (`id,title,status,scheduled_at,updated_at,editor_notes,editor_notes_updated_at,is_priority,assignee_email`).
+  The agent's `.select('*')` flag here was a false positive. No change needed.
+- **planner-editor.html:1485** — genuinely uses `.select('*')`, but **left as-is on
+  purpose.** This is the editor-facing page (used by third parties) and renders a large,
+  feature-rich field set (attachments, additional_assets, comments, hashtags, platforms,
+  notes, editor_notes…). Trimming columns blind — on a page I can't run — risks silently
+  blanking a field an editor depends on. The bandwidth saving isn't worth the
+  correctness risk on a page other people use. Do this only with a live demo-mode test
+  and a grep of every field the editor UI reads.
 
 ### analyzer.html — audio decoded 2–3× per file (deferred, not shipped)
 
 `decodeAudioData` runs at `:6115`, `:6394`, and `:6624` on the same file in different
 passes (transcribe / classify / kind). Decode once, cache the `AudioBuffer`, thread it
 into the downstream functions. Real CPU + time saved on every video analysis.
-**Not shipped — risk: medium.** It's a 510 KB file actively edited by other sessions,
-and `analyzeAudio()` (`:6617`) is self-contained (own context, own decode, closes
-after), so a shared cache would touch separate flows. Worth doing in a dedicated,
-demo-tested pass — not a blind edit. Held back to honour "don't break the hub."
+**Not shipped — and analyzer.html is now confirmed OFF-LIMITS this pass.** Between the
+first and second pass the `decodeAudioData` calls moved from 6115/6394/6624 to
+6346/6625/6855 and the file grew ~230 lines — i.e. **another session is editing
+analyzer.html live right now.** Editing it on stale offsets would be reckless. This
+(plus the shared-theme.css extraction across ~20 files) needs a quiet window with no
+concurrent edits and a demo-mode test. The same concurrency is why blind cross-file
+refactors are risky hub-wide.
 
 ---
 
-## 🟡 Bigger projects (high effort, real ceiling-raisers)
+## 🟡 Bigger projects — assessed, deliberately NOT blind-shipped
 
-- **Move Whisper / Florence-2 / CLIP inference into a Web Worker.** Today they run on
-  the main thread, so analysis freezes the tab for seconds. A worker keeps the UI
-  responsive. This is the highest-effort, highest-payoff item for the analyzer.
-- **Extract the repeated theme CSS** (the identical `:root` variables + `.card`/`.btn`/
-  `.hero` blocks inlined on ~20 pages) into one cached `shared-theme.css`. Saves
-  ~20 KB per page on repeat visits and gives one place to edit the palette. Risk: it's
-  a cross-file change with collision potential against parallel sessions — do it in a
-  quiet window and verify every page still themes correctly in demo mode.
+Both of these are genuine wins, but each is a multi-file/architecture change that can't
+be verified without running the app, and the repo is under **active concurrent edits**
+right now (see below). Shipping either blind would most likely break the hub — the
+exact outcome to avoid. They need a quiet window + demo-mode testing, not a blind edit.
+
+- **Move Whisper / Florence-2 / CLIP inference into a Web Worker** (analyzer.html). This
+  is the single biggest responsiveness win, but analyzer.html is the file a **parallel
+  "Poor-man's-VidIQ" build session is actively editing** (its `decodeAudioData` calls
+  moved ~230 lines and the file grew between my two passes). It's also a real
+  re-architecture (canvas→blob transfer, result marshalling) that *will* break the
+  analyzer if shipped untested. Off-limits this pass; it belongs to that session's file.
+- **Extract repeated theme CSS into a cached `shared-theme.css`.** The only way this
+  actually saves bytes is by *removing* the inline `<style>` blocks from ~20 pages — and
+  those blocks interleave shared tokens with page-specific overrides, so separating them
+  reliably needs a per-page read + visual verification of all 20. Done blind during
+  active concurrency, the likelihood of breaking the look on several pages is high for a
+  repeat-visit-only saving. Needs its own focused, tested pass.
 
 ---
 
 ## ⚪ Low impact / nice-to-have
 
-- `index.html` entrance animation fires on all ~40 tiles at once on load — could be
-  gated behind an `IntersectionObserver` so only visible tiles animate. Cosmetic.
-- `thumbnail.html` `renderYTMockups()` rebuilds the full preview grid on every
-  checklist toggle; only re-render when the OCR text actually changed.
-- `ask.html` semantic search has no in-flight guard — a debounce + "skip if already
-  embedding" avoids re-embedding the whole planner on rapid searches.
+- ✅ **thumbnail.html `renderYTMockups()`** — DONE. Now memo-guarded on `(url, titleText)`,
+  so a checklist toggle no longer rebuilds the whole preview grid (or reshuffles the
+  decorative neighbours). Behaviour-identical when the title text actually changes.
+- **index.html entrance animation** — already optimal. It *already* uses an
+  `IntersectionObserver` with staggered `animationDelay` and a reduced-motion/no-IO
+  fallback (`:943–951`). Agent false positive; no change.
+- ✅ **ask.html semantic search in-flight guard** — DONE (sequence guard, see Shipped).
 
 ---
 
