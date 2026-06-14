@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EggieUI.modal — demo &amp; usage</title>
+<link rel="stylesheet" href="hub-ui.css?v=4">
+<style>
+  body{ font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:#3a2a5a;
+        background:linear-gradient(160deg,#fef6ff,#eef1ff 60%,#eafbfc); margin:0; padding:32px 18px; }
+  .wrap{ max-width:720px; margin:0 auto; }
+  h1{ font-size:24px; margin:0 0 4px; color:#4D5BC0; }
+  p.lead{ color:#6b5f8a; margin:0 0 22px; }
+  .row{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 26px; }
+  h2{ font-size:15px; color:#4D5BC0; margin:22px 0 8px; }
+  code{ background:rgba(144,165,255,.16); padding:1px 6px; border-radius:6px; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EggieUI.modal()</h1>
+  <p class="lead">Accessible dialog for the hub. Tab is trapped inside, Escape and click-outside close,
+     focus returns to the button you pressed, and the page behind goes <code>inert</code> for screen readers.
+     Try it with a keyboard.</p>
+
+  <h2>Primitive</h2>
+  <div class="row">
+    <button class="ui-btn ui-btn--primary" id="b-basic">Open a dialog</button>
+    <button class="ui-btn" id="b-form">Dialog with a form</button>
+    <button class="ui-btn" id="b-long">Long, scrolling content</button>
+    <button class="ui-btn" id="b-nolabel">No visible title (aria-label)</button>
+  </div>
+
+  <h2>Promise sugar</h2>
+  <div class="row">
+    <button class="ui-btn" id="b-confirm">await confirm()</button>
+    <button class="ui-btn ui-btn--danger" id="b-danger">Danger confirm</button>
+    <button class="ui-btn" id="b-alert">await alert()</button>
+    <button class="ui-btn" id="b-async">Async action (busy state)</button>
+  </div>
+
+  <p class="lead" id="out" role="status" aria-live="polite" style="min-height:1.2em"></p>
+</div>
+
+<!-- hub-core normally injects hub-ui.css; here we linked it directly above. -->
+<script src="ui-modal.js?v=1"></script>
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var out = $('out');
+  var say = function (m) { out.textContent = m; };
+
+  // 1) Basic — title + description + a single action
+  $('b-basic').addEventListener('click', function () {
+    EggieUI.modal({
+      title: 'Publish this short?',
+      description: 'It will appear on your channel page right away. You can unpublish later.',
+      content: '<p style="margin:0;color:#6b5f8a">Nothing here is saved until you confirm — this is just a demo.</p>',
+      actions: [
+        { label: 'Not yet', variant: 'ghost', value: 'cancel' },
+        { label: 'Publish', variant: 'primary', value: 'ok', autofocus: true,
+          onClick: function () { EggieUI.toast('Published ✨', { type: 'ok' }); } }
+      ],
+      onClose: function (r) { say('basic dialog closed with: ' + r); }
+    });
+  });
+
+  // 2) Form — initialFocus lands on the first field; Enter/Tab stay trapped
+  $('b-form').addEventListener('click', function () {
+    EggieUI.modal({
+      title: 'Rename clip',
+      content:
+        '<label style="display:block;font-weight:700;font-size:13px;margin:0 0 6px" for="nm">Clip name</label>' +
+        '<input id="nm" class="ui-input" placeholder="e.g. cold-open-take-3" value="cold-open">',
+      initialFocus: '#nm',
+      actions: [
+        { label: 'Cancel', variant: 'ghost', value: null },
+        { label: 'Save', variant: 'primary', autofocus: false,
+          onClick: function (ctrl) {
+            var v = ctrl.el.querySelector('#nm').value.trim();
+            if (!v) { EggieUI.toast('Name can’t be empty', { type: 'warn' }); return false; } // false → keep open
+            say('saved name: ' + v);
+          } }
+      ]
+    });
+  });
+
+  // 3) Long content — panel scrolls internally, backdrop doesn't
+  $('b-long').addEventListener('click', function () {
+    var paras = '';
+    for (var i = 1; i <= 24; i++) paras += '<p>Paragraph ' + i + ' — the dialog body scrolls while the header, footer and the page behind stay put.</p>';
+    EggieUI.modal({ title: 'Terms', size: 'lg', content: paras,
+      actions: [{ label: 'Close', variant: 'primary', autofocus: true }] });
+  });
+
+  // 4) No visible title — must pass ariaLabel so screen readers still name it
+  $('b-nolabel').addEventListener('click', function () {
+    EggieUI.modal({
+      ariaLabel: 'Quick tip',
+      content: '<p style="margin:0">A dialog with no heading still needs an accessible name — passed via <code>ariaLabel</code>.</p>'
+    });
+  });
+
+  // 5) confirm() → boolean
+  $('b-confirm').addEventListener('click', async function () {
+    var ok = await EggieUI.modal.confirm({
+      title: 'Archive this draft?',
+      message: 'It moves to Archived. You can restore it anytime.',
+      confirmText: 'Archive'
+    });
+    say('confirm() resolved: ' + ok);
+  });
+
+  // 6) Danger confirm
+  $('b-danger').addEventListener('click', async function () {
+    var ok = await EggieUI.modal.confirm({
+      title: 'Delete permanently?',
+      message: 'This can’t be undone.',
+      confirmText: 'Delete', danger: true
+    });
+    say('danger confirm() resolved: ' + ok);
+    if (ok) EggieUI.toast('Deleted', { type: 'warn' });
+  });
+
+  // 7) alert()
+  $('b-alert').addEventListener('click', async function () {
+    await EggieUI.modal.alert({ title: 'Export ready', message: 'Your media kit PDF is in Downloads.' });
+    say('alert() dismissed');
+  });
+
+  // 8) Async action with the busy overlay; onClick returns false to keep it open
+  $('b-async').addEventListener('click', function () {
+    EggieUI.modal({
+      title: 'Sync channel stats',
+      description: 'Pulls your latest numbers. Takes a moment.',
+      actions: [
+        { label: 'Cancel', variant: 'ghost' },
+        { label: 'Sync now', variant: 'primary', autofocus: true,
+          onClick: function (ctrl) {
+            ctrl.setBusy(true);
+            setTimeout(function () {
+              ctrl.setBusy(false);
+              ctrl.close('done');
+              EggieUI.toast('Stats updated', { type: 'ok' });
+              say('async action finished');
+            }, 1400);
+            return false; // keep the dialog open while it works
+          } }
+      ]
+    });
+  });
+</script>
+</body>
+</html>

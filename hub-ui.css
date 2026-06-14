@@ -323,3 +323,86 @@ html:not([data-hub-lowstim]) .ui-check.is-done .ui-check__box{ animation:ui-pop 
   .wrap, .ui-modal-in, .ui-check.is-done .ui-check__box{ animation:none !important; }
   html.ui-reveal-on [data-reveal], [data-reveal]{ opacity:1 !important; transform:none !important; transition:none !important; }
 }
+
+/* ============================================================
+   Modal / Dialog (pass 4) — the missing JS partner for the
+   `.ui-modal-in` entrance defined above. Pairs with EggieUI.modal()
+   in ui-modal.js: an accessible, focus-trapping, scroll-locking
+   dialog that becomes a thumb-reachable bottom sheet on phones.
+   Purely additive + `ui-`-prefixed, so it can't clash. All motion
+   is gated twice (🧘 low-stim via the `html:not([data-hub-lowstim])`
+   guard, and the OS reduce-motion @media block at the very bottom).
+   ============================================================ */
+.ui-modal-backdrop{
+  position:fixed; inset:0; z-index:2147483000;   /* under #ui-toast-wrap (…3600) so toasts stay on top */
+  display:grid; place-items:center;
+  padding:max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  overflow:auto; -webkit-overflow-scrolling:touch;
+  background:rgba(45,40,75,.46);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+}
+html:not([data-hub-lowstim]) .ui-modal-backdrop{ animation:ui-backdrop-in .22s var(--ui-ease) both; }
+@keyframes ui-backdrop-in{ from{ opacity:0; } to{ opacity:1; } }
+.ui-modal-backdrop.is-closing{ opacity:0; transition:opacity .18s var(--ui-ease); }
+
+.ui-modal{
+  position:relative; width:100%; max-width:var(--ui-modal-w, 540px);
+  max-height:min(90vh, 90dvh); margin:auto;
+  display:flex; flex-direction:column; overflow:hidden;
+  background:#fff; color:var(--ui-ink);
+  border:1px solid rgba(144,165,255,.28); border-radius:var(--ui-radius);
+  box-shadow:0 24px 70px rgba(45,40,75,.34);
+}
+.ui-modal--sm{ --ui-modal-w:380px; }
+.ui-modal--md{ --ui-modal-w:540px; }
+.ui-modal--lg{ --ui-modal-w:760px; }
+.ui-modal:focus{ outline:none; }   /* the panel takes focus only as a last resort; ring would be noise */
+
+.ui-modal__head{ display:flex; align-items:flex-start; gap:12px; padding:18px 20px 10px; }
+.ui-modal__title{ flex:1; margin:0; font-size:18px; font-weight:800; line-height:1.25; color:var(--ui-deep); }
+.ui-modal__close{
+  flex:0 0 auto; width:40px; height:40px; min-height:0; padding:0;   /* ≥40px hit target */
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:22px; line-height:1; color:var(--ui-ink-soft);
+  background:transparent; border:0; border-radius:50%; cursor:pointer;
+}
+.ui-modal__close:hover{ background:rgba(144,165,255,.14); color:var(--ui-ink); }
+.ui-modal__close:focus-visible{ outline:none; box-shadow:var(--ui-ring); }
+
+.ui-modal__body{ padding:2px 20px 18px; overflow:auto; -webkit-overflow-scrolling:touch; }
+.ui-modal__body:first-child{ padding-top:20px; }   /* no header → restore top breathing room */
+.ui-modal__desc{ margin:0 0 12px; font-size:14px; line-height:1.5; color:var(--ui-ink-soft); }
+
+.ui-modal__foot{
+  display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px;
+  padding:13px 20px 18px; border-top:1px solid rgba(144,165,255,.16);
+}
+
+/* destructive action button (extends .ui-btn) — dark ink on a soft rose keeps
+   WCAG AA while still reading as "danger". */
+.ui-btn--danger{
+  color:#7a1d3f; border-color:transparent;
+  background:linear-gradient(135deg, #ffc2d6, #ff9bb5);
+  box-shadow:0 6px 18px rgba(214,51,108,.26);
+}
+.ui-btn--danger:hover{ box-shadow:0 10px 26px rgba(214,51,108,.34); }
+
+/* async-busy overlay for actions that run inside the dialog */
+.ui-modal.is-busy{ pointer-events:none; }
+.ui-modal.is-busy .ui-modal__body, .ui-modal.is-busy .ui-modal__foot{ opacity:.45; }
+.ui-modal__spin{ position:absolute; inset:0; display:grid; place-items:center; background:rgba(255,255,255,.35); }
+
+/* phones → bottom sheet: easier to reach one-handed, larger target area */
+@media (max-width:560px){
+  .ui-modal-backdrop{ place-items:end center; padding:0; }
+  .ui-modal{
+    max-width:none; max-height:92dvh;
+    border-radius:var(--ui-radius) var(--ui-radius) 0 0; border-bottom:0;
+  }
+  html:not([data-hub-lowstim]) .ui-modal-in{ animation:ui-sheet-in .3s var(--ui-spring, cubic-bezier(.34,1.46,.56,1)) both; }
+}
+@keyframes ui-sheet-in{ from{ transform:translateY(100%); } to{ transform:none; } }
+
+@media (prefers-reduced-motion: reduce){
+  .ui-modal-backdrop, .ui-modal-backdrop.is-closing{ animation:none !important; transition:none !important; }
+}

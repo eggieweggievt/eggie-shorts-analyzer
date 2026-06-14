@@ -41,7 +41,7 @@
     var uiCss = document.createElement('link');
     uiCss.id = 'hub-ui-css';
     uiCss.rel = 'stylesheet';
-    uiCss.href = 'hub-ui.css?v=3';
+    uiCss.href = 'hub-ui.css?v=4';
     (document.head || document.documentElement).appendChild(uiCss);
   }
 
