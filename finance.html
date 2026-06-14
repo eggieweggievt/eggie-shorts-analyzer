@@ -725,7 +725,7 @@ async function saveEntry(){
   };
   if(kind==='expense'){
     if(personal){ payload.business_use_pct=100; payload.is_deductible=false; payload.tax_amount=0; payload.gst_treatment=null; }
-    else { payload.business_use_pct=Math.max(0,Math.min(100,parseInt($('eBiz').value||'100',10)));
+    else { const _biz=parseInt($('eBiz').value,10); payload.business_use_pct=Math.max(0,Math.min(100,isNaN(_biz)?100:_biz));
       payload.is_deductible=$('eDeduct').checked; payload.tax_amount=parseFloat($('eTaxPaid').value)||0; payload.gst_treatment=null; }
   }
   else { // income

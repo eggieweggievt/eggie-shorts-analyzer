@@ -8,6 +8,29 @@
   ],
   "entries": [
     {
+      "date": "2026-06-14",
+      "emoji": "🛡️",
+      "title": "Debugging pass — privacy fix + a handful of small bugs squashed",
+      "items": [
+        { "type": "fixed", "text": "🔒 Hidden media-kit prices are now truly private. Staged prices you'd flagged as hidden were being kept out of the visible page but still travelled inside the data sent to public viewers — so a sponsor poking at the page source could have seen them. They're now stripped on the server before the public kit ever loads, and the kit table is no longer directly readable by the public (everyone goes through the safe public view). Your own editing is unchanged." },
+        { "type": "fixed", "text": "⏱️ Subathon donation time now respects fractional rules. If your rule was something like 'half a minute per $1', each donation was being rounded up to a whole minute, quietly adding more time than your rule said. It now adds the exact amount, so your time cap means what it says." },
+        { "type": "fixed", "text": "📊 Subathon timer overlay shows the goal bar even when your goal is typed with a $ sign. A donothon goal like '$500' used to make the whole progress bar vanish on stream; it now reads the number correctly (commas and units too)." },
+        { "type": "fixed", "text": "🔍 Niche Finder's progress bar now matches the '# / 12' counter beside it instead of lagging one question behind." },
+        { "type": "fixed", "text": "💰 Finance: a fat-fingered business-use % no longer slips through as a blank value — unreadable input safely falls back to 100%." },
+        { "type": "fixed", "text": "🧹 Editor dashboard tidies up its live-updates connection when you sign out and back in, so a shared computer never ends up with a leftover feed from the previous person." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "🔋",
+      "title": "Lighter on your machine — background pages stop spinning",
+      "items": [
+        { "type": "fixed", "text": "The 📊 subathon timer overlay used to keep polling and re-drawing once a second forever — even when its tab was hidden in the background. It now quietly pauses while hidden and instantly re-syncs the moment it's shown again, so it stops burning CPU and battery on your streaming PC. The visible OBS overlay is unaffected; the countdown is always recomputed from the live total, so it's never wrong after a pause." },
+        { "type": "fixed", "text": "The Subathon Planner's live timer preview did the same once-a-second redraw forever in the background; it now pauses when the tab is hidden and redraws the instant you come back. Your real saved timer keeps counting server-side either way — this only affects the on-screen preview." },
+        { "type": "improved", "text": "✨ Smarter search in Ask My Planner no longer lets a slow meaning-match from an earlier question overwrite the answer to a newer one — if you search again before the first finishes, only the latest result is shown." }
+      ]
+    },
+    {
       "date": "2026-06-12",
       "emoji": "🤖",
       "title": "Machine learning ≠ generative AI — said properly now",

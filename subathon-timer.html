@@ -303,12 +303,17 @@ function renderTimer(){
   else chip.classList.add('hidden');
 }
 
+// Parse a creator-typed goal target ("$500", "1,000", "250 subs") into a number.
+// parseFloat alone returns NaN on a leading "$" or thousands commas, which would
+// silently blank the whole progress bar on stream — strip non-numeric chars first.
+function targetNum(v){ return parseFloat(String(v == null ? '' : v).replace(/[^0-9.]/g, '')); }
+
 function renderProgress(){
   const el = document.getElementById('progress');
   if(!on('progress')){ el.classList.add('hidden'); return; }
   const unit = display.unit === '$' ? 'dollars' : 'subs';
   const current = ((timer && timer.counts) || {})[unit] || 0;
-  const numericTargets = goals.map(g => parseFloat(g.target)).filter(n => !isNaN(n) && n > 0);
+  const numericTargets = goals.map(g => targetNum(g.target)).filter(n => !isNaN(n) && n > 0);
   const target = numericTargets.length ? Math.max.apply(null, numericTargets) : 0;
   if(!target){ el.classList.add('hidden'); return; }
   el.classList.remove('hidden');
@@ -329,7 +334,7 @@ function renderGoals(){
   if(!on('goals') || !goals.length){ el.classList.add('hidden'); return; }
   // Sort numeric targets ascending (non-numeric keep their order, after numerics)
   const sorted = goals.slice().sort((a, b) => {
-    const an = parseFloat(a.target), bn = parseFloat(b.target);
+    const an = targetNum(a.target), bn = targetNum(b.target);
     if(isNaN(an) && isNaN(bn)) return 0;
     if(isNaN(an)) return 1;
     if(isNaN(bn)) return -1;
@@ -437,9 +442,26 @@ async function boot(){
   }
   await poll();
   lastAddedMin = timer ? (timer.addedMin || 0) : null;  // don't bubble on first load
-  setInterval(poll, POLL_MS);
-  setInterval(render, 1000);  // smooth local tick between polls
+  startLoops();
 }
+
+// ---- loop control: don't burn CPU/battery in a hidden/background tab ----
+// render() recomputes remaining time from server state, so it's always
+// self-correcting on resume — safe to pause while the tab isn't visible.
+let _pollTimer = null, _renderTimer = null;
+function startLoops(){
+  if(_pollTimer == null) _pollTimer = setInterval(poll, POLL_MS);
+  if(_renderTimer == null) _renderTimer = setInterval(render, 1000);  // smooth local tick between polls
+}
+function stopLoops(){
+  if(_pollTimer != null){ clearInterval(_pollTimer); _pollTimer = null; }
+  if(_renderTimer != null){ clearInterval(_renderTimer); _renderTimer = null; }
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){ stopLoops(); }
+  else if(sb){ poll(); startLoops(); }   // resync immediately, then resume ticking
+});
+window.addEventListener('pagehide', stopLoops);
 
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', boot, { once:true });

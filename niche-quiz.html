@@ -512,7 +512,7 @@ let finalResult = null;   // { content, vibe, contentRanked, vibeRanked, cScores
 function showQuestion(){
   const q = QUESTIONS[qIndex];
   document.getElementById('partChip').textContent = q.part === 1 ? '🎬 Part 1 · What you do' : '✨ Part 2 · The energy you bring';
-  document.getElementById('quizBar').style.width = Math.round(qIndex / QUESTIONS.length * 100) + '%';
+  document.getElementById('quizBar').style.width = Math.round((qIndex + 1) / QUESTIONS.length * 100) + '%';
   document.getElementById('quizCount').textContent = (qIndex + 1) + ' / ' + QUESTIONS.length;
   document.getElementById('qText').textContent = q.q;
   const sub = document.getElementById('qSub');

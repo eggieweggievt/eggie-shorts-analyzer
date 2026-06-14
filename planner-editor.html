@@ -1158,6 +1158,7 @@ async function init(){
       if(currentUser && currentUser.id === session.user.id) return;
       showApp(session.user);
     } else if(event === 'SIGNED_OUT'){
+      if(itemsChannel){ try{ sb.removeChannel(itemsChannel); }catch(e){} itemsChannel = null; }
       showAuth();
     }
   });
@@ -1261,6 +1262,7 @@ function showAuth(){
   }
 }
 
+var itemsChannel = null;   // live realtime subscription handle — torn down before re-subscribe / on sign-out (var: hoisted, so the sign-out handler above is never in a temporal dead zone)
 async function showApp(user){
   currentUser = user;
   $('authView').classList.add('hidden');
@@ -1289,7 +1291,10 @@ async function showApp(user){
   // lowercase, so live refresh works for all new data. Legacy mis-cased rows
   // still show up via the case-insensitive loadProjects() call, just not in
   // real time — they'll appear on next manual reload.
-  sb.channel('editor-items-realtime')
+  // Tear down any prior subscription first, so a second sign-in on the same tab
+  // (e.g. a shared machine) never leaves a stale channel firing on the old email.
+  if(itemsChannel){ try{ sb.removeChannel(itemsChannel); }catch(e){} itemsChannel = null; }
+  itemsChannel = sb.channel('editor-items-realtime')
     .on('postgres_changes',
         { event:'*', schema:'public', table:'planner_items', filter:`assignee_email=eq.${vEmail}` },
         () => loadProjects())

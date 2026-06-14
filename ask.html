@@ -396,7 +396,7 @@ async function resolveManager(managerId){
 async function loadItems(){
   if(!sb || !currentUser) return;
   let q = sb.from('planner_items')
-    .select('id,title,status,platforms,is_priority,scheduled_at,posted_at,hook,notes,thumbnail_url,footage_url,assignee_email,analyzer_score,created_at')
+    .select('id,title,status,platforms,is_priority,scheduled_at,posted_at,hook,notes,thumbnail_url,footage_url,assignee_email,analyzer_score,created_at,updated_at')
     .neq('status','archived')
     .limit(500);
   if(manageOwnerId) q = q.eq('owner_id', manageOwnerId);
@@ -725,6 +725,7 @@ initAuth();
 
   var pipePromise = null, failed = false;
   var vecCache = new Map();   // `${id}:${updated_at}` → Float32Array
+  var semSeq = 0;             // guards against a stale semantic pass overwriting a newer search
 
   function ui(){
     var status = document.getElementById('askStatus');
@@ -811,10 +812,12 @@ initAuth();
         if(!question) return;
         var items = (typeof allItems !== 'undefined' && allItems) ? allItems : [];
         if(!items.length) return;
+        var mySeq = ++semSeq;   // newest pass wins; older ones bail before committing
         paintUi('✨ also checking by meaning…');
         (async function(){
           var pipe = await loadPipe();
           await embedAll(pipe, items);
+          if(mySeq !== semSeq) return;   // a newer search started — drop this stale pass
           var qOut = await pipe([question], { pooling: 'mean', normalize: true });
           var qv = qOut.data.slice(0, qOut.dims[1]);
           var ranked = items.map(function(it){
@@ -823,6 +826,7 @@ initAuth();
           }).filter(function(r){ return r.sim >= 0.32; })
             .sort(function(a, b){ return b.sim - a.sim; })
             .slice(0, 12);
+          if(mySeq !== semSeq) return;   // superseded during ranking — let the newer pass render
           paintUi();
           if(!ranked.length) return;   // meaning found nothing extra — keep keyword results
           var keywordIds = new Set((data.items || []).map(function(it){ return it.id; }));

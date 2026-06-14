@@ -1354,7 +1354,7 @@ function boot(){
   document.getElementById('addDonoBtn').addEventListener('click', () => {
     const amt = Number(document.getElementById('donoAmt').value) || 0;
     if(amt <= 0) return;
-    addMinutes(Math.round(amt * state.rules.dono), '$' + amt + ' dono', { dollars: amt });
+    addMinutes(amt * state.rules.dono, '$' + amt + ' dono', { dollars: amt });
     document.getElementById('donoAmt').value = '';
     renderTimerPreview();
   });
@@ -1406,9 +1406,22 @@ function boot(){
   document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendMagicLink(); });
 
   render();
-  setInterval(() => { renderTimerPreview(); renderResumeBanner(); }, 1000);
+  startPreviewTick();
   initAuth();
 }
+
+// The 1s preview tick only redraws from local state (no saves, no network), so
+// it's safe to pause while the tab is hidden and resume — the preview recomputes
+// the remaining time from state, so it's never stale after a pause.
+let _previewTick = null;
+function previewFrame(){ renderTimerPreview(); renderResumeBanner(); }
+function startPreviewTick(){ if(_previewTick == null) _previewTick = setInterval(previewFrame, 1000); }
+function stopPreviewTick(){ if(_previewTick != null){ clearInterval(_previewTick); _previewTick = null; } }
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){ stopPreviewTick(); }
+  else { previewFrame(); startPreviewTick(); }   // redraw immediately, then resume ticking
+});
+window.addEventListener('pagehide', stopPreviewTick);
 
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', boot, { once:true });
