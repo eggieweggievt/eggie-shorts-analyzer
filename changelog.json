@@ -6,6 +6,15 @@
   "entries": [
     {
       "date": "2026-06-14",
+      "emoji": "📮",
+      "title": "Posted videos move to their own searchable archive — your board stays clean",
+      "items": [
+        { "type": "new", "text": "Mark an item ✅ Posted and it now leaves the main board and drops into a new 📮 Posted view — a clean, searchable archive of everything you've shipped, so the working board only shows what's actually in progress. Open it from the view switcher next to Kanban / List / Calendar." },
+        { "type": "improved", "text": "The archive reuses your search box and every board filter (editor, format, content bucket) and adds a sort — newest, oldest, or highest Optimizer score — so it's easy to find a specific posted video. Tap any card to open its full details. The calendar still shows your posted dates as before." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
       "emoji": "🧩",
       "title": "Content pillars, reworked — define your content types and balance them to a healthy mix",
       "items": [

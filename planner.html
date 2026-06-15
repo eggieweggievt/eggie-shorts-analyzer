@@ -2110,6 +2110,7 @@
         <button data-view="kanban" class="active" type="button">📋 Kanban</button>
         <button data-view="list" type="button">📑 List</button>
         <button data-view="calendar" type="button">📆 Calendar</button>
+        <button data-view="posted" type="button" title="Your archive of posted videos — searchable, off the main board">📮 Posted</button>
       </div>
       <div class="editor-filter">
         <label for="editorFilter">Editor:</label>
@@ -2172,6 +2173,9 @@
         <tbody id="listBody"></tbody>
       </table>
     </div>
+
+    <!-- 📮 Posted archive — everything marked Posted lands here, off the main board -->
+    <div id="postedView" class="hidden"></div>
 
     <!-- Empty state -->
     <div id="emptyBoard" class="empty-board hidden">
@@ -3094,6 +3098,7 @@ calendarMonth.setDate(1);
 let realtimeSub = null;
 let editorsSub = null;
 let currentView = 'kanban';
+let postedSort = 'newest';        // 📮 Posted archive sort: newest | oldest | score
 let searchQuery = '';
 // V2.18 — Tweets state. Separate cache + subscription from items because they have
 // a different lifecycle (draft → scheduled → posted) and don't go through the kanban.
@@ -6035,21 +6040,28 @@ function render(){
   $('tweetsToolbar').classList.toggle('hidden', !isTweets);
 
   // V2.13 — Calendar view always renders (shows stream slots even with no items)
-  const noItems = items.length === 0 && currentView !== 'calendar';
+  const noItems = items.length === 0 && currentView !== 'calendar' && currentView !== 'posted';
   $('emptyBoard').classList.toggle('hidden', !noItems || isTweets);
   $('kanbanView').classList.toggle('hidden', isTweets || currentView !== 'kanban' || noItems);
   $('listView').classList.toggle('hidden', isTweets || currentView !== 'list' || noItems);
   $('calendarView').classList.toggle('hidden', isTweets || currentView !== 'calendar');
+  $('postedView').classList.toggle('hidden', isTweets || currentView !== 'posted');
 
   // V2.18 — Tweets section visibility
   $('tweetsView').classList.toggle('hidden', !isTweets || tweets.length === 0);
   $('tweetsEmpty').classList.toggle('hidden', !isTweets || tweets.length > 0);
 
+  // Posted items live in their own searchable archive (the 📮 Posted view) so the working
+  // board stays clean. Keep them OFF the kanban + list; the calendar still shows them.
+  const boardItems = filtered.filter(i => i.status !== 'posted');
+  const postedItems = filtered.filter(i => i.status === 'posted');
+
   if(isTweets){
     renderTweets();
-  } else if(currentView === 'kanban') renderKanban(filtered);
-  else if(currentView === 'list') renderList(filtered);
+  } else if(currentView === 'kanban') renderKanban(boardItems);
+  else if(currentView === 'list') renderList(boardItems);
   else if(currentView === 'calendar') renderCalendar(filtered);
+  else if(currentView === 'posted') renderPosted(postedItems);
 }
 
 // V2.18 — Render the tweet list grouped by status (Draft / Scheduled / Posted).
@@ -6158,7 +6170,8 @@ function formatNum(n){
 }
 
 function renderKanban(filtered){
-  const visibleStatuses = STATUSES.filter(s => s.visible || filtered.some(i => i.status === s.value));
+  // 'posted' has its own archive view (📮 Posted) — never render it as a board column.
+  const visibleStatuses = STATUSES.filter(s => s.value !== 'posted' && (s.visible || filtered.some(i => i.status === s.value)));
   const board = $('kanbanView');
   board.innerHTML = visibleStatuses.map(s => {
     let colItems = filtered.filter(i => i.status === s.value);
@@ -6385,6 +6398,54 @@ function ymdKey(d){
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${dd}`;
+}
+
+// 📮 POSTED ARCHIVE — a clean, searchable grid of everything marked Posted. Reuses the
+// toolbar's search + editor/form/bucket filters (it receives the already-filtered set),
+// adds a sort, and opens the full item modal on click. Keeps posted off the working board.
+function renderPosted(list){
+  const wrap = $('postedView');
+  if(!wrap) return;
+  const sorters = {
+    newest: (a,b) => (b.posted_at||b.updated_at||'').localeCompare(a.posted_at||a.updated_at||''),
+    oldest: (a,b) => (a.posted_at||a.updated_at||'').localeCompare(b.posted_at||b.updated_at||''),
+    score:  (a,b) => (b.analyzer_score||0) - (a.analyzer_score||0)
+  };
+  const sorted = list.slice().sort(sorters[postedSort] || sorters.newest);
+  const head = `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <span style="font-size:14px;font-weight:800;color:var(--deep)">📮 ${sorted.length} posted</span>
+      <label style="font-size:12px;color:var(--ink-soft);font-weight:700;margin-left:auto">Sort
+        <select id="postedSortSel" style="margin-left:6px;font:inherit;font-size:12px;font-weight:700;padding:4px 8px;border-radius:8px;border:1.5px solid rgba(144,165,255,0.4);background:#fff">
+          <option value="newest"${postedSort==='newest'?' selected':''}>Newest first</option>
+          <option value="oldest"${postedSort==='oldest'?' selected':''}>Oldest first</option>
+          <option value="score"${postedSort==='score'?' selected':''}>Highest score</option>
+        </select>
+      </label>
+    </div>`;
+  if(!sorted.length){
+    wrap.innerHTML = head + `<div style="text-align:center;padding:32px 18px;color:var(--ink-soft);font-weight:600;line-height:1.6">📮 Nothing here yet — when you mark an item <b>✅ Posted</b> it moves off the board into this archive.<br><span style="font-size:12.5px">Use the search + filters up top to dig through your posted videos.</span></div>`;
+  } else {
+    const cards = sorted.map(p => {
+      const date = p.posted_at ? new Date(p.posted_at).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : '—';
+      const plats = (p.platforms||[]).map(pl => `<span style="font-size:10.5px;font-weight:700;color:var(--deep);background:rgba(144,165,255,0.16);border-radius:999px;padding:2px 8px">${escape(PLATFORM_LABELS[pl]||pl)}</span>`).join(' ');
+      const score = (p.analyzer_score!=null) ? `<span title="Optimizer score" style="flex:0 0 auto;font-size:12px;font-weight:800;color:#1f6b35;background:rgba(168,230,190,0.45);border-radius:999px;padding:2px 9px">${p.analyzer_score}</span>` : '';
+      const bucket = p.content_bucket ? `<span style="font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px;background:rgba(144,165,255,0.16);color:var(--deep);text-transform:capitalize">${escape(p.content_bucket)}</span>` : '';
+      const link = p.analyzer_link ? `<a href="${escape(p.analyzer_link)}" target="_blank" rel="noopener" title="Open analysis" style="text-decoration:none;font-weight:800;color:var(--deep)">↗</a>` : '';
+      return `<div class="posted-card" data-id="${escape(p.id)}" role="button" tabindex="0" style="cursor:pointer;background:rgba(255,255,255,0.82);border:1px solid rgba(144,165,255,0.28);border-left:4px solid #A8E6BE;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 14px rgba(99,170,244,0.1)">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="flex:1;font-weight:800;font-size:14px;color:var(--ink);line-height:1.35">${escape(p.title||'Untitled')}</span>${score}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center">${plats}${bucket}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:auto;font-size:11.5px;color:var(--ink-soft);font-weight:700"><span>📅 ${escape(date)}</span><span style="margin-left:auto">${link}</span></div>
+      </div>`;
+    }).join('');
+    wrap.innerHTML = head + `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px">${cards}</div>`;
+  }
+  const sel = $('postedSortSel');
+  if(sel) sel.addEventListener('change', () => { postedSort = sel.value; render(); });
+  wrap.querySelectorAll('.posted-card').forEach(el => {
+    const open = e => { if(e.target.closest('a')) return; const it = items.find(i => i.id === el.dataset.id); if(it) openModal(it); };
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(e); } });
+  });
 }
 
 function renderCalendar(filtered){
