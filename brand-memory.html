@@ -413,6 +413,14 @@
     </div>
   </div>
 
+  <!-- CONTENT PILLARS -->
+  <div class="card">
+    <h2>Content pillars 🧩</h2>
+    <p class="hint">The <b>types</b> of content you make, grouped by what each one is <b>for</b>. A healthy channel runs a deliberate mix — aim for roughly <b>60% Retention</b>, <b>30% Growth</b>, <b>10% Experimental</b>. Your planner sorts ideas into these, and the Optimizer reads them to stay on-brand.</p>
+    <div id="pillarMix"></div>
+    <div id="pillarBuckets"></div>
+  </div>
+
   <!-- LINKS -->
   <div class="card">
     <h2>Links worth remembering</h2>
@@ -1022,6 +1030,86 @@ render();
 initAuth();
 </script>
 
+<script>
+/* ============================================================
+   🧩 CONTENT PILLARS (brand brain) — the creator's content TYPES, bucketed by
+   purpose: Retention / Growth / Experimental, with a target mix (60/30/10).
+   This is the single source of truth for pillars across the hub. Stored in
+   state.settings.pillars — which already persists locally AND syncs (the
+   brand_memory `settings` column), so no migration is needed. Exported to
+   localStorage('eggie-content-pillars') so the planner + Optimizer read it.
+   ============================================================ */
+(function(){
+  'use strict';
+  var BUCKETS = [
+    { key:'retention',    label:'🎯 Retention',    target:60, blurb:'What your audience already expects from you — your bread-and-butter. The biggest slice; it’s what keeps your core coming back.' },
+    { key:'growth',       label:'🌱 Growth',       target:30, blurb:'Content proven to grow — evergreen or trending formats that pull in NEW viewers.' },
+    { key:'experimental', label:'🧪 Experimental', target:10, blurb:'Anything you want to try. Low stakes, high learning — most won’t stick, and that’s the point.' }
+  ];
+  var COLOR = { retention:'#90A5FF', growth:'#6BE4EA', experimental:'#FFB2F0' };
+  var CATEGORIES = ['Gaming / let’s-play','Reaction','Storytime','Tutorial / how-to','Q&A','Challenge','Behind-the-scenes','Clips / compilation','Vlog / IRL','Lore / deep-dive','Cozy / chill stream','ASMR','Art / creative','Tier list / ranking','Collab','Highlights','Trend / meme'];
+
+  function pillars(){ if(!state.settings) state.settings = {}; if(!Array.isArray(state.settings.pillars)) state.settings.pillars = []; return state.settings.pillars; }
+  function uidp(){ return 'p-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6); }
+  function exportPillars(){
+    try { localStorage.setItem('eggie-content-pillars', JSON.stringify({ pillars: pillars().map(function(p){ return { id:p.id, name:p.name, bucket:p.bucket }; }), targets:{ retention:60, growth:30, experimental:10 } })); } catch(e){}
+  }
+  function save(){ exportPillars(); if(typeof persist === 'function') persist(); renderPillars(); }
+  function add(name, bucket){
+    var nm = (name||'').trim(); if(!nm) return;
+    if(pillars().some(function(p){ return p.name.toLowerCase() === nm.toLowerCase() && p.bucket === bucket; })) return;
+    pillars().push({ id:uidp(), name:nm, bucket:bucket }); save();
+  }
+
+  function renderPillars(){
+    var box = document.getElementById('pillarBuckets'); if(!box) return;
+    var mix = document.getElementById('pillarMix');
+    var list = pillars();
+    var counts = { retention:0, growth:0, experimental:0 };
+    list.forEach(function(p){ if(counts[p.bucket] != null) counts[p.bucket]++; });
+    var total = list.length;
+    if(mix){
+      if(!total){ mix.innerHTML = ''; }
+      else {
+        var bar = BUCKETS.map(function(b){ var pct = Math.round(counts[b.key]/total*100); return pct ? '<div style="width:'+pct+'%;background:'+COLOR[b.key]+'"></div>' : ''; }).join('');
+        var legend = BUCKETS.map(function(b){ var pct = Math.round(counts[b.key]/total*100); var diff = pct - b.target; var on = Math.abs(diff) <= 10; var tag = on ? '✓ on target' : (diff>0 ? ('+'+diff+'% over') : (diff+'% under')); return '<span style="font-size:11.5px;font-weight:700;color:'+(on?'#1d7d72':'#a35c00')+'">'+b.label+' '+pct+'% <span style="font-weight:600;color:var(--ink-soft)">(aim '+b.target+'% · '+tag+')</span></span>'; }).join('');
+        mix.innerHTML = '<div style="display:flex;height:12px;border-radius:999px;overflow:hidden;border:1px solid rgba(144,165,255,0.3);margin:4px 0 9px">'+bar+'</div><div style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px">'+legend+'</div><p style="margin:0 0 8px;font-size:11px;color:var(--ink-soft)">Mix by number of pillars. Your planner shows the live mix of your actual ideas.</p>';
+      }
+    }
+    box.innerHTML = BUCKETS.map(function(b){
+      var mine = list.filter(function(p){ return p.bucket === b.key; });
+      var chips = mine.length
+        ? mine.map(function(p){ return '<span class="chip" style="background:'+COLOR[b.key]+'22;border:1px solid '+COLOR[b.key]+'66">'+escapeHtml(p.name)+'<button type="button" data-pdel="'+escapeAttr(p.id)+'" aria-label="Remove">✕</button></span>'; }).join('')
+        : '<span style="font-size:12px;color:var(--ink-soft);font-style:italic">No '+b.key+' pillars yet.</span>';
+      var cats = CATEGORIES.map(function(c){ return '<button type="button" class="opt-chip alt" data-pcat="'+escapeAttr(c)+'" data-pbucket="'+b.key+'" style="font-size:11.5px;padding:5px 11px">+ '+escapeHtml(c)+'</button>'; }).join('');
+      return '<div style="margin:0 0 16px;padding:13px 15px;border-radius:14px;background:'+COLOR[b.key]+'14;border:1.5px solid '+COLOR[b.key]+'44">'
+        + '<div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;color:var(--deep)">'+b.label+'</span><span style="font-size:12px;font-weight:800;color:var(--ink-soft)">aim '+b.target+'%</span></div>'
+        + '<p style="margin:3px 0 9px;font-size:12.5px;color:var(--ink-soft);line-height:1.45">'+b.blurb+'</p>'
+        + '<div class="chips" style="margin-bottom:9px">'+chips+'</div>'
+        + '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px"><input type="text" data-pinput="'+b.key+'" placeholder="Add a content type…" aria-label="Add a '+b.key+' content pillar" style="flex:1;min-width:150px" /><button type="button" class="btn secondary small" data-padd="'+b.key+'">＋ Add</button></div>'
+        + '<details><summary style="font-size:11.5px;font-weight:700;color:var(--deep);cursor:pointer">Draw from common content categories</summary><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'+cats+'</div></details>'
+        + '</div>';
+    }).join('');
+  }
+
+  function onClick(e){
+    var t = e.target; if(!t || !t.closest) return;
+    var del = t.closest('[data-pdel]'); if(del){ var id = del.getAttribute('data-pdel'); state.settings.pillars = pillars().filter(function(p){ return p.id !== id; }); save(); return; }
+    var cat = t.closest('[data-pcat]'); if(cat){ add(cat.getAttribute('data-pcat'), cat.getAttribute('data-pbucket')); return; }
+    var addBtn = t.closest('[data-padd]'); if(addBtn){ var bk = addBtn.getAttribute('data-padd'); var inp = document.querySelector('[data-pinput="'+bk+'"]'); if(inp){ add(inp.value, bk); inp.value = ''; inp.focus(); } return; }
+  }
+  function onKey(e){ if(e.key !== 'Enter') return; var inp = e.target.closest && e.target.closest('[data-pinput]'); if(inp){ e.preventDefault(); add(inp.value, inp.getAttribute('data-pinput')); inp.value = ''; } }
+
+  function wrapRender(){ if(typeof render === 'function' && !render.__pillarsWrapped){ var orig = render; render = function(){ var r = orig.apply(this, arguments); try { renderPillars(); } catch(e){} return r; }; render.__pillarsWrapped = true; } }
+  function boot(){
+    wrapRender();
+    var box = document.getElementById('pillarBuckets');
+    if(box){ box.addEventListener('click', onClick); box.addEventListener('keydown', onKey); }
+    renderPillars(); exportPillars();
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
 <script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
