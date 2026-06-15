@@ -4949,16 +4949,31 @@ function flashProfileSaved(){
 // The V3.1 path also force-injects VTuber tags directly into the suggestHashtagsFor
 // pool (no text-detection round-trip), so the two systems are belt + suspenders.
 // Legacy is kept so anonymous / signed-out users still get the identity hint.
+// Creator's content pillars (exported by the planner to localStorage) — folded into
+// niche detection so the Optimizer is aware of the channel's established themes.
+function readPillarHintText(){
+  try {
+    const raw = localStorage.getItem('eggie-content-pillars');
+    if(!raw) return '';
+    const data = JSON.parse(raw);
+    const list = (data && data.pillars) || [];
+    // bigger pillars carry a touch more weight (named twice)
+    return list.map(p => (p && p.count >= 3) ? (p.name + ' ' + p.name) : ((p && p.name) || ''))
+      .join(' ').toLowerCase().replace(/\s+/g, ' ').trim();
+  } catch(e){ return ''; }
+}
 function buildProfileHintText(profile){
   const VTUBER_HINT = 'vtuber envtuber live2d streamer twitch streaming live clip clips stream highlights';
+  const pillarHint = readPillarHintText();
+  const join = (a, b) => [a, b].filter(Boolean).join(' ').trim();
   // V3.1 — prefer the Supabase profile when signed in
   const supaProfile = (typeof window !== 'undefined' && window.__eggieProfile) || null;
   if(supaProfile && ['pngtuber','2d_live2d','3d'].includes(supaProfile.vtuber_type)){
-    return VTUBER_HINT;
+    return join(VTUBER_HINT, pillarHint);
   }
   // Legacy fallback — the offline checkbox
-  if(profile && profile.vtuber) return VTUBER_HINT;
-  return '';
+  if(profile && profile.vtuber) return join(VTUBER_HINT, pillarHint);
+  return pillarHint;
 }
 // If the checkbox is on by default, expand the details so it's visible
 function maybeOpenProfileOnLoad(p){

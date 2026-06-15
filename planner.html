@@ -3079,6 +3079,7 @@ let editorFilter = '';            // V2: filter board by editor id
 // V2.12 — Form-type + priority filters
 let formFilter = '';              // '' | 'short' | 'long'
 let priorityOnly = false;         // ⭐ show starred items only when true
+let pillarFilter = '';            // 🧩 filter board by pillar id ('' = all, '__none__' = unassigned)
 // V2.3: brand kit state — editable buffers for the modal
 let brandKit = null;
 let bkBranding = [];   // [{url, label}]
@@ -6014,6 +6015,10 @@ function render(){
   if(priorityOnly){
     pool = pool.filter(i => !!i.is_priority);
   }
+  // 🧩 Content-pillar filter
+  if(pillarFilter){
+    pool = pillarFilter === '__none__' ? pool.filter(i => !i.pillar_id) : pool.filter(i => i.pillar_id === pillarFilter);
+  }
   // Apply search filter
   const q = searchQuery.toLowerCase().trim();
   const filtered = q ? pool.filter(item => {
@@ -8284,54 +8289,280 @@ if(document.readyState === 'loading'){
     cl.members.forEach(function(it){ var v = vecOf(it); var s = v ? cos(v, cl.centroid) : -1; if(s>bestSim){ bestSim=s; anchor=it; } });
     return (anchor.title || 'Untitled theme');
   }
-  function renderPillars(clusters, body){
-    var multi = clusters.filter(function(c){ return c.members.length >= 2; }).sort(function(a,b){ return b.members.length - a.members.length; });
-    var singles = clusters.filter(function(c){ return c.members.length === 1; });
-    if(!multi.length && !singles.length){ body.innerHTML = '<p class="muted">No ideas to group yet — add a few items first.</p>'; return; }
+  // ---- persistent pillar state (mirrors the planner_pillars table) ----
+  var PALETTE = ['#90A5FF','#FFB2F0','#6BE4EA','#FFC97A','#A8E6BE','#C9A8FF','#FF9EC8','#7AD7C5'];
+  var pillars = [];      // [{id,name,color,sort_order,...}]
+  var byId = {};         // id -> pillar
+
+  function curItems(){ try { return (typeof items !== 'undefined' && Array.isArray(items)) ? items : []; } catch(e){ return []; } }
+  function getSb(){ try { return (typeof sb !== 'undefined') ? sb : null; } catch(e){ return null; } }
+  function ownerId(){ try { return (typeof currentOwnerId !== 'undefined') ? currentOwnerId : null; } catch(e){ return null; } }
+  function pillarFilterVal(){ try { return (typeof pillarFilter !== 'undefined') ? pillarFilter : ''; } catch(e){ return ''; } }
+  function msg(t){ return '<p style="margin:0;color:var(--ink-soft);font-size:13px;line-height:1.5">'+esc(t)+'</p>'; }
+  function isMissingSchema(e){ return /relation|exist|column|pillar_id|planner_pillars/i.test(String(e && e.message || e)); }
+
+  /* cross-tool export — pillars become readable by other hub pages (the Optimizer
+     reads this to learn the creator's themes). No network; just localStorage. */
+  function exportPillars(){
+    try {
+      var counts = {}; curItems().forEach(function(it){ if(it && it.pillar_id) counts[it.pillar_id]=(counts[it.pillar_id]||0)+1; });
+      var out = pillars.map(function(p){ return { id:p.id, name:p.name, color:p.color, count: counts[p.id]||0 }; })
+        .sort(function(a,b){ return b.count - a.count; });
+      localStorage.setItem('eggie-content-pillars', JSON.stringify({ owner: ownerId()||'', updated: '', pillars: out }));
+    } catch(e){}
+  }
+
+  async function loadPillars(){
+    var s = getSb(), o = ownerId();
+    if(!s || !o){ pillars = []; byId = {}; return { ok:false, reason:'auth' }; }
+    try {
+      var r = await s.from('planner_pillars').select('*').eq('owner_id', o).order('sort_order', { ascending:true });
+      if(r.error) throw r.error;
+      pillars = r.data || []; byId = {}; pillars.forEach(function(p){ byId[p.id] = p; });
+      exportPillars();
+      return { ok:true };
+    } catch(e){
+      pillars = []; byId = {};
+      return { ok:false, reason: isMissingSchema(e) ? 'nomigration' : 'error', err:e };
+    }
+  }
+
+  /* cluster ideas -> reuse/create pillars -> persist assignments. Re-running reuses
+     existing pillars (matched by membership overlap, then by name) so the creator's
+     renamed/recoloured themes survive a re-group instead of churning. */
+  async function regroup(body){
+    var s = getSb(), o = ownerId();
+    var list = curItems().filter(function(it){ return it && (it.title||'').trim(); });
+    if(!list.length){ body.innerHTML = msg('Add a few items to your planner first, then I can group them into themes.'); return; }
+    setRunning(true, body);
+    try {
+      var pipe = await loadPipe();
+      await embedAll(pipe, list);
+      var clusters = clusterItems(list);
+      if(!s || !o){ renderEphemeral(clusters, body, 'These are grouped on your device. Sign in on the planner to SAVE them — then they tag your cards and filter the board.'); return; }
+      await loadPillars();
+      var used = {}, newPillars = [];
+      clusters.forEach(function(cl, i){
+        var label = pillarLabel(cl);
+        var bestPid = null, bestOverlap = 0;
+        pillars.forEach(function(p){
+          if(used[p.id]) return;
+          var ov = cl.members.filter(function(it){ return it.pillar_id === p.id; }).length;
+          if(ov > bestOverlap){ bestOverlap = ov; bestPid = p.id; }
+        });
+        if(bestPid && bestOverlap >= 1){ cl._pid = bestPid; used[bestPid] = 1; return; }
+        var named = pillars.filter(function(p){ return !used[p.id] && String(p.name).toLowerCase() === label.toLowerCase(); })[0];
+        if(named){ cl._pid = named.id; used[named.id] = 1; return; }
+        var tmp = 'new_' + i; cl._pid = tmp;
+        newPillars.push({ tmp:tmp, name:label, color: PALETTE[(pillars.length + newPillars.length) % PALETTE.length] });
+      });
+      if(newPillars.length){
+        var rows = newPillars.map(function(np, idx){ return { owner_id:o, name:np.name, color:np.color, sort_order: pillars.length + idx }; });
+        var ins = await s.from('planner_pillars').insert(rows).select();
+        if(ins.error) throw ins.error;
+        (ins.data || []).forEach(function(rec, idx){
+          var tmp = newPillars[idx].tmp;
+          clusters.forEach(function(cl){ if(cl._pid === tmp) cl._pid = rec.id; });
+          pillars.push(rec); byId[rec.id] = rec;
+        });
+      }
+      var byPillar = {};
+      clusters.forEach(function(cl){ cl.members.forEach(function(it){ (byPillar[cl._pid] = byPillar[cl._pid] || []).push(it.id); it.pillar_id = cl._pid; }); });
+      for(var pid in byPillar){
+        var up = await s.from('planner_items').update({ pillar_id: pid }).in('id', byPillar[pid]).eq('owner_id', o);
+        if(up.error) throw up.error;
+      }
+      await loadPillars();
+      if(typeof render === 'function') render(); else decorate();
+      renderPanel(body);
+    } catch(e){
+      console.warn('[Planner] pillars persist failed', e);
+      var note = isMissingSchema(e)
+        ? 'Grouped on your device. To SAVE these (tag cards, filter the board, feed the Optimizer) run planner-2026-06-14-content-pillars.sql in Supabase, then hit Re-group.'
+        : 'Couldn’t save just now — showing the grouping anyway. Nothing left your device.';
+      try { renderEphemeral(clusterItems(list), body, note); } catch(e2){ body.innerHTML = msg('Couldn’t group just now — try again in a moment.'); }
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  function setRunning(on, body){
+    var btn = document.getElementById('pillarsRun');
+    if(btn){ btn.disabled = on; if(on){ btn.dataset._o = btn.innerHTML; btn.innerHTML = '🧩 Thinking…'; } else if(btn.dataset._o){ btn.innerHTML = btn.dataset._o; } }
+    if(on && body){ body.innerHTML = msg('Reading your ideas by meaning — the first run downloads the ~25 MB model once, then it’s instant. All on your device…'); }
+  }
+
+  // ---- insights ----
+  function pillarCounts(){
+    var counts = {}, total = 0, unassigned = 0;
+    curItems().forEach(function(it){ if(!(it && (it.title||'').trim())) return; total++; if(it.pillar_id && byId[it.pillar_id]) counts[it.pillar_id] = (counts[it.pillar_id]||0)+1; else unassigned++; });
+    return { counts:counts, total:total, unassigned:unassigned };
+  }
+  function lastActivity(pid){
+    var t = 0; curItems().forEach(function(it){ if(it.pillar_id !== pid) return; var d = Date.parse(it.posted_at || it.scheduled_at || it.updated_at || it.created_at || '') || 0; if(d > t) t = d; });
+    return t;
+  }
+  function filterPill(val, label, active, color){
+    return '<button class="pl-filter" data-fval="'+esc(String(val))+'" style="border:1.5px solid '+(active?(color||'#90A5FF'):'rgba(144,165,255,0.4)')+';background:'+(active?((color||'#90A5FF')+'22'):'#fff')+';border-radius:999px;font:inherit;font-size:11.5px;font-weight:800;color:var(--deep);padding:5px 11px;cursor:pointer">'+label+'</button>';
+  }
+  function renderPanel(body){
+    var pc = pillarCounts();
+    if(!pillars.length){ body.innerHTML = msg('No pillars yet — hit Re-group and I’ll sort your ideas into themes and save them, so they tag your cards, filter the board, and feed the Optimizer.'); return; }
+    var sorted = pillars.slice().sort(function(a,b){ return (pc.counts[b.id]||0) - (pc.counts[a.id]||0); });
+    var biggest = sorted[0], now = Date.now(), html = '';
+    html += '<div style="margin:0 0 12px;font-size:13px;color:var(--ink);line-height:1.6">';
+    html += 'You have <b>'+pillars.length+'</b> pillar'+(pillars.length===1?'':'s')+' across <b>'+pc.total+'</b> idea'+(pc.total===1?'':'s')+'.';
+    if(biggest && pc.counts[biggest.id]) html += ' Your channel leans most on <b>'+esc(biggest.name)+'</b> ('+Math.round((pc.counts[biggest.id]/Math.max(1,pc.total))*100)+'%).';
+    if(pc.unassigned) html += ' <span style="color:var(--ink-soft)">'+pc.unassigned+' idea'+(pc.unassigned===1?'':'s')+' not in a pillar yet.</span>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px">';
+    html += filterPill('', 'All', pillarFilterVal()==='');
+    sorted.forEach(function(p){ html += filterPill(p.id, esc(p.name)+' ('+(pc.counts[p.id]||0)+')', pillarFilterVal()===p.id, p.color); });
+    if(pc.unassigned) html += filterPill('__none__', 'Unassigned ('+pc.unassigned+')', pillarFilterVal()==='__none__');
+    html += '</div>';
+    sorted.forEach(function(p){
+      var n = pc.counts[p.id]||0, pct = Math.round((n/Math.max(1,pc.total))*100);
+      var stale = n > 0 && (now - lastActivity(p.id)) > 1000*60*60*24*21;
+      html += '<div class="pl-row" data-pid="'+esc(p.id)+'" style="margin:0 0 10px;padding:11px 13px;background:rgba(255,255,255,0.6);border:1.5px solid rgba(144,165,255,0.24);border-radius:13px">';
+      html += '<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">';
+      html += '<button data-act="color" title="Change colour" style="width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.08);cursor:pointer;flex:0 0 auto;background:'+(p.color||'#90A5FF')+'"></button>';
+      html += '<span style="font-size:14.5px;font-weight:800;color:var(--deep)">'+esc(p.name)+'</span>';
+      html += '<span style="font-size:11px;font-weight:700;color:var(--ink-soft);background:rgba(144,165,255,0.14);border-radius:999px;padding:2px 8px">'+n+' idea'+(n===1?'':'s')+'</span>';
+      if(n<=1) html += '<span style="font-size:11px;font-weight:700;color:#a35c00">🌱 thin</span>';
+      if(stale) html += '<span style="font-size:11px;font-weight:700;color:#a35c00">⏳ going stale</span>';
+      html += '<span style="margin-left:auto;display:flex;gap:6px">';
+      html += '<button data-act="rename" style="border:none;background:rgba(144,165,255,0.14);border-radius:8px;font:inherit;font-size:11px;font-weight:700;color:var(--deep);padding:4px 9px;cursor:pointer">Rename</button>';
+      html += '<button data-act="delete" style="border:none;background:rgba(255,138,168,0.18);border-radius:8px;font:inherit;font-size:11px;font-weight:700;color:#a23556;padding:4px 9px;cursor:pointer">Delete</button>';
+      html += '</span></div>';
+      html += '<div style="height:7px;border-radius:999px;background:rgba(144,165,255,0.14);margin-top:8px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(p.color||'#90A5FF')+'"></div></div>';
+      var chips = curItems().filter(function(it){ return it.pillar_id===p.id; }).slice(0,12).map(function(it){ return '<span style="display:inline-block;background:rgba(255,255,255,0.7);border:1px solid rgba(144,165,255,0.28);border-radius:10px;padding:3px 9px;font-size:11.5px;color:var(--ink);margin:6px 5px 0 0">'+esc(it.title||'Untitled')+'</span>'; }).join('');
+      html += '<div>'+chips+'</div></div>';
+    });
+    html += '<p style="margin-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.5">Saved to your planner — pillars tag every card, filter the board, and feed your themes to the Optimizer. Grouped on your device; nothing leaves the browser. 💗</p>';
+    body.innerHTML = html;
+  }
+  function renderEphemeral(clusters, body, note){
+    var multi = clusters.filter(function(c){ return c.members.length>=2; }).sort(function(a,b){ return b.members.length-a.members.length; });
+    var singles = clusters.filter(function(c){ return c.members.length===1; });
     var html = '';
+    if(note) html += '<div style="margin:0 0 12px;padding:9px 12px;background:rgba(255,201,122,0.18);border:1px solid rgba(255,201,122,0.5);border-radius:11px;font-size:12px;font-weight:700;color:#7a4b00;line-height:1.45">'+esc(note)+'</div>';
+    if(!multi.length && !singles.length){ body.innerHTML = html + msg('No ideas to group yet — add a few items first.'); return; }
     if(multi.length){
-      html += '<p style="margin:0 0 12px;color:var(--ink);line-height:1.55">Your ideas fall into <b>'+multi.length+'</b> theme'+(multi.length===1?'':'s')+'. The bigger ones are what you naturally make a lot of:</p>';
+      html += '<p style="margin:0 0 12px;color:var(--ink);line-height:1.55">Your ideas fall into <b>'+multi.length+'</b> theme'+(multi.length===1?'':'s')+':</p>';
       multi.forEach(function(cl){
         var chips = cl.members.map(function(it){ return '<span style="display:inline-block;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.3);border-radius:11px;padding:5px 11px;font-size:12.5px;color:var(--ink);margin:0 6px 6px 0">'+esc(it.title||'Untitled')+'</span>'; }).join('');
-        html += '<div style="margin:0 0 14px;padding:13px 15px;background:rgba(144,165,255,0.08);border:1.5px solid rgba(144,165,255,0.28);border-radius:15px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;color:var(--deep)">🧩 '+esc(pillarLabel(cl))+'</span><span style="font-size:11.5px;font-weight:700;color:var(--ink-soft);background:rgba(255,255,255,0.7);border-radius:999px;padding:2px 9px">'+cl.members.length+' ideas</span></div><div>'+chips+'</div></div>';
+        html += '<div style="margin:0 0 14px;padding:13px 15px;background:rgba(144,165,255,0.08);border:1.5px solid rgba(144,165,255,0.28);border-radius:15px"><div style="font-size:15px;font-weight:800;color:var(--deep);margin-bottom:9px">🧩 '+esc(pillarLabel(cl))+'</div><div>'+chips+'</div></div>';
       });
     }
     if(singles.length){
       var sc = singles.map(function(cl){ return '<span style="display:inline-block;background:rgba(255,255,255,0.6);border:1.5px dashed rgba(144,165,255,0.4);border-radius:11px;padding:5px 11px;font-size:12.5px;color:var(--ink-soft);margin:0 6px 6px 0">'+esc(cl.members[0].title||'Untitled')+'</span>'; }).join('');
-      html += '<div style="margin-top:6px"><p style="margin:0 0 8px;font-size:12.5px;font-weight:800;color:var(--ink-soft)">🌱 One-offs — not part of a theme yet (each could become a series, or just stay one-and-done):</p><div>'+sc+'</div></div>';
+      html += '<div><p style="margin:0 0 8px;font-size:12.5px;font-weight:800;color:var(--ink-soft)">🌱 One-offs:</p><div>'+sc+'</div></div>';
     }
-    html += '<p class="muted" style="margin-top:12px;font-size:11.5px">Grouped by meaning right on your device — none of your ideas left the browser. Themes are a mirror, not a mandate. 💗</p>';
     body.innerHTML = html;
   }
-  function currentItems(){ try { return (typeof items !== 'undefined' && Array.isArray(items)) ? items.slice() : []; } catch(e){ return []; } }
-  function runPillars(){
-    var body = document.getElementById('pillarsBody'); if(!body) return;
-    var list = currentItems().filter(function(it){ return it && (it.title || '').trim(); });
-    if(!list.length){ body.innerHTML = '<p class="muted">Add a few items to your planner first, then I can group them into themes.</p>'; return; }
-    var btn = document.getElementById('pillarsRun'); var orig = btn ? btn.innerHTML : '';
-    if(btn){ btn.disabled = true; btn.innerHTML = '🧩 Thinking…'; }
-    body.innerHTML = '<p class="muted">Reading your ideas by meaning — the first run downloads the ~25 MB model once, then it\'s instant. All on your device…</p>';
-    loadPipe().then(function(pipe){ return embedAll(pipe, list).then(function(){ renderPillars(clusterItems(list), body); }); })
-      .catch(function(e){ console.warn('[Planner] pillars failed', e); body.innerHTML = '<p class="muted">Couldn\'t load the model just now (offline?). Nothing left your device — try again in a moment.</p>'; })
-      .then(function(){ if(btn){ btn.disabled = false; btn.innerHTML = orig; } });
+
+  // ---- card tagging (decorate after every render) + board filter ----
+  function decorate(){
+    try {
+      var cards = document.querySelectorAll('#kanbanView .item-card[data-id]');
+      Array.prototype.forEach.call(cards, function(card){
+        var old = card.querySelector('.pillar-chip'); if(old) old.parentNode.removeChild(old);
+        var id = card.getAttribute('data-id');
+        var it = curItems().filter(function(x){ return String(x.id) === id; })[0];
+        var p = it && it.pillar_id ? byId[it.pillar_id] : null;
+        if(p){
+          var chip = document.createElement('span');
+          chip.className = 'pillar-chip';
+          chip.textContent = '🧩 ' + p.name;
+          chip.style.cssText = 'display:inline-block;margin-top:6px;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px;color:#2d284b;background:'+(p.color||'#90A5FF')+'33;border:1px solid '+(p.color||'#90A5FF')+'66';
+          card.appendChild(chip);
+        }
+      });
+    } catch(e){}
+  }
+  function wrapRender(){
+    try {
+      if(typeof render === 'function' && !render.__pillarsWrapped){
+        var orig = render;
+        render = function(){ var r = orig.apply(this, arguments); decorate(); return r; };
+        render.__pillarsWrapped = true;
+      }
+    } catch(e){}
+  }
+  function setPillarFilter(val){
+    try { pillarFilter = val; } catch(e){}
+    if(typeof render === 'function') render();
+    var b = document.getElementById('pillarsBody'); if(b && b.querySelector('.pl-row, .pl-filter')) renderPanel(b);
+  }
+
+  // ---- pillar management ----
+  async function renamePillar(pid, body){
+    var p = byId[pid]; if(!p) return;
+    var name = prompt('Rename pillar', p.name); if(name == null) return; name = name.trim() || p.name;
+    p.name = name; var s = getSb();
+    if(s){ try { await s.from('planner_pillars').update({ name:name, updated_at:new Date().toISOString() }).eq('id', pid); } catch(e){ console.warn(e); } }
+    exportPillars(); renderPanel(body); decorate();
+  }
+  async function recolorPillar(pid, body){
+    var p = byId[pid]; if(!p) return;
+    var idx = PALETTE.indexOf(p.color); p.color = PALETTE[(idx + 1) % PALETTE.length];
+    var s = getSb();
+    if(s){ try { await s.from('planner_pillars').update({ color:p.color, updated_at:new Date().toISOString() }).eq('id', pid); } catch(e){} }
+    exportPillars(); renderPanel(body); decorate();
+  }
+  async function deletePillar(pid, body){
+    var p = byId[pid]; if(!p) return;
+    if(!confirm('Delete the "' + p.name + '" pillar? Your ideas stay — they just lose this tag.')) return;
+    var s = getSb();
+    if(s){ try { await s.from('planner_pillars').delete().eq('id', pid); } catch(e){ console.warn(e); } }
+    curItems().forEach(function(it){ if(it.pillar_id === pid) it.pillar_id = null; });
+    pillars = pillars.filter(function(x){ return x.id !== pid; }); delete byId[pid];
+    if(pillarFilterVal() === pid){ try { pillarFilter = ''; } catch(e){} }
+    exportPillars(); if(typeof render === 'function') render(); renderPanel(body);
+  }
+
+  function onPanelClick(e){
+    var body = document.getElementById('pillarsBody');
+    var fp = e.target.closest('.pl-filter');
+    if(fp){ setPillarFilter(fp.getAttribute('data-fval')); return; }
+    var actBtn = e.target.closest('[data-act]'); var row = e.target.closest('.pl-row');
+    if(actBtn && row){
+      var pid = row.getAttribute('data-pid'), act = actBtn.getAttribute('data-act');
+      if(act === 'rename') renamePillar(pid, body);
+      else if(act === 'color') recolorPillar(pid, body);
+      else if(act === 'delete') deletePillar(pid, body);
+    }
+  }
+  function openPanel(body){
+    loadPillars().then(function(res){
+      if(pillars.length) renderPanel(body);
+      else if(res && res.reason === 'nomigration') body.innerHTML = msg('To save pillars, run planner-2026-06-14-content-pillars.sql in Supabase, then hit Re-group. (You can Re-group now to preview them on-device.)');
+      else regroup(body);
+    }).catch(function(){ regroup(body); });
   }
   function wire(){
     var open = document.getElementById('pillarsBtn');
     var panel = document.getElementById('pillarsPanel');
     var closeB = document.getElementById('pillarsClose');
     var runB = document.getElementById('pillarsRun');
+    var body = document.getElementById('pillarsBody');
     if(open && panel && !open._wired){
       open._wired = true;
       open.addEventListener('click', function(){
         var show = panel.classList.contains('hidden');
         panel.classList.toggle('hidden', !show);
-        if(show){ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); if(!panel._ran){ panel._ran = true; runPillars(); } }
+        if(show){ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); if(!panel._ran){ panel._ran = true; openPanel(body); } }
       });
     }
     if(closeB && panel && !closeB._wired){ closeB._wired = true; closeB.addEventListener('click', function(){ panel.classList.add('hidden'); }); }
-    if(runB && !runB._wired){ runB._wired = true; runB.addEventListener('click', function(){ if(panel) panel._ran = true; runPillars(); }); }
+    if(runB && !runB._wired){ runB._wired = true; runB.addEventListener('click', function(){ if(panel) panel._ran = true; regroup(body); }); }
+    if(body && !body._wired){ body._wired = true; body.addEventListener('click', onPanelClick); }
   }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire); else wire();
+  function boot(){
+    wrapRender(); wire();
+    loadPillars().then(function(){ if(typeof render === 'function') render(); else decorate(); }).catch(function(){});
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 </body>

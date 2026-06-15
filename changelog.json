@@ -6,6 +6,15 @@
   "entries": [
     {
       "date": "2026-06-14",
+      "emoji": "🧩",
+      "title": "Content pillars now save into your planner — and make the rest of the hub smarter",
+      "items": [
+        { "type": "new", "text": "The 🧩 Pillars panel no longer forgets what it found. When you group your ideas, the themes are saved: every card on the board gets a little pillar tag, you can filter the whole board to one pillar, and the panel shows which themes you make most, which are thin, and which are going stale — so gaps are obvious at a glance. Re-grouping reuses the pillars you've renamed or recoloured instead of starting over." },
+        { "type": "new", "text": "Your pillars now feed the Optimizer too: when you score a video it quietly factors in your channel's established themes for sharper niche detection. Grouping still runs entirely on your device — nothing leaves the browser. (One-time setup: run the new planner-2026-06-14-content-pillars.sql migration in Supabase; until then, grouping still previews on-device without saving.)" }
+      ]
+    },
+    {
+      "date": "2026-06-14",
       "emoji": "📺",
       "title": "The Optimizer scores long-form videos and livestreams again — tuned to each format",
       "items": [
