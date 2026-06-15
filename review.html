@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
-<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=7"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=6"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -244,7 +244,7 @@
 </head>
 <body>
 
-<div class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</div>
+<div class="auth-pill" id="authPill" role="button" tabindex="0" onclick="openAuthModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAuthModal();}">🔓 Sign in</div>
 
 <div class="wrap">
 
@@ -275,7 +275,7 @@
     <h2>Sign in to start your review ✨</h2>
     <p class="muted">Your weekly reviews sync across every device. We use passwordless magic-link sign-in — no password gymnastics.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <input type="text" id="emailInput" placeholder="you@example.com" style="flex:1;min-width:200px" />
+      <input type="text" id="emailInput" placeholder="you@example.com" aria-label="Email address" autocomplete="email" style="flex:1;min-width:200px" />
       <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
     </div>
     <div class="status-banner" id="authStatus"></div>
@@ -431,7 +431,7 @@
 <!-- Auth modal (reused for the floating pill) -->
 <div class="card hidden" id="authModal" style="position:fixed;inset:auto 0 0 0;max-width:420px;margin:0 auto;bottom:20px;z-index:70">
   <h2>Sign in 🔑</h2>
-  <input type="text" id="modalEmail" placeholder="you@example.com" />
+  <input type="text" id="modalEmail" placeholder="you@example.com" aria-label="Email address" autocomplete="email" />
   <div style="display:flex;gap:8px;margin-top:10px">
     <button class="btn" onclick="modalSendMagicLink()">📬 Send link</button>
     <button class="btn ghost" onclick="closeAuthModal()">Close</button>
@@ -1370,7 +1370,7 @@ initAuth();
   try{ if(localStorage.getItem(PREF) === '1') setMode(true); }catch(e){}
 })();
 </script>
-<script src="hub-nav.js?v=9"></script>
+<script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

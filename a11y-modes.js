@@ -308,5 +308,10 @@
     if (root.hasAttribute(ATTR.dark)) startEmojiWatch();
   });
 
-  window.HubA11y = { set: set, toggle: toggle, state: state };
+  /* refresh() = (re)scan the page for [data-a11y-toggles] mounts and fill any
+     empty one with the mode pills. Lets other modules (e.g. hub-nav, which
+     injects its menu after this script runs) request the toggles on demand,
+     instead of depending on script/DOMContentLoaded ordering. Idempotent —
+     buildToggles skips mounts that already hold pills. */
+  window.HubA11y = { set: set, toggle: toggle, state: state, refresh: buildToggles };
 })();

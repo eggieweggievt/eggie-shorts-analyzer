@@ -121,6 +121,11 @@
     '.hubnav-qsave:disabled{opacity:.6;cursor:default}',
     '.hubnav-qmsg{font-size:11.5px;font-weight:700;color:#6b5f8a}',
 
+    /* ♿ accessibility modes, reachable from the menu on every page (the mode
+       pills used to live only on the home page's top-utility row) */
+    '.hubnav-a11y{display:flex;flex-wrap:wrap;gap:6px;padding:4px 6px 8px}',
+    '.hubnav-a11y .a11y-toggle{font-size:12px;padding:7px 12px}',
+
     '@media print{.hubnav,.back-row[data-hubnav]{display:none!important}}',
     'body.public-mode .hubnav{display:none!important}',
     '@media (prefers-reduced-motion:reduce){',
@@ -195,6 +200,15 @@
       html += '<div class="hubnav-cat"><span class="he" aria-hidden="true">' + cat.emoji + '</span>' + esc(cat.name) + '</div>';
       cat.items.forEach(function (it) { html += rowHTML(it, here, ''); });
     });
+    /* ♿ accessibility modes — only when a11y-modes.js is on the page. The
+       empty mount is filled by HubA11y.refresh() once the panel is in the DOM
+       (below), so dark / dyslexia / tint / low-stim / focus are reachable from
+       the menu on every page, not just the home screen. */
+    if (window.HubA11y) {
+      html += '<div class="hubnav-sep"></div>';
+      html += '<div class="hubnav-cat"><span class="he" aria-hidden="true">♿</span>Accessibility</div>';
+      html += '<div class="hubnav-a11y" data-a11y-toggles></div>';
+    }
     panel.innerHTML = html;
 
     wrap.appendChild(burger);
@@ -210,6 +224,10 @@
       wrap.classList.add('hubnav--lead');   /* push to the left edge of the row (e.g. home page) */
       host.insertBefore(wrap, host.firstChild);
     }
+
+    /* fill the ♿ section now that the panel (and its [data-a11y-toggles] mount)
+       is in the document. Idempotent + safe if a11y-modes.js isn't present. */
+    if (window.HubA11y && window.HubA11y.refresh) window.HubA11y.refresh();
 
     /* flip the panel to the right edge if it would overflow the viewport */
     function place() {

@@ -519,8 +519,48 @@
     ui: EggieUI
   };
 
-  /* ---- 8. page-ready glue (auto-crumb + mic buttons + reveal) ---- */
+  /* ---- 8b. accessibility scaffold (skip link + main landmark) ----
+     Adds, on every page, a "Skip to content" link as the first focusable
+     element (WCAG 2.4.1 Bypass Blocks) and a programmatic main landmark
+     (WCAG 1.3.1) when the page hasn't declared one. Idempotent + additive:
+     it reuses an existing <main>/[role=main] if present, otherwise marks the
+     page's first `.wrap` (the hub's main-column convention). If neither
+     exists (e.g. the bare OBS overlay) it no-ops. */
+  function injectA11yScaffold() {
+    if (!document.body || document.getElementById('ui-skip-link')) return;
+    /* main landmark: reuse an existing one, else mark the first `.wrap`
+       (the hub's main column). nav lives inside `.wrap`, which is allowed. */
+    var main = document.querySelector('main, [role="main"]');
+    if (!main) {
+      main = document.querySelector('.wrap');
+      if (main && !main.getAttribute('role')) main.setAttribute('role', 'main');
+    }
+    /* skip TARGET: the page's first heading lands focus at the real content
+       start (past the nav, which sits inside `.wrap`); fall back to the
+       landmark, then to `.wrap`. */
+    var target = (main && main.querySelector('h1')) || document.querySelector('h1') || main || document.querySelector('.wrap');
+    if (!target) return;               // nothing meaningful to skip to (e.g. bare overlay)
+    if (!target.id) target.id = 'main-content';
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    var skip = document.createElement('a');
+    skip.id = 'ui-skip-link';
+    skip.className = 'ui-skip';
+    skip.href = '#' + target.id;
+    skip.textContent = 'Skip to content';
+    /* move focus too — :target alone doesn't, and the tabindex=-1 means the
+       target takes focus without showing a persistent ring afterwards. */
+    skip.addEventListener('click', function (e) {
+      e.preventDefault();
+      try { history.replaceState(null, '', '#' + target.id); } catch (err) {}
+      target.focus();
+      if (target.scrollIntoView) target.scrollIntoView();
+    });
+    document.body.insertBefore(skip, document.body.firstChild);
+  }
+
+  /* ---- 8. page-ready glue (skip link + auto-crumb + mic buttons + reveal) ---- */
   function onPageReady() {
+    injectA11yScaffold();
     autoCrumb();
     micAutoAttach();
     uiReveal(document);

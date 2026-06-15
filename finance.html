@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
-<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=7"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=6"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -161,7 +161,7 @@
   .modal-bg.show{display:flex}
   .modal{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);max-width:560px;width:100%;padding:22px 24px}
   .modal h2{margin:0 0 6px}
-  .modal .x{float:right;cursor:pointer;font-size:20px;color:var(--ink-soft);font-weight:800;border:none;background:none}
+  .modal .x{float:right;cursor:pointer;font-size:20px;color:var(--ink-soft);font-weight:800;border:none;background:none;display:inline-flex;align-items:center;justify-content:center;min-width:24px;min-height:24px;line-height:1}
   .chk{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--deep);font-size:13.5px;margin-top:10px}
   .chk input{width:auto}
   .cat-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed rgba(144,165,255,0.22)}
@@ -175,7 +175,7 @@
 </head>
 <body>
 
-<div class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</div>
+<div class="auth-pill" id="authPill" role="button" tabindex="0" onclick="openAuthModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAuthModal();}">🔓 Sign in</div>
 
 <div class="wrap">
   <div class="back-row">
@@ -1025,7 +1025,7 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 
 initAuth();
 </script>
-<script src="hub-nav.js?v=9"></script>
+<script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

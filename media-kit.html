@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
-<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=7"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=6"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -394,15 +394,17 @@
   .cta-card{
     background:linear-gradient(135deg,rgba(255,178,240,0.55),rgba(144,165,255,0.5),rgba(107,228,234,0.45));
     border-radius:var(--radius);padding:28px 28px;margin:18px 0;
-    text-align:center;color:#fff;
+    /* dark ink, not white: white on this pastel gradient is ~1.4:1 (fails WCAG AA).
+       Deep brand ink clears AA and keeps the soft look — same call as hub-ui.css pass-3. */
+    text-align:center;color:#3a2a5a;
     box-shadow:0 12px 32px rgba(144,165,255,0.3);
   }
   .cta-card h2{
     font-family:'Pacifico',cursive;font-weight:400;font-size:30px;
-    color:#fff;text-shadow:0 2px 8px rgba(99,170,244,0.4);
+    color:#4D5BC0;text-shadow:none;
     margin:0 0 8px;padding:6px 0 12px;
   }
-  .cta-card p{color:rgba(255,255,255,0.95);font-weight:600;margin:0 0 14px}
+  .cta-card p{color:#3a2a5a;font-weight:600;margin:0 0 14px}
   .cta-card .btn{background:#fff;color:var(--deep);box-shadow:0 6px 18px rgba(0,0,0,0.15)}
 
   /* Empty / placeholder */
@@ -3074,7 +3076,7 @@ function exitImpersonation(){
 // ============================================================
 initAuth();
 </script>
-<script src="hub-nav.js?v=9"></script>
+<script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

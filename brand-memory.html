@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
-<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=7"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=6"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -851,11 +851,17 @@ function wireEvents(){
     } else if(t.matches('[data-rm-chip]')){
       removeChip(t.getAttribute('data-rm-chip'), parseInt(t.getAttribute('data-i'), 10));
     } else if(t.matches('[data-del-series]')){
-      state.series = state.series.filter(s => s.id !== t.getAttribute('data-del-series')); renderSeries(); updatePreview(); persist();
+      if(confirm('Delete this series? This cannot be undone.')){
+        state.series = state.series.filter(s => s.id !== t.getAttribute('data-del-series')); renderSeries(); updatePreview(); persist();
+      }
     } else if(t.matches('[data-del-link]')){
-      state.links = state.links.filter(l => l.id !== t.getAttribute('data-del-link')); renderLinks(); updatePreview(); persist();
+      if(confirm('Delete this link?')){
+        state.links = state.links.filter(l => l.id !== t.getAttribute('data-del-link')); renderLinks(); updatePreview(); persist();
+      }
     } else if(t.matches('[data-del-fact]')){
-      state.facts = state.facts.filter(f => f.id !== t.getAttribute('data-del-fact')); renderFacts(); updatePreview(); persist();
+      if(confirm('Delete this fact? This cannot be undone.')){
+        state.facts = state.facts.filter(f => f.id !== t.getAttribute('data-del-fact')); renderFacts(); updatePreview(); persist();
+      }
     }
   });
 
@@ -1016,7 +1022,7 @@ render();
 initAuth();
 </script>
 
-<script src="hub-nav.js?v=9"></script>
+<script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

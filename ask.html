@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <script src="demo-mode.js"></script><!-- demo sandbox: inert on the live site, activates only with ?demo=1 -->
-<script src="a11y-modes.js?v=6"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
-<script src="hub-core.js?v=5"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
+<script src="a11y-modes.js?v=7"></script><!-- 🌙 dark + 📖 dyslexia + 🟡 tint + 🧘 low-stim + 🎯 focus modes (saved per browser) -->
+<script src="hub-core.js?v=6"></script><!-- shared helpers + PWA + crumbs/mic/spoons -->
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#ffd9f3" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -141,7 +141,7 @@
 </head>
 <body>
 
-<div class="auth-pill" id="authPill" onclick="openAuthModal()">🔓 Sign in</div>
+<div class="auth-pill" id="authPill" role="button" tabindex="0" onclick="openAuthModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAuthModal();}">🔓 Sign in</div>
 
 <div class="wrap">
   <div class="back-row">
@@ -169,7 +169,7 @@
     <h2>Sign in to ask ✨</h2>
     <p class="muted">Ask reads your own planner securely — passwordless magic-link sign-in.</p>
     <div class="ask-row" style="margin-top:10px">
-      <input type="text" id="emailInput" placeholder="you@example.com" style="flex:1;min-width:200px" />
+      <input type="text" id="emailInput" placeholder="you@example.com" aria-label="Email address" autocomplete="email" style="flex:1;min-width:200px" />
       <button class="btn" id="authSend" onclick="sendMagicLink()">📬 Send magic link</button>
     </div>
     <div class="status-banner" id="authStatus"></div>
@@ -186,7 +186,7 @@
       </div>
 
       <div class="ask-row">
-        <input type="text" id="q" placeholder="what should I film this week?" onkeydown="if(event.key==='Enter')doAsk()" />
+        <input type="text" id="q" placeholder="what should I film this week?" aria-label="Ask your planner a question" onkeydown="if(event.key==='Enter')doAsk()" />
         <button class="btn" id="askBtn" onclick="doAsk()">🐙 Ask</button>
       </div>
       <div class="chips" id="chips">
@@ -202,6 +202,19 @@
         <span class="chip" onclick="quick(this)">what's unassigned?</span>
         <span class="chip" onclick="quick(this)">give me an overview</span>
       </div>
+      <script>
+        /* make the suggested-prompt chips keyboard-operable — they're <span onclick>,
+           so without this they can't be reached or fired from the keyboard (WCAG 2.1.1) */
+        (function(){
+          Array.prototype.forEach.call(document.querySelectorAll('#chips .chip'), function(c){
+            c.setAttribute('role','button');
+            if(!c.hasAttribute('tabindex')) c.tabIndex = 0;
+            c.addEventListener('keydown', function(e){
+              if(e.key==='Enter'||e.key===' '){ e.preventDefault(); quick(c); }
+            });
+          });
+        })();
+      </script>
       <div class="status-banner" id="askStatus"></div>
     </div>
 
@@ -234,7 +247,7 @@
 <!-- Auth modal -->
 <div class="card hidden" id="authModal" style="position:fixed;inset:auto 0 0 0;max-width:420px;margin:0 auto;bottom:20px;z-index:90">
   <h2>Sign in 🔑</h2>
-  <input type="text" id="modalEmail" placeholder="you@example.com" />
+  <input type="text" id="modalEmail" placeholder="you@example.com" aria-label="Email address" autocomplete="email" />
   <div style="display:flex;gap:8px;margin-top:10px">
     <button class="btn" onclick="modalSendMagicLink()">📬 Send link</button>
     <button class="btn ghost" onclick="closeAuthModal()">Close</button>
@@ -953,7 +966,7 @@ initAuth();
   else { ui(); wirePillars(); }
 })();
 </script>
-<script src="hub-nav.js?v=9"></script>
+<script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 </body>
 </html>

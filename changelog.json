@@ -6,6 +6,26 @@
   "entries": [
     {
       "date": "2026-06-14",
+      "emoji": "📺",
+      "title": "The Optimizer scores long-form videos and livestreams again — tuned to each format",
+      "items": [
+        { "type": "new", "text": "Pick 📱 Short, 🔴 Stream, or 📺 Long-form at the top of the Optimizer's Score tool and you get a scorecard built for that format, not just shorts. Long-form is judged on what actually moves long videos: a 40–70-character, keyword-front-loaded title, chapters that start at 0:00, your keyword above the description fold, and a length that matches the depth (average view duration is the real ranking signal). Streams are judged on Twitch's levers: a ≤140-char title that names the game and a hook, up to 10 specific tags, airtime, and a checklist for repurposing the VOD." },
+        { "type": "improved", "text": "Same VidIQ-style, fully on-device approach as the shorts scorer — title / description / tag / chapter best practices, no AI, nothing leaves your browser. Long uploads are scored from your title, description and tags (plus a quick look at the video frames); to keep your browser from choking, full audio transcription is skipped on anything over ~6 minutes." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "emoji": "♿",
+      "title": "A big accessibility + focus-friendly pass across the whole hub",
+      "items": [
+        { "type": "improved", "text": "The accessibility modes (🌙 dark, 📖 dyslexia-friendly, 🟡 soft tint, 🧘 low-stim, 🎯 focus) are now reachable from the ☰ menu on every page — they're at the bottom under Accessibility. Before, you could only switch them on from the home page, so deep-linking straight to a tool left them out of reach." },
+        { "type": "improved", "text": "Every page now has a 'Skip to content' link (press Tab right after a page loads) and a proper main landmark, so keyboard and screen-reader users can jump straight past the menu to the page itself." },
+        { "type": "fixed", "text": "Fixed some hard-to-read low-contrast text (the Media Kit call-to-action card and a couple of status badges), bumped a few tiny close/remove buttons up to a comfier tap size, and gave the suggested-question chips on Ask — plus the Sign-in pill on a few pages — full keyboard support." },
+        { "type": "fixed", "text": "Tidied page headings so each page has one clear title (better for screen readers and for scanning), and added a gentle 'are you sure?' to the Creator Memory delete buttons so a misclick can't wipe a typed-out note." }
+      ]
+    },
+    {
+      "date": "2026-06-14",
       "emoji": "🔭",
       "title": "New: Competitor Scout — see who's winning in your corner of VTubing",
       "items": [
