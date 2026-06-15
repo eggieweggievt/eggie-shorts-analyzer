@@ -2105,6 +2105,7 @@
       <button class="btn secondary" id="brandKitBtn" style="padding:8px 16px;font-size:13px">🎨 Brand kit</button>
       <button class="btn secondary" id="templatesBtn" style="padding:8px 16px;font-size:13px" title="Edit your default editor dump for Shorts and Long-form">📝 Templates</button>
       <button class="btn secondary" id="streamScheduleBtn" style="padding:8px 16px;font-size:13px" title="Recurring weekly stream schedule (Sun-Sat)">🎙️ Stream schedule</button>
+      <button class="btn secondary" id="pillarsBtn" style="padding:8px 16px;font-size:13px" title="Group your ideas into themes by meaning — on your device">🧩 Pillars</button>
       <div class="view-toggle" role="tablist" aria-label="View mode">
         <button data-view="kanban" class="active" type="button">📋 Kanban</button>
         <button data-view="list" type="button">📑 List</button>
@@ -2123,6 +2124,20 @@
         <button class="ff-pill priority" data-form="priority" title="Starred / important items only">⭐ Important</button>
       </div>
       <div class="grow"><input type="search" id="searchInput" placeholder="🔍 Search items by title, platform, editor…" /></div>
+    </div>
+
+    <!-- 🧩 Content pillars — groups your ideas into themes by meaning (on-device). Toggled by #pillarsBtn. -->
+    <div id="pillarsPanel" class="hidden" style="margin:0 0 14px;padding:16px 18px;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.28);border-radius:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+        <h3 style="margin:0;font-size:16px;color:var(--deep)">🧩 Your content pillars</h3>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="pillarsRun" class="btn secondary" style="padding:6px 12px;font-size:12px" title="Re-group with your latest ideas">↻ Re-group</button>
+          <button type="button" id="pillarsClose" class="btn secondary" style="padding:6px 12px;font-size:12px">Close</button>
+        </div>
+      </div>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink-soft);line-height:1.5">Groups your planner ideas into themes by meaning (not just matching words), right on your device. The first run downloads a ~25&nbsp;MB model once, then it's instant — nothing leaves your browser.</p>
+      <style>#pillarsPanel .muted{color:var(--ink-soft);font-size:13px;line-height:1.5;margin:0}</style>
+      <div id="pillarsBody"></div>
     </div>
 
     <!-- Kanban board -->
@@ -8213,5 +8228,111 @@ if(document.readyState === 'loading'){
 <script src="focus-widget.js" defer></script>
 <script src="hub-nav.js?v=10"></script>
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
+<script>
+/* ============================================================
+   🧩 CONTENT PILLARS — cluster the planner's ideas BY MEANING, on-device.
+   Moved here from Ask My Planner (the ideas live in the planner, so this is
+   where grouping them belongs). Lazy-loads a small sentence-embedding model
+   (MiniLM via transformers.js) the first time it's opened (~25 MB, cached
+   after). Reads the planner's `items` cache. Nothing leaves the browser.
+   ============================================================ */
+(function(){
+  'use strict';
+  var pipePromise = null;
+  var vecCache = new Map();   // `${id}:${updated_at}` -> Float32Array
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function loadPipe(){
+    if(pipePromise) return pipePromise;
+    pipePromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2')
+      .then(function(T){ T.env.allowLocalModels = false; return T.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { quantized: true }); })
+      .catch(function(e){ pipePromise = null; throw e; });
+    return pipePromise;
+  }
+  function itemText(it){ return ((it.title || '') + '. ' + (it.hook || '') + '. ' + (it.editor_notes || it.notes || '')).slice(0, 400); }
+  function cos(a, b){ var s = 0; for(var i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+  function unit(arr){ var out = new Float32Array(arr.length), mag = 0, i; for(i=0;i<arr.length;i++){ mag += arr[i]*arr[i]; } mag = Math.sqrt(mag) || 1; for(i=0;i<arr.length;i++){ out[i] = arr[i]/mag; } return out; }
+  function vecOf(it){ return vecCache.get(it.id + ':' + (it.updated_at || '')); }
+  async function embedAll(pipe, list){
+    var need = [], keys = [];
+    list.forEach(function(it){ var k = it.id + ':' + (it.updated_at || ''); if(!vecCache.has(k)){ need.push(itemText(it)); keys.push(k); } });
+    for(var i = 0; i < need.length; i += 16){
+      var chunk = need.slice(i, i + 16);
+      var out = await pipe(chunk, { pooling: 'mean', normalize: true });
+      var dims = out.dims[1];
+      for(var j = 0; j < chunk.length; j++){ vecCache.set(keys[i + j], out.data.slice(j * dims, (j + 1) * dims)); }
+    }
+  }
+  function clusterItems(list){
+    var THRESH = 0.42, clusters = [];
+    list.forEach(function(it){
+      var v = vecOf(it); if(!v) return;
+      var best = -1, bestSim = -1;
+      clusters.forEach(function(cl, idx){ var s = cos(v, cl.centroid); if(s > bestSim){ bestSim = s; best = idx; } });
+      if(best >= 0 && bestSim >= THRESH){ var cl = clusters[best]; cl.members.push(it); for(var i=0;i<v.length;i++){ cl.sum[i]+=v[i]; } cl.centroid = unit(cl.sum); }
+      else { var sum = Array.prototype.slice.call(v); clusters.push({ sum: sum, centroid: unit(sum), members: [it] }); }
+    });
+    return clusters;
+  }
+  var PILLAR_STOP = {the:1,a:1,an:1,and:1,or:1,of:1,to:1,in:1,on:1,for:1,my:1,me:1,i:1,is:1,it:1,this:1,that:1,with:1,how:1,why:1,what:1,your:1,you:1,we:1,our:1,vtuber:1,short:1,shorts:1,video:1,stream:1,ever:1,first:1};
+  function pillarLabel(cl){
+    var freq = {};
+    cl.members.forEach(function(it){ String(it.title || '').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).forEach(function(w){ if(w.length<3||PILLAR_STOP[w]) return; freq[w]=(freq[w]||0)+1; }); });
+    var top = Object.keys(freq).filter(function(w){ return freq[w] >= 2; }).sort(function(a,b){ return freq[b]-freq[a]; }).slice(0,2);
+    if(top.length) return top.map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' + ');
+    var anchor = cl.members[0], bestSim = -1;
+    cl.members.forEach(function(it){ var v = vecOf(it); var s = v ? cos(v, cl.centroid) : -1; if(s>bestSim){ bestSim=s; anchor=it; } });
+    return (anchor.title || 'Untitled theme');
+  }
+  function renderPillars(clusters, body){
+    var multi = clusters.filter(function(c){ return c.members.length >= 2; }).sort(function(a,b){ return b.members.length - a.members.length; });
+    var singles = clusters.filter(function(c){ return c.members.length === 1; });
+    if(!multi.length && !singles.length){ body.innerHTML = '<p class="muted">No ideas to group yet — add a few items first.</p>'; return; }
+    var html = '';
+    if(multi.length){
+      html += '<p style="margin:0 0 12px;color:var(--ink);line-height:1.55">Your ideas fall into <b>'+multi.length+'</b> theme'+(multi.length===1?'':'s')+'. The bigger ones are what you naturally make a lot of:</p>';
+      multi.forEach(function(cl){
+        var chips = cl.members.map(function(it){ return '<span style="display:inline-block;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.3);border-radius:11px;padding:5px 11px;font-size:12.5px;color:var(--ink);margin:0 6px 6px 0">'+esc(it.title||'Untitled')+'</span>'; }).join('');
+        html += '<div style="margin:0 0 14px;padding:13px 15px;background:rgba(144,165,255,0.08);border:1.5px solid rgba(144,165,255,0.28);border-radius:15px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800;color:var(--deep)">🧩 '+esc(pillarLabel(cl))+'</span><span style="font-size:11.5px;font-weight:700;color:var(--ink-soft);background:rgba(255,255,255,0.7);border-radius:999px;padding:2px 9px">'+cl.members.length+' ideas</span></div><div>'+chips+'</div></div>';
+      });
+    }
+    if(singles.length){
+      var sc = singles.map(function(cl){ return '<span style="display:inline-block;background:rgba(255,255,255,0.6);border:1.5px dashed rgba(144,165,255,0.4);border-radius:11px;padding:5px 11px;font-size:12.5px;color:var(--ink-soft);margin:0 6px 6px 0">'+esc(cl.members[0].title||'Untitled')+'</span>'; }).join('');
+      html += '<div style="margin-top:6px"><p style="margin:0 0 8px;font-size:12.5px;font-weight:800;color:var(--ink-soft)">🌱 One-offs — not part of a theme yet (each could become a series, or just stay one-and-done):</p><div>'+sc+'</div></div>';
+    }
+    html += '<p class="muted" style="margin-top:12px;font-size:11.5px">Grouped by meaning right on your device — none of your ideas left the browser. Themes are a mirror, not a mandate. 💗</p>';
+    body.innerHTML = html;
+  }
+  function currentItems(){ try { return (typeof items !== 'undefined' && Array.isArray(items)) ? items.slice() : []; } catch(e){ return []; } }
+  function runPillars(){
+    var body = document.getElementById('pillarsBody'); if(!body) return;
+    var list = currentItems().filter(function(it){ return it && (it.title || '').trim(); });
+    if(!list.length){ body.innerHTML = '<p class="muted">Add a few items to your planner first, then I can group them into themes.</p>'; return; }
+    var btn = document.getElementById('pillarsRun'); var orig = btn ? btn.innerHTML : '';
+    if(btn){ btn.disabled = true; btn.innerHTML = '🧩 Thinking…'; }
+    body.innerHTML = '<p class="muted">Reading your ideas by meaning — the first run downloads the ~25 MB model once, then it\'s instant. All on your device…</p>';
+    loadPipe().then(function(pipe){ return embedAll(pipe, list).then(function(){ renderPillars(clusterItems(list), body); }); })
+      .catch(function(e){ console.warn('[Planner] pillars failed', e); body.innerHTML = '<p class="muted">Couldn\'t load the model just now (offline?). Nothing left your device — try again in a moment.</p>'; })
+      .then(function(){ if(btn){ btn.disabled = false; btn.innerHTML = orig; } });
+  }
+  function wire(){
+    var open = document.getElementById('pillarsBtn');
+    var panel = document.getElementById('pillarsPanel');
+    var closeB = document.getElementById('pillarsClose');
+    var runB = document.getElementById('pillarsRun');
+    if(open && panel && !open._wired){
+      open._wired = true;
+      open.addEventListener('click', function(){
+        var show = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !show);
+        if(show){ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); if(!panel._ran){ panel._ran = true; runPillars(); } }
+      });
+    }
+    if(closeB && panel && !closeB._wired){ closeB._wired = true; closeB.addEventListener('click', function(){ panel.classList.add('hidden'); }); }
+    if(runB && !runB._wired){ runB._wired = true; runB.addEventListener('click', function(){ if(panel) panel._ran = true; runPillars(); }); }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire); else wire();
+})();
+</script>
 </body>
 </html>
