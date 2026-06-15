@@ -2105,7 +2105,7 @@
       <button class="btn secondary" id="brandKitBtn" style="padding:8px 16px;font-size:13px">🎨 Brand kit</button>
       <button class="btn secondary" id="templatesBtn" style="padding:8px 16px;font-size:13px" title="Edit your default editor dump for Shorts and Long-form">📝 Templates</button>
       <button class="btn secondary" id="streamScheduleBtn" style="padding:8px 16px;font-size:13px" title="Recurring weekly stream schedule (Sun-Sat)">🎙️ Stream schedule</button>
-      <button class="btn secondary" id="pillarsBtn" style="padding:8px 16px;font-size:13px" title="Group your ideas into themes by meaning — on your device">🧩 Pillars</button>
+      <button class="btn secondary" id="pillarsBtn" style="padding:8px 16px;font-size:13px" title="Your content mix — tag each item Retention / Growth / Experimental">🧩 Content mix</button>
       <div class="view-toggle" role="tablist" aria-label="View mode">
         <button data-view="kanban" class="active" type="button">📋 Kanban</button>
         <button data-view="list" type="button">📑 List</button>
@@ -2126,16 +2126,16 @@
       <div class="grow"><input type="search" id="searchInput" placeholder="🔍 Search items by title, platform, editor…" /></div>
     </div>
 
-    <!-- 🧩 Content pillars — groups your ideas into themes by meaning (on-device). Toggled by #pillarsBtn. -->
+    <!-- 🧩 Content mix — per-item Retention/Growth/Experimental tagging + visual. Toggled by #pillarsBtn. -->
     <div id="pillarsPanel" class="hidden" style="margin:0 0 14px;padding:16px 18px;background:rgba(255,255,255,0.72);border:1.5px solid rgba(144,165,255,0.28);border-radius:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-        <h3 style="margin:0;font-size:16px;color:var(--deep)">🧩 Your content pillars</h3>
+        <h3 style="margin:0;font-size:16px;color:var(--deep)">🧩 Your content mix</h3>
         <div style="display:flex;gap:8px">
-          <button type="button" id="pillarsRun" class="btn secondary" style="padding:6px 12px;font-size:12px" title="Re-sort your ideas into your defined pillars">↻ Re-sort</button>
+          <button type="button" id="pillarsRun" class="btn secondary" style="padding:6px 12px;font-size:12px" title="Refresh the mix">↻ Refresh</button>
           <button type="button" id="pillarsClose" class="btn secondary" style="padding:6px 12px;font-size:12px">Close</button>
         </div>
       </div>
-      <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink-soft);line-height:1.5">Sorts your ideas into the content pillars you defined in <b>Creator Memory</b> (by meaning, on your device) and shows your live mix vs the 60 / 30 / 10 target. Define or edit pillars in Creator Memory → Content pillars.</p>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink-soft);line-height:1.5">Tag each card on the board as <b>🎯 Retention</b>, <b>🌱 Growth</b>, or <b>🧪 Experimental</b> using the buttons on it — this shows your live mix against a healthy <b>60 / 30 / 10</b> target.</p>
       <style>#pillarsPanel .muted{color:var(--ink-soft);font-size:13px;line-height:1.5;margin:0}</style>
       <div id="pillarsBody"></div>
     </div>
@@ -6015,9 +6015,9 @@ function render(){
   if(priorityOnly){
     pool = pool.filter(i => !!i.is_priority);
   }
-  // 🧩 Content-pillar filter
+  // 🧩 Content-bucket filter (Retention / Growth / Experimental)
   if(pillarFilter){
-    pool = pillarFilter === '__none__' ? pool.filter(i => !i.pillar_id) : pool.filter(i => i.pillar_id === pillarFilter);
+    pool = pillarFilter === '__none__' ? pool.filter(i => !i.content_bucket) : pool.filter(i => i.content_bucket === pillarFilter);
   }
   // Apply search filter
   const q = searchQuery.toLowerCase().trim();
@@ -8235,187 +8235,128 @@ if(document.readyState === 'loading'){
 <script src="account-menu.js" defer></script><!-- signed-in account menu (name → profile + sign out) -->
 <script>
 /* ============================================================
-   🧩 CONTENT PILLARS — cluster the planner's ideas BY MEANING, on-device.
-   Moved here from Ask My Planner (the ideas live in the planner, so this is
-   where grouping them belongs). Lazy-loads a small sentence-embedding model
-   (MiniLM via transformers.js) the first time it's opened (~25 MB, cached
-   after). Reads the planner's `items` cache. Nothing leaves the browser.
+   🧩 CONTENT BUCKETS — you tag each piece of content as Retention / Growth /
+   Experimental (no title-guessing — YOU decide each one), and the panel shows
+   your live mix vs a healthy 60 / 30 / 10 target. Stored on
+   planner_items.content_bucket (run planner-2026-06-15-content-bucket.sql to
+   persist; until then tags hold for the session). The picker is added to each
+   card after render, so the complex card template is untouched.
    ============================================================ */
 (function(){
   'use strict';
-  var pipePromise = null;
-  var vecCache = new Map();   // `${id}:${updated_at}` -> Float32Array
+  var BUCKETS = [
+    { key:'retention',    label:'Retention',    icon:'🎯', target:60, color:'#90A5FF' },
+    { key:'growth',       label:'Growth',       icon:'🌱', target:30, color:'#6BE4EA' },
+    { key:'experimental', label:'Experimental', icon:'🧪', target:10, color:'#FFB2F0' }
+  ];
+  var warnedNoCol = false;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-  function loadPipe(){
-    if(pipePromise) return pipePromise;
-    pipePromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2')
-      .then(function(T){ T.env.allowLocalModels = false; return T.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { quantized: true }); })
-      .catch(function(e){ pipePromise = null; throw e; });
-    return pipePromise;
-  }
-  function itemText(it){ return ((it.title || '') + '. ' + (it.hook || '') + '. ' + (it.editor_notes || it.notes || '')).slice(0, 400); }
-  function cos(a, b){ var s = 0; for(var i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
-  function unit(arr){ var out = new Float32Array(arr.length), mag = 0, i; for(i=0;i<arr.length;i++){ mag += arr[i]*arr[i]; } mag = Math.sqrt(mag) || 1; for(i=0;i<arr.length;i++){ out[i] = arr[i]/mag; } return out; }
-  function vecOf(it){ return vecCache.get(it.id + ':' + (it.updated_at || '')); }
-  async function embedAll(pipe, list){
-    var need = [], keys = [];
-    list.forEach(function(it){ var k = it.id + ':' + (it.updated_at || ''); if(!vecCache.has(k)){ need.push(itemText(it)); keys.push(k); } });
-    for(var i = 0; i < need.length; i += 16){
-      var chunk = need.slice(i, i + 16);
-      var out = await pipe(chunk, { pooling: 'mean', normalize: true });
-      var dims = out.dims[1];
-      for(var j = 0; j < chunk.length; j++){ vecCache.set(keys[i + j], out.data.slice(j * dims, (j + 1) * dims)); }
-    }
-  }
-  function clusterItems(list){
-    var THRESH = 0.42, clusters = [];
-    list.forEach(function(it){
-      var v = vecOf(it); if(!v) return;
-      var best = -1, bestSim = -1;
-      clusters.forEach(function(cl, idx){ var s = cos(v, cl.centroid); if(s > bestSim){ bestSim = s; best = idx; } });
-      if(best >= 0 && bestSim >= THRESH){ var cl = clusters[best]; cl.members.push(it); for(var i=0;i<v.length;i++){ cl.sum[i]+=v[i]; } cl.centroid = unit(cl.sum); }
-      else { var sum = Array.prototype.slice.call(v); clusters.push({ sum: sum, centroid: unit(sum), members: [it] }); }
-    });
-    return clusters;
-  }
-  var PILLAR_STOP = {the:1,a:1,an:1,and:1,or:1,of:1,to:1,in:1,on:1,for:1,my:1,me:1,i:1,is:1,it:1,this:1,that:1,with:1,how:1,why:1,what:1,your:1,you:1,we:1,our:1,vtuber:1,short:1,shorts:1,video:1,stream:1,ever:1,first:1};
-  function pillarLabel(cl){
-    var freq = {};
-    cl.members.forEach(function(it){ String(it.title || '').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).forEach(function(w){ if(w.length<3||PILLAR_STOP[w]) return; freq[w]=(freq[w]||0)+1; }); });
-    var top = Object.keys(freq).filter(function(w){ return freq[w] >= 2; }).sort(function(a,b){ return freq[b]-freq[a]; }).slice(0,2);
-    if(top.length) return top.map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' + ');
-    var anchor = cl.members[0], bestSim = -1;
-    cl.members.forEach(function(it){ var v = vecOf(it); var s = v ? cos(v, cl.centroid) : -1; if(s>bestSim){ bestSim=s; anchor=it; } });
-    return (anchor.title || 'Untitled theme');
-  }
-  // ---- pillars are DEFINED in the brand brain (Creator Memory); here we just
-  //      consume them + classify each idea into the nearest one (no more inventing) ----
-  var defined = [];      // [{id,name,bucket}] from localStorage (exported by brand-memory)
-  var byId = {};
-  var pillarVecs = null; // embeddings aligned with `defined`
-  var classified = false;
-  var TARGETS = { retention:60, growth:30, experimental:10 };
-  var BUCKET_META = { retention:{label:'🎯 Retention',color:'#90A5FF'}, growth:{label:'🌱 Growth',color:'#6BE4EA'}, experimental:{label:'🧪 Experimental',color:'#FFB2F0'} };
-
   function curItems(){ try { return (typeof items !== 'undefined' && Array.isArray(items)) ? items : []; } catch(e){ return []; } }
-  function pillarFilterVal(){ try { return (typeof pillarFilter !== 'undefined') ? pillarFilter : ''; } catch(e){ return ''; } }
+  function getSb(){ try { return (typeof sb !== 'undefined') ? sb : null; } catch(e){ return null; } }
+  function ownerId(){ try { return (typeof currentOwnerId !== 'undefined') ? currentOwnerId : null; } catch(e){ return null; } }
+  function filterVal(){ try { return (typeof pillarFilter !== 'undefined') ? pillarFilter : ''; } catch(e){ return ''; } }
   function msg(t){ return '<p style="margin:0;color:var(--ink-soft);font-size:13px;line-height:1.5">'+esc(t)+'</p>'; }
-  function bColor(b){ return (BUCKET_META[b] || {}).color || '#90A5FF'; }
+  function itemById(id){ return curItems().filter(function(x){ return String(x.id) === String(id); })[0]; }
 
-  function loadDefined(){
-    try {
-      var raw = localStorage.getItem('eggie-content-pillars');
-      var data = raw ? JSON.parse(raw) : null;
-      defined = (data && Array.isArray(data.pillars)) ? data.pillars.filter(function(p){ return p && p.name; }) : [];
-    } catch(e){ defined = []; }
-    byId = {}; defined.forEach(function(p){ byId[p.id] = p; });
-    pillarVecs = null;
-    return defined;
+  function counts(){
+    var bc = { retention:0, growth:0, experimental:0 }, total = 0, untagged = 0;
+    curItems().forEach(function(it){ if(!(it && (it.title||'').trim())) return; var b = it.content_bucket; if(b && bc[b] != null){ bc[b]++; total++; } else untagged++; });
+    return { bc:bc, total:total, untagged:untagged };
   }
+  function exportMix(){ try { var c = counts(); localStorage.setItem('eggie-content-buckets', JSON.stringify({ counts:c.bc, total:c.total })); } catch(e){} }
 
-  async function classify(){
-    loadDefined();
-    if(!defined.length) return false;
-    var pipe = await loadPipe();
-    if(!pillarVecs){
-      var out = await pipe(defined.map(function(p){ return p.name; }), { pooling:'mean', normalize:true });
-      var d = out.dims[1];
-      pillarVecs = defined.map(function(_, i){ return out.data.slice(i*d, (i+1)*d); });
+  function noteNoColumn(){
+    if(warnedNoCol) return; warnedNoCol = true;
+    var b = document.getElementById('pillarsBody'); if(!b) return;
+    var n = document.createElement('p');
+    n.style.cssText = 'margin:8px 0 0;font-size:12px;color:#7a4b00;background:rgba(255,201,122,0.18);border:1px solid rgba(255,201,122,0.5);border-radius:10px;padding:8px 11px;line-height:1.45';
+    n.textContent = 'Tags are set for this session. To save them across reloads + devices, run planner-2026-06-15-content-bucket.sql in Supabase.';
+    b.appendChild(n);
+  }
+  function setBucket(id, bucket){
+    var it = itemById(id); if(!it) return;
+    var next = (it.content_bucket === bucket) ? null : bucket;   // click the active one to clear
+    it.content_bucket = next;
+    decorate(); renderPanel(document.getElementById('pillarsBody')); exportMix();
+    var s = getSb(), o = ownerId();
+    if(s && o){
+      try {
+        s.from('planner_items').update({ content_bucket: next }).eq('id', id).eq('owner_id', o)
+          .then(function(r){ if(r && r.error){ console.warn('[bucket] save failed', r.error); if(/column|content_bucket|exist|schema/i.test(String(r.error.message))) noteNoColumn(); } });
+      } catch(e){ console.warn(e); }
     }
-    var list = curItems().filter(function(it){ return it && (it.title||'').trim(); });
-    await embedAll(pipe, list);
-    var THRESH = 0.30; // below this, leave unassigned rather than force a bad fit
-    list.forEach(function(it){
-      var v = vecOf(it); if(!v) return;
-      var best = -1, bestSim = THRESH;
-      pillarVecs.forEach(function(pv, i){ var s = cos(v, pv); if(s > bestSim){ bestSim = s; best = i; } });
-      it.pillar_id = best >= 0 ? defined[best].id : null;
-    });
-    classified = true;
-    return true;
   }
 
+  // ---- per-card picker (added after every render; no card-template surgery) ----
   function decorate(){
     try {
       var cards = document.querySelectorAll('#kanbanView .item-card[data-id]');
       Array.prototype.forEach.call(cards, function(card){
-        var old = card.querySelector('.pillar-chip'); if(old) old.parentNode.removeChild(old);
-        var id = card.getAttribute('data-id');
-        var it = curItems().filter(function(x){ return String(x.id) === id; })[0];
-        var p = it && it.pillar_id ? byId[it.pillar_id] : null;
-        if(p){
-          var c = bColor(p.bucket);
-          var chip = document.createElement('span');
-          chip.className = 'pillar-chip';
-          chip.textContent = '🧩 ' + p.name;
-          chip.style.cssText = 'display:inline-block;margin-top:6px;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px;color:#2d284b;background:'+c+'33;border:1px solid '+c+'66';
-          card.appendChild(chip);
-        }
+        var old = card.querySelector('.bucket-pick'); if(old) old.parentNode.removeChild(old);
+        var it = itemById(card.getAttribute('data-id')); if(!it) return;
+        var cur = it.content_bucket || '';
+        var wrap = document.createElement('div');
+        wrap.className = 'bucket-pick';
+        wrap.style.cssText = 'display:flex;gap:4px;margin-top:7px';
+        wrap.innerHTML = BUCKETS.map(function(b){
+          var on = cur === b.key;
+          return '<button type="button" data-bk="'+b.key+'" title="'+b.label+'" aria-pressed="'+(on?'true':'false')+'" style="flex:1;cursor:pointer;font:inherit;font-size:11px;font-weight:800;line-height:1;border-radius:8px;padding:4px 4px;border:1.5px solid '+(on?b.color:'rgba(144,165,255,0.32)')+';background:'+(on?(b.color+'2e'):'rgba(255,255,255,0.6)')+';color:'+(on?'#2d284b':'var(--ink-soft)')+'">'+b.icon+'<span style="margin-left:3px">'+(on?b.label:b.label.charAt(0))+'</span></button>';
+        }).join('');
+        card.appendChild(wrap);
       });
     } catch(e){}
   }
-  function wrapRender(){ try { if(typeof render === 'function' && !render.__pillarsWrapped){ var orig = render; render = function(){ var r = orig.apply(this, arguments); decorate(); return r; }; render.__pillarsWrapped = true; } } catch(e){} }
+  function wrapRender(){ try { if(typeof render === 'function' && !render.__bucketsWrapped){ var orig = render; render = function(){ var r = orig.apply(this, arguments); decorate(); return r; }; render.__bucketsWrapped = true; } } catch(e){} }
 
-  function bucketMix(){
-    var bc = { retention:0, growth:0, experimental:0 }, assigned = 0, unassigned = 0;
-    curItems().forEach(function(it){ if(!(it && (it.title||'').trim())) return; var p = it.pillar_id ? byId[it.pillar_id] : null; if(p && bc[p.bucket] != null){ bc[p.bucket]++; assigned++; } else unassigned++; });
-    return { bc:bc, assigned:assigned, unassigned:unassigned };
-  }
-  function filterPill(val, label, active, color){ return '<button class="pl-filter" data-fval="'+esc(String(val))+'" style="border:1.5px solid '+(active?(color||'#90A5FF'):'rgba(144,165,255,0.4)')+';background:'+(active?((color||'#90A5FF')+'22'):'#fff')+';border-radius:999px;font:inherit;font-size:11.5px;font-weight:800;color:var(--deep);padding:5px 11px;cursor:pointer">'+label+'</button>'; }
-  function setPillarFilter(val){ try { pillarFilter = val; } catch(e){} if(typeof render === 'function') render(); var b = document.getElementById('pillarsBody'); if(b && b.querySelector('.pl-filter')) renderPanel(b); }
+  function filterPill(val, label, active, color){ return '<button class="bk-filter" data-fval="'+esc(String(val))+'" style="border:1.5px solid '+(active?(color||'#90A5FF'):'rgba(144,165,255,0.4)')+';background:'+(active?((color||'#90A5FF')+'22'):'#fff')+';border-radius:999px;font:inherit;font-size:11.5px;font-weight:800;color:var(--deep);padding:5px 11px;cursor:pointer">'+label+'</button>'; }
+  function setFilter(val){ try { pillarFilter = val; } catch(e){} if(typeof render === 'function') render(); renderPanel(document.getElementById('pillarsBody')); }
 
   function renderPanel(body){
-    if(!defined.length){ body.innerHTML = msg('No pillars defined yet. Open Creator Memory → Content pillars to set up your content types (Retention / Growth / Experimental), then come back and hit Re-sort.'); return; }
-    var m = bucketMix();
-    var html = '<div style="margin:0 0 9px;font-size:13px;color:var(--ink);line-height:1.6">Your live content mix vs your <b>60 / 30 / 10</b> target:</div>';
-    var bar = ['retention','growth','experimental'].map(function(k){ var pct = m.assigned ? Math.round(m.bc[k]/m.assigned*100) : 0; return pct ? '<div style="width:'+pct+'%;background:'+BUCKET_META[k].color+'"></div>' : ''; }).join('');
-    html += '<div style="display:flex;height:12px;border-radius:999px;overflow:hidden;border:1px solid rgba(144,165,255,0.3);margin:0 0 9px">'+bar+'</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:12px">';
-    ['retention','growth','experimental'].forEach(function(k){ var pct = m.assigned ? Math.round(m.bc[k]/m.assigned*100) : 0; var diff = pct - TARGETS[k]; var on = Math.abs(diff) <= 10; html += '<span style="font-size:11.5px;font-weight:700;color:'+(on?'#1d7d72':'#a35c00')+'">'+BUCKET_META[k].label+' '+pct+'% <span style="font-weight:600;color:var(--ink-soft)">(aim '+TARGETS[k]+'%)</span></span>'; });
+    if(!body) return;
+    var c = counts();
+    if(!c.total && !c.untagged){ body.innerHTML = msg('No content yet — add some items, then tag each one Retention / Growth / Experimental with the buttons on its card.'); return; }
+    var html = '<div style="margin:0 0 10px;font-size:13px;color:var(--ink);line-height:1.6">Your content mix vs a healthy <b>60 / 30 / 10</b>. Tag each card with the 🎯 / 🌱 / 🧪 buttons on it.</div>';
+    var bar = BUCKETS.map(function(b){ var pct = c.total ? Math.round(c.bc[b.key]/c.total*100) : 0; return pct ? '<div style="width:'+pct+'%;background:'+b.color+'" title="'+b.label+' '+pct+'%"></div>' : ''; }).join('');
+    html += '<div style="display:flex;height:16px;border-radius:999px;overflow:hidden;border:1px solid rgba(144,165,255,0.3);margin:0 0 14px">'+(c.total?bar:'<div style="width:100%;background:rgba(144,165,255,0.12)"></div>')+'</div>';
+    BUCKETS.forEach(function(b){
+      var n = c.bc[b.key], pct = c.total ? Math.round(n/c.total*100) : 0, diff = pct - b.target, on = c.total && Math.abs(diff) <= 8;
+      html += '<div style="display:flex;align-items:center;gap:11px;margin:0 0 10px">'
+        + '<span style="flex:0 0 120px;font-size:13px;font-weight:800;color:var(--deep)">'+b.icon+' '+b.label+'</span>'
+        + '<div style="flex:1;height:9px;border-radius:999px;background:rgba(144,165,255,0.14);overflow:hidden;position:relative">'
+          + '<div style="height:100%;width:'+pct+'%;background:'+b.color+'"></div>'
+          + '<div title="target '+b.target+'%" style="position:absolute;top:-3px;bottom:-3px;left:'+b.target+'%;width:2px;background:rgba(45,40,75,0.55)"></div>'
+        + '</div>'
+        + '<span style="flex:0 0 150px;text-align:right;font-size:11.5px;font-weight:700;color:'+(on||!c.total?'#1d7d72':'#a35c00')+'">'+n+' · '+pct+'% <span style="font-weight:600;color:var(--ink-soft)">(aim '+b.target+'%)</span></span>'
+        + '</div>';
+    });
+    if(c.untagged) html += '<p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft)">'+c.untagged+' item'+(c.untagged===1?'':'s')+' not tagged yet — use the buttons on each card.</p>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0">';
+    html += filterPill('', 'All', filterVal()==='');
+    BUCKETS.forEach(function(b){ html += filterPill(b.key, b.icon+' '+b.label+' ('+c.bc[b.key]+')', filterVal()===b.key, b.color); });
+    if(c.untagged) html += filterPill('__none__', 'Untagged ('+c.untagged+')', filterVal()==='__none__');
     html += '</div>';
-    if(m.unassigned) html += '<p style="margin:0 0 12px;font-size:12px;color:var(--ink-soft)">'+m.unassigned+' idea'+(m.unassigned===1?'':'s')+' didn’t fit a pillar closely — add a matching content type in Creator Memory, or leave them as one-offs.</p>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px">';
-    html += filterPill('', 'All', pillarFilterVal()==='');
-    defined.forEach(function(p){ var n = curItems().filter(function(it){ return it.pillar_id === p.id; }).length; html += filterPill(p.id, esc(p.name)+' ('+n+')', pillarFilterVal()===p.id, bColor(p.bucket)); });
-    if(m.unassigned) html += filterPill('__none__', 'Unassigned ('+m.unassigned+')', pillarFilterVal()==='__none__');
-    html += '</div>';
-    html += '<p style="margin-top:6px;font-size:11px;color:var(--ink-soft);line-height:1.5">Sorted on your device against the pillars you defined in Creator Memory. Edit your pillars there, then hit Re-sort. 💗</p>';
+    html += '<p style="margin:10px 0 0;font-size:11px;color:var(--ink-soft);line-height:1.5"><b>Retention</b> = what your audience expects · <b>Growth</b> = evergreen / trending content that brings new viewers · <b>Experimental</b> = anything you want to try.</p>';
     body.innerHTML = html;
   }
 
-  function setRunning(on, body){
-    var btn = document.getElementById('pillarsRun');
-    if(btn){ btn.disabled = on; if(on){ btn.dataset._o = btn.innerHTML; btn.innerHTML = '🧩 Sorting…'; } else if(btn.dataset._o){ btn.innerHTML = btn.dataset._o; } }
-    if(on && body) body.innerHTML = msg('Reading your ideas by meaning and sorting them into your pillars — the first run downloads the ~25 MB model once, then it’s instant. All on your device…');
+  function onBoardClick(e){
+    var btn = e.target.closest && e.target.closest('.bucket-pick [data-bk]');
+    if(!btn) return;
+    var card = btn.closest('.item-card[data-id]'); if(!card) return;
+    e.stopPropagation();   // don't open the item modal when tagging
+    setBucket(card.getAttribute('data-id'), btn.getAttribute('data-bk'));
   }
-  async function sortIdeas(body){
-    loadDefined();
-    if(!defined.length){ body.innerHTML = msg('No pillars defined yet. Open Creator Memory → Content pillars, set up your content types (Retention / Growth / Experimental), then come back and Re-sort.'); return; }
-    var list = curItems().filter(function(it){ return it && (it.title||'').trim(); });
-    if(!list.length){ body.innerHTML = msg('Add a few items to your planner first, then I can sort them into your pillars.'); return; }
-    setRunning(true, body);
-    try { await classify(); if(typeof render === 'function') render(); else decorate(); renderPanel(body); }
-    catch(e){ console.warn('[Planner] pillar sort failed', e); body.innerHTML = msg('Couldn’t load the model just now (offline?). Nothing left your device — try again in a moment.'); }
-    finally { setRunning(false); }
-  }
-
-  function onPanelClick(e){ var fp = e.target.closest && e.target.closest('.pl-filter'); if(fp) setPillarFilter(fp.getAttribute('data-fval')); }
+  function onPanelClick(e){ var fp = e.target.closest && e.target.closest('.bk-filter'); if(fp) setFilter(fp.getAttribute('data-fval')); }
   function wire(){
     var open = document.getElementById('pillarsBtn'), panel = document.getElementById('pillarsPanel'), closeB = document.getElementById('pillarsClose'), runB = document.getElementById('pillarsRun'), body = document.getElementById('pillarsBody');
-    if(open && panel && !open._wired){
-      open._wired = true;
-      open.addEventListener('click', function(){
-        var show = panel.classList.contains('hidden');
-        panel.classList.toggle('hidden', !show);
-        if(show){ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); loadDefined(); if(!panel._ran){ panel._ran = true; if(classified) renderPanel(body); else sortIdeas(body); } }
-      });
-    }
+    if(open && panel && !open._wired){ open._wired = true; open.addEventListener('click', function(){ var show = panel.classList.contains('hidden'); panel.classList.toggle('hidden', !show); if(show){ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); renderPanel(body); } }); }
     if(closeB && panel && !closeB._wired){ closeB._wired = true; closeB.addEventListener('click', function(){ panel.classList.add('hidden'); }); }
-    if(runB && !runB._wired){ runB._wired = true; runB.addEventListener('click', function(){ if(panel) panel._ran = true; sortIdeas(body); }); }
+    if(runB && !runB._wired){ runB._wired = true; runB.addEventListener('click', function(){ decorate(); renderPanel(body); }); }
     if(body && !body._wired){ body._wired = true; body.addEventListener('click', onPanelClick); }
+    var kb = document.getElementById('kanbanView'); if(kb && !kb._bucketWired){ kb._bucketWired = true; kb.addEventListener('click', onBoardClick, true); }
   }
-  function boot(){ wrapRender(); wire(); loadDefined(); }
+  function boot(){ wrapRender(); wire(); decorate(); exportMix(); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>

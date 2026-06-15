@@ -10,7 +10,7 @@
       "title": "Content pillars, reworked — define your content types and balance them to a healthy mix",
       "items": [
         { "type": "improved", "text": "Pillars are no longer random groupings of your titles. They're the TYPES of content you make, and you define them in Creator Memory → Content pillars, sorted into three buckets: 🎯 Retention (what your audience expects — aim ~60%), 🌱 Growth (evergreen or trending content that pulls in new viewers — ~30%), and 🧪 Experimental (anything you want to try — ~10%). Add your own or draw from common content categories." },
-        { "type": "new", "text": "In the planner, hit 🧩 Pillars → Re-sort and your ideas get matched by meaning (on your device) to the pillars YOU defined — each card gets tagged, you can filter the board by pillar, and you see your live mix against the 60 / 30 / 10 target so gaps are obvious. The Optimizer reads your pillars too, for sharper niche detection. Everything stays in your browser." }
+        { "type": "new", "text": "In the planner, every card now has 🎯 / 🌱 / 🧪 buttons — tap one to tag that piece of content as Retention, Growth, or Experimental. You decide each one; nothing is guessed from titles. The new 🧩 Content mix panel shows your live balance against the 60 / 30 / 10 target, with each bucket's progress and a target marker, so it's obvious when you're over- or under-investing. Run planner-2026-06-15-content-bucket.sql in Supabase to save the tags across reloads + devices." }
       ]
     },
     {
