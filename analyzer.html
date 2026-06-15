@@ -1208,6 +1208,11 @@
     html:not([data-tool="none"]) #toolGate{display:none}
     html[data-tool="score"] .tool-back,
     html[data-tool="generate"] .tool-back{display:inline-flex}
+    /* Streams have no video file to upload — hide the video section and show a manual
+       airtime field instead. (Long-form & short keep the upload.) */
+    html[data-ctype="stream"] #videoSection{display:none !important}
+    #streamLenWrap{display:none}
+    html[data-ctype="stream"] #streamLenWrap{display:block}
     @media(prefers-reduced-motion:reduce){.tg-card{transition:none}}
     /* numbered step headers (1 choose · 2 your short · 3 results) */
     .an-stephead{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:13.5px;font-weight:700;color:var(--ink-soft)}
@@ -1468,6 +1473,16 @@
         <span class="field-help">Leave blank and I'll pick the optimal 1S/2M/2L mix.</span>
       </div>
     </details>
+
+    <div id="streamLenWrap">
+      <label for="streamLenMin">Roughly how long was the stream? <span class="opt">(in minutes)</span></label>
+      <input id="streamLenMin" type="number" min="0" step="15" inputmode="numeric" placeholder="e.g. 180 for a 3-hour stream" />
+      <span class="field-help">Airtime feeds Twitch discovery — longer sessions give concurrent viewers and the browse page time to build.</span>
+    </div>
+    <script>
+      // Stream airtime (minutes) → the hidden #duration field (seconds) the scorer reads.
+      (function(){ var i=document.getElementById('streamLenMin'); if(i) i.addEventListener('input', function(){ var m=parseFloat(i.value); var d=document.getElementById('duration'); if(d) d.value=(isFinite(m)&&m>0)?Math.round(m*60):''; }); })();
+    </script>
 
     <details class="collapse-section" id="videoSection">
       <summary>
@@ -9027,6 +9042,13 @@ function renderVideoVerdict(v){
     var ql=document.getElementById('quickContextLabel'); if(ql) ql.textContent = "What's the "+noun+" about?";
     var tsl=document.getElementById('typeSearchLabelText'); if(tsl) tsl.textContent = 'What kind of '+noun+' is this?';
     var wsl=document.getElementById('wizStepLabel'); if(wsl) wsl.textContent = 'Tell me about your '+noun+' — essentials only, the rest is tucked away';
+    // Reflect the format on <html> so CSS can swap format-specific UI (e.g. hide the video
+    // upload for streams — there is no file to add — and show a manual airtime field instead).
+    document.documentElement.setAttribute('data-ctype', ct);
+    var fb=document.getElementById('fetchBtn'); if(fb) fb.textContent = '✨ Optimize my '+noun;
+    // Entering stream: drive #duration from the manual airtime field (clears any value a
+    // previously uploaded short/long video had auto-filled, so the stream score is clean).
+    if(ct==='stream'){ var _sl=document.getElementById('streamLenMin'), _dd=document.getElementById('duration'); if(_dd) _dd.value=(_sl && parseFloat(_sl.value)>0)?Math.round(parseFloat(_sl.value)*60):''; }
     document.getElementById('optOut').innerHTML = '';
     positionCard();
   }
